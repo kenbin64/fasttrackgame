@@ -1,0 +1,28 @@
+# Systemd service file for DimensionOS
+# Place this in /etc/systemd/system/dimensionos.service
+# Then run:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable dimensionos
+#   sudo systemctl start dimensionos
+
+[Unit]
+Description=DimensionOS - The Dimensional Operating System
+After=network.target
+
+[Service]
+Type=notify
+User=www-data
+Group=www-data
+WorkingDirectory=/path/to/butterflyfx/dimensionOS
+Environment="PATH=/path/to/butterflyfx/.venv/bin"
+ExecStart=/path/to/butterflyfx/.venv/bin/gunicorn -c gunicorn_config.py app:app
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
