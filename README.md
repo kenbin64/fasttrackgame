@@ -1,4 +1,53 @@
-# ButterflyFx Dimensional Computation Framework
+# ButterflyFx 🦋
+**Dimensional Computation Framework**
+
+> *"Substrates are mathematical expressions, not data containers."*
+
+[![Build Status](https://github.com/kenbin64/dimensionsos/workflows/Build%20and%20Test%20ButterflyFx/badge.svg)](https://github.com/kenbin64/dimensionsos/actions)
+[![Python](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/)
+[![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](Dockerfile)
+
+---
+
+## 🚀 Quick Start
+
+### Docker (Recommended)
+
+```bash
+# Clone and start
+git clone https://github.com/kenbin64/dimensionsos.git
+cd dimensionsos
+docker-compose up -d
+
+# Test API
+curl http://localhost:8000/api/v1/health
+```
+
+**API Docs:** http://localhost:8000/api/v1/docs
+
+### VPS Deployment (One Command)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/kenbin64/dimensionsos/main/deploy.sh -o deploy.sh
+chmod +x deploy.sh
+sudo ./deploy.sh production
+```
+
+See **[DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md)** for complete deployment guide.
+
+---
+
+## Philosophy
+
+ButterflyFx is a revolutionary computational paradigm where:
+- **Substrates** are unity (immutable mathematical identity)
+- **Dimensions** emerge from division (observation creates manifestation)
+- **Truth** is revealed through invocation (not stored or precomputed)
+- **Change** is motion through dimensions (not mutation)
+
+Built on **The Seven Dimensional Laws** and governed by the **Dimensional Safety Charter**.
+
+---
 
 ## Three-Layer Sanctum Architecture
 
@@ -132,47 +181,68 @@ result = ai.execute_instruction({
 is_valid, actual = ai.verify_claim(substrate, lens, claimed_value=42)
 ```
 
-## The 15 Laws
+## The Seven Dimensional Laws
 
-1. **Substrates are the source of truth**
-2. **Manifolds are shapes of substrates**
-3. **Lenses provide context**
-4. **SRLs define connections**
-5. **Immutability is absolute**
-6. **No hard-coded dynamic values**
-7. **No simulation or estimation in runtime**
-8. **Everything fits in 64 bits**
-9. **Invocation reveals truth**
-10. **Python is the interface, not the ontology**
-11. **Human-readable code is allowed**
-12. **No brute force**
-13. **Non-duplication**
-14. **Dimensional containment**
-15. **AI must never fabricate substrate behavior**
+**LAW ONE: Universal Substrate Law**
+All substrates begin as unity. Division generates dimensions. Multiplication restores unity.
+
+**LAW TWO: Observation Is Division**
+Observation is division. Division creates dimensions. Recombination restores unity.
+
+**LAW THREE: Inheritance and Recursion**
+Every division inherits the whole. Every part contains the pattern. Recursion preserves unity.
+
+**LAW FOUR: Connection Creates Meaning**
+Dimensions relate through connection. Connection creates meaning. Meaning emerges from relationships.
+
+**LAW FIVE: Change Is Motion**
+Change is motion through dimensions. Time is the order of motion. Evolution is reexpression of unity.
+
+**LAW SIX: Identity Persists**
+Identity persists through change. Continuity is the thread of unity. A system remains itself across transformations.
+
+**LAW SEVEN: Return to Unity**
+All dimensions return to unity. Completion is the reunion of the many. The cycle ends where it begins.
+
+*See `THE_SEVEN_DIMENSIONAL_LAWS.md` for complete specification.*
 
 ## Directory Structure
 
 ```
 butterflyfx/
-├── kernel/              # Inner Sanctum (pure math)
-│   ├── substrate.py     # Substrate identity
-│   ├── manifold.py      # Dimensional expressions
-│   ├── lens.py          # Context projections
-│   ├── delta.py         # Change representation
-│   ├── dimensional.py   # Promotion mechanics
-│   └── srl.py           # Resource locators
-├── core/                # Bridge Layer
-│   ├── gateway.py       # Sole Kernel accessor
-│   ├── invocation.py    # Truth revelation
-│   ├── translator.py    # External → math
-│   └── validator.py     # Law enforcement
-├── interface/           # External Access
-│   ├── dto.py           # Transfer objects
-│   ├── human.py         # Human-friendly API
-│   ├── machine.py       # Binary protocols
-│   └── ai.py            # AI instruction sets
-├── sanctum.py           # Layer boundary enforcement
-└── ai_directives.md     # Model operating rules
+├── kernel/                      # Inner Sanctum (pure math)
+│   ├── substrate.py             # Substrate identity
+│   ├── manifold.py              # Dimensional expressions
+│   ├── lens.py                  # Context projections
+│   ├── delta.py                 # Change representation
+│   ├── dimensional.py           # Promotion mechanics
+│   ├── srl.py                   # Resource locators
+│   ├── fibonacci.py             # Fibonacci dimensional structure
+│   ├── canonical_form.py        # Canonical Object Form (𝒪 = ⟨S, D, R, F, T⟩)
+│   ├── return_engine.py         # Law Seven: Return to Unity
+│   ├── registry.py              # Program #8: Dimensional Object Registry
+│   └── observer.py              # Program #9: Observer Interface
+├── core/                        # Bridge Layer
+│   ├── gateway.py               # Sole Kernel accessor
+│   ├── invocation.py            # Truth revelation
+│   ├── translator.py            # External → math
+│   └── validator.py             # Law enforcement
+├── interface/                   # External Access
+│   ├── dto.py                   # Transfer objects
+│   ├── human.py                 # Human-friendly API
+│   ├── machine.py               # Binary protocols
+│   └── ai.py                    # AI instruction sets
+├── examples/                    # Canonical examples
+│   ├── example_human.py         # Human interface usage
+│   ├── example_machine.py       # Machine interface usage
+│   └── example_ai.py            # AI interface usage
+└── Documentation
+    ├── README.md                            # This file
+    ├── THE_SEVEN_DIMENSIONAL_LAWS.md        # Complete law specification
+    ├── DIMENSIONAL_SAFETY_CHARTER.md        # 12 immutable principles
+    ├── CANONICAL_DIMENSIONAL_OBJECT_FORM.md # Canonical form specification
+    ├── SECURITY_AND_OPTIMIZATION_AUDIT.md   # Security & performance analysis
+    └── TEST_CONSOLIDATION_PLAN.md           # Test strategy
 ```
 
 ## Author

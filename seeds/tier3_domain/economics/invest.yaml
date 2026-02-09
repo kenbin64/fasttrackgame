@@ -1,0 +1,213 @@
+name: INVEST
+category: ECONOMIC_ACTION
+domain: economics
+
+definition: Allocate resources (money, time, effort) with the expectation of future benefit or return
+
+usage:
+  - "Financial investment: invest money in stocks, bonds, real estate"
+  - "Time investment: invest time in learning, relationships, health"
+  - "Effort investment: invest effort in projects, skills, goals"
+  - "Emotional investment: invest emotionally in relationships, causes"
+  - "Strategic investment: invest in infrastructure, R&D, capabilities"
+  - "Portfolio diversification: invest across multiple assets"
+  - "Long-term vs short-term: invest for retirement vs quick gains"
+  - "Risk management: invest with understanding of risk/reward"
+
+meaning: |
+  Investment is the act of sacrificing present consumption for future benefit.
+  It is fundamentally about TIME and TRANSFORMATION.
+  
+  To invest is to:
+  - DEFER: Give up immediate gratification
+  - TRUST: Believe in future value creation
+  - RISK: Accept uncertainty and potential loss
+  - GROW: Enable compound growth over time
+  
+  Investment operates on multiple dimensions:
+  - FINANCIAL: Money → More money
+  - TEMPORAL: Time → Skills/Knowledge
+  - SOCIAL: Relationships → Trust/Network
+  - PHYSICAL: Health → Longevity/Capability
+  - INTELLECTUAL: Learning → Understanding/Wisdom
+  
+  The fundamental equation of investment:
+  Present Value + Time + Growth Rate = Future Value
+  
+  In DimensionOS, investment is a dimensional transformation that creates
+  DEPENDENCY relationships (future depends on present) and
+  LINEAGE relationships (future value inherits from present value).
+  
+  Investment embodies Law Five: "Change Is Motion" - moving resources through
+  the time dimension to create value in future dimensions.
+
+etymology: |
+  From Latin "investire" (to clothe, to surround)
+  From "in-" (in, on) + "vestire" (to clothe, dress)
+  
+  Originally meant "to clothe with authority or office"
+  Financial meaning emerged in 1610s: "to lay out money with expectation of profit"
+  
+  The metaphor: wrapping your resources in something that will grow them.
+
+expression: |
+  lambda principal, rate, time:
+    principal * (1 + rate) ** time
+
+signature: "(Principal: float, Rate: float, Time: float) -> float"
+return_type: float
+
+relationships:
+  - type: CREATES
+    target: ASSET
+    description: "Investment creates assets"
+  
+  - type: CREATES
+    target: PORTFOLIO
+    description: "Multiple investments create portfolio"
+  
+  - type: REQUIRES
+    target: CAPITAL
+    description: "Investment requires capital (money, time, effort)"
+  
+  - type: REQUIRES
+    target: RISK
+    description: "Investment involves risk"
+  
+  - type: ENABLES
+    target: GROWTH
+    description: "Investment enables growth"
+  
+  - type: ENABLES
+    target: COMPOUND_INTEREST
+    description: "Investment enables compounding"
+  
+  - type: RELATED
+    target: STOCK_MARKET
+    description: "Stock market is investment venue"
+  
+  - type: RELATED
+    target: RETURN
+    description: "Return is investment outcome"
+  
+  - type: OPPOSITE
+    target: CONSUME
+    description: "Consumption is opposite of investment"
+  
+  - type: DEPENDENCY
+    target: TIME
+    description: "Investment depends on time"
+
+synonyms:
+  - allocate
+  - commit
+  - dedicate
+  - deploy
+  - place
+  - put_in
+  - stake
+
+antonyms:
+  - consume
+  - spend
+  - waste
+  - divest
+  - withdraw
+
+related:
+  - STOCK_MARKET
+  - PORTFOLIO
+  - ASSET
+  - RETURN
+  - RISK
+  - CAPITAL
+  - GROWTH
+  - COMPOUND_INTEREST
+  - DIVERSIFICATION
+  - TIME
+  - VALUE
+
+examples:
+  - context: simple_interest
+    input:
+      principal: 1000
+      rate: 0.05
+      time: 10
+    output: 1500
+    formula: "P + (P × r × t)"
+    description: "Simple interest: $1000 at 5% for 10 years"
+  
+  - context: compound_interest
+    input:
+      principal: 1000
+      rate: 0.05
+      time: 10
+    output: 1628.89
+    formula: "P × (1 + r)^t"
+    description: "Compound interest: $1000 at 5% for 10 years"
+  
+  - context: time_investment
+    input:
+      hours: 10000
+      skill: "programming"
+    output: "expert_level"
+    description: "10,000 hour rule: invest time to master skill"
+  
+  - context: portfolio_diversification
+    input:
+      total: 10000
+      allocations: {"stocks": 0.6, "bonds": 0.3, "cash": 0.1}
+    output: {"stocks": 6000, "bonds": 3000, "cash": 1000}
+    description: "Diversified portfolio allocation"
+
+counterexamples:
+  - wrong: "Investment guarantees returns"
+    correct: "Investment involves risk; returns are not guaranteed"
+    explanation: "Higher returns typically require higher risk"
+  
+  - wrong: "Only money can be invested"
+    correct: "Time, effort, attention, relationships can all be invested"
+    explanation: "Investment is about resource allocation, not just money"
+  
+  - wrong: "Short-term speculation is investment"
+    correct: "Investment typically implies longer time horizons"
+    explanation: "Speculation and investment differ in time frame and risk"
+
+metadata:
+  time_horizon: "typically > 1 year"
+  risk_levels: ["low", "medium", "high"]
+  asset_classes: ["stocks", "bonds", "real_estate", "commodities", "cash"]
+  strategies: ["value", "growth", "income", "index", "active", "passive"]
+  key_metrics: ["ROI", "IRR", "NPV", "Sharpe_ratio"]
+
+tags:
+  - economics
+  - finance
+  - investment
+  - growth
+  - capital
+  - risk
+  - return
+  - time
+
+extensions:
+  - STOCK_INVESTMENT
+  - BOND_INVESTMENT
+  - REAL_ESTATE_INVESTMENT
+  - TIME_INVESTMENT
+  - PORTFOLIO_MANAGEMENT
+  - DIVERSIFICATION
+
+compositions:
+  - CAPITAL
+  - TIME
+  - RISK
+  - RETURN
+  - GROWTH
+
+transformations:
+  - ASSET
+  - PORTFOLIO
+  - WEALTH
+  - RETURN
+

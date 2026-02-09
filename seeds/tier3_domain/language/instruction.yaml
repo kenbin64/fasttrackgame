@@ -1,0 +1,207 @@
+name: INSTRUCTION
+category: LANGUAGE_ELEMENT
+domain: language
+
+definition: A directive or command that specifies an action to be performed or a procedure to be followed
+
+usage:
+  - "Computer instructions: CPU executes machine instructions"
+  - "Programming instructions: code statements that perform operations"
+  - "Human instructions: directions for completing a task"
+  - "Assembly instructions: step-by-step assembly guide"
+  - "Cooking instructions: recipe steps"
+  - "Safety instructions: warnings and procedures"
+  - "Educational instructions: teaching directives"
+  - "Legal instructions: court instructions to jury"
+
+meaning: |
+  An instruction is a COMMAND that bridges INTENTION and ACTION.
+  It is the linguistic form of CAUSATION.
+  
+  Instructions operate on multiple levels:
+  - IMPERATIVE: Direct command ("Do this")
+  - DECLARATIVE: Statement of procedure ("This is how")
+  - CONDITIONAL: Contingent action ("If X, then do Y")
+  - ITERATIVE: Repeated action ("Do this N times")
+  
+  Instructions create DEPENDENCY relationships:
+  - Action depends on instruction
+  - Outcome depends on correct execution
+  - Understanding depends on clarity
+  
+  In DimensionOS, instructions are dimensional transformations:
+  - INPUT: Current state
+  - INSTRUCTION: Transformation function
+  - OUTPUT: New state
+  
+  Instructions embody:
+  - Law Five: "Change Is Motion" - instructions cause motion through state space
+  - The Redemption Equation: Good instructions are reversible (undo/redo)
+  
+  The quality of an instruction is measured by:
+  - CLARITY: Can it be understood?
+  - COMPLETENESS: Does it specify all necessary steps?
+  - CORRECTNESS: Does it produce the intended result?
+  - EFFICIENCY: Does it minimize resources?
+  - ROBUSTNESS: Does it handle edge cases?
+
+etymology: |
+  From Latin "instructio" (arrangement, instruction)
+  From "instruere" (to build in, set up, arrange, furnish, equip, teach)
+  From "in-" (in, on) + "struere" (to pile up, build)
+  
+  Literally: "to build into" - building knowledge or capability into someone/something.
+
+expression: |
+  lambda state, instruction:
+    instruction.execute(state)
+
+signature: "(State, Instruction) -> State"
+return_type: State
+
+relationships:
+  - type: CREATES
+    target: ACTION
+    description: "Instructions create actions"
+  
+  - type: CREATES
+    target: TRANSFORMATION
+    description: "Instructions create state transformations"
+  
+  - type: REQUIRES
+    target: CLARITY
+    description: "Instructions require clarity"
+  
+  - type: REQUIRES
+    target: EXECUTOR
+    description: "Instructions require something to execute them"
+  
+  - type: DEPENDENCY
+    target: LANGUAGE
+    description: "Instructions depend on language"
+  
+  - type: RELATED
+    target: COMMAND
+    description: "Command is a type of instruction"
+  
+  - type: RELATED
+    target: ALGORITHM
+    description: "Algorithm is a sequence of instructions"
+  
+  - type: RELATED
+    target: PROCEDURE
+    description: "Procedure is a set of instructions"
+  
+  - type: PART_OF
+    target: MANUAL
+    description: "Instructions are part of manuals"
+  
+  - type: PART_OF
+    target: DOCUMENTATION
+    description: "Instructions are part of documentation"
+
+synonyms:
+  - command
+  - directive
+  - order
+  - direction
+  - guideline
+  - procedure
+  - step
+
+antonyms:
+  - question
+  - suggestion
+  - option
+
+related:
+  - COMMAND
+  - DIRECTIVE
+  - PROCEDURE
+  - ALGORITHM
+  - MANUAL
+  - GUIDE
+  - TUTORIAL
+  - DOCUMENTATION
+  - ACTION
+  - EXECUTE
+  - PERFORM
+
+examples:
+  - context: simple_instruction
+    input:
+      instruction: "Add 5 to the value"
+      state: 10
+    output: 15
+    description: "Simple arithmetic instruction"
+  
+  - context: conditional_instruction
+    input:
+      instruction: "If value > 10, multiply by 2, else add 5"
+      state: 12
+    output: 24
+    description: "Conditional instruction"
+  
+  - context: loop_instruction
+    input:
+      instruction: "Repeat 3 times: add 1"
+      state: 0
+    output: 3
+    description: "Iterative instruction"
+  
+  - context: cooking_instruction
+    input:
+      instruction: "Preheat oven to 350°F"
+      state: "oven_off"
+    output: "oven_at_350F"
+    description: "Real-world instruction"
+
+counterexamples:
+  - wrong: "Vague instruction: 'Make it better'"
+    correct: "Clear instruction: 'Increase font size to 14pt'"
+    explanation: "Instructions must be specific and actionable"
+  
+  - wrong: "Incomplete instruction: 'Mix ingredients'"
+    correct: "Complete instruction: 'Mix flour, sugar, and eggs for 2 minutes'"
+    explanation: "Instructions must specify all necessary details"
+  
+  - wrong: "Ambiguous instruction: 'Turn it on'"
+    correct: "Unambiguous instruction: 'Press the power button on the left side'"
+    explanation: "Instructions must eliminate ambiguity"
+
+metadata:
+  types: ["imperative", "declarative", "conditional", "iterative"]
+  domains: ["programming", "cooking", "assembly", "education", "legal"]
+  properties: ["clarity", "completeness", "correctness", "efficiency", "robustness"]
+  execution_models: ["sequential", "parallel", "conditional", "iterative"]
+
+tags:
+  - language
+  - command
+  - directive
+  - procedure
+  - action
+  - execution
+  - programming
+
+extensions:
+  - INSTRUCTIONS
+  - MANUAL
+  - GUIDE
+  - TUTORIAL
+  - DOCUMENTATION
+  - ALGORITHM
+  - PROCEDURE
+
+compositions:
+  - COMMAND
+  - ACTION
+  - STATE
+  - TRANSFORMATION
+
+transformations:
+  - EXECUTION
+  - ACTION
+  - RESULT
+  - STATE_CHANGE
+

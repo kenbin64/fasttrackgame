@@ -1,0 +1,214 @@
+name: SEE
+category: SENSORY_PERCEPTION
+domain: human_experience
+
+definition: Perceive visually through light entering the eye and being processed by the brain
+
+usage:
+  - "Observe distant objects: see the horizon"
+  - "Detect motion: see movement"
+  - "Recognize patterns: see faces, shapes, text"
+  - "Navigate space: see obstacles and paths"
+  - "Understand context: see the big picture"
+  - "Perceive color: see red, blue, green"
+  - "Judge distance: see how far away something is"
+  - "Read information: see words and symbols"
+  - "Witness events: see what happens"
+  - "Metaphorical understanding: I see what you mean"
+
+meaning: |
+  Vision is the primary sense for spatial understanding and pattern recognition.
+  
+  "To see" operates on multiple levels:
+  - LITERAL: Physical sight through the eyes
+  - COGNITIVE: Understanding and comprehension ("I see your point")
+  - AWARENESS: Noticing and attention ("Do you see the problem?")
+  - IMAGINATION: Mental visualization ("I can see it in my mind")
+  
+  "As far as I could see" represents the fundamental limit of perception and knowledge.
+  It acknowledges that our understanding is bounded by our sensory and cognitive horizons.
+  
+  In DimensionOS, vision is a dimensional operation that maps from the observed dimension
+  to the observer's perceptual dimension. The relationship between observer and observed
+  is mediated by distance, light, and attention.
+  
+  Vision creates OBSERVATION relationships, which by Law Two, are acts of division.
+  To see something is to separate it from the background, to give it dimensional identity.
+
+etymology: |
+  Old English "seon" (to see, look, behold)
+  From Proto-Germanic "*sehwan" (to see)
+  From Proto-Indo-European "*sekw-" (to see, to follow)
+  Related to Latin "sequi" (to follow) - you follow with your eyes
+
+expression: |
+  lambda observer, target, distance: 
+    distance <= observer.vision_range and 
+    not obscured(observer, target) and
+    sufficient_light(observer, target)
+
+signature: "(Observer, Target, Distance) -> bool"
+return_type: bool
+
+relationships:
+  - type: DEPENDENCY
+    target: VISION
+    description: "Requires the capacity for vision"
+  
+  - type: DEPENDENCY
+    target: LIGHT
+    description: "Requires light to see"
+  
+  - type: DEPENDENCY
+    target: EYE
+    description: "Requires eyes (or visual sensors)"
+  
+  - type: ATTRIBUTE
+    target: DISTANCE
+    description: "Limited by distance (horizon)"
+  
+  - type: ATTRIBUTE
+    target: CLARITY
+    description: "Affected by clarity/focus"
+  
+  - type: CREATES
+    target: OBSERVATION
+    description: "Seeing creates observation relationship"
+  
+  - type: RELATED
+    target: LOOK
+    description: "Looking is directed seeing"
+  
+  - type: RELATED
+    target: WATCH
+    description: "Watching is sustained seeing"
+  
+  - type: RELATED
+    target: OBSERVE
+    description: "Observing is attentive seeing"
+
+synonyms:
+  - view
+  - look
+  - watch
+  - observe
+  - perceive
+  - behold
+  - witness
+  - glimpse
+  - spot
+  - notice
+  - discern
+
+antonyms:
+  - blind
+  - overlook
+  - miss
+  - ignore
+  - unseen
+
+related:
+  - VISION
+  - LOOK
+  - WATCH
+  - OBSERVE
+  - GLANCE
+  - STARE
+  - GAZE
+  - PEER
+  - VIEW
+  - VIEWPOINT
+  - PERSPECTIVE
+  - HORIZON
+  - DISTANCE
+  - VISIBLE
+  - INVISIBLE
+  - LIGHT
+  - EYE
+  - FOCUS
+  - CLARITY
+
+examples:
+  - context: within_visual_range
+    input:
+      observer_range: 100
+      target_distance: 50
+      obscured: false
+    output: true
+    description: "Target within visual range and not obscured"
+  
+  - context: beyond_horizon
+    input:
+      observer_range: 100
+      target_distance: 150
+      obscured: false
+    output: false
+    description: "Target beyond visual range (as far as I could see)"
+  
+  - context: obscured_target
+    input:
+      observer_range: 100
+      target_distance: 50
+      obscured: true
+    output: false
+    description: "Target within range but blocked by obstacle"
+  
+  - context: metaphorical_understanding
+    input:
+      statement: "I see what you mean"
+    output: "understanding achieved"
+    description: "Cognitive comprehension, not literal vision"
+
+counterexamples:
+  - wrong: "Seeing is passive reception"
+    correct: "Seeing is active construction by the brain"
+    explanation: "Vision involves interpretation, pattern recognition, and prediction"
+  
+  - wrong: "We see reality as it is"
+    correct: "We see a constructed model based on sensory input"
+    explanation: "The brain fills in gaps, corrects errors, and interprets ambiguity"
+  
+  - wrong: "Seeing is just about eyes"
+    correct: "Seeing involves eyes, optic nerves, and visual cortex"
+    explanation: "Vision is a complex brain process, not just optical"
+
+metadata:
+  sense_type: visual
+  primary_organ: eye
+  brain_region: visual_cortex
+  wavelength_range: "380-700 nanometers (visible light)"
+  processing_time: "~13 milliseconds"
+  field_of_view: "~210 degrees horizontal, ~150 degrees vertical"
+  resolution: "~576 megapixels (human eye)"
+
+tags:
+  - perception
+  - vision
+  - sense
+  - spatial
+  - awareness
+  - observation
+  - human_experience
+
+extensions:
+  - LOOK
+  - WATCH
+  - OBSERVE
+  - GLANCE
+  - STARE
+  - GAZE
+  - PEER
+  - GLIMPSE
+
+compositions:
+  - LIGHT
+  - DISTANCE
+  - FOCUS
+  - ATTENTION
+
+transformations:
+  - OBSERVATION
+  - UNDERSTANDING
+  - AWARENESS
+  - RECOGNITION
+

@@ -22,10 +22,66 @@ from .invocation import Invocator
 from .translator import Translator
 from .validator import Validator
 from .gateway import KernelGateway
+from .srl import (
+    # Connection device
+    SRL,
+    SRLConnection,
+    SRLResult,
+
+    # Protocols
+    Protocol,
+    FileProtocol,
+    HTTPProtocol,
+    SocketProtocol,
+
+    # Credentials
+    Credentials,
+    APIKey,
+    BasicAuth,
+    TokenAuth,
+
+    # Errors
+    SRLError,
+    ConnectionError,
+    AuthenticationError,
+
+    # Factory functions
+    file_srl,
+    http_srl,
+    socket_srl,
+)
 
 __all__ = [
+    # Core components
     'Invocator',
-    'Translator', 
+    'Translator',
     'Validator',
     'KernelGateway',
+
+    # SRL - Connection device
+    'SRL',
+    'SRLConnection',
+    'SRLResult',
+
+    # Protocols
+    'Protocol',
+    'FileProtocol',
+    'HTTPProtocol',
+    'SocketProtocol',
+
+    # Credentials
+    'Credentials',
+    'APIKey',
+    'BasicAuth',
+    'TokenAuth',
+
+    # Errors
+    'SRLError',
+    'ConnectionError',
+    'AuthenticationError',
+
+    # Factory functions
+    'file_srl',
+    'http_srl',
+    'socket_srl',
 ]

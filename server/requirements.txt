@@ -1,0 +1,21 @@
+# ButterflyFx Server Dependencies
+
+# Web Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+
+# CORS
+python-multipart==0.0.6
+
+# Optional: Authentication (for future)
+# python-jose[cryptography]==3.3.0
+# passlib[bcrypt]==1.7.4
+
+# Optional: Rate Limiting (for future)
+# slowapi==0.1.9
+
+# Testing
+httpx==0.26.0
+pytest-asyncio==0.23.3
+

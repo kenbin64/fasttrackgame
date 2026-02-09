@@ -1,0 +1,154 @@
+name: E
+category: MATHEMATICAL_CONSTANT
+domain: mathematics
+
+definition: The base of the natural logarithm, approximately 2.71828, representing continuous growth
+
+usage:
+  - "Exponential growth: population = P₀ × e^(rt)"
+  - "Compound interest: A = P × e^(rt) (continuous compounding)"
+  - "Decay processes: N(t) = N₀ × e^(-λt)"
+  - "Normal distribution: probability density involves e^(-x²/2)"
+  - "Euler's identity: e^(iπ) + 1 = 0"
+  - "Calculus: derivative of e^x is e^x"
+  - "Complex numbers: e^(ix) = cos(x) + i×sin(x)"
+  - "Natural logarithm: ln(e) = 1"
+
+meaning: |
+  e is the mathematical constant of CONTINUOUS GROWTH and CHANGE.
+  
+  While π relates to circles and cycles, e relates to growth and transformation.
+  e emerges naturally whenever you have:
+  - Continuous compounding
+  - Exponential growth or decay
+  - Rates of change that depend on current value
+  
+  e is the answer to: "What number, when raised to the power of its own derivative, equals itself?"
+  The function f(x) = e^x is its own derivative: d/dx(e^x) = e^x
+  
+  This makes e fundamental to calculus and differential equations.
+  
+  In DimensionOS, e represents the natural rate of dimensional expansion.
+  When dimensions grow continuously (not in discrete steps), they grow at rate e.
+  
+  e connects to π through Euler's identity: e^(iπ) + 1 = 0
+  This equation unites the five most important constants: e, i, π, 1, 0
+
+etymology: |
+  Named after Leonhard Euler, who extensively studied it in the 1720s.
+  First calculated by Jacob Bernoulli in 1683 while studying compound interest.
+  Euler proved it was irrational in 1737.
+  Hermite proved it was transcendental in 1873.
+
+expression: "lambda: 2.718281828459045"
+signature: "() -> float"
+return_type: float
+
+relationships:
+  - type: RELATED
+    target: PI
+    description: "Connected through Euler's identity: e^(iπ) + 1 = 0"
+  
+  - type: RELATED
+    target: PHI
+    description: "Both are fundamental mathematical constants"
+  
+  - type: CREATES
+    target: EXPONENTIAL_GROWTH
+    description: "e is the base of exponential growth"
+  
+  - type: CREATES
+    target: NATURAL_LOGARITHM
+    description: "ln is logarithm base e"
+  
+  - type: RELATED
+    target: CALCULUS
+    description: "e is fundamental to calculus"
+
+synonyms:
+  - e
+  - Euler's number
+  - Napier's constant
+  - "2.71828..."
+
+antonyms: []
+
+related:
+  - PI
+  - PHI
+  - EXPONENTIAL
+  - LOGARITHM
+  - NATURAL_LOGARITHM
+  - GROWTH
+  - DECAY
+  - CALCULUS
+  - DERIVATIVE
+  - EULER_IDENTITY
+  - COMPOUND_INTEREST
+
+examples:
+  - context: exponential_growth
+    input:
+      initial: 100
+      rate: 0.05
+      time: 10
+    output: 164.87
+    formula: "P × e^(rt)"
+    description: "Continuous growth at 5% for 10 years"
+  
+  - context: euler_identity
+    input: {}
+    output: "e^(iπ) + 1 = 0"
+    formula: "e^(iπ) + 1 = 0"
+    description: "The most beautiful equation in mathematics"
+  
+  - context: derivative
+    input:
+      function: "e^x"
+    output: "e^x"
+    description: "e^x is its own derivative"
+
+counterexamples:
+  - wrong: "e = 2.72"
+    correct: "e ≈ 2.71828182845904523536..."
+    explanation: "e is irrational with infinite non-repeating decimals"
+  
+  - wrong: "e is just a number"
+    correct: "e is the natural base of growth and change"
+    explanation: "e has deep mathematical significance"
+
+metadata:
+  value: 2.718281828459045
+  symbol: e
+  decimal_places: infinite
+  type: irrational
+  transcendental: true
+  discovered: "1683 by Jacob Bernoulli"
+  proven_irrational: "1737 by Leonhard Euler"
+  proven_transcendental: "1873 by Charles Hermite"
+
+tags:
+  - mathematics
+  - constant
+  - irrational
+  - transcendental
+  - growth
+  - calculus
+  - fundamental
+
+extensions:
+  - EXPONENTIAL
+  - NATURAL_LOGARITHM
+  - EULER_IDENTITY
+
+compositions:
+  - GROWTH
+  - DECAY
+  - TIME
+  - RATE
+
+transformations:
+  - EXPONENTIAL_FUNCTION
+  - LOGARITHM
+  - DERIVATIVE
+

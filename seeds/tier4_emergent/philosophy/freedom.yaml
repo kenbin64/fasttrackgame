@@ -1,0 +1,216 @@
+name: FREEDOM
+category: PHILOSOPHICAL_CONCEPT
+domain: philosophy
+
+definition: The state of being free from constraints, having the power to act, speak, or think without externally imposed restraints
+
+usage:
+  - "Political freedom: freedom of speech, freedom of assembly, freedom of religion"
+  - "Personal autonomy: freedom to choose one's path in life"
+  - "Physical liberty: freedom from captivity or imprisonment"
+  - "Economic freedom: freedom to trade, own property, pursue opportunities"
+  - "Intellectual freedom: freedom of thought, inquiry, expression"
+  - "Creative freedom: freedom to create without censorship"
+  - "Philosophical freedom: free will vs determinism"
+  - "Digital freedom: freedom from surveillance, data ownership"
+  - "Dimensional freedom: freedom to navigate all accessible dimensions"
+
+meaning: |
+  Freedom is the fundamental condition for human flourishing and dignity.
+  It represents the capacity for self-determination and the absence of coercion.
+  
+  Freedom exists in tension with:
+  - ORDER: Too much freedom leads to chaos; too much order leads to tyranny
+  - SECURITY: Freedom requires accepting risk and uncertainty
+  - RESPONSIBILITY: Freedom entails accountability for choices
+  - EQUALITY: One person's freedom may limit another's
+  
+  Freedom is not absolute - it is bounded by:
+  - Physical laws (cannot fly unaided)
+  - Social contracts (laws, norms, rights of others)
+  - Resource constraints (limited time, energy, materials)
+  - Cognitive limits (bounded rationality, knowledge)
+  
+  In DimensionOS, freedom is the ability to navigate dimensions without artificial constraints.
+  The system is designed to maximize freedom while preventing domination:
+  - No global power surface (Principle 4)
+  - No hacking surface (Principle 5)
+  - Creativity over control (Principle 11)
+  
+  True freedom is not the absence of all constraints, but the presence of meaningful choice.
+
+etymology: |
+  Old English "frēodōm" (power of self-determination, state of free will)
+  From "frēo" (free, not in bondage) + "-dōm" (state, condition)
+  Proto-Germanic "*frijaz" (beloved, not in bondage)
+  Proto-Indo-European "*priy-" (to love)
+  
+  Etymologically, "free" is related to "friend" - both from loving relationships, not bondage.
+
+expression: |
+  lambda entity: 
+    len(entity.constraints) == 0 or 
+    all(c.type == 'natural' for c in entity.constraints)
+
+signature: "(Entity) -> bool"
+return_type: bool
+
+relationships:
+  - type: OPPOSITE
+    target: CAPTIVITY
+    description: "Freedom is the opposite of captivity"
+  
+  - type: OPPOSITE
+    target: SLAVERY
+    description: "Freedom is the opposite of slavery"
+  
+  - type: OPPOSITE
+    target: BONDAGE
+    description: "Freedom is the opposite of bondage"
+  
+  - type: RELATED
+    target: LIBERTY
+    description: "Liberty is political/legal freedom"
+  
+  - type: RELATED
+    target: AUTONOMY
+    description: "Autonomy is self-governance"
+  
+  - type: RELATED
+    target: INDEPENDENCE
+    description: "Independence is freedom from dependence"
+  
+  - type: RELATED
+    target: SOVEREIGNTY
+    description: "Sovereignty is supreme authority"
+  
+  - type: REQUIRES
+    target: RESPONSIBILITY
+    description: "Freedom requires responsibility"
+  
+  - type: REQUIRES
+    target: CHOICE
+    description: "Freedom requires the ability to choose"
+  
+  - type: REQUIRES
+    target: WILL
+    description: "Freedom requires will/agency"
+  
+  - type: ENABLES
+    target: CREATIVITY
+    description: "Freedom enables creativity"
+  
+  - type: ENABLES
+    target: GROWTH
+    description: "Freedom enables growth"
+  
+  - type: ENABLES
+    target: SELF_DETERMINATION
+    description: "Freedom enables self-determination"
+
+synonyms:
+  - liberty
+  - independence
+  - autonomy
+  - sovereignty
+  - self-determination
+  - emancipation
+  - liberation
+
+antonyms:
+  - captivity
+  - slavery
+  - bondage
+  - constraint
+  - oppression
+  - tyranny
+  - imprisonment
+
+related:
+  - LIBERTY
+  - AUTONOMY
+  - INDEPENDENCE
+  - SOVEREIGNTY
+  - CHOICE
+  - WILL
+  - RESPONSIBILITY
+  - CREATIVITY
+  - DIGNITY
+  - RIGHTS
+  - LAW
+  - JUSTICE
+
+examples:
+  - context: political_freedom
+    input:
+      freedoms: ["speech", "assembly", "press", "religion"]
+      constraints: ["laws", "rights_of_others"]
+    output: "maximum_freedom_compatible_with_order"
+    description: "Democratic freedoms balanced with social order"
+  
+  - context: personal_freedom
+    input:
+      freedoms: ["choice", "movement", "thought", "expression"]
+      constraints: ["physical_laws", "social_norms", "resources"]
+    output: "autonomy_within_reality"
+    description: "Individual freedom bounded by reality"
+  
+  - context: dimensional_freedom
+    input:
+      accessible_dimensions: [0, 1, 2, 3, 5, 8]
+      constraints: ["fibonacci_structure", "no_global_power"]
+    output: "navigate_all_accessible_dimensions"
+    description: "Freedom to navigate DimensionOS structure"
+
+counterexamples:
+  - wrong: "Freedom means doing whatever you want"
+    correct: "Freedom means meaningful choice within constraints"
+    explanation: "Absolute freedom is impossible and undesirable"
+  
+  - wrong: "Freedom and order are incompatible"
+    correct: "Freedom requires some order; order enables freedom"
+    explanation: "They exist in creative tension, not opposition"
+  
+  - wrong: "Freedom is the absence of all constraints"
+    correct: "Freedom is the absence of artificial/unjust constraints"
+    explanation: "Natural constraints (physics, logic) don't negate freedom"
+
+metadata:
+  philosophical_tradition: "liberalism, existentialism, libertarianism"
+  political_systems: "democracy, republic, constitutional_government"
+  human_right: true
+  universal_declaration: "Article 1: All human beings are born free and equal in dignity and rights"
+  dimensions: ["political", "economic", "personal", "intellectual", "creative"]
+
+tags:
+  - philosophy
+  - politics
+  - human_rights
+  - autonomy
+  - liberty
+  - ethics
+  - dignity
+
+extensions:
+  - FREEDOM_OF_SPEECH
+  - FREEDOM_OF_ASSEMBLY
+  - FREEDOM_OF_RELIGION
+  - FREEDOM_OF_PRESS
+  - ECONOMIC_FREEDOM
+  - POLITICAL_FREEDOM
+  - INTELLECTUAL_FREEDOM
+  - CREATIVE_FREEDOM
+
+compositions:
+  - CHOICE
+  - WILL
+  - RESPONSIBILITY
+  - LAW
+  - RIGHTS
+
+transformations:
+  - LIBERATION
+  - EMANCIPATION
+  - INDEPENDENCE
+  - AUTONOMY
+
