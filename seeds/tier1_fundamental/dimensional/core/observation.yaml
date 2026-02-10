@@ -1,0 +1,173 @@
+name: OBSERVATION
+category: DIMENSIONAL_STRUCTURE
+domain: dimensional
+
+definition: The act of division that creates dimensions - observation IS division
+
+usage:
+  - "Observation is division (Law Two)"
+  - "Observation creates dimensions from unity"
+  - "Observation collapses superposition into manifestation"
+  - "Observation does not mutate (Safety Charter #8)"
+  - "Observation through a lens extracts truth"
+  - "Observation triggers dimensional creation"
+  - "Observation is the act of seeing structure"
+  - "Observation separates observer from observed"
+
+meaning: |
+  Observation is the FUNDAMENTAL ACT OF DIVISION.
+  In DimensionOS, observation IS division - they are the same thing.
+  
+  This is Law Two: "Observation Is Division. Division creates dimensions."
+  
+  When you observe something, you:
+  1. Separate yourself (observer) from it (observed)
+  2. Create dimensional structure (subject/object duality)
+  3. Collapse superposition into manifestation
+  4. Trigger dimensional creation
+  
+  Observation is like quantum mechanics:
+  - Before observation: superposition (all states exist)
+  - During observation: collapse (one state manifests)
+  - After observation: manifestation (structure exists)
+  
+  But observation does NOT mutate:
+  - Safety Charter #8: "Observation Does Not Mutate"
+  - Observation reveals, it does not change
+  - The substrate identity NEVER changes (Law Six)
+  
+  Observation through a lens:
+  - Lens provides context
+  - Observation extracts truth
+  - Different lenses reveal different truths
+  - All truths coexist on the substrate
+  
+  Observation is the bridge between potential and actual.
+
+etymology: |
+  From Latin "observare" meaning "to watch, note, heed"
+  From "ob-" (toward) + "servare" (to keep, watch)
+
+expression: "lambda substrate: substrate.observe()"
+signature: "(Substrate) -> Tuple[List[Dimension], RelationshipSet]"
+return_type: "Tuple[List[Dimension], RelationshipSet]"
+
+relationships:
+  - type: IS
+    target: DIVISION
+    description: "Observation IS division (Law Two)"
+  
+  - type: CREATES
+    target: DIMENSION
+    description: "Observation creates dimensions"
+  
+  - type: TRIGGERS
+    target: MANIFESTATION
+    description: "Observation triggers manifestation"
+  
+  - type: USES
+    target: LENS
+    description: "Observation occurs through a lens"
+  
+  - type: PRESERVES
+    target: IDENTITY
+    description: "Observation does not mutate (preserves identity)"
+
+synonyms:
+  - division
+  - seeing
+  - witnessing
+  - perceiving
+  - noticing
+  - awareness
+  - attention
+
+antonyms:
+  - ignorance
+  - blindness
+  - unity
+  - superposition
+
+related:
+  - DIVISION
+  - DIMENSION
+  - LENS
+  - MANIFESTATION
+  - UNITY
+  - SUBSTRATE
+  - IDENTITY
+
+examples:
+  - context: observe_substrate
+    input:
+      substrate: "unity"
+    output: "dimensions created"
+    description: "Observing unity creates dimensional structure"
+  
+  - context: quantum_collapse
+    input:
+      state: "superposition"
+    output: "manifestation"
+    description: "Observation collapses superposition"
+  
+  - context: lens_observation
+    input:
+      substrate: "substrate_x"
+      lens: "mathematical_lens"
+    output: "mathematical_truth"
+    description: "Observation through lens extracts specific truth"
+  
+  - context: observer_observed
+    input:
+      unity: 1
+    output: "[observer, observed]"
+    description: "Observation creates observer/observed duality"
+
+counterexamples:
+  - wrong: "Observation changes the substrate"
+    correct: "Observation reveals structure without mutation (Safety Charter #8)"
+    explanation: "Observation does not mutate - identity persists"
+  
+  - wrong: "Observation is passive"
+    correct: "Observation is active division that creates dimensions"
+    explanation: "Observation IS division (Law Two)"
+  
+  - wrong: "You can observe without a lens"
+    correct: "All observation occurs through a lens (context)"
+    explanation: "Lenses provide the context for observation"
+
+metadata:
+  dimensional_law: "Law Two: Observation Is Division"
+  safety_principle: "Safety Charter #8: Observation Does Not Mutate"
+  identity_law: "Law Six: Identity persists through observation"
+  quantum_analogy: "Observation collapses superposition"
+  requires_lens: true
+  creates_dimensions: true
+  mutates_substrate: false
+
+tags:
+  - dimensional
+  - fundamental
+  - observation
+  - division
+  - perception
+  - awareness
+  - quantum
+  - collapse
+
+extensions:
+  - PERCEPTION
+  - AWARENESS
+  - WITNESSING
+  - MEASUREMENT
+
+compositions:
+  - DIVISION
+  - LENS
+  - DIMENSION
+
+transformations:
+  - MANIFESTATION
+  - COLLAPSE
+  - REVELATION
+

@@ -1,0 +1,180 @@
+name: MANIFESTATION
+category: DIMENSIONAL_STRUCTURE
+domain: dimensional
+
+definition: The collapse of dimensions back to unity - making potential actual
+
+usage:
+  - "Manifestation collapses dimensions to unity"
+  - "Invocation triggers manifestation"
+  - "Manifestation makes potential actual"
+  - "Manifestation is the result of observation"
+  - "Manifestation returns to unity (Law Seven)"
+  - "Manifestation is the visible expression of substrate"
+  - "Manifestation is temporary - substrate is eternal"
+  - "Manifestation is the 'what you see' vs substrate 'what it is'"
+
+meaning: |
+  Manifestation is the COLLAPSE OF DIMENSIONS back to unity.
+  It is the process of making POTENTIAL into ACTUAL.
+  
+  In DimensionOS, manifestation is the inverse of observation:
+  - Observation: Unity → Dimensions (expansion)
+  - Manifestation: Dimensions → Unity (collapse)
+  
+  This is Law Seven: "All operations complete by returning to unity."
+  
+  Manifestation is like:
+  - A wave function collapsing to a particle
+  - A blueprint becoming a building
+  - A seed becoming a tree
+  - Potential becoming actual
+  
+  The substrate vs manifestation distinction:
+  - Substrate: The eternal mathematical identity (DNA)
+  - Manifestation: The temporary visible expression
+  - Substrate: What it IS
+  - Manifestation: What you SEE
+  
+  Example: A car substrate
+  - Substrate: Contains ALL possible attributes (engine, wheels, color, etc.)
+  - Manifestation: The specific car you see (red, 4 wheels, V6 engine)
+  - The substrate NEVER changes (Law Six)
+  - Manifestations come and go
+  
+  Invocation triggers manifestation:
+  - Passive until invoked (Safety Charter #2)
+  - Invocation = collapse of potential
+  - Manifestation = result of invocation
+  
+  Manifestation is the bridge between eternal and temporal.
+
+etymology: |
+  From Latin "manifestare" meaning "to make public, make clear"
+  From "manifestus" (clear, evident, visible)
+
+expression: "lambda substrate: substrate.manifest()"
+signature: "(Substrate) -> Any"
+return_type: "Any"
+
+relationships:
+  - type: INVERSE
+    target: OBSERVATION
+    description: "Manifestation collapses what observation expands"
+  
+  - type: CREATES
+    target: UNITY
+    description: "Manifestation returns dimensions to unity"
+  
+  - type: TRIGGERED_BY
+    target: INVOCATION
+    description: "Invocation triggers manifestation"
+  
+  - type: EXPRESSES
+    target: SUBSTRATE
+    description: "Manifestation expresses substrate potential"
+  
+  - type: EMBODIES
+    target: LAW_SEVEN
+    description: "Return to unity (Law Seven)"
+
+synonyms:
+  - collapse
+  - actualization
+  - expression
+  - realization
+  - embodiment
+  - appearance
+  - revelation
+
+antonyms:
+  - potential
+  - superposition
+  - observation
+  - expansion
+
+related:
+  - OBSERVATION
+  - UNITY
+  - SUBSTRATE
+  - INVOCATION
+  - DIMENSION
+  - COLLAPSE
+  - ACTUAL
+
+examples:
+  - context: collapse_dimensions
+    input:
+      dimensions: [0.5, 0.5]
+    output: 1
+    description: "Manifestation collapses dimensions to unity"
+  
+  - context: invocation_manifest
+    input:
+      substrate: "car_substrate"
+      invocation: "show_color"
+    output: "red"
+    description: "Invocation manifests specific attribute"
+  
+  - context: potential_to_actual
+    input:
+      potential: "all_colors"
+      observation: "observe_color"
+    output: "red"
+    description: "Manifestation makes potential actual"
+  
+  - context: quantum_collapse
+    input:
+      superposition: "[state_a, state_b, state_c]"
+    output: "state_a"
+    description: "Manifestation collapses superposition"
+
+counterexamples:
+  - wrong: "Manifestation changes the substrate"
+    correct: "Manifestation expresses substrate without changing it"
+    explanation: "Substrate identity never changes (Law Six)"
+  
+  - wrong: "Manifestation is permanent"
+    correct: "Manifestation is temporary - substrate is eternal"
+    explanation: "Manifestations come and go, substrate persists"
+  
+  - wrong: "Manifestation creates new information"
+    correct: "Manifestation reveals existing information from substrate"
+    explanation: "All information already exists on substrate"
+
+metadata:
+  dimensional_law: "Law Seven: All operations complete by returning to unity"
+  identity_law: "Law Six: Identity persists (substrate unchanged)"
+  safety_principle: "Safety Charter #2: Passive until invoked"
+  quantum_analogy: "Wave function collapse"
+  temporary: true
+  substrate_eternal: true
+  triggered_by: "invocation"
+
+tags:
+  - dimensional
+  - fundamental
+  - manifestation
+  - collapse
+  - actualization
+  - expression
+  - unity
+  - return
+
+extensions:
+  - ACTUALIZATION
+  - EXPRESSION
+  - REVELATION
+  - EMBODIMENT
+
+compositions:
+  - UNITY
+  - SUBSTRATE
+  - INVOCATION
+
+transformations:
+  - COLLAPSE
+  - RETURN
+  - EXPRESSION
+  - REVELATION
+

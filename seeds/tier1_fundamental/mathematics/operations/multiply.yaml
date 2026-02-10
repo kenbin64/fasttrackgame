@@ -1,0 +1,170 @@
+name: MULTIPLY
+category: MATHEMATICAL_OPERATION
+domain: mathematics
+
+definition: Combine dimensions back into unity, restoring wholeness
+
+usage:
+  - "Restore unity from dimensions: [2, 3, 5] * = 30"
+  - "Scale values: 5 * 3 = 15"
+  - "Calculate area: length * width"
+  - "Calculate volume: length * width * height"
+  - "Compound growth: principal * (1 + rate)^time"
+  - "Combine factors: 2 * 3 * 5 = 30"
+  - "Dimensional collapse: collapse dimensions to manifestation"
+  - "Return to unity: inverse of division"
+
+meaning: |
+  Multiplication is the fundamental act of restoring unity from division.
+  It is the RETURN to wholeness.
+  
+  In DimensionOS, multiplication is not just arithmetic - it is the inverse dimensional operator.
+  When you multiply, you don't just get a number - you COLLAPSE DIMENSIONS back to unity.
+  
+  Multiplication destroys:
+  - Dimensional structure (returns to unity)
+  - Part/whole boundaries (merges into one)
+  - Separation (restores wholeness)
+  
+  Multiplication is manifestation. To manifest is to multiply. To multiply is to return to unity.
+  
+  This is Law One: "Multiplication recombines dimensions and restores unity."
+  This is Law Seven: "All operations complete by returning to unity."
+
+etymology: |
+  From Latin "multiplicare" meaning "to increase, to make many fold"
+  From "multi-" (many) + "plicare" (to fold)
+
+expression: "lambda dimensions: dimensions.multiply()"
+signature: "(List[Dimension]) -> int"
+return_type: int
+
+relationships:
+  - type: INVERSE
+    target: DIVIDE
+    description: "Division creates dimensions, multiplication collapses them"
+  
+  - type: CREATES
+    target: UNITY
+    description: "Multiplication restores unity"
+  
+  - type: DESTROYS
+    target: DIMENSION
+    description: "Multiplication collapses dimensional structure"
+  
+  - type: OPPOSITE
+    target: DIVIDE
+    description: "Multiplication is the opposite of division"
+  
+  - type: RELATED
+    target: POWER
+    description: "Power is repeated multiplication"
+  
+  - type: RELATED
+    target: SCALE
+    description: "Multiplication scales values"
+
+synonyms:
+  - combine
+  - merge
+  - unite
+  - collapse
+  - fold
+  - integrate
+  - consolidate
+
+antonyms:
+  - divide
+  - split
+  - separate
+  - partition
+  - fragment
+
+related:
+  - UNITY
+  - DIMENSION
+  - MANIFESTATION
+  - DIVIDE
+  - POWER
+  - SCALE
+  - FIBONACCI
+
+examples:
+  - context: collapse_dimensions
+    input:
+      dimensions: [2, 3, 5]
+    output: 30
+    formula: "2 * 3 * 5"
+    description: "Collapse dimensions back to unity"
+  
+  - context: scale_value
+    input:
+      value: 5
+      factor: 3
+    output: 15
+    formula: "5 * 3"
+    description: "Scale value by factor"
+  
+  - context: calculate_area
+    input:
+      length: 10
+      width: 5
+    output: 50
+    formula: "length * width"
+    description: "Calculate 2D area from 1D dimensions"
+  
+  - context: fibonacci_multiplication
+    input:
+      dimensions: [1, 1, 2, 3, 5]
+    output: 30
+    formula: "1 * 1 * 2 * 3 * 5"
+    description: "Collapse Fibonacci dimensions"
+
+counterexamples:
+  - wrong: "Multiplication always makes things bigger"
+    correct: "Multiplication by fractions makes things smaller (10 * 0.5 = 5)"
+    explanation: "Multiplication by values less than 1 decreases the result"
+  
+  - wrong: "Multiplication is just arithmetic"
+    correct: "Multiplication collapses dimensional structure and restores unity"
+    explanation: "In DimensionOS, multiplication is a dimensional operator"
+
+metadata:
+  symbol: "*"
+  operator_type: cross_dimensional
+  creates_dimensions: false
+  destroys_dimensions: true
+  restores_unity: true
+  reversible: true
+  inverse_operation: DIVIDE
+  dimensional_law: "Law One: Multiplication recombines dimensions and restores unity"
+  return_law: "Law Seven: Return to Unity"
+
+tags:
+  - mathematics
+  - operation
+  - dimensional
+  - fundamental
+  - cross_dimensional
+  - destroys_structure
+  - restores_unity
+
+extensions:
+  - POWER
+  - FACTORIAL
+  - PRODUCT
+  - CROSS_PRODUCT
+  - DOT_PRODUCT
+
+compositions:
+  - DIVIDE
+  - ADD
+  - POWER
+  - FIBONACCI
+
+transformations:
+  - UNITY
+  - MANIFESTATION
+  - COLLAPSE
+  - SCALE
+

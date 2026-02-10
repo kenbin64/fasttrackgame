@@ -1,0 +1,199 @@
+# ============================================================================
+# PRIMITIVE SEED: SIBLING
+# ============================================================================
+# Category: Dimensional Relationship
+# Tier: 1 (Fundamental)
+# Domain: Relationships
+# Created: 2026-02-09
+# ============================================================================
+
+name: SIBLING
+category: relationship
+tier: 1
+domain: dimensional_relationships
+
+# ============================================================================
+# DEFINITION
+# ============================================================================
+definition: |
+  SIBLING is the fundamental relationship where two parts share the same whole.
+  It represents the lateral connection in the dimensional hierarchy - between 
+  components at the same level.
+  
+  PHILOSOPHY:
+  This relationship embodies Law Four (Connection Creates Meaning): "Dimensions 
+  relate through connection. Connection creates meaning." Siblings are peers 
+  that share context and can interact as equals.
+  
+  MATHEMATICAL NATURE:
+  If W = whole and P₁, P₂ = parts, then:
+  SIBLING(P₁, P₂) ⟺ PART_TO_WHOLE(P₁) = PART_TO_WHOLE(P₂) = W
+  The relationship is bidirectional: P₁ ⟷ P₂
+  
+  DIMENSIONAL NATURE:
+  - Points on the same line are SIBLINGS
+  - Lines in the same plane are SIBLINGS
+  - Planes in the same volume are SIBLINGS
+  - Components at the same dimensional level sharing a parent are SIBLINGS
+
+# ============================================================================
+# USAGE
+# ============================================================================
+usage: |
+  SIBLING is used to:
+  1. Navigate between peers at the same level
+  2. Find related components with shared context
+  3. Establish equality and peer relationships
+  4. Enable lateral communication
+  5. Discover related parts of a whole
+  
+  INVOCATION:
+  relationship = create_relationship(
+      rel_type="SIBLING",
+      source=part1_substrate,
+      target=part2_substrate,
+      bidirectional=True  # Siblings are mutual
+  )
+
+# ============================================================================
+# MEANING
+# ============================================================================
+meaning: |
+  SIBLING represents EQUALITY and SHARED CONTEXT.
+  
+  Siblings are peers that share the same parent/whole. They exist at the same 
+  dimensional level and share the same context. Like cells in the same organ, 
+  wheels on the same car, words in the same sentence.
+  
+  This relationship answers: "Who shares my context?" "Who are my peers?"
+  
+  PHILOSOPHICAL SIGNIFICANCE:
+  - Equality through shared parentage
+  - Context through common whole
+  - Interaction between peers
+  - Collaboration at the same level
+
+# ============================================================================
+# EXPRESSION (Mathematical/Computational)
+# ============================================================================
+expression: |
+  # SIBLING relationship expression
+  # Connects parts that share the same whole
+  
+  def sibling(part1_identity: int, part2_identity: int, whole_identity: int) -> dict:
+      """
+      Create SIBLING relationship.
+      
+      Args:
+          part1_identity: 64-bit identity of first part
+          part2_identity: 64-bit identity of second part
+          whole_identity: 64-bit identity of shared whole
+      
+      Returns:
+          Relationship metadata
+      """
+      return {
+          'type': 'SIBLING',
+          'source': part1_identity,
+          'target': part2_identity,
+          'direction': 'lateral',
+          'bidirectional': True,
+          'shared_whole': whole_identity,
+          'properties': {
+              'equality': True,
+              'shared_context': True,
+              'peer_relationship': True,
+              'same_level': True
+          }
+      }
+
+# ============================================================================
+# RELATIONSHIPS
+# ============================================================================
+relationships:
+  derived_from:
+    - PART_TO_WHOLE  # Siblings share the same PART_TO_WHOLE target
+  
+  related_to:
+    - EQUALITY
+    - PEER
+    - LATERAL
+  
+  implements:
+    - LAW_FOUR   # Connection Creates Meaning
+  
+  dimensional_level: intra_dimensional  # Connects within same dimensional level
+
+# ============================================================================
+# EXAMPLES
+# ============================================================================
+examples:
+  - name: "Geometric - Points on Line"
+    description: "Points on the same line are siblings"
+    sibling1: "Point(0,3)"
+    sibling2: "Point(1,5)"
+    shared_whole: "Line(y=2x+3)"
+    meaning: "Both points belong to the same line"
+  
+  - name: "Geometric - Lines in Plane"
+    description: "Lines in the same plane are siblings"
+    sibling1: "Line(y=x)"
+    sibling2: "Line(y=2x)"
+    shared_whole: "Plane(z=0)"
+    meaning: "Both lines exist in the same plane"
+  
+  - name: "Object - Wheels on Car"
+    description: "Wheels on the same car are siblings"
+    sibling1: "Wheel(front_left)"
+    sibling2: "Wheel(front_right)"
+    shared_whole: "Car(model='Tesla')"
+    meaning: "Both wheels are parts of the same car"
+  
+  - name: "Biological - Neurons in Brain"
+    description: "Neurons in the same brain are siblings"
+    sibling1: "Neuron(id=1)"
+    sibling2: "Neuron(id=2)"
+    shared_whole: "Brain(mass=1400g)"
+    meaning: "Both neurons are part of the same brain"
+  
+  - name: "Linguistic - Words in Sentence"
+    description: "Words in the same sentence are siblings"
+    sibling1: "Word('butterfly')"
+    sibling2: "Word('transforms')"
+    shared_whole: "Sentence('The butterfly transforms')"
+    meaning: "Both words are part of the same sentence"
+  
+  - name: "Family - Children of Parents"
+    description: "Children of the same parents are siblings"
+    sibling1: "Child(name='Alice')"
+    sibling2: "Child(name='Bob')"
+    shared_whole: "Family(surname='Smith')"
+    meaning: "Both children share the same family"
+
+# ============================================================================
+# METADATA
+# ============================================================================
+metadata:
+  version: "1.0.0"
+  author: "ButterflyFx Dimensional System"
+  license: "Patent Pending"
+  tags:
+    - relationship
+    - dimensional
+    - equality
+    - peer
+    - lateral
+    - shared_context
+  
+  dimensional_laws:
+    - law_four: "Connection creates meaning"
+  
+  safety_charter:
+    - principle_1: "All things are by reference (relationship, not copy)"
+    - principle_9: "Relationships are explicit"
+  
+  notes: |
+    SIBLING is a derived relationship - it can be computed from PART_TO_WHOLE 
+    relationships. Two substrates are siblings if they share the same 
+    PART_TO_WHOLE target (same parent/whole).
+

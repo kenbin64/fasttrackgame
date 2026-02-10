@@ -1,0 +1,159 @@
+name: DIMENSION
+category: DIMENSIONAL_STRUCTURE
+domain: dimensional
+
+definition: A level in the Fibonacci hierarchy created by division of unity
+
+usage:
+  - "Division creates dimensions (Law Two)"
+  - "Dimensions follow Fibonacci sequence: 0, 1, 1, 2, 3, 5, 8, 13, 21"
+  - "Each dimension contains the previous (Russian dolls)"
+  - "Point (0D) → Line (1D) → Plane (2D) → Volume (3D) → Hypervolume (4D+)"
+  - "Dimensions are levels of structure"
+  - "Observation creates dimensions"
+  - "Multiplication collapses dimensions"
+  - "Dimensions inherit the whole (Law Three)"
+
+meaning: |
+  A dimension is a LEVEL IN THE FIBONACCI HIERARCHY.
+  Dimensions are created by DIVISION and follow the Fibonacci sequence.
+  
+  In DimensionOS, dimensions are NOT just spatial axes.
+  Dimensions are LEVELS OF STRUCTURAL COMPLEXITY.
+  
+  The Fibonacci sequence maps dimensional creation:
+  - 0: Unity (undivided)
+  - 1: First division (line from point)
+  - 1: Reflection (line has two ends)
+  - 2: Plane (two lines create plane)
+  - 3: Volume (three planes create volume)
+  - 5: First hypervolume
+  - 8: Second hypervolume
+  - 13: Third hypervolume
+  - 21: Completion (becomes 1 in next plane)
+  
+  This is the Russian dolls model:
+  - Point contains nothing
+  - Line contains points
+  - Plane contains lines (and points)
+  - Volume contains planes (and lines and points)
+  - Each dimension CONTAINS the previous
+  
+  This is Law Two: "Division creates dimensions."
+  This is Law Three: "Every division inherits the whole."
+
+etymology: |
+  From Latin "dimensio" meaning "a measuring"
+  From "dimetiri" (to measure out)
+
+expression: "lambda fibonacci_index: fibonacci_sequence[fibonacci_index]"
+signature: "(int) -> int"
+return_type: int
+
+relationships:
+  - type: CREATED_BY
+    target: DIVISION
+    description: "Division creates dimensions"
+  
+  - type: CREATED_BY
+    target: OBSERVATION
+    description: "Observation creates dimensions (Law Two)"
+  
+  - type: FOLLOWS
+    target: FIBONACCI
+    description: "Dimensions follow Fibonacci sequence"
+  
+  - type: CONTAINS
+    target: DIMENSION
+    description: "Each dimension contains the previous (recursive)"
+  
+  - type: DESTROYED_BY
+    target: MULTIPLICATION
+    description: "Multiplication collapses dimensions"
+
+synonyms:
+  - level
+  - layer
+  - plane
+  - axis
+  - degree
+  - order
+
+antonyms:
+  - unity
+  - undivided
+  - flat
+
+related:
+  - UNITY
+  - DIVISION
+  - OBSERVATION
+  - FIBONACCI
+  - SUBSTRATE
+  - STRUCTURE
+  - HIERARCHY
+
+examples:
+  - context: fibonacci_dimensions
+    input:
+      index: 4
+    output: 3
+    formula: "fibonacci[4] = 3"
+    description: "Dimension at Fibonacci index 4 is 3"
+  
+  - context: russian_dolls
+    input:
+      dimension: 3
+    output: "contains [2D, 1D, 0D]"
+    description: "3D volume contains planes, lines, points"
+  
+  - context: division_creates
+    input:
+      unity: 1
+      divisions: 2
+    output: "2 dimensions created"
+    description: "Division creates dimensional structure"
+
+counterexamples:
+  - wrong: "Dimensions are just X, Y, Z axes"
+    correct: "Dimensions are levels of structural complexity following Fibonacci"
+    explanation: "DimensionOS uses Fibonacci-based dimensional hierarchy"
+  
+  - wrong: "You can have infinite dimensions"
+    correct: "Dimensions are Fibonacci-bounded (21 = completion)"
+    explanation: "Law Seven: Fibonacci-bounded growth"
+
+metadata:
+  fibonacci_sequence: [0, 1, 1, 2, 3, 5, 8, 13, 21]
+  completion_value: 21
+  dimensional_law: "Law Two: Division creates dimensions"
+  inheritance_law: "Law Three: Every division inherits the whole"
+  containment_model: "Russian dolls"
+
+tags:
+  - dimensional
+  - fundamental
+  - structure
+  - fibonacci
+  - hierarchy
+  - levels
+  - complexity
+
+extensions:
+  - POINT
+  - LINE
+  - PLANE
+  - VOLUME
+  - HYPERVOLUME
+
+compositions:
+  - FIBONACCI
+  - DIVISION
+  - OBSERVATION
+
+transformations:
+  - DIVISION
+  - MULTIPLICATION
+  - OBSERVATION
+  - MANIFESTATION
+

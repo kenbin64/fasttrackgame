@@ -21,6 +21,8 @@ import json
 
 from kernel.substrate import SubstrateIdentity
 from kernel.relationships import Relationship, RelationshipSet, RelationshipType
+from kernel.seed_validator import SeedValidator, SeedValidationError
+from kernel.seed_dimensionalizer import SeedDimensionalizer, DimensionalizedSeed
 
 
 class PrimitiveCategory(Enum):
@@ -30,18 +32,19 @@ class PrimitiveCategory(Enum):
     MATHEMATICAL_OPERATION = "mathematical_operation"
     PHYSICAL_CONSTANT = "physical_constant"
     DIMENSIONAL_STRUCTURE = "dimensional_structure"
-    
+    RELATIONSHIP = "relationship"  # Dimensional relationships
+
     # Tier 2: Composite
     GEOMETRIC_SHAPE = "geometric_shape"
     PHYSICAL_LAW = "physical_law"
     MATHEMATICAL_FUNCTION = "mathematical_function"
-    
+
     # Tier 3: Domain
     SENSORY_PERCEPTION = "sensory_perception"
     ECONOMIC_ACTION = "economic_action"
     LANGUAGE_ELEMENT = "language_element"
     COMPUTER_SCIENCE = "computer_science"
-    
+
     # Tier 4: Emergent
     PHILOSOPHICAL_CONCEPT = "philosophical_concept"
     COMPLEX_BEHAVIOR = "complex_behavior"
@@ -90,15 +93,18 @@ class PrimitiveSeed:
 
 class SeedLoader:
     """Load primitive seeds from knowledge base."""
-    
+
     def __init__(self, seed_directory: Path):
         """Initialize seed loader.
-        
+
         Args:
             seed_directory: Root directory containing seed files
         """
         self.seed_directory = Path(seed_directory)
+        self.validator = SeedValidator()  # Security-first validator
+        self.dimensionalizer = SeedDimensionalizer()  # Dimensionalization engine
         self.loaded_seeds: Dict[str, PrimitiveSeed] = {}
+        self.dimensionalized_seeds: Dict[str, DimensionalizedSeed] = {}  # Dimensional substrates
         self.seed_index: Dict[str, Any] = {
             "by_name": {},
             "by_category": {},
@@ -133,27 +139,40 @@ class SeedLoader:
         return count
     
     def ingest_seed_file(self, filepath: Path) -> PrimitiveSeed:
-        """Ingest a single seed file.
-        
+        """Ingest a single seed file with comprehensive security validation.
+
         Args:
             filepath: Path to seed file
-            
+
         Returns:
             Loaded PrimitiveSeed
+
+        Raises:
+            SeedValidationError: If seed validation fails
         """
+        # 0. VALIDATE FILE (security check)
+        try:
+            self.validator.validate_file(filepath)
+        except SeedValidationError as e:
+            raise ValueError(f"File validation failed for {filepath}: {e}")
+
         # 1. PARSE
         seed_data = self._parse_file(filepath)
-        
-        # 2. VALIDATE
+
+        # 2. VALIDATE SEED DATA (comprehensive security validation)
         self._validate_seed(seed_data)
-        
+
         # 3. INSTANTIATE
         seed = self._create_seed(seed_data)
-        
-        # 4. STORE
+
+        # 4. DIMENSIONALIZE (convert to substrate - Russian Dolls principle)
+        dimensionalized = self.dimensionalizer.dimensionalize(seed)
+
+        # 5. STORE (both flat and dimensional forms)
         self.loaded_seeds[seed.name] = seed
-        
-        # 5. INDEX
+        self.dimensionalized_seeds[seed.name] = dimensionalized
+
+        # 6. INDEX
         self._index_seed(seed)
 
         return seed
@@ -177,18 +196,19 @@ class SeedLoader:
             raise ValueError(f"Unsupported file format: {filepath.suffix}")
 
     def _validate_seed(self, seed_data: Dict[str, Any]) -> None:
-        """Validate seed has required fields.
+        """Validate seed comprehensively (security-first).
 
         Args:
             seed_data: Parsed seed data
 
         Raises:
-            ValueError: If required field is missing
+            ValueError: If validation fails
         """
-        required = ["name", "category", "definition", "usage", "meaning"]
-        for field in required:
-            if field not in seed_data:
-                raise ValueError(f"Missing required field: {field}")
+        try:
+            # Use comprehensive security-first validator
+            self.validator.validate_seed(seed_data)
+        except SeedValidationError as e:
+            raise ValueError(f"Seed validation failed: {e}")
 
     def _create_seed(self, seed_data: Dict[str, Any]) -> PrimitiveSeed:
         """Create PrimitiveSeed from data.
@@ -379,6 +399,56 @@ class SeedLoader:
         seed_names = self.seed_index["by_tag"].get(tag, [])
         return [self.loaded_seeds[name] for name in seed_names]
 
+    def get_dimensionalized(self, name: str) -> Optional[DimensionalizedSeed]:
+        """
+        Get dimensionalized seed by name.
+
+        Returns the seed as a dimensional substrate with hierarchical structure.
+
+        Args:
+            name: Seed name
+
+        Returns:
+            DimensionalizedSeed or None if not found
+        """
+        return self.dimensionalized_seeds.get(name)
+
+    def get_dimension(self, name: str, level: int) -> Any:
+        """
+        Get a specific dimension of a seed.
+
+        Args:
+            name: Seed name
+            level: Fibonacci dimensional level (0, 1, 2, 3, 5, 8, 13, 21)
+
+        Returns:
+            Content at that dimensional level, or None if not found
+        """
+        dimensionalized = self.dimensionalized_seeds.get(name)
+        if not dimensionalized:
+            return None
+
+        return self.dimensionalizer.get_dimension(dimensionalized, level)
+
+    def get_parts(self, name: str, level: int) -> List[Any]:
+        """
+        Get parts of a seed at a specific dimensional level.
+
+        Implements WHOLE_TO_PART relationship: division reveals parts.
+
+        Args:
+            name: Seed name
+            level: Dimensional level to divide
+
+        Returns:
+            List of parts at that level
+        """
+        dimensionalized = self.dimensionalized_seeds.get(name)
+        if not dimensionalized:
+            return []
+
+        return self.dimensionalizer.get_parts(dimensionalized, level)
+
     def stats(self) -> Dict[str, Any]:
         """Get statistics about loaded seeds.
 
@@ -387,6 +457,7 @@ class SeedLoader:
         """
         return {
             "total_seeds": len(self.loaded_seeds),
+            "dimensionalized_seeds": len(self.dimensionalized_seeds),
             "categories": len(self.seed_index["by_category"]),
             "domains": len(self.seed_index["by_domain"]),
             "tags": len(self.seed_index["by_tag"]),

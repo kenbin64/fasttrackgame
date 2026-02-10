@@ -1,0 +1,180 @@
+# ============================================================================
+# PRIMITIVE SEED: PART_TO_WHOLE
+# ============================================================================
+# Category: Dimensional Relationship
+# Tier: 1 (Fundamental)
+# Domain: Relationships
+# Created: 2026-02-09
+# ============================================================================
+
+name: PART_TO_WHOLE
+category: relationship
+tier: 1
+domain: dimensional_relationships
+
+# ============================================================================
+# DEFINITION
+# ============================================================================
+definition: |
+  PART_TO_WHOLE is the fundamental relationship where a component relates to 
+  its containing whole. It represents the upward connection in the dimensional 
+  hierarchy - from the part to the system that contains it.
+  
+  PHILOSOPHY:
+  This relationship embodies Law Three (Inheritance and Recursion): "Every 
+  division inherits the whole." The part knows its whole, and through this 
+  connection, inherits the pattern of the whole.
+  
+  MATHEMATICAL NATURE:
+  If W = whole and P = part, then PART_TO_WHOLE(P) → W
+  The relationship is directional: P ⟶ W
+  
+  DIMENSIONAL NATURE:
+  - A point is PART_TO_WHOLE a line
+  - A line is PART_TO_WHOLE a plane
+  - A plane is PART_TO_WHOLE a volume
+  - Each dimension is PART_TO_WHOLE the next higher dimension
+
+# ============================================================================
+# USAGE
+# ============================================================================
+usage: |
+  PART_TO_WHOLE is used to:
+  1. Navigate from component to container
+  2. Access inherited properties from the whole
+  3. Understand context and containment
+  4. Trace dimensional hierarchy upward
+  5. Establish ownership and belonging
+  
+  INVOCATION:
+  relationship = create_relationship(
+      rel_type="PART_TO_WHOLE",
+      source=part_substrate,
+      target=whole_substrate,
+      bidirectional=False
+  )
+
+# ============================================================================
+# MEANING
+# ============================================================================
+meaning: |
+  PART_TO_WHOLE represents BELONGING and INHERITANCE.
+  
+  The part belongs to the whole and inherits its nature. Like a cell belongs 
+  to an organ, a wheel belongs to a car, a word belongs to a sentence.
+  
+  This relationship answers: "What contains me?" "What am I part of?"
+  
+  PHILOSOPHICAL SIGNIFICANCE:
+  - Identity through containment
+  - Context through belonging
+  - Inheritance through connection
+  - Meaning through relationship to the larger whole
+
+# ============================================================================
+# EXPRESSION (Mathematical/Computational)
+# ============================================================================
+expression: |
+  # PART_TO_WHOLE relationship expression
+  # Maps part substrate to whole substrate
+  
+  def part_to_whole(part_identity: int, whole_identity: int) -> dict:
+      """
+      Create PART_TO_WHOLE relationship.
+      
+      Args:
+          part_identity: 64-bit identity of the part
+          whole_identity: 64-bit identity of the whole
+      
+      Returns:
+          Relationship metadata
+      """
+      return {
+          'type': 'PART_TO_WHOLE',
+          'source': part_identity,
+          'target': whole_identity,
+          'direction': 'upward',
+          'bidirectional': False,
+          'inverse': 'WHOLE_TO_PART',
+          'properties': {
+              'inheritance': True,
+              'containment': True,
+              'context_provider': True
+          }
+      }
+
+# ============================================================================
+# RELATIONSHIPS
+# ============================================================================
+relationships:
+  inverse_of:
+    - WHOLE_TO_PART
+  
+  related_to:
+    - CONTAINMENT
+    - INHERITANCE
+    - HIERARCHY
+  
+  implements:
+    - LAW_THREE  # Inheritance and Recursion
+    - LAW_FOUR   # Connection Creates Meaning
+  
+  dimensional_level: cross_dimensional  # Connects different dimensional levels
+
+# ============================================================================
+# EXAMPLES
+# ============================================================================
+examples:
+  - name: "Geometric - Point to Line"
+    description: "A point is PART_TO_WHOLE a line"
+    part: "Point(x=5)"
+    whole: "Line(y=2x+3)"
+    meaning: "The point belongs to and is contained by the line"
+  
+  - name: "Geometric - Line to Plane"
+    description: "A line is PART_TO_WHOLE a plane"
+    part: "Line(y=2x+3)"
+    whole: "Plane(z=x+y)"
+    meaning: "The line is contained within the plane"
+  
+  - name: "Object - Wheel to Car"
+    description: "A wheel is PART_TO_WHOLE a car"
+    part: "Wheel(diameter=18)"
+    whole: "Car(model='Tesla')"
+    meaning: "The wheel belongs to and inherits properties from the car"
+  
+  - name: "Biological - Cell to Organ"
+    description: "A cell is PART_TO_WHOLE an organ"
+    part: "Cell(type='neuron')"
+    whole: "Brain(mass=1400g)"
+    meaning: "The cell is part of and inherits context from the brain"
+  
+  - name: "Linguistic - Word to Sentence"
+    description: "A word is PART_TO_WHOLE a sentence"
+    part: "Word('butterfly')"
+    whole: "Sentence('The butterfly transforms')"
+    meaning: "The word derives meaning from its sentence context"
+
+# ============================================================================
+# METADATA
+# ============================================================================
+metadata:
+  version: "1.0.0"
+  author: "ButterflyFx Dimensional System"
+  license: "Patent Pending"
+  tags:
+    - relationship
+    - dimensional
+    - hierarchy
+    - containment
+    - inheritance
+    - upward
+  
+  dimensional_laws:
+    - law_three: "Every division inherits the whole"
+    - law_four: "Connection creates meaning"
+  
+  safety_charter:
+    - principle_1: "All things are by reference (relationship, not copy)"
+    - principle_9: "Relationships are explicit"
+

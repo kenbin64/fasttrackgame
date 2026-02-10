@@ -1,0 +1,174 @@
+name: ADD
+category: MATHEMATICAL_OPERATION
+domain: mathematics
+
+definition: Expand magnitude within a dimension without changing structure
+
+usage:
+  - "Expand within dimension: 5 + 3 = 8"
+  - "Combine quantities: 10 apples + 5 apples = 15 apples"
+  - "Accumulate: total = sum of parts"
+  - "Increment: count + 1"
+  - "Aggregate: combine values at same dimensional level"
+  - "Grow magnitude: add fuel to engine"
+  - "Concatenate: join sequences"
+  - "Union: combine sets"
+
+meaning: |
+  Addition is the fundamental act of expanding magnitude within a dimension.
+  It is GROWTH without structural change.
+  
+  In DimensionOS, addition is an INTRA-DIMENSIONAL operator.
+  When you add, you stay at the SAME dimensional level - you just expand magnitude.
+  
+  Addition is like:
+  - Adding gas to an engine (more fuel, same engine)
+  - Adding rubber to a tire (more material, same tire)
+  - Adding water to a glass (more volume, same glass)
+  
+  Addition does NOT:
+  - Create new dimensions (that's division)
+  - Change dimensional structure (that's cross-dimensional)
+  - Collapse dimensions (that's multiplication)
+  
+  Addition ONLY:
+  - Expands magnitude within current dimension
+  - Preserves dimensional level
+  - Maintains structure
+  
+  This is the philosophy: "Sometimes points are just points if we do not go deeper."
+  Addition works with points at the current level without going deeper.
+
+etymology: |
+  From Latin "addere" meaning "to add, to join"
+  From "ad-" (to) + "dare" (to give)
+
+expression: "lambda x, y: x + y"
+signature: "(int, int) -> int"
+return_type: int
+
+relationships:
+  - type: INVERSE
+    target: SUBTRACT
+    description: "Subtraction reverses addition"
+  
+  - type: RELATED
+    target: SUM
+    description: "Sum is the result of addition"
+  
+  - type: RELATED
+    target: ACCUMULATE
+    description: "Accumulation is repeated addition"
+  
+  - type: OPPOSITE
+    target: SUBTRACT
+    description: "Addition expands, subtraction contracts"
+  
+  - type: RELATED
+    target: INCREMENT
+    description: "Increment is addition by one"
+
+synonyms:
+  - sum
+  - combine
+  - join
+  - unite
+  - accumulate
+  - aggregate
+  - total
+  - plus
+
+antonyms:
+  - subtract
+  - remove
+  - take_away
+  - minus
+  - decrease
+
+related:
+  - SUBTRACT
+  - SUM
+  - TOTAL
+  - ACCUMULATE
+  - INCREMENT
+  - MAGNITUDE
+  - EXPAND
+
+examples:
+  - context: expand_magnitude
+    input:
+      x: 100
+      y: 50
+    output: 150
+    formula: "100 + 50"
+    description: "Expand magnitude within dimension"
+  
+  - context: combine_quantities
+    input:
+      apples: 10
+      more_apples: 5
+    output: 15
+    formula: "10 + 5"
+    description: "Combine quantities of same type"
+  
+  - context: accumulate_total
+    input:
+      values: [1, 2, 3, 4, 5]
+    output: 15
+    formula: "1 + 2 + 3 + 4 + 5"
+    description: "Accumulate total from parts"
+  
+  - context: fibonacci_sum
+    input:
+      a: 3
+      b: 5
+    output: 8
+    formula: "3 + 5"
+    description: "Next Fibonacci number"
+
+counterexamples:
+  - wrong: "Addition creates new dimensions"
+    correct: "Addition expands within current dimension (division creates dimensions)"
+    explanation: "Addition is intra-dimensional, not cross-dimensional"
+  
+  - wrong: "Addition changes structure"
+    correct: "Addition preserves structure, only changes magnitude"
+    explanation: "Structure changes require cross-dimensional operators"
+
+metadata:
+  symbol: "+"
+  operator_type: intra_dimensional
+  creates_dimensions: false
+  preserves_structure: true
+  reversible: true
+  inverse_operation: SUBTRACT
+  commutative: true
+  associative: true
+  identity_element: 0
+
+tags:
+  - mathematics
+  - operation
+  - fundamental
+  - intra_dimensional
+  - preserves_structure
+  - expands_magnitude
+
+extensions:
+  - SUM
+  - ACCUMULATE
+  - INCREMENT
+  - CONCATENATE
+  - UNION
+
+compositions:
+  - SUBTRACT
+  - MULTIPLY
+  - DIVIDE
+
+transformations:
+  - SUM
+  - TOTAL
+  - ACCUMULATION
+  - MAGNITUDE
+

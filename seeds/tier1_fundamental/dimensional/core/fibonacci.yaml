@@ -1,0 +1,178 @@
+name: FIBONACCI
+category: DIMENSIONAL_STRUCTURE
+domain: dimensional
+
+definition: The sequence that maps dimensional creation - 0, 1, 1, 2, 3, 5, 8, 13, 21
+
+usage:
+  - "Dimensions follow Fibonacci sequence"
+  - "Division generates dimensions following Fibonacci spiral (Law One)"
+  - "21 = completion, becomes 1 in next plane"
+  - "Each number is sum of previous two: F(n) = F(n-1) + F(n-2)"
+  - "Fibonacci bounds dimensional growth (Law Seven)"
+  - "Fibonacci appears in nature: shells, flowers, galaxies"
+  - "Fibonacci relates to PHI (golden ratio): lim(F(n+1)/F(n)) = φ"
+  - "Fibonacci maps substrate dimensional levels"
+
+meaning: |
+  Fibonacci is the SEQUENCE THAT MAPS DIMENSIONAL CREATION.
+  In DimensionOS, dimensions don't grow linearly - they grow following Fibonacci.
+  
+  The sequence: 0, 1, 1, 2, 3, 5, 8, 13, 21
+  
+  This is Law One: "Division generates dimensions and follows the Fibonacci spiral."
+  This is Law Seven: "Fibonacci-bounded growth - 21 = completion."
+  
+  Why Fibonacci?
+  - Natural growth pattern (shells, flowers, galaxies)
+  - Self-similar (each part contains the pattern)
+  - Converges to golden ratio φ ≈ 1.618
+  - Bounded completion at 21
+  
+  Dimensional mapping:
+  - 0: Unity (undivided, no structure)
+  - 1: First division (line from point)
+  - 1: Reflection (line has two ends)
+  - 2: Plane (two lines create plane)
+  - 3: Volume (three planes create volume)
+  - 5: First hypervolume
+  - 8: Second hypervolume
+  - 13: Third hypervolume
+  - 21: Completion (becomes 1 in next plane)
+  
+  The 21 = completion rule:
+  - When a dimension reaches 21, it completes
+  - It becomes 1 (unity) in the next dimensional plane
+  - This is the cycle of return (Law Seven)
+  - This prevents infinite dimensional explosion
+  
+  Fibonacci embodies recursion:
+  - Each number inherits the previous (Law Three)
+  - Pattern repeats at every scale
+  - Self-similarity across dimensions
+
+etymology: |
+  Named after Leonardo Fibonacci (c. 1170-1250)
+  Italian mathematician who introduced the sequence to Western mathematics
+  Originally from Indian mathematics (Pingala, 200 BC)
+
+expression: "lambda n: fibonacci_recursive(n) if n < 2 else fibonacci_recursive(n-1) + fibonacci_recursive(n-2)"
+signature: "(int) -> int"
+return_type: int
+
+relationships:
+  - type: MAPS
+    target: DIMENSION
+    description: "Fibonacci maps dimensional creation"
+  
+  - type: CONVERGES_TO
+    target: PHI
+    description: "Fibonacci ratio converges to golden ratio φ"
+  
+  - type: EMBODIES
+    target: LAW_ONE
+    description: "Division follows Fibonacci spiral (Law One)"
+  
+  - type: EMBODIES
+    target: LAW_SEVEN
+    description: "Fibonacci-bounded growth (Law Seven)"
+  
+  - type: RELATED
+    target: RECURSION
+    description: "Fibonacci is defined recursively"
+
+synonyms:
+  - fibonacci_sequence
+  - fibonacci_numbers
+  - fibonacci_spiral
+
+antonyms:
+  - linear_growth
+  - unbounded_growth
+
+related:
+  - DIMENSION
+  - PHI
+  - UNITY
+  - RECURSION
+  - SPIRAL
+  - GOLDEN_RATIO
+  - NATURE
+
+examples:
+  - context: sequence_generation
+    input:
+      n: 8
+    output: [0, 1, 1, 2, 3, 5, 8, 13]
+    description: "First 8 Fibonacci numbers"
+  
+  - context: dimensional_mapping
+    input:
+      dimension_index: 4
+    output: 3
+    formula: "fibonacci[4] = 3"
+    description: "Dimension at index 4 is 3"
+  
+  - context: completion_cycle
+    input:
+      dimension: 21
+    output: 1
+    description: "21 completes and becomes 1 in next plane"
+  
+  - context: golden_ratio_convergence
+    input:
+      n: 20
+    output: 1.618033988749895
+    formula: "F(21)/F(20) ≈ φ"
+    description: "Fibonacci ratio converges to φ"
+
+counterexamples:
+  - wrong: "Fibonacci is just a number sequence"
+    correct: "Fibonacci maps dimensional creation in DimensionOS"
+    explanation: "Fibonacci has deep dimensional significance"
+  
+  - wrong: "Dimensions can grow infinitely"
+    correct: "Dimensions are Fibonacci-bounded (21 = completion)"
+    explanation: "Law Seven: Fibonacci-bounded growth"
+  
+  - wrong: "Fibonacci starts at 1"
+    correct: "Fibonacci starts at 0 (unity/undivided)"
+    explanation: "0 represents unity before division"
+
+metadata:
+  sequence: [0, 1, 1, 2, 3, 5, 8, 13, 21]
+  completion_value: 21
+  golden_ratio: 1.618033988749895
+  dimensional_law: "Law One: Division follows Fibonacci spiral"
+  growth_law: "Law Seven: Fibonacci-bounded growth"
+  recursion_formula: "F(n) = F(n-1) + F(n-2)"
+  base_cases: "F(0) = 0, F(1) = 1"
+
+tags:
+  - dimensional
+  - fundamental
+  - fibonacci
+  - sequence
+  - growth
+  - recursion
+  - golden_ratio
+  - nature
+  - spiral
+
+extensions:
+  - FIBONACCI_SPIRAL
+  - GOLDEN_RATIO
+  - LUCAS_NUMBERS
+  - TRIBONACCI
+
+compositions:
+  - DIMENSION
+  - PHI
+  - RECURSION
+
+transformations:
+  - SPIRAL
+  - GROWTH
+  - CONVERGENCE
+  - COMPLETION
+

@@ -1,0 +1,209 @@
+# ============================================================================
+# PRIMITIVE SEED: CONTAINMENT
+# ============================================================================
+# Category: Dimensional Relationship
+# Tier: 1 (Fundamental)
+# Domain: Relationships
+# Created: 2026-02-09
+# ============================================================================
+
+name: CONTAINMENT
+category: relationship
+tier: 1
+domain: dimensional_relationships
+
+# ============================================================================
+# DEFINITION
+# ============================================================================
+definition: |
+  CONTAINMENT is the fundamental relationship where one substrate exists within 
+  the boundaries of another. It represents spatial or logical inclusion - the 
+  contained substrate is fully enclosed by the container.
+  
+  PHILOSOPHY:
+  This relationship embodies the Russian Dolls principle: each dimension 
+  contains the previous. CONTAINMENT is the spatial manifestation of 
+  dimensional hierarchy.
+  
+  MATHEMATICAL NATURE:
+  If C = container and E = element, then CONTAINMENT(E, C) means:
+  - E ⊆ C (E is a subset of C)
+  - All points of E are within the boundaries of C
+  - The relationship is directional: E ⟶ C
+  
+  DIMENSIONAL NATURE:
+  - A point is CONTAINED by a line (0D ⊂ 1D)
+  - A line is CONTAINED by a plane (1D ⊂ 2D)
+  - A plane is CONTAINED by a volume (2D ⊂ 3D)
+  - Each dimension is CONTAINED by higher dimensions
+
+# ============================================================================
+# USAGE
+# ============================================================================
+usage: |
+  CONTAINMENT is used to:
+  1. Establish spatial or logical boundaries
+  2. Determine if an element is within a region
+  3. Navigate from contained to container
+  4. Enforce dimensional constraints
+  5. Understand scope and boundaries
+  
+  INVOCATION:
+  relationship = create_relationship(
+      rel_type="CONTAINMENT",
+      source=element_substrate,
+      target=container_substrate,
+      bidirectional=False
+  )
+
+# ============================================================================
+# MEANING
+# ============================================================================
+meaning: |
+  CONTAINMENT represents BOUNDARIES and SCOPE.
+  
+  The contained element exists within the boundaries of the container. The 
+  container defines the scope and limits of the contained. Like a point on a 
+  line, a file in a folder, a thought in a mind.
+  
+  This relationship answers: "What contains me?" "What are my boundaries?"
+  
+  PHILOSOPHICAL SIGNIFICANCE:
+  - Boundaries through containment
+  - Scope through enclosure
+  - Protection through boundaries
+  - Context through spatial relationship
+
+# ============================================================================
+# EXPRESSION (Mathematical/Computational)
+# ============================================================================
+expression: |
+  # CONTAINMENT relationship expression
+  # Establishes spatial/logical inclusion
+  
+  def containment(element_identity: int, container_identity: int) -> dict:
+      """
+      Create CONTAINMENT relationship.
+      
+      Args:
+          element_identity: 64-bit identity of contained element
+          container_identity: 64-bit identity of container
+      
+      Returns:
+          Relationship metadata
+      """
+      return {
+          'type': 'CONTAINMENT',
+          'source': element_identity,
+          'target': container_identity,
+          'direction': 'upward',
+          'bidirectional': False,
+          'inverse': 'CONTAINS',
+          'properties': {
+              'spatial': True,
+              'boundary_defined': True,
+              'scope_limited': True,
+              'subset_relationship': True
+          }
+      }
+
+# ============================================================================
+# RELATIONSHIPS
+# ============================================================================
+relationships:
+  similar_to:
+    - PART_TO_WHOLE  # Both represent upward hierarchy
+  
+  related_to:
+    - BOUNDARY
+    - SCOPE
+    - INCLUSION
+    - SUBSET
+  
+  implements:
+    - LAW_THREE  # Inheritance and Recursion (Russian Dolls)
+    - LAW_FOUR   # Connection Creates Meaning
+  
+  dimensional_level: cross_dimensional  # Connects different dimensional levels
+  
+  inverse:
+    - CONTAINS  # Container CONTAINS element
+
+# ============================================================================
+# EXAMPLES
+# ============================================================================
+examples:
+  - name: "Geometric - Point in Line"
+    description: "A point is contained by a line"
+    element: "Point(5,11)"
+    container: "Line(y=2x+1)"
+    meaning: "The point exists on the line (within its boundaries)"
+  
+  - name: "Geometric - Line in Plane"
+    description: "A line is contained by a plane"
+    element: "Line(y=2x+3)"
+    container: "Plane(z=0)"
+    meaning: "The line exists within the plane"
+  
+  - name: "Geometric - Circle in Square"
+    description: "A circle is contained by a square"
+    element: "Circle(radius=5)"
+    container: "Square(side=12)"
+    meaning: "The circle fits entirely within the square"
+  
+  - name: "File System - File in Folder"
+    description: "A file is contained by a folder"
+    element: "File('document.txt')"
+    container: "Folder('/home/user/documents')"
+    meaning: "The file exists within the folder's scope"
+  
+  - name: "Data - Element in Array"
+    description: "An element is contained by an array"
+    element: "Element(value=42)"
+    container: "Array([1, 2, 42, 7, 9])"
+    meaning: "The element is a member of the array"
+  
+  - name: "Conceptual - Thought in Mind"
+    description: "A thought is contained by a mind"
+    element: "Thought('I am')"
+    container: "Mind(consciousness=True)"
+    meaning: "The thought exists within the mind's boundaries"
+  
+  - name: "Physical - Water in Cup"
+    description: "Water is contained by a cup"
+    element: "Water(volume=250ml)"
+    container: "Cup(capacity=300ml)"
+    meaning: "The water is held within the cup's boundaries"
+
+# ============================================================================
+# METADATA
+# ============================================================================
+metadata:
+  version: "1.0.0"
+  author: "ButterflyFx Dimensional System"
+  license: "Patent Pending"
+  tags:
+    - relationship
+    - dimensional
+    - spatial
+    - boundary
+    - scope
+    - inclusion
+    - subset
+  
+  dimensional_laws:
+    - law_three: "Every division inherits the whole (Russian Dolls)"
+    - law_four: "Connection creates meaning"
+  
+  safety_charter:
+    - principle_1: "All things are by reference (relationship, not copy)"
+    - principle_9: "Relationships are explicit"
+  
+  notes: |
+    CONTAINMENT differs from PART_TO_WHOLE:
+    - PART_TO_WHOLE: Component relationship (wheel is PART of car)
+    - CONTAINMENT: Spatial/logical inclusion (point is CONTAINED by line)
+    
+    A part may not be spatially contained (wheel is outside car body),
+    but a contained element is always within boundaries.
+

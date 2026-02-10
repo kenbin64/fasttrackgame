@@ -1,0 +1,171 @@
+name: ROOT
+category: MATHEMATICAL_OPERATION
+domain: mathematics
+
+definition: Perform dimensional reduction - inverse of power
+
+usage:
+  - "Reduce dimensions: √(area) = length (2D → 1D)"
+  - "Extract base: ∛(volume) = length (3D → 1D)"
+  - "Square root: √25 = 5"
+  - "Cube root: ∛125 = 5"
+  - "Nth root: ⁿ√x"
+  - "Dimensional descent: reduce to lower dimension"
+  - "Find original scale: reverse exponential growth"
+  - "Geometric mean: √(a * b)"
+
+meaning: |
+  Root is the fundamental act of DIMENSIONAL REDUCTION.
+  It is the INVERSE OF POWER - it reduces dimensional order.
+  
+  In DimensionOS, root is a CROSS-DIMENSIONAL operator.
+  When you take a root, you REDUCE DIMENSIONAL LEVELS.
+  
+  Root performs dimensional descent:
+  - √(area) = length (2D → 1D)
+  - ∛(volume) = length (3D → 1D)
+  - ⁴√(hypervolume) = length (4D → 1D)
+  
+  This is like unwrapping the Russian dolls:
+  - Volume → Plane → Line → Point
+  - Each root level extracts the previous dimension
+  
+  Root embodies:
+  - Law Seven: Return to unity (dimensional reduction)
+  - Law Nine: Redemption Equation (inverse of power)
+  
+  Root is the path back to unity.
+
+etymology: |
+  From Old English "rot" meaning "root, source, origin"
+  From Proto-Germanic "wrot" (root)
+
+expression: "lambda value, degree: value ** (1/degree)"
+signature: "(int, int) -> int"
+return_type: int
+
+relationships:
+  - type: INVERSE
+    target: POWER
+    description: "Power creates dimensions, root reduces them"
+  
+  - type: CREATES
+    target: UNITY
+    description: "Root reduces toward unity"
+  
+  - type: DESTROYS
+    target: DIMENSION
+    description: "Root collapses dimensional stacking"
+  
+  - type: RELATED
+    target: LOGARITHM
+    description: "Logarithm is related to root"
+  
+  - type: RELATED
+    target: DIVIDE
+    description: "Root is fractional power (division)"
+
+synonyms:
+  - radical
+  - extract
+  - reduce
+  - descend
+  - "√"
+  - "∛"
+
+antonyms:
+  - power
+  - exponent
+  - elevate
+  - stack
+
+related:
+  - POWER
+  - LOGARITHM
+  - DIVIDE
+  - UNITY
+  - DIMENSION
+  - REDUCTION
+
+examples:
+  - context: dimensional_reduction
+    input:
+      value: 25
+      degree: 2
+    output: 5
+    formula: "√25"
+    description: "Reduce 2D area to 1D length"
+  
+  - context: cube_root
+    input:
+      value: 125
+      degree: 3
+    output: 5
+    formula: "∛125"
+    description: "Reduce 3D volume to 1D length"
+  
+  - context: geometric_mean
+    input:
+      values: [4, 9]
+    output: 6
+    formula: "√(4 * 9) = √36"
+    description: "Geometric mean via square root"
+  
+  - context: fibonacci_root
+    input:
+      value: 64
+      degree: 2
+    output: 8
+    formula: "√64"
+    description: "Root of Fibonacci number"
+
+counterexamples:
+  - wrong: "Root is just division"
+    correct: "Root performs dimensional reduction (power inverse)"
+    explanation: "In DimensionOS, root is a dimensional operator"
+  
+  - wrong: "√(-1) is undefined"
+    correct: "√(-1) = i (imaginary unit, extends to complex plane)"
+    explanation: "Roots can extend to complex numbers"
+  
+  - wrong: "Root always makes things smaller"
+    correct: "Root of fractions makes things larger (√0.25 = 0.5)"
+    explanation: "Root of values less than 1 increases the result"
+
+metadata:
+  symbol: "√"
+  operator_type: cross_dimensional
+  creates_dimensions: false
+  reduces_dimensions: true
+  restores_unity: true
+  reversible: true
+  inverse_operation: POWER
+  dimensional_law: "Law Seven: Return to unity (dimensional reduction)"
+  redemption_law: "Law Nine: Redemption Equation (inverse of power)"
+
+tags:
+  - mathematics
+  - operation
+  - dimensional
+  - fundamental
+  - cross_dimensional
+  - reduces_structure
+  - returns_to_unity
+
+extensions:
+  - SQUARE_ROOT
+  - CUBE_ROOT
+  - NTH_ROOT
+  - LOGARITHM
+
+compositions:
+  - POWER
+  - DIVIDE
+  - UNITY
+
+transformations:
+  - REDUCTION
+  - UNITY
+  - DESCENT
+  - EXTRACTION
+
