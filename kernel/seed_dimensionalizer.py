@@ -30,7 +30,7 @@ from typing import Dict, Any, List
 from dataclasses import dataclass
 from kernel.substrate import Substrate, SubstrateIdentity
 from kernel.dimensional import Dimension
-from kernel.seed_loader import PrimitiveSeed
+from kernel.seed_types import PrimitiveSeed
 
 
 @dataclass(frozen=True)

@@ -13,7 +13,7 @@ Seeds are complete knowledge packages containing:
 """
 
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Callable
+from typing import Dict, List, Any, Optional, Callable, TYPE_CHECKING
 from dataclasses import dataclass, field
 from enum import Enum
 import yaml
@@ -22,73 +22,11 @@ import json
 from kernel.substrate import SubstrateIdentity
 from kernel.relationships import Relationship, RelationshipSet, RelationshipType
 from kernel.seed_validator import SeedValidator, SeedValidationError
-from kernel.seed_dimensionalizer import SeedDimensionalizer, DimensionalizedSeed
+from kernel.seed_types import PrimitiveSeed, PrimitiveCategory
 
-
-class PrimitiveCategory(Enum):
-    """Categories of dimensional primitives."""
-    # Tier 1: Fundamental
-    MATHEMATICAL_CONSTANT = "mathematical_constant"
-    MATHEMATICAL_OPERATION = "mathematical_operation"
-    PHYSICAL_CONSTANT = "physical_constant"
-    DIMENSIONAL_STRUCTURE = "dimensional_structure"
-    RELATIONSHIP = "relationship"  # Dimensional relationships
-
-    # Tier 2: Composite
-    GEOMETRIC_SHAPE = "geometric_shape"
-    PHYSICAL_LAW = "physical_law"
-    MATHEMATICAL_FUNCTION = "mathematical_function"
-
-    # Tier 3: Domain
-    SENSORY_PERCEPTION = "sensory_perception"
-    ECONOMIC_ACTION = "economic_action"
-    LANGUAGE_ELEMENT = "language_element"
-    COMPUTER_SCIENCE = "computer_science"
-
-    # Tier 4: Emergent
-    PHILOSOPHICAL_CONCEPT = "philosophical_concept"
-    COMPLEX_BEHAVIOR = "complex_behavior"
-
-
-@dataclass(frozen=True)
-class PrimitiveSeed:
-    """A seed is a complete knowledge package for a primitive."""
-    
-    # IDENTITY
-    identity: SubstrateIdentity
-    name: str
-    category: PrimitiveCategory
-    
-    # KNOWLEDGE
-    definition: str
-    usage: List[str]
-    meaning: str
-    etymology: Optional[str] = None
-    
-    # COMPUTATIONAL
-    expression: Optional[Callable] = None
-    signature: str = ""
-    return_type: str = "Any"
-    
-    # RELATIONAL
-    relationships: RelationshipSet = field(default_factory=RelationshipSet)
-    synonyms: List[str] = field(default_factory=list)
-    antonyms: List[str] = field(default_factory=list)
-    related: List[str] = field(default_factory=list)
-    
-    # EXAMPLES
-    examples: List[Dict[str, Any]] = field(default_factory=list)
-    counterexamples: List[Dict[str, Any]] = field(default_factory=list)
-    
-    # METADATA
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    tags: List[str] = field(default_factory=list)
-    domain: str = "general"
-    
-    # GROWTH
-    extensions: List[str] = field(default_factory=list)
-    compositions: List[str] = field(default_factory=list)
-    transformations: List[str] = field(default_factory=list)
+# Avoid circular import - import at runtime when needed
+if TYPE_CHECKING:
+    from kernel.seed_dimensionalizer import SeedDimensionalizer, DimensionalizedSeed
 
 
 class SeedLoader:
@@ -102,15 +40,23 @@ class SeedLoader:
         """
         self.seed_directory = Path(seed_directory)
         self.validator = SeedValidator()  # Security-first validator
-        self.dimensionalizer = SeedDimensionalizer()  # Dimensionalization engine
+        self._dimensionalizer = None  # Lazy-loaded to avoid circular import
         self.loaded_seeds: Dict[str, PrimitiveSeed] = {}
-        self.dimensionalized_seeds: Dict[str, DimensionalizedSeed] = {}  # Dimensional substrates
+        self.dimensionalized_seeds: Dict[str, Any] = {}  # Dimensional substrates
         self.seed_index: Dict[str, Any] = {
             "by_name": {},
             "by_category": {},
             "by_domain": {},
             "by_tag": {}
         }
+
+    @property
+    def dimensionalizer(self):
+        """Lazy-load dimensionalizer to avoid circular import."""
+        if self._dimensionalizer is None:
+            from kernel.seed_dimensionalizer import SeedDimensionalizer
+            self._dimensionalizer = SeedDimensionalizer()
+        return self._dimensionalizer
     
     def ingest_all(self) -> int:
         """Ingest all seeds from directory.
@@ -399,7 +345,7 @@ class SeedLoader:
         seed_names = self.seed_index["by_tag"].get(tag, [])
         return [self.loaded_seeds[name] for name in seed_names]
 
-    def get_dimensionalized(self, name: str) -> Optional[DimensionalizedSeed]:
+    def get_dimensionalized(self, name: str) -> Optional[Any]:
         """
         Get dimensionalized seed by name.
 

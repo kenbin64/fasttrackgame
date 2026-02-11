@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Demo - Pattern-Based Compression | ButterflyFx</title>
+    <link rel="stylesheet" href="../../static/landing.css">
+    <style>
+        .demo-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .upload-zone {
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            border: 3px dashed var(--cyber-cyan);
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--cyber-purple);
+            box-shadow: var(--glow-purple);
+            transform: scale(1.02);
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--cyber-green);
+            box-shadow: var(--glow-green);
+            background: rgba(57, 255, 20, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(var(--glow-cyan));
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .result-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .stat-box {
+            background: rgba(0, 240, 255, 0.1);
+            border: 2px solid var(--cyber-cyan);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--cyber-cyan), var(--cyber-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0.5rem;
+        }
+
+        .image-preview {
+            width: 100%;
+            border: 2px solid var(--cyber-purple);
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .pattern-breakdown {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .pattern-item {
+            background: rgba(176, 38, 255, 0.1);
+            border: 1px solid var(--cyber-purple);
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .pattern-count {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--cyber-cyan);
+        }
+
+        .pattern-name {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid rgba(176, 38, 255, 0.3);
+            border-top: 4px solid var(--cyber-cyan);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: rgba(255, 0, 110, 0.2);
+            border: 2px solid var(--cyber-pink);
+            border-radius: 8px;
+            padding: 1rem;
+            color: var(--cyber-pink);
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .success-message {
+            background: rgba(57, 255, 20, 0.2);
+            border: 2px solid var(--cyber-green);
+            border-radius: 8px;
+            padding: 1rem;
+            color: var(--cyber-green);
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">🦋</span>
+                <span class="logo-text">ButterflyFx Demo</span>
+            </div>
+            <div class="nav-links">
+                <a href="preview.html">← Back to Platform</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero">
+        <div class="hero-content">
+            <div class="product-badge">🔬 Live Proof of Concept</div>
+            <h1 class="hero-title">
+                Pattern-Based Compression
+                <span class="gradient-text">See It Work In Real-Time</span>
+            </h1>
+            <p class="hero-subtitle">
+                Upload any image and watch it transform into mathematical patterns.
+                This is NOT hardcoded. This is REAL substrate compression.
+            </p>
+        </div>
+    </header>
+
+    <!-- Demo Container -->
+    <div class="demo-container">
+        <!-- Upload Zone -->
+        <div class="upload-zone" id="uploadZone">
+            <div class="upload-icon">📤</div>
+            <h2>Drop Image Here or Click to Upload</h2>
+            <p style="color: var(--text-secondary); margin-top: 1rem;">
+                Supports: JPG, PNG, GIF, BMP • Max 10MB
+            </p>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="color: var(--cyber-cyan); font-size: 1.2rem;">
+                Converting to substrate patterns...
+            </p>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage"></div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="successMessage">
+            ✓ Image successfully converted to substrate!
+        </div>
+
+        <!-- Results -->
+        <div id="results" style="display: none;">
+            <div class="results-grid">
+                <!-- Original Image -->
+                <div class="result-panel">
+                    <h3 style="color: var(--cyber-cyan); margin-bottom: 1rem;">Original Image</h3>
+                    <img id="originalImage" class="image-preview" alt="Original">
+                    <div class="stat-box">
+                        <div class="stat-value" id="originalSize">0</div>
+                        <div class="stat-label">Bytes (Raw Pixels)</div>
+                    </div>
+                </div>
+
+                <!-- Reconstructed Image -->
+                <div class="result-panel">
+                    <h3 style="color: var(--cyber-purple); margin-bottom: 1rem;">Reconstructed from Substrate</h3>
+                    <img id="reconstructedImage" class="image-preview" alt="Reconstructed">
+                    <div class="stat-box">
+                        <div class="stat-value" id="substrateSize">0</div>
+                        <div class="stat-label">Bytes (Pattern Data)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compression Stats -->
+            <div class="result-panel" style="margin-top: 2rem;">
+                <h3 style="color: var(--cyber-green); margin-bottom: 1.5rem; text-align: center;">
+                    Compression Results
+                </h3>
+                
+                <div class="stat-box" style="background: rgba(57, 255, 20, 0.1); border-color: var(--cyber-green);">
+                    <div class="stat-value" id="compressionRatio" style="background: linear-gradient(135deg, var(--cyber-green), var(--cyber-cyan));">
+                        0:1
+                    </div>
+                    <div class="stat-label">Compression Ratio</div>
+                </div>
+
+                <h4 style="color: var(--cyber-cyan); margin: 2rem 0 1rem;">Pattern Breakdown</h4>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem; text-align: center;">
+                    Image divided into <span id="numPatterns" style="color: var(--cyber-purple); font-weight: 700;">0</span> patterns
+                </p>
+                
+                <div class="pattern-breakdown" id="patternBreakdown">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../static/landing.js"></script>
+    <script>
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+
+        // Click to upload
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        // File selected
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // Drag and drop
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        async function handleFile(file) {
+            // Validate file
+            if (!file.type.startsWith('image/')) {
+                showError('Please upload an image file');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                showError('File too large. Max 10MB');
+                return;
+            }
+
+            // Show loading
+            loading.classList.add('active');
+            results.style.display = 'none';
+            errorMessage.classList.remove('active');
+            successMessage.classList.remove('active');
+
+            // Show original image
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('originalImage').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            // Upload to API
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch('/api/demo/compress', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Show results
+                    displayResults(data);
+
+                    // Load reconstructed image
+                    document.getElementById('reconstructedImage').src =
+                        `/api/demo/reconstruct/${data.substrate_id}`;
+
+                    successMessage.classList.add('active');
+                } else {
+                    showError(data.error || 'Compression failed');
+                }
+            } catch (error) {
+                showError('Failed to connect to demo server. Make sure demo_api.py is running on port 5001.');
+                console.error(error);
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        function displayResults(data) {
+            // Show results section
+            results.style.display = 'block';
+
+            // Update stats
+            document.getElementById('originalSize').textContent = formatBytes(data.original_size);
+            document.getElementById('substrateSize').textContent = formatBytes(data.substrate_size);
+            document.getElementById('compressionRatio').textContent = `${data.compression_ratio}:1`;
+            document.getElementById('numPatterns').textContent = data.num_patterns;
+
+            // Update pattern breakdown
+            const breakdown = document.getElementById('patternBreakdown');
+            breakdown.innerHTML = '';
+
+            const patterns = [
+                { name: 'Solid Color', key: 'solid', icon: '🟦' },
+                { name: 'Linear Gradient', key: 'linear', icon: '📊' },
+                { name: 'Bilinear Gradient', key: 'bilinear', icon: '🌈' },
+                { name: 'Complex', key: 'complex', icon: '🔮' }
+            ];
+
+            patterns.forEach(pattern => {
+                const count = data.pattern_breakdown[pattern.key] || 0;
+                const item = document.createElement('div');
+                item.className = 'pattern-item';
+                item.innerHTML = `
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">${pattern.icon}</div>
+                    <div class="pattern-count">${count}</div>
+                    <div class="pattern-name">${pattern.name}</div>
+                `;
+                breakdown.appendChild(item);
+            });
+        }
+
+        function showError(message) {
+            errorMessage.textContent = '❌ ' + message;
+            errorMessage.classList.add('active');
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
+

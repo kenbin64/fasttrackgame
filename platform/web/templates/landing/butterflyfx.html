@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFx - Revolutionary Dimensional Computing Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+</head>
+<body>
+    <!-- Hero Section -->
+    <header class="hero">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="logo">
+                    <span class="logo-icon">🦋</span>
+                    <span class="logo-text">ButterflyFx</span>
+                </div>
+                <div class="nav-links">
+                    <a href="#products">Products</a>
+                    <a href="#features">Features</a>
+                    <a href="#pricing">Pricing</a>
+                    <a href="{{ url_for('docs') }}">Docs</a>
+                    <a href="{{ url_for('login') }}" class="btn-login">Login</a>
+                    <a href="{{ url_for('register') }}" class="btn-register">Get Started</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="hero-content">
+            <h1 class="hero-title">
+                The Future of Data Storage
+                <span class="gradient-text">Is Dimensional</span>
+            </h1>
+            <p class="hero-subtitle">
+                Store 100,000x more data using mathematical substrates instead of traditional files.
+                Welcome to DimensionOS - where data becomes potential.
+            </p>
+            <div class="hero-cta">
+                <a href="{{ url_for('register') }}" class="btn-primary">Start Free Trial</a>
+                <a href="demo.html" class="btn-secondary" style="background: linear-gradient(135deg, var(--cyber-green), var(--cyber-cyan)); color: white; border-color: var(--cyber-green);">🔬 Try Live Demo</a>
+                <a href="#demo" class="btn-secondary">Watch Demo</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="stat-value">100,000x</div>
+                    <div class="stat-label">Compression</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">18.4 Quintillion</div>
+                    <div class="stat-label">Relationships</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">Zero</div>
+                    <div class="stat-label">Data Loss</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Featured Product: Universal Hard Drive -->
+    <section class="featured-product">
+        <div class="container">
+            <div class="section-header">
+                <span class="badge">Flagship Product</span>
+                <h2>Universal Hard Drive</h2>
+                <p>Store everything as dimensional substrates. Nothing saved but potential.</p>
+            </div>
+
+            <div class="product-showcase">
+                <div class="showcase-visual">
+                    <div class="demo-window">
+                        <div class="demo-header">
+                            <span>🖴 Universal Hard Drive</span>
+                        </div>
+                        <div class="demo-content">
+                            <div class="explorer-view">
+                                <div class="explorer-item">📁 Images (1,489:1 compression)</div>
+                                <div class="explorer-item">🎬 Videos (116,640:1 compression)</div>
+                                <div class="explorer-item">🎵 Audio (50,000:1 compression)</div>
+                                <div class="explorer-item">📊 Databases (775:1 compression)</div>
+                                <div class="explorer-item">🌐 Web Data (10,000:1 compression)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="showcase-features">
+                    <h3>Revolutionary Storage Technology</h3>
+                    <ul class="feature-list">
+                        <li>
+                            <span class="icon">🎯</span>
+                            <div>
+                                <strong>Pattern-Based Compression</strong>
+                                <p>Detect patterns instead of storing raw data</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">🔗</span>
+                            <div>
+                                <strong>Dimensional Relationships</strong>
+                                <p>No joins needed - relationships ARE dimensions</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">⚡</span>
+                            <div>
+                                <strong>Instant Access</strong>
+                                <p>Data manifests on demand from mathematical expressions</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">🌌</span>
+                            <div>
+                                <strong>Infinite Scalability</strong>
+                                <p>Store petabytes in gigabytes of substrate space</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="https://butterflyfxhd.com" class="btn-primary">Explore Universal Hard Drive →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- All Products -->
+    <section id="products" class="products">
+        <div class="container">
+            <div class="section-header">
+                <h2>Complete Platform</h2>
+                <p>Everything you need to build dimensional applications</p>
+            </div>
+
+            <div class="product-grid">
+                <!-- Universal Hard Drive -->
+                <div class="product-card featured">
+                    <div class="product-icon">🖴</div>
+                    <h3>Universal Hard Drive</h3>
+                    <p>Windows Explorer-like interface for dimensional storage with 100,000x compression.</p>
+                    <ul class="product-features">
+                        <li>3 view modes (folder/table/dimension)</li>
+                        <li>Pattern-based compression</li>
+                        <li>Relationship visualization</li>
+                        <li>Query interface</li>
+                    </ul>
+                    <a href="https://butterflyfxhd.com" class="product-link">Learn More →</a>
+                </div>
+
+                <!-- Universal Connector -->
+                <div class="product-card">
+                    <div class="product-icon">🔗</div>
+                    <h3>Universal Connector</h3>
+                    <p>Connect to any data source and convert to dimensional substrates automatically.</p>
+                    <ul class="product-features">
+                        <li>45+ pre-configured connectors</li>
+                        <li>Social media, databases, APIs</li>
+                        <li>Real-time data transformation</li>
+                        <li>Connection wizard</li>
+                    </ul>
+                    <a href="https://theconduit.me" class="product-link">Learn More →</a>
+                </div>
+
+                <!-- Python API -->
+                <div class="product-card">
+                    <div class="product-icon">🐍</div>
+                    <h3>Python API</h3>
+                    <p>Complete API framework for building dimensional applications in Python.</p>
+                    <ul class="product-features">
+                        <li>Full substrate manipulation</li>
+                        <li>REST & GraphQL endpoints</li>
+                        <li>SDK & client libraries</li>
+                        <li>Code generation</li>
+                    </ul>
+                    <a href="https://gnopping.com" class="product-link">Learn More →</a>
+                </div>
+
+                <!-- Database -->
+                <div class="product-card">
+                    <div class="product-icon">💾</div>
+                    <h3>Dimensional Database</h3>
+                    <p>Database that stores relationships as dimensions - no joins required.</p>
+                    <ul class="product-features">
+                        <li>17 relationship types</li>
+                        <li>64-bit identity system</li>
+                        <li>Automatic bidirectional relations</li>
+                        <li>Query by dimension</li>
+                    </ul>
+                    <a href="https://tetracubedb.com" class="product-link">Learn More →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Why ButterflyFx?</h2>
+                <p>Revolutionary technology that changes how we think about data</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Substrates, Not Data</h3>
+                    <p>Store mathematical expressions (z = xy) instead of raw data. Everything is potential that manifests on demand.</p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">🔢</div>
+                    <h3>64-Bit Identity System</h3>
+                    <p>18.4 quintillion unique relationships. Immutable, hashable, and lightning fast.</p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">🌊</div>
+                    <h3>Pattern Detection</h3>
+                    <p>Automatically detect patterns in data for massive compression ratios.</p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">🔗</div>
+                    <h3>No Joins Needed</h3>
+                    <p>Relationships ARE dimensions. Query across any dimension instantly.</p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Instant Manifestation</h3>
+                    <p>Data appears on demand from substrates. No loading, no waiting.</p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">🌌</div>
+                    <h3>Infinite Scalability</h3>
+                    <p>Store petabytes in gigabytes. The more patterns, the better compression.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <div class="section-header">
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Start free, upgrade as you grow</p>
+            </div>
+
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Free</h3>
+                    <div class="price">$0<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li>✅ Python API access</li>
+                        <li>✅ 1,000 API calls/month</li>
+                        <li>✅ 100MB storage</li>
+                        <li>✅ 3 connections</li>
+                        <li>✅ Community support</li>
+                    </ul>
+                    <a href="{{ url_for('register') }}" class="btn-pricing">Get Started</a>
+                </div>
+
+                <div class="pricing-card">
+                    <h3>Basic</h3>
+                    <div class="price">$29<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li>✅ Python API</li>
+                        <li>✅ Universal Connector</li>
+                        <li>✅ 100,000 API calls/month</li>
+                        <li>✅ 10GB storage</li>
+                        <li>✅ 50 connections</li>
+                        <li>✅ Email support</li>
+                    </ul>
+                    <a href="{{ url_for('register') }}" class="btn-pricing">Start Trial</a>
+                </div>
+
+                <div class="pricing-card featured">
+                    <div class="popular-badge">Most Popular</div>
+                    <h3>Pro</h3>
+                    <div class="price">$99<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li>✅ All Products</li>
+                        <li>✅ Universal Hard Drive</li>
+                        <li>✅ 1M API calls/month</li>
+                        <li>✅ 1TB storage</li>
+                        <li>✅ Unlimited connections</li>
+                        <li>✅ Priority support</li>
+                    </ul>
+                    <a href="{{ url_for('register') }}" class="btn-pricing primary">Start Trial</a>
+                </div>
+
+                <div class="pricing-card">
+                    <h3>Enterprise</h3>
+                    <div class="price">Custom</div>
+                    <ul class="pricing-features">
+                        <li>✅ All Products</li>
+                        <li>✅ Unlimited everything</li>
+                        <li>✅ Dedicated support</li>
+                        <li>✅ Custom integrations</li>
+                        <li>✅ SLA guarantee</li>
+                        <li>✅ On-premise option</li>
+                    </ul>
+                    <a href="mailto:sales@butterflyfx.us" class="btn-pricing">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="demo">
+        <div class="container">
+            <div class="section-header">
+                <h2>See It In Action</h2>
+                <p>Watch how dimensional substrates revolutionize data storage</p>
+            </div>
+
+            <div class="demo-container">
+                <div class="demo-comparison">
+                    <div class="comparison-side">
+                        <h3>Traditional Storage</h3>
+                        <div class="storage-visual traditional">
+                            <div class="file-item">📄 image.jpg <span>6.2 MB</span></div>
+                            <div class="file-item">🎬 video.mp4 <span>1.8 GB</span></div>
+                            <div class="file-item">💾 database.db <span>500 MB</span></div>
+                            <div class="total">Total: 2.3 GB</div>
+                        </div>
+                    </div>
+
+                    <div class="comparison-arrow">→</div>
+
+                    <div class="comparison-side">
+                        <h3>ButterflyFx Storage</h3>
+                        <div class="storage-visual butterflyfx">
+                            <div class="substrate-item">🦋 image substrate <span>8 KB</span></div>
+                            <div class="substrate-item">🦋 video substrate <span>16 KB</span></div>
+                            <div class="substrate-item">🦋 database substrate <span>645 KB</span></div>
+                            <div class="total success">Total: 669 KB (3,440x compression!)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Transform Your Data?</h2>
+            <p>Join the dimensional revolution. Start storing 100,000x more data today.</p>
+            <div class="cta-buttons">
+                <a href="{{ url_for('register') }}" class="btn-primary large">Start Free Trial</a>
+                <a href="{{ url_for('docs') }}" class="btn-secondary large">Read Documentation</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>🦋 ButterflyFx</h4>
+                    <p>Revolutionary dimensional computing platform</p>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Products</h4>
+                    <a href="https://butterflyfxhd.com">Universal Hard Drive</a>
+                    <a href="https://theconduit.me">Universal Connector</a>
+                    <a href="https://gnopping.com">Python API</a>
+                    <a href="https://tetracubedb.com">Dimensional Database</a>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <a href="{{ url_for('docs') }}">Documentation</a>
+                    <a href="{{ url_for('pricing') }}">Pricing</a>
+                    <a href="https://github.com/kenbin64/butterflyfxpython">GitHub</a>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <a href="mailto:contact@butterflyfx.us">Contact</a>
+                    <a href="mailto:support@butterflyfx.us">Support</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 ButterflyFx. All rights reserved.</p>
+                <p>Powered by DimensionOS</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='landing.js') }}"></script>
+</body>
+</html>
+
