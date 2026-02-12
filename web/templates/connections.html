@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connections - Substrate Database Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <h1>🦋 Substrate Database Admin</h1>
+                <p>Connection Management</p>
+            </div>
+            <div class="header-right">
+                <span class="user-info">{{ username }} ({{ role }})</span>
+                <a href="{{ url_for('users') }}" class="btn btn-secondary">Users</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+            </div>
+        </header>
+        
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="window.location.href='{{ url_for('connection_wizard') }}'">
+                🧙‍♂️ Add Connection
+            </button>
+            <button class="btn btn-secondary" onclick="refreshConnections()">
+                🔄 Refresh
+            </button>
+        </div>
+        
+        <div class="table-container">
+            <table class="connection-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Connection</th>
+                        <th>Endpoint</th>
+                        <th>Protocol</th>
+                        <th>Last Test</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for conn in connections %}
+                    <tr data-srl-name="{{ conn.name }}" class="{% if conn.is_blacklisted %}blacklisted{% endif %}">
+                        <td>{{ conn.id }}</td>
+                        <td><strong>{{ conn.name }}</strong></td>
+                        <td><span class="badge badge-{{ conn.type.lower() }}">{{ conn.type }}</span></td>
+                        <td class="status-cell">
+                            <span class="status-indicator" title="{% if conn.enabled %}Enabled{% else %}Disabled{% endif %}">
+                                {{ conn.enabled_icon }}
+                            </span>
+                        </td>
+                        <td class="status-cell">
+                            <span class="connection-indicator" title="{{ conn.connection_status }}">
+                                {{ conn.connection_icon }}
+                            </span>
+                            <span class="status-text">{{ conn.connection_status }}</span>
+                        </td>
+                        <td class="endpoint">{{ conn.endpoint }}</td>
+                        <td>{{ conn.protocol }}</td>
+                        <td class="timestamp">
+                            {% if conn.last_test > 0 %}
+                                <span title="{{ conn.last_test }}">Recently</span>
+                            {% else %}
+                                Never
+                            {% endif %}
+                        </td>
+                        <td class="actions">
+                            <button class="btn-icon" onclick="testConnection('{{ conn.name }}')" title="Test Connection">
+                                🔍
+                            </button>
+                            <button class="btn-icon" onclick="toggleEnable('{{ conn.name }}')" title="{% if conn.enabled %}Disable{% else %}Enable{% endif %}">
+                                {% if conn.enabled %}⏸️{% else %}▶️{% endif %}
+                            </button>
+                            <button class="btn-icon" onclick="editConnection('{{ conn.name }}')" title="Edit">
+                                ✏️
+                            </button>
+                            <button class="btn-icon" 
+                                    onclick="showPasswordDialog('{{ conn.name }}')" 
+                                    title="Change Password"
+                                    {% if not conn.allows_password_change %}disabled{% endif %}>
+                                🔑
+                            </button>
+                            <button class="btn-icon btn-danger" onclick="deleteConnection('{{ conn.name }}')" title="Delete">
+                                🗑️
+                            </button>
+                        </td>
+                    </tr>
+                    {% if conn.last_error %}
+                    <tr class="error-row">
+                        <td colspan="9">
+                            <div class="error-message">
+                                ⚠️ Error: {{ conn.last_error }}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            {% if not connections %}
+            <div class="empty-state">
+                <p>No connections registered</p>
+                <button class="btn btn-primary" onclick="showAddConnectionDialog()">
+                    Add First Connection
+                </button>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="info-panel">
+            <h3>Status Indicators</h3>
+            <div class="legend">
+                <div class="legend-item">
+                    <span>✅</span> Enabled
+                </div>
+                <div class="legend-item">
+                    <span>❌</span> Disabled
+                </div>
+                <div class="legend-item">
+                    <span>🟢</span> Connected
+                </div>
+                <div class="legend-item">
+                    <span>🔴</span> Disconnected
+                </div>
+                <div class="legend-item">
+                    <span>🟠</span> Connecting
+                </div>
+                <div class="legend-item">
+                    <span>⚫</span> Blacklisted
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Password Change Dialog -->
+    <div id="passwordDialog" class="modal">
+        <div class="modal-content">
+            <h2>Change Password</h2>
+            <p>Connection: <strong id="passwordDialogSRL"></strong></p>
+            <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input type="password" id="newPassword" class="form-control">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="changePassword()">Change Password</button>
+                <button class="btn btn-secondary" onclick="closePasswordDialog()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='connections.js') }}"></script>
+</body>
+</html>
+

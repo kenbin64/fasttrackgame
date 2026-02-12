@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        /* Main content area */
+        #content {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 280px;
+            bottom: 60px;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+        
+        #stage {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.3s ease;
+        }
+        
+        .node-content {
+            max-width: 80%;
+            max-height: 80%;
+            padding: 60px;
+            border-radius: 20px;
+            overflow: auto;
+        }
+        
+        .node-content h1 {
+            font-size: 3em;
+            margin-bottom: 0.5em;
+            font-weight: 700;
+        }
+        
+        .node-content h2 {
+            font-size: 2em;
+            margin: 1em 0 0.5em;
+            font-weight: 600;
+        }
+        
+        .node-content p {
+            font-size: 1.5em;
+            line-height: 1.6;
+            margin-bottom: 1em;
+        }
+        
+        .node-content ul, .node-content ol {
+            font-size: 1.3em;
+            margin-left: 2em;
+            margin-bottom: 1em;
+        }
+        
+        .node-content li {
+            margin-bottom: 0.5em;
+        }
+        
+        .node-content code {
+            background: rgba(0,0,0,0.3);
+            padding: 0.2em 0.5em;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+        }
+        
+        .node-content pre {
+            background: rgba(0,0,0,0.4);
+            padding: 1.5em;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+        
+        /* Header */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9), transparent);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+        }
+        
+        #breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+        
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .breadcrumb-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .breadcrumb-item.current {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .level-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        #title {
+            margin-left: auto;
+            font-size: 18px;
+            color: #888;
+        }
+        
+        /* Sidebar - Structure map */
+        #sidebar {
+            position: fixed;
+            top: 60px;
+            right: 0;
+            width: 280px;
+            bottom: 60px;
+            background: rgba(20, 20, 30, 0.95);
+            border-left: 1px solid #333;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        #sidebar h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+        
+        .structure-level {
+            margin-bottom: 20px;
+        }
+        
+        .level-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .level-line {
+            flex: 1;
+            height: 1px;
+            background: currentColor;
+            opacity: 0.3;
+        }
+        
+        .level-nodes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding-left: 20px;
+        }
+        
+        .structure-node {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .structure-node:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .structure-node.current {
+            border-color: currentColor;
+            background: rgba(255,255,255,0.15);
+        }
+        
+        /* Footer - Controls */
+        #footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(0deg, rgba(0,0,0,0.9), transparent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            z-index: 100;
+        }
+        
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .nav-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .nav-btn span {
+            font-size: 10px;
+            color: #888;
+        }
+        
+        /* Coordinate display */
+        #coord-display {
+            position: fixed;
+            bottom: 70px;
+            left: 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            color: #666;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 15px;
+            border-radius: 8px;
+        }
+        
+        /* Level colors */
+        .level-0 { color: #ef4444; }
+        .level-1 { color: #f97316; }
+        .level-2 { color: #eab308; }
+        .level-3 { color: #22c55e; }
+        .level-4 { color: #06b6d4; }
+        .level-5 { color: #3b82f6; }
+        .level-6 { color: #8b5cf6; }
+        
+        .bg-level-0 { background: #ef4444; }
+        .bg-level-1 { background: #f97316; }
+        .bg-level-2 { background: #eab308; }
+        .bg-level-3 { background: #22c55e; }
+        .bg-level-4 { background: #06b6d4; }
+        .bg-level-5 { background: #3b82f6; }
+        .bg-level-6 { background: #8b5cf6; }
+        
+        /* Transitions */
+        .transition-zoom {
+            animation: zoomIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .transition-fade {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .transition-slide {
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .transition-spiral {
+            animation: spiralIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .transition-drill-down {
+            animation: drillDown 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .transition-drill-up {
+            animation: drillUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes spiralIn {
+            from { transform: rotate(-180deg) scale(0); opacity: 0; }
+            to { transform: rotate(0deg) scale(1); opacity: 1; }
+        }
+        
+        @keyframes drillDown {
+            from { transform: scale(2) translateY(-50px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        
+        @keyframes drillUp {
+            from { transform: scale(0.5) translateY(50px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        
+        /* Keyboard hints */
+        .hint {
+            position: fixed;
+            bottom: 70px;
+            right: 300px;
+            font-size: 12px;
+            color: #555;
+        }
+        
+        .hint kbd {
+            background: #333;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 0 3px;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <div id="breadcrumb"></div>
+        <div id="title">ButterflyFX Architecture</div>
+    </div>
+    
+    <div id="content">
+        <div id="stage"></div>
+    </div>
+    
+    <div id="sidebar">
+        <h3>Structure</h3>
+        <div id="structure"></div>
+    </div>
+    
+    <div id="footer">
+        <button class="nav-btn" id="btn-up" title="Drill Up (↑ or W)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+            <span>UP</span>
+        </button>
+        <button class="nav-btn" id="btn-prev" title="Previous (← or A)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            <span>PREV</span>
+        </button>
+        <button class="nav-btn" id="btn-next" title="Next (→ or D)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+            <span>NEXT</span>
+        </button>
+        <button class="nav-btn" id="btn-down" title="Drill Down (↓ or S)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
+            <span>DOWN</span>
+        </button>
+    </div>
+    
+    <div id="coord-display"></div>
+    
+    <div class="hint">
+        <kbd>↑↓←→</kbd> Navigate
+        <kbd>1-9</kbd> Spirals
+        <kbd>Home</kbd> Start
+    </div>
+
+    <script>
+        // Presentation data
+        const pres = {
+  "id": "butterflyfx",
+  "title": "ButterflyFX Architecture",
+  "nodes": {
+    "meta-overview": {
+      "id": "meta-overview",
+      "coord": {
+        "spiral": 0,
+        "level": 6,
+        "position": 0
+      },
+      "title": "ButterflyFX",
+      "content": "\n            <p>A revolutionary approach to computing based on \n            <strong>dimensional mathematics</strong>.</p>\n            \n            <p>Instead of storing and transmitting raw data, \n            we transmit <em>mathematical functions</em>.</p>\n            \n            <h2>Core Insight</h2>\n            <p><code>f(t) = sin(2\u03c0 \u00d7 440 \u00d7 t)</code></p>\n            <p>43 bytes describes infinite audio. Math is universal.</p>\n            \n            <p style=\"color: #8b5cf6; margin-top: 2em;\">\n                \u2193 Drill down to explore the architecture\n            </p>\n        ",
+      "contentType": "html",
+      "background": "#1a1a2e",
+      "color": "#ffffff",
+      "scale": 1.0,
+      "linkUp": null,
+      "linkDown": null,
+      "linkNext": null,
+      "linkPrev": null,
+      "children": [
+        "parallel-vs-traditional",
+        "parallel-vs-quantum"
+      ],
+      "transition": "zoom",
+      "transitionDuration": 0.5
+    },
+    "parallel-vs-traditional": {
+      "id": "parallel-vs-traditional",
+      "coord": {
+        "spiral": 0,
+        "level": 5,
+        "position": 0
+      },
+      "title": "vs Traditional Computing",
+      "content": "\n            <table style=\"width: 100%; font-size: 1.2em; border-collapse: collapse;\">\n                <tr style=\"border-bottom: 1px solid #333;\">\n                    <th style=\"text-align: left; padding: 15px;\">Traditional</th>\n                    <th style=\"text-align: left; padding: 15px;\">ButterflyFX</th>\n                </tr>\n                <tr style=\"border-bottom: 1px solid #333;\">\n                    <td style=\"padding: 15px;\">Send 192KB/sec audio</td>\n                    <td style=\"padding: 15px; color: #22c55e;\">Send 43 bytes (function)</td>\n                </tr>\n                <tr style=\"border-bottom: 1px solid #333;\">\n                    <td style=\"padding: 15px;\">Latency limited by data size</td>\n                    <td style=\"padding: 15px; color: #22c55e;\">Near-zero encoding overhead</td>\n                </tr>\n                <tr style=\"border-bottom: 1px solid #333;\">\n                    <td style=\"padding: 15px;\">Lost packet = lost data</td>\n                    <td style=\"padding: 15px; color: #22c55e;\">Function continues</td>\n                </tr>\n                <tr>\n                    <td style=\"padding: 15px;\">Codec compatibility issues</td>\n                    <td style=\"padding: 15px; color: #22c55e;\">Math is universal</td>\n                </tr>\n            </table>\n        ",
+      "contentType": "html",
+      "background": "#1e293b",
+      "color": "#ffffff",
+      "scale": 1.0,
+      "linkUp": null,
+      "linkDown": null,
+      "linkNext": "parallel-vs-quantum",
+      "linkPrev": null,
+      "children": [],
+      "transition": "zoom",
+      "transitionDuration": 0.5
+    },
+    "parallel-vs-quantum": {
+      "id": "parallel-vs-quantum",
+      "coord": {
+        "spiral": 0,
+        "level": 5,
+        "position": 1
+      },
+      "title": "vs Quantum Computing",
+      "content": "\n            <p>Quantum computing uses superposition and entanglement.</p>\n            <p>ButterflyFX uses <strong>dimensional projection</strong>.</p>\n            \n            <h2>Key Difference</h2>\n            <ul>\n                <li>Quantum: Probabilistic, requires special hardware</li>\n                <li>ButterflyFX: Deterministic, runs on any computer</li>\n            </ul>\n            \n            <p style=\"margin-top: 1.5em;\">\n                Both explore computation beyond classical limits,\n                but ButterflyFX is <em>practical today</em>.\n            </p>\n        ",
+      "contentType": "html",
+      "background": "#1e293b",
+      "color": "#ffffff",
+      "scale": 1.0,
+      "linkUp": null,
+      "linkDown": null,
+      "linkNext": null,
+      "linkPrev": "parallel-vs-traditional",
+      "children": [],
+      "transition": "zoom",
+      "transitionDuration": 0.5
+    },
+    "time-evolution": {
+      "id": "time-evolution",
+      "coord": {
+        "spiral": 0,
+        "level": 4,
+        "position": 0
+      },
+      "title": "Evolution",
+      "content": "\n            <h2>Development Timeline</h2>\n            \n            <div style=\"display: flex; gap: 30px; margin-top: 1em;\">\n                <div style=\"flex: 1; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px;\">\n                    <h3 style=\"color: #3b82f6;\">Phase 1</h3>\n                    <p>Core manifold mathematics</p>\n                    <p>7-level helix structure</p>\n                </div>\n                <div style=\"flex: 1; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px;\">\n                    <h3 style=\"color: #8b5cf6;\">Phase 2</h3>\n                    <p>Transport protocols</p>\n                    <p>Audio/video streaming</p>\n                </div>\n                <div style=\"flex: 1; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px;\">\n                    <h3 style=\"color: #22c55e;\">Phase 3</h3>\n                    <p>Presentation engine</p>\n                    <p>Dimensional navigation</p>\n                </div>\n            </div>\n        ",
+      "contentType": "html",
+      "background": "#0f172a",
+      "color": "#ffffff",
+      "scale": 1.0,
+      "linkUp": null,
+      "linkDown": null,
+      "linkNext": null,
+      "linkPrev": null,
+      "children": [],
+      "transition": "zoom",
+      "transitionDuration": 0.5
+    },
+    "volume-architecture": {
+      "id": "volume-architecture",
+      "coord": {
+        "spiral": 0,
+        "level": 3,
+        "position": 0
+      },
+      "title": "System Architecture",
+      "content": "\n            <pre style=\"font-size: 1.1em; line-height: 1.6;\">\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                    APPLICATION LAYER                      \u2502\n\u2502   Explorer \u2502 Connector \u2502 FileSystem \u2502 Presentation       \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502                    TRANSPORT LAYER                        \u2502\n\u2502   HelixPacket \u2502 AudioTransport \u2502 ManifoldServer          \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502                    FOUNDATION LAYER                       \u2502\n\u2502   HelixDB \u2502 HelixFS \u2502 HelixStore \u2502 HelixGraph            \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502                    PRIMITIVES LAYER                       \u2502\n\u2502   DimensionalType \u2502 LazyValue \u2502 HelixContext             \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502                      CORE LAYER                           \u2502\n\u2502         HelixKernel \u2502 ManifoldSubstrate                  \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n            </pre>\n        ",
+      "contentType": "html",
+      "background": "#0c0c1a",
+      "color": "#ffffff",
+      "scale": 1.0,
+      "linkUp": null,
+      "linkDown": null,
+      "linkNext": null,
+      "linkPrev": null,
+      "children": [
+        "plane-modules"
+      ],
+      "transition": "zoom",
+      "transitionDuration": 0.5
+    },
+    "plane-modules": {
+      "id": "plane-modules",
+      "coord": {
+        "spiral": 0,
+        "level": 2,
+        "position": 0
+      },
+      "title": "Module Grid",
+      "content": "\n            <div style=\"display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;\">\n                <div style=\"padding: 25px; background: #ef4444; border-radius: 10px; text-align: center;\">\n                    <strong>kernel.py</strong><br><small>Core state machine</small>\n                </div>\n                <div style=\"padding: 25px; background: #f97316; border-radius: 10px; text-align: center;\">\n                    <strong>substrate.py</strong><br><small>Data storage</small>\n                </div>\n                <div style=\"padding: 25px; background: #eab308; border-radius: 10px; text-align: center;\">\n                    <strong>manifold.py</strong><br><small>Math surface</small>\n                </div>\n                <div style=\"padding: 25px; background: #22c55e; border-radius: 10px; text-align: center;\">\n                    <strong>primitives.py</strong><br><small>Core types</small>\n                </div>\n                <div style=\"padding: 25px; background: #06b6d4; border-radius: 10px; text-align: center;\">\n                    <strong>transport.py</strong><br><small>Network protocol</small>\n                </div>\n                <div style=\"padding: 25px; background: #3b82f6; border-radius: 10px; text-align: center;\">\n                    <strong>foundation.py</strong><br><small>DB, FS, Store</small>\n                </div>\n                <div style=\"padding: 25px; background: #8b5cf6; border-radius: 10px; text-align: center;\">\n                    <strong>assembler.py</strong><br><small>File reconstruction</small>\n                </div>\n                <div style=\"padding: 25px; background: #ec4899; border-radius: 10px; text-align: center;\">\n                    <strong>presentation.py</strong><br><small>Timeline content</small>\n                </div>\n                <div style=\"padding: 25px; background: #64748b; border-radius: 10px; text-align: center;\">\n                    <strong>utilities.py</strong><br><small>Helpers</small>\n                </div>\n            </div>\n        ",
+      "contentType": "html",
+      "background": "#0a0a15",
+      "color": "#ffffff",
+      "scale": 1.0,
+      "linkUp": null,
+      "linkDown": null,
+      "linkNext": null,
+      "linkPrev": null,
+      "children": [
+        "line-kernel",
+        "line-manifold"
+      ],
+      "transition": "zoom",
+      "transitionDuration": 0.5
+    },
+    "line-kernel": {
+      "id": "line-kernel",
+      "coord": {
+        "spiral": 0,
+        "level": 1,
+        "position": 0
+      },
+      "title": "Kernel Data Flow",
+      "content": "\n            <div style=\"display: flex; align-items: center; justify-content: center; gap: 20px; font-size: 1.3em;\">\n                <div style=\"padding: 20px; background: #ef4444; border-radius: 10px;\">Input</div>\n                <span>\u2192</span>\n                <div style=\"padding: 20px; background: #f97316; border-radius: 10px;\">Encode</div>\n                <span>\u2192</span>\n                <div style=\"padding: 20px; background: #eab308; border-radius: 10px;\">Transform</div>\n                <span>\u2192</span>\n                <div style=\"padding: 20px; background: #22c55e; border-radius: 10px;\">Project</div>\n                <span>\u2192</span>\n                <div style=\"padding: 20px; background: #3b82f6; border-radius: 10px;\">Output</div>\n            </div>\n            \n            <p style=\"margin-top: 2em; text-align: center; color: #888;\">\n                Each step maintains dimensional integrity through the helix\n            </p>\n        ",
+      "contentType": "html",
+      "background": "#0a0a12",
+      "color": "#ffffff",
+      "scale": 1.0,
+      "linkUp": null,
+      "linkDown": null,
+      "linkNext": "line-manifold",
+      "linkPrev": null,
+      "children": [
+        "point-kernel"
+      ],
+      "transition": "zoom",
+      "transitionDuration": 0.5
+    },
+    "line-manifold": {
+      "id": "line-manifold",
+      "coord": {
+        "spiral": 0,
+        "level": 1,
+        "position": 1
+      },
+      "title": "Manifold Evaluation",
+      "content": "\n            <div style=\"text-align: center;\">\n                <p style=\"font-size: 1.5em; margin-bottom: 1em;\">\n                    Given coordinate <code>(spiral, level, position)</code>\n                </p>\n                \n                <div style=\"display: flex; justify-content: center; gap: 30px;\">\n                    <div style=\"padding: 30px; background: rgba(139,92,246,0.3); border-radius: 10px;\">\n                        <code>\u03b8 = level \u00d7 (2\u03c0/7)</code>\n                    </div>\n                    <div style=\"padding: 30px; background: rgba(59,130,246,0.3); border-radius: 10px;\">\n                        <code>r = spiral + 1</code>\n                    </div>\n                    <div style=\"padding: 30px; background: rgba(34,197,94,0.3); border-radius: 10px;\">\n                        <code>z = position \u00d7 pitch</code>\n                    </div>\n                </div>\n                \n                <p style=\"margin-top: 1.5em; font-size: 1.3em;\">\n                    <code>point = (r\u00d7cos(\u03b8), r\u00d7sin(\u03b8), z)</code>\n                </p>\n            </div>\n        ",
+      "contentType": "html",
+      "background": "#0a0a12",
+      "color": "#ffffff",
+      "scale": 1.0,
+      "linkUp": null,
+      "linkDown": null,
+      "linkNext": null,
+      "linkPrev": "line-kernel",
+      "children": [],
+      "transition": "zoom",
+      "transitionDuration": 0.5
+    },
+    "point-kernel": {
+      "id": "point-kernel",
+      "coord": {
+        "spiral": 0,
+        "level": 0,
+        "position": 0
+      },
+      "title": "The Kernel",
+      "content": "\n            <div style=\"text-align: center;\">\n                <div style=\"font-size: 5em; margin-bottom: 0.3em;\">\u2b21</div>\n                <h2>HelixKernel</h2>\n                <p style=\"font-size: 1.3em; max-width: 600px; margin: 1em auto;\">\n                    The atomic unit. A state machine with 7 levels,\n                    each representing a dimension of computation.\n                </p>\n                \n                <div style=\"display: inline-block; text-align: left; background: rgba(0,0,0,0.3); \n                            padding: 20px 40px; border-radius: 10px; margin-top: 1em;\">\n                    <code style=\"font-size: 1.1em;\">\nkernel = HelixKernel()<br>\nkernel.set(0, \"physical\", data)<br>\nkernel.set(1, \"datalink\", frame)<br>\nkernel.set(2, \"network\", packet)\n                    </code>\n                </div>\n            </div>\n        ",
+      "contentType": "html",
+      "background": "#0a0a0f",
+      "color": "#ffffff",
+      "scale": 1.0,
+      "linkUp": null,
+      "linkDown": null,
+      "linkNext": "point-manifold",
+      "linkPrev": null,
+      "children": [],
+      "transition": "zoom",
+      "transitionDuration": 0.5
+    },
+    "point-manifold": {
+      "id": "point-manifold",
+      "coord": {
+        "spiral": 0,
+        "level": 0,
+        "position": 1
+      },
+      "title": "The Manifold",
+      "content": "\n            <div style=\"text-align: center;\">\n                <div style=\"font-size: 5em; margin-bottom: 0.3em;\">\u223f</div>\n                <h2>Mathematical Surface</h2>\n                <p style=\"font-size: 1.3em; max-width: 600px; margin: 1em auto;\">\n                    A continuous surface that produces data from coordinates.\n                    Evaluate at any point to get a value.\n                </p>\n                \n                <div style=\"background: rgba(139,92,246,0.2); padding: 30px; \n                            border-radius: 10px; margin-top: 1em; display: inline-block;\">\n                    <code style=\"font-size: 1.5em;\">\n                        f(x, y) \u2192 value\n                    </code>\n                </div>\n            </div>\n        ",
+      "contentType": "html",
+      "background": "#0a0a0f",
+      "color": "#ffffff",
+      "scale": 1.0,
+      "linkUp": null,
+      "linkDown": null,
+      "linkNext": null,
+      "linkPrev": "point-kernel",
+      "children": [],
+      "transition": "zoom",
+      "transitionDuration": 0.5
+    },
+    "apps-overview": {
+      "id": "apps-overview",
+      "coord": {
+        "spiral": 1,
+        "level": 6,
+        "position": 0
+      },
+      "title": "Applications",
+      "content": "\n            <p>ButterflyFX enables new kinds of applications:</p>\n            \n            <div style=\"display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 1.5em;\">\n                <div style=\"padding: 30px; background: rgba(34,197,94,0.2); border-radius: 15px;\">\n                    <h3 style=\"color: #22c55e;\">\ud83c\udfb5 Music Collaboration</h3>\n                    <p>Real-time jamming with near-zero latency. \n                    Send math instead of audio samples.</p>\n                </div>\n                <div style=\"padding: 30px; background: rgba(59,130,246,0.2); border-radius: 15px;\">\n                    <h3 style=\"color: #3b82f6;\">\ud83c\udfac Presentations</h3>\n                    <p>Non-linear, dimensional navigation. \n                    Drill down into detail, up for overview.</p>\n                </div>\n                <div style=\"padding: 30px; background: rgba(139,92,246,0.2); border-radius: 15px;\">\n                    <h3 style=\"color: #8b5cf6;\">\ud83d\udcbe Universal Storage</h3>\n                    <p>Store any file type as manifold coordinates.\n                    O(1) access by position.</p>\n                </div>\n                <div style=\"padding: 30px; background: rgba(236,72,153,0.2); border-radius: 15px;\">\n                    <h3 style=\"color: #ec4899;\">\ud83c\udf10 Network Protocol</h3>\n                    <p>7-layer helix maps to OSI.\n                    Priority channels, zero-copy routing.</p>\n                </div>\n            </div>\n        ",
+      "contentType": "html",
+      "background": "#1a1a2e",
+      "color": "#ffffff",
+      "scale": 1.0,
+      "linkUp": null,
+      "linkDown": null,
+      "linkNext": null,
+      "linkPrev": null,
+      "children": [
+        "apps-audio",
+        "apps-presentation"
+      ],
+      "transition": "zoom",
+      "transitionDuration": 0.5
+    },
+    "apps-audio": {
+      "id": "apps-audio",
+      "coord": {
+        "spiral": 1,
+        "level": 3,
+        "position": 0
+      },
+      "title": "Audio Transport",
+      "content": "\n            <h2>JamKazam Integration</h2>\n            \n            <p>For real-time music collaboration, every millisecond matters.</p>\n            \n            <h3 style=\"margin-top: 1.5em;\">The Problem</h3>\n            <ul>\n                <li>Traditional: 192KB/sec of raw audio</li>\n                <li>Network latency causes sync drift</li>\n                <li>Jitter requires large buffers</li>\n            </ul>\n            \n            <h3 style=\"margin-top: 1.5em;\">The Solution</h3>\n            <ul>\n                <li>Send waveform equations: <code>f(t) = sin(2\u03c0ft)</code></li>\n                <li>Receiver generates samples locally</li>\n                <li>Can predict ahead - no jitter buffer needed</li>\n            </ul>\n            \n            <p style=\"color: #22c55e; margin-top: 1em;\">\n                <strong>Result: 2,233x smaller data, deterministic sync</strong>\n            </p>\n        ",
+      "contentType": "html",
+      "background": "#0f172a",
+      "color": "#ffffff",
+      "scale": 1.0,
+      "linkUp": null,
+      "linkDown": null,
+      "linkNext": "apps-presentation",
+      "linkPrev": null,
+      "children": [],
+      "transition": "zoom",
+      "transitionDuration": 0.5
+    },
+    "apps-presentation": {
+      "id": "apps-presentation",
+      "coord": {
+        "spiral": 1,
+        "level": 3,
+        "position": 1
+      },
+      "title": "Presentation Engine",
+      "content": "\n            <h2>This Very Presentation</h2>\n            \n            <p>You're experiencing a dimensional presentation right now.</p>\n            \n            <h3 style=\"margin-top: 1.5em;\">Features</h3>\n            <ul>\n                <li><strong>Drill down</strong> (\u2193) - More detail</li>\n                <li><strong>Drill up</strong> (\u2191) - Broader context</li>\n                <li><strong>Navigate</strong> (\u2190\u2192) - Related topics</li>\n                <li><strong>Switch spirals</strong> (1-9) - Different branches</li>\n            </ul>\n            \n            <p style=\"margin-top: 1.5em;\">\n                Content is computed from coordinates, not stored as pages.\n                Each \"slide\" exists at <code>(spiral, level, position)</code>.\n            </p>\n        ",
+      "contentType": "html",
+      "background": "#0f172a",
+      "color": "#ffffff",
+      "scale": 1.0,
+      "linkUp": null,
+      "linkDown": null,
+      "linkNext": null,
+      "linkPrev": "apps-audio",
+      "children": [],
+      "transition": "zoom",
+      "transitionDuration": 0.5
+    },
+    "future-overview": {
+      "id": "future-overview",
+      "coord": {
+        "spiral": 2,
+        "level": 6,
+        "position": 0
+      },
+      "title": "The Future",
+      "content": "\n            <h2>Where We're Going</h2>\n            \n            <p style=\"font-size: 1.3em;\">\n                ButterflyFX is not just a library. \n                It's a new way of thinking about computation.\n            </p>\n            \n            <div style=\"margin-top: 2em; padding: 30px; background: rgba(139,92,246,0.2); \n                        border-radius: 15px; border-left: 4px solid #8b5cf6;\">\n                <h3 style=\"color: #8b5cf6;\">Vision</h3>\n                <p>A world where data is mathematical, \n                transmission is instantaneous, \n                and every computer speaks the universal language of math.</p>\n            </div>\n            \n            <p style=\"margin-top: 2em; color: #888;\">\n                \u2193 Drill down to see the roadmap\n            </p>\n        ",
+      "contentType": "html",
+      "background": "#1a1025",
+      "color": "#ffffff",
+      "scale": 1.0,
+      "linkUp": null,
+      "linkDown": null,
+      "linkNext": null,
+      "linkPrev": null,
+      "children": [
+        "future-roadmap"
+      ],
+      "transition": "zoom",
+      "transitionDuration": 0.5
+    },
+    "future-roadmap": {
+      "id": "future-roadmap",
+      "coord": {
+        "spiral": 2,
+        "level": 4,
+        "position": 0
+      },
+      "title": "Roadmap",
+      "content": "\n            <div style=\"display: flex; flex-direction: column; gap: 20px;\">\n                <div style=\"display: flex; gap: 20px;\">\n                    <div style=\"width: 120px; text-align: right; color: #888;\">Q1 2026</div>\n                    <div style=\"flex: 1; padding: 20px; background: rgba(34,197,94,0.2); border-radius: 10px;\">\n                        <strong style=\"color: #22c55e;\">\u2713 Core Framework</strong>\n                        <br>Kernel, substrate, manifold, transport\n                    </div>\n                </div>\n                <div style=\"display: flex; gap: 20px;\">\n                    <div style=\"width: 120px; text-align: right; color: #888;\">Q2 2026</div>\n                    <div style=\"flex: 1; padding: 20px; background: rgba(59,130,246,0.2); border-radius: 10px;\">\n                        <strong style=\"color: #3b82f6;\">Audio Integration</strong>\n                        <br>JamKazam plugin, real-time streaming\n                    </div>\n                </div>\n                <div style=\"display: flex; gap: 20px;\">\n                    <div style=\"width: 120px; text-align: right; color: #888;\">Q3 2026</div>\n                    <div style=\"flex: 1; padding: 20px; background: rgba(139,92,246,0.2); border-radius: 10px;\">\n                        <strong style=\"color: #8b5cf6;\">Cloud Platform</strong>\n                        <br>Hosted manifold servers, API access\n                    </div>\n                </div>\n                <div style=\"display: flex; gap: 20px;\">\n                    <div style=\"width: 120px; text-align: right; color: #888;\">Q4 2026</div>\n                    <div style=\"flex: 1; padding: 20px; background: rgba(236,72,153,0.2); border-radius: 10px;\">\n                        <strong style=\"color: #ec4899;\">SDK Release</strong>\n                        <br>Python, JavaScript, Rust bindings\n                    </div>\n                </div>\n            </div>\n        ",
+      "contentType": "html",
+      "background": "#150f20",
+      "color": "#ffffff",
+      "scale": 1.0,
+      "linkUp": null,
+      "linkDown": null,
+      "linkNext": null,
+      "linkPrev": null,
+      "children": [],
+      "transition": "zoom",
+      "transitionDuration": 0.5
+    }
+  },
+  "spirals": [
+    "Core",
+    "Applications",
+    "Future"
+  ],
+  "startNode": "meta-overview",
+  "width": 1920,
+  "height": 1080
+};
+        
+        const levelNames = ['Point', 'Line', 'Plane', 'Volume', 'Time', 'Parallel', 'Meta'];
+        const levelIcons = ['●', '━', '▢', '◇', '◷', '⫽', '◎'];
+        const levelColors = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6"];
+        
+        // State
+        let currentNodeId = pres.startNode;
+        let navigationHistory = [];
+        
+        // Elements
+        const stage = document.getElementById('stage');
+        const breadcrumb = document.getElementById('breadcrumb');
+        const structure = document.getElementById('structure');
+        const coordDisplay = document.getElementById('coord-display');
+        
+        const btnUp = document.getElementById('btn-up');
+        const btnDown = document.getElementById('btn-down');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        
+        // Initialize
+        function init() {
+            renderStructure();
+            if (currentNodeId) {
+                navigateTo(currentNodeId, 'zoom');
+            }
+        }
+        
+        function renderStructure() {
+            // Group nodes by level
+            const byLevel = {};
+            Object.values(pres.nodes).forEach(node => {
+                const level = node.coord.level;
+                if (!byLevel[level]) byLevel[level] = [];
+                byLevel[level].push(node);
+            });
+            
+            // Render from top (6) to bottom (0)
+            let html = '';
+            for (let level = 6; level >= 0; level--) {
+                const nodes = byLevel[level] || [];
+                if (nodes.length === 0) continue;
+                
+                html += `
+                    <div class="structure-level">
+                        <div class="level-header level-${level}">
+                            <span>${levelIcons[level]} ${levelNames[level]}</span>
+                            <div class="level-line"></div>
+                        </div>
+                        <div class="level-nodes">
+                            ${nodes.map(n => `
+                                <div class="structure-node level-${level}" 
+                                     data-node="${n.id}"
+                                     onclick="navigateTo('${n.id}', 'zoom')">
+                                    ${n.title}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            structure.innerHTML = html;
+        }
+        
+        function renderNode(node, transition) {
+            const content = document.createElement('div');
+            content.className = `node-content transition-${transition}`;
+            content.style.background = node.background;
+            content.style.color = node.color;
+            
+            // Add content based on type
+            if (node.contentType === 'html') {
+                content.innerHTML = `<h1>${node.title}</h1>${node.content}`;
+            } else if (node.contentType === 'text') {
+                content.innerHTML = `<h1>${node.title}</h1><p>${node.content}</p>`;
+            } else if (node.contentType === 'code') {
+                content.innerHTML = `<h1>${node.title}</h1><pre><code>${escapeHtml(node.content)}</code></pre>`;
+            } else {
+                content.innerHTML = `<h1>${node.title}</h1>${node.content}`;
+            }
+            
+            stage.innerHTML = '';
+            stage.appendChild(content);
+            
+            // Update breadcrumb
+            renderBreadcrumb(node);
+            
+            // Update structure highlighting
+            document.querySelectorAll('.structure-node').forEach(el => {
+                el.classList.toggle('current', el.dataset.node === node.id);
+            });
+            
+            // Update coordinate display
+            const c = node.coord;
+            coordDisplay.innerHTML = `
+                <span class="level-${c.level}">${levelIcons[c.level]}</span>
+                Spiral ${c.spiral} · Level ${c.level} · Position ${c.position}
+            `;
+            
+            // Update button states
+            updateNavButtons(node);
+        }
+        
+        function renderBreadcrumb(node) {
+            // Build path from META to current
+            const path = [];
+            let level = node.coord.level;
+            
+            // Add current node
+            path.unshift({ node, isCurrent: true });
+            
+            // Add parent levels
+            for (let l = level + 1; l <= 6; l++) {
+                const parent = Object.values(pres.nodes).find(
+                    n => n.coord.spiral === node.coord.spiral && n.coord.level === l
+                );
+                if (parent) {
+                    path.unshift({ node: parent, isCurrent: false });
+                }
+            }
+            
+            breadcrumb.innerHTML = path.map(item => `
+                <div class="breadcrumb-item ${item.isCurrent ? 'current' : ''}"
+                     onclick="navigateTo('${item.node.id}', '${item.isCurrent ? 'zoom' : 'drill-up'}')">
+                    <div class="level-indicator bg-level-${item.node.coord.level}"></div>
+                    <span>${item.node.title}</span>
+                </div>
+                ${!item.isCurrent ? '<span style="color:#555">›</span>' : ''}
+            `).join('');
+        }
+        
+        function updateNavButtons(node) {
+            btnUp.disabled = !findNavigationTarget(node, 'up');
+            btnDown.disabled = !findNavigationTarget(node, 'down');
+            btnPrev.disabled = !findNavigationTarget(node, 'prev');
+            btnNext.disabled = !findNavigationTarget(node, 'next');
+        }
+        
+        function findNavigationTarget(node, direction) {
+            // Check explicit links
+            if (direction === 'up' && node.linkUp) return node.linkUp;
+            if (direction === 'down' && node.linkDown) return node.linkDown;
+            if (direction === 'next' && node.linkNext) return node.linkNext;
+            if (direction === 'prev' && node.linkPrev) return node.linkPrev;
+            
+            // Check children for drill-down
+            if (direction === 'down' && node.children && node.children.length > 0) {
+                return node.children[0];
+            }
+            
+            // Calculate target coordinate
+            const c = node.coord;
+            let target;
+            
+            switch (direction) {
+                case 'up':
+                    target = { spiral: c.spiral, level: Math.min(6, c.level + 1), position: 0 };
+                    break;
+                case 'down':
+                    target = { spiral: c.spiral, level: Math.max(0, c.level - 1), position: 0 };
+                    break;
+                case 'next':
+                    target = { spiral: c.spiral, level: c.level, position: c.position + 1 };
+                    break;
+                case 'prev':
+                    target = { spiral: c.spiral, level: c.level, position: Math.max(0, c.position - 1) };
+                    break;
+                default:
+                    return null;
+            }
+            
+            // Find node at target coordinate
+            const found = Object.values(pres.nodes).find(
+                n => n.coord.spiral === target.spiral && 
+                     n.coord.level === target.level && 
+                     n.coord.position === target.position
+            );
+            
+            return found ? found.id : null;
+        }
+        
+        function navigateTo(nodeId, transition = 'zoom') {
+            const node = pres.nodes[nodeId];
+            if (!node) return;
+            
+            // Remember history for back navigation
+            if (currentNodeId && currentNodeId !== nodeId) {
+                navigationHistory.push(currentNodeId);
+            }
+            
+            currentNodeId = nodeId;
+            renderNode(node, transition);
+        }
+        
+        function navigate(direction) {
+            const node = pres.nodes[currentNodeId];
+            if (!node) return;
+            
+            const targetId = findNavigationTarget(node, direction);
+            if (!targetId) return;
+            
+            // Choose transition based on direction
+            let transition = 'zoom';
+            if (direction === 'up') transition = 'drill-up';
+            else if (direction === 'down') transition = 'drill-down';
+            else if (direction === 'next') transition = 'slide';
+            else if (direction === 'prev') transition = 'slide';
+            
+            navigateTo(targetId, transition);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Event handlers
+        btnUp.onclick = () => navigate('up');
+        btnDown.onclick = () => navigate('down');
+        btnPrev.onclick = () => navigate('prev');
+        btnNext.onclick = () => navigate('next');
+        
+        document.onkeydown = (e) => {
+            switch (e.key) {
+                case 'ArrowUp':
+                case 'w':
+                case 'W':
+                    e.preventDefault();
+                    navigate('up');
+                    break;
+                case 'ArrowDown':
+                case 's':
+                case 'S':
+                    e.preventDefault();
+                    navigate('down');
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                case 'A':
+                    e.preventDefault();
+                    navigate('prev');
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                case 'D':
+                    e.preventDefault();
+                    navigate('next');
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    if (pres.startNode) navigateTo(pres.startNode, 'zoom');
+                    break;
+                case 'Backspace':
+                    e.preventDefault();
+                    if (navigationHistory.length > 0) {
+                        const prev = navigationHistory.pop();
+                        navigateTo(prev, 'fade');
+                    }
+                    break;
+            }
+            
+            // Number keys for spirals
+            if (e.key >= '1' && e.key <= '9') {
+                const spiral = parseInt(e.key) - 1;
+                const node = Object.values(pres.nodes).find(
+                    n => n.coord.spiral === spiral && n.coord.level === 6
+                );
+                if (node) navigateTo(node.id, 'spiral');
+            }
+        };
+        
+        // Touch support for mobile
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            
+            const threshold = 50;
+            
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (dx > threshold) navigate('prev');
+                else if (dx < -threshold) navigate('next');
+            } else {
+                if (dy > threshold) navigate('up');
+                else if (dy < -threshold) navigate('down');
+            }
+        });
+        
+        // Start
+        init();
+    </script>
+</body>
+</html>

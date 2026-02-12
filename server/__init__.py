@@ -1,8 +1,17 @@
 """
-ButterflyFx Server - HTTP API for Substrate Operations
-
-Exposes DimensionOS substrate operations via REST API.
+ButterflyFX Server Package
 """
 
-__version__ = "1.0.0"
+from .dimensional_server import (
+    ServerConfig,
+    ManifoldProtocol,
+    ContentRegistry,
+    DimensionalServer,
+)
 
+__all__ = [
+    'ServerConfig',
+    'ManifoldProtocol', 
+    'ContentRegistry',
+    'DimensionalServer',
+]

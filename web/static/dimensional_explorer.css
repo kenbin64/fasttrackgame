@@ -1,0 +1,511 @@
+/* Dimensional Explorer Styles - Windows Explorer-like Interface */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f0f0;
+    overflow: hidden;
+}
+
+.explorer-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: white;
+}
+
+/* Top Navigation Bar */
+.top-nav {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    gap: 12px;
+}
+
+.nav-left, .nav-right {
+    display: flex;
+    gap: 4px;
+}
+
+.nav-center {
+    flex: 1;
+}
+
+.nav-btn {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.nav-btn:hover {
+    background: #e9ecef;
+    border-color: #999;
+}
+
+.address-bar {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+.address-icon {
+    margin-right: 8px;
+}
+
+#address-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    padding: 4px;
+}
+
+.go-btn {
+    padding: 4px 12px;
+    background: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.go-btn:hover {
+    background: #005a9e;
+}
+
+/* Search/Query Bar */
+.search-bar {
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+}
+
+.search-container {
+    display: flex;
+    gap: 8px;
+}
+
+.search-mode-select {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#search-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.search-btn {
+    padding: 6px 20px;
+    background: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.search-btn:hover {
+    background: #005a9e;
+}
+
+/* Main Content Area */
+.main-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Left Panel */
+.left-panel {
+    width: 280px;
+    background: #f8f9fa;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #e9ecef;
+    border-bottom: 1px solid #ddd;
+}
+
+.panel-header h3, .panel-header h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.collapse-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+/* Tree View */
+.tree-view {
+    flex: 1;
+    padding: 8px;
+}
+
+.tree-section {
+    margin-bottom: 12px;
+}
+
+.tree-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+    user-select: none;
+}
+
+.tree-item:hover {
+    background: #e9ecef;
+}
+
+.tree-item.active {
+    background: #0078d4;
+    color: white;
+}
+
+.tree-icon {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.tree-label {
+    font-size: 13px;
+}
+
+.tree-children {
+    margin-left: 20px;
+}
+
+.root-item {
+    font-weight: 600;
+}
+
+/* Quick Connect Section */
+.quick-connect-section {
+    border-top: 1px solid #ddd;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.quick-connect-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 8px;
+}
+
+.quick-connect-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 11px;
+}
+
+.quick-connect-btn:hover {
+    background: #f0f0f0;
+    border-color: #0078d4;
+    transform: translateY(-1px);
+}
+
+.quick-connect-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+/* Right Panel */
+.right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* View Tabs */
+.view-tabs {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+}
+
+.view-tab {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.view-tab:hover {
+    background: #e9ecef;
+}
+
+.view-tab.active {
+    border-bottom-color: #0078d4;
+    color: #0078d4;
+    font-weight: 600;
+}
+
+/* View Containers */
+.view-container {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.view-container.active {
+    display: flex;
+}
+
+/* Folder View */
+.view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: white;
+    border-bottom: 1px solid #ddd;
+}
+
+.breadcrumb {
+    display: flex;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.breadcrumb-item {
+    cursor: pointer;
+    color: #0078d4;
+}
+
+.breadcrumb-item:hover {
+    text-decoration: underline;
+}
+
+.view-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.control-btn {
+    padding: 6px 10px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.control-btn:hover, .control-btn.active {
+    background: #e9ecef;
+    border-color: #0078d4;
+}
+
+.folder-grid {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 16px;
+    align-content: start;
+}
+
+.folder-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.folder-item:hover {
+    background: #f0f0f0;
+}
+
+.folder-item.selected {
+    background: #cce8ff;
+}
+
+.folder-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+}
+
+.folder-name {
+    font-size: 12px;
+    text-align: center;
+    word-break: break-word;
+}
+
+/* Table View */
+.table-controls {
+    padding: 12px;
+    background: white;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    gap: 8px;
+}
+
+.table-btn {
+    padding: 6px 12px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.table-btn:hover {
+    background: #e9ecef;
+}
+
+.table-wrapper {
+    flex: 1;
+    overflow: auto;
+}
+
+.dimensional-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.dimensional-table th {
+    background: #f8f9fa;
+    padding: 10px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #ddd;
+    position: sticky;
+    top: 0;
+}
+
+.dimensional-table td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.dimensional-table tr:hover {
+    background: #f8f9fa;
+}
+
+/* Dimension View */
+.dimension-canvas-container {
+    flex: 1;
+    position: relative;
+    background: #1a1a1a;
+}
+
+#dimension-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.dimension-controls {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.dimension-info h4 {
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.dimension-info p {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 12px;
+}
+
+.dimension-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.dim-btn {
+    padding: 6px 12px;
+    background: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.dim-btn:hover {
+    background: #005a9e;
+}
+
+/* Status Bar */
+.status-bar {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 12px;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    font-size: 12px;
+    color: #666;
+}
+
+.status-right {
+    display: flex;
+    gap: 12px;
+}
+
+.separator {
+    color: #ccc;
+}
+

@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>ButterflyFX Universal HD</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='universal_hard_drive.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Brand font override */
+        body { font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; }
+    </style>
+</head>
+<body>
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+    
+    <div class="uhd-container">
+        <!-- Brand Header (Mobile) -->
+        <div class="uhd-brand-header" id="brand-header">
+            <button class="mobile-nav-btn" id="btn-toggle-left" title="Navigation">
+                ☰
+            </button>
+            <div class="brand-logo">
+                <span class="brand-icon">🦋</span>
+                <span class="brand-text">ButterflyFX <span class="brand-accent">Universal HD</span></span>
+            </div>
+            <button class="mobile-nav-btn" id="btn-toggle-right" title="Details">
+                ℹ️
+            </button>
+        </div>
+        <!-- Top Toolbar -->
+        <div class="uhd-toolbar">
+            <div class="toolbar-left">
+                <div class="brand-inline desktop-only">
+                    <span class="brand-icon-sm">🦋</span>
+                    <span class="brand-name">Universal HD</span>
+                </div>
+                <div class="toolbar-separator desktop-only"></div>
+                <button class="toolbar-btn" id="btn-back" title="Back">
+                    <span class="glyph">◀</span>
+                </button>
+                <button class="toolbar-btn" id="btn-forward" title="Forward">
+                    <span class="glyph">▶</span>
+                </button>
+                <button class="toolbar-btn" id="btn-up" title="Up to parent">
+                    <span class="glyph">⬆</span>
+                </button>
+                <button class="toolbar-btn" id="btn-refresh" title="Refresh">
+                    <span class="glyph">⟳</span>
+                </button>
+                <div class="toolbar-separator"></div>
+                <button class="toolbar-btn" id="btn-home" title="Home">
+                    <span class="glyph">🏠</span>
+                </button>
+            </div>
+            
+            <div class="toolbar-center">
+                <div class="address-bar">
+                    <span class="address-icon">📍</span>
+                    <input type="text" id="address-input" placeholder="substrate://..." value="substrate://local/">
+                    <button class="address-go-btn" id="btn-go">Go</button>
+                </div>
+            </div>
+            
+            <div class="toolbar-right">
+                <button class="toolbar-btn highlight" id="btn-new-connection" title="New Connection">
+                    <span class="glyph">🔗</span>
+                    <span class="btn-text">Connect</span>
+                </button>
+                <button class="toolbar-btn" id="btn-knowledge" title="Knowledge Base" onclick="showKnowledgePanel()">
+                    <span class="glyph">🧠</span>
+                    <span class="btn-text desktop-only">Knowledge</span>
+                </button>
+                <button class="toolbar-btn" id="btn-crawler" title="API Crawler">
+                    <span class="glyph">🔍</span>
+                    <span class="btn-text desktop-only">Discover</span>
+                </button>
+                <button class="toolbar-btn" id="btn-settings" title="Settings">
+                    <span class="glyph">⚙️</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Universal Query Bar -->
+        <div class="uhd-query-bar">
+            <div class="query-mode-selector">
+                <select id="query-mode">
+                    <option value="search">🔍 Search</option>
+                    <option value="query">💬 Natural Query</option>
+                    <option value="sql">📊 SQL Query</option>
+                    <option value="filter">🔎 Filter</option>
+                </select>
+            </div>
+            <div class="query-input-container">
+                <input type="text" id="universal-query" 
+                       placeholder="Ask anything: stock quotes, weather, news, recipes, calendar, emails... (learns from your connections)">
+                <div class="query-suggestions" id="query-suggestions"></div>
+            </div>
+            <button class="query-execute-btn" id="btn-execute">Execute</button>
+            <div class="query-scope-indicator" id="query-scope">
+                <span>Searching: <span id="scope-count">0</span> sources</span>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="uhd-main">
+            <!-- Left Panel: Dimensional Helix Navigator -->
+            <div class="uhd-left-panel" id="left-panel">
+                <div class="panel-header">
+                    <h3>🌀 Dimensional Helix</h3>
+                    <button class="panel-collapse-btn" id="collapse-left">−</button>
+                </div>
+                
+                <div class="helix-navigator" id="helix-navigator">
+                    <!-- Current Spiral Level -->
+                    <div class="helix-spiral-display">
+                        <button class="spiral-nav spiral-down" id="spiral-down" title="Spiral Down">⬇️</button>
+                        <div class="spiral-badge-large" id="current-spiral">
+                            <span class="spiral-label">Spiral</span>
+                            <span class="spiral-number">0</span>
+                        </div>
+                        <button class="spiral-nav spiral-up" id="spiral-up" title="Spiral Up">⬆️</button>
+                    </div>
+
+                    <!-- 7 Dimensional Levels -->
+                    <div class="helix-levels" id="helix-levels">
+                        <div class="helix-level" data-level="6" data-name="Whole">
+                            <div class="level-indicator"><span class="level-icon">◉</span></div>
+                            <div class="level-info">
+                                <span class="level-name">Whole</span>
+                                <span class="level-desc">Complete unit → spirals up</span>
+                            </div>
+                            <span class="level-count" data-level-count="6">0</span>
+                        </div>
+                        <div class="helix-level" data-level="5" data-name="Volume">
+                            <div class="level-indicator"><span class="level-icon">▣</span></div>
+                            <div class="level-info">
+                                <span class="level-name">Volume</span>
+                                <span class="level-desc">3D cube structure</span>
+                            </div>
+                            <span class="level-count" data-level-count="5">0</span>
+                        </div>
+                        <div class="helix-level" data-level="4" data-name="Plane">
+                            <div class="level-indicator"><span class="level-icon">▦</span></div>
+                            <div class="level-info">
+                                <span class="level-name">Plane</span>
+                                <span class="level-desc">2D grid/table</span>
+                            </div>
+                            <span class="level-count" data-level-count="4">0</span>
+                        </div>
+                        <div class="helix-level" data-level="3" data-name="Width">
+                            <div class="level-indicator"><span class="level-icon">▭</span></div>
+                            <div class="level-info">
+                                <span class="level-name">Width</span>
+                                <span class="level-desc">Parts forming surface</span>
+                            </div>
+                            <span class="level-count" data-level-count="3">0</span>
+                        </div>
+                        <div class="helix-level" data-level="2" data-name="Length">
+                            <div class="level-indicator"><span class="level-icon">━</span></div>
+                            <div class="level-info">
+                                <span class="level-name">Length</span>
+                                <span class="level-desc">Parts in sequence</span>
+                            </div>
+                            <span class="level-count" data-level-count="2">0</span>
+                        </div>
+                        <div class="helix-level active" data-level="1" data-name="Point">
+                            <div class="level-indicator"><span class="level-icon">•</span></div>
+                            <div class="level-info">
+                                <span class="level-name">Point</span>
+                                <span class="level-desc">Single datum</span>
+                            </div>
+                            <span class="level-count" data-level-count="1">0</span>
+                        </div>
+                        <div class="helix-level" data-level="0" data-name="Potential">
+                            <div class="level-indicator"><span class="level-icon">○</span></div>
+                            <div class="level-info">
+                                <span class="level-name">Potential</span>
+                                <span class="level-desc">No parts - substrate</span>
+                            </div>
+                            <span class="level-count" data-level-count="0">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Helix Threads (Parallel Dimensions) -->
+                    <div class="helix-section">
+                        <div class="helix-section-header" id="toggle-threads">
+                            <span class="section-toggle">▶</span>
+                            <span class="section-icon">🧬</span>
+                            <span class="section-label">Parallel Threads</span>
+                            <span class="section-count" id="thread-count">0</span>
+                        </div>
+                        <div class="helix-section-content" id="threads-list">
+                            <!-- Dynamically populated with connected parallel dimensions -->
+                        </div>
+                    </div>
+
+                    <!-- Data Sources -->
+                    <div class="helix-section">
+                        <div class="helix-section-header" id="toggle-sources">
+                            <span class="section-toggle">▶</span>
+                            <span class="section-icon">🔗</span>
+                            <span class="section-label">Connected Sources</span>
+                            <span class="section-count" id="connection-count">0</span>
+                        </div>
+                        <div class="helix-section-content" id="sources-list">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+
+                    <!-- External APIs by Category -->
+                    <div class="helix-section">
+                        <div class="helix-section-header" id="toggle-apis">
+                            <span class="section-toggle">▶</span>
+                            <span class="section-icon">🌐</span>
+                            <span class="section-label">External APIs</span>
+                        </div>
+                        <div class="helix-section-content" id="apis-list">
+                            <div class="helix-item category" data-category="weather">
+                                <span class="item-icon">🌤️</span>
+                                <span class="item-label">Weather</span>
+                            </div>
+                            <div class="helix-item category" data-category="finance">
+                                <span class="item-icon">💰</span>
+                                <span class="item-label">Finance & Crypto</span>
+                            </div>
+                            <div class="helix-item category" data-category="news">
+                                <span class="item-icon">📰</span>
+                                <span class="item-label">News</span>
+                            </div>
+                            <div class="helix-item category" data-category="knowledge">
+                                <span class="item-icon">📖</span>
+                                <span class="item-label">Dictionary & Knowledge</span>
+                            </div>
+                            <div class="helix-item category" data-category="google">
+                                <span class="item-icon">🔍</span>
+                                <span class="item-label">Google APIs</span>
+                            </div>
+                            <div class="helix-item category" data-category="food">
+                                <span class="item-icon">🍲</span>
+                                <span class="item-label">Food & Recipes</span>
+                            </div>
+                            <div class="helix-item category" data-category="ai">
+                                <span class="item-icon">🤖</span>
+                                <span class="item-label">AI Services</span>
+                            </div>
+                            <div class="helix-item category" data-category="data">
+                                <span class="item-icon">📊</span>
+                                <span class="item-label">Data & Stats</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Connect Section -->
+                <div class="quick-connect-section">
+                    <div class="panel-header">
+                        <h4>⚡ Quick Connect</h4>
+                        <button class="btn-mini" id="btn-browse-all">Browse All</button>
+                    </div>
+                    <div class="quick-connect-grid" id="quick-connect-grid">
+                        <!-- Dynamically populated with service logos -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Panel: Content Views -->
+            <div class="uhd-middle-panel">
+                <!-- View Tabs -->
+                <div class="view-tabs">
+                    <button class="view-tab active" data-view="folder">
+                        <span class="tab-icon">📁</span>
+                        <span class="tab-label">Files & Folders</span>
+                    </button>
+                    <button class="view-tab" data-view="table">
+                        <span class="tab-icon">📊</span>
+                        <span class="tab-label">Table View</span>
+                    </button>
+                    <button class="view-tab" data-view="visual">
+                        <span class="tab-icon">📈</span>
+                        <span class="tab-label">Visualizations</span>
+                    </button>
+                    <button class="view-tab" data-view="api">
+                        <span class="tab-icon">🔌</span>
+                        <span class="tab-label">API Interface</span>
+                    </button>
+                </div>
+
+                <!-- View Content Area -->
+                <div class="view-content">
+                    <!-- Folder View (Default) -->
+                    <div class="view-panel active" id="folder-view">
+                        <div class="folder-toolbar">
+                            <div class="breadcrumb" id="breadcrumb">
+                                <span class="crumb" data-path="/">🏠 Home</span>
+                                <span class="crumb-separator">›</span>
+                                <span class="crumb" data-path="/local">Local</span>
+                            </div>
+                            <div class="folder-controls">
+                                <select id="sort-by">
+                                    <option value="name">Sort: Name</option>
+                                    <option value="date">Sort: Date</option>
+                                    <option value="size">Sort: Size</option>
+                                    <option value="type">Sort: Type</option>
+                                </select>
+                                <button class="view-mode-btn active" data-mode="grid" title="Grid View">⊞</button>
+                                <button class="view-mode-btn" data-mode="list" title="List View">☰</button>
+                                <button class="view-mode-btn" data-mode="thumbs" title="Thumbnails">🖼️</button>
+                            </div>
+                        </div>
+                        
+                        <div class="folder-content grid-view" id="folder-content">
+                            <!-- Items populated here -->
+                        </div>
+
+                        <!-- Context Menu -->
+                        <div class="context-menu" id="context-menu">
+                            <div class="context-item" data-action="open">📂 Open</div>
+                            <div class="context-item" data-action="preview">👁️ Preview</div>
+                            <div class="context-item" data-action="openInNewTab">🗂️ Open in New Tab</div>
+                            <div class="context-separator"></div>
+                            <div class="context-item" data-action="cut">✂️ Cut</div>
+                            <div class="context-item" data-action="copy">📋 Copy</div>
+                            <div class="context-item" data-action="paste">📥 Paste</div>
+                            <div class="context-separator"></div>
+                            <div class="context-item has-submenu" data-action="sendTo">
+                                📤 Send To
+                                <span class="submenu-arrow">▶</span>
+                                <div class="context-submenu">
+                                    <div class="context-item" data-action="sendToDesktop">🖥️ Desktop</div>
+                                    <div class="context-item" data-action="sendToCompressed">📦 Compressed Folder</div>
+                                    <div class="context-item" data-action="sendToMail">✉️ Mail Recipient</div>
+                                </div>
+                            </div>
+                            <div class="context-separator"></div>
+                            <div class="context-item has-submenu dimensional-action" data-action="drillDimension">
+                                🌀 Dimensional Drill
+                                <span class="submenu-arrow">▶</span>
+                                <div class="context-submenu">
+                                    <div class="context-item" data-action="drillDown">🔽 Drill Down (deeper)</div>
+                                    <div class="context-item" data-action="drillUp">🔼 Drill Up (outer)</div>
+                                    <div class="context-item" data-action="viewDimension">📐 View Dimension Level</div>
+                                </div>
+                            </div>
+                            <div class="context-item has-submenu dimensional-action" data-action="helixConnect">
+                                🧬 Helix Connect...
+                                <span class="submenu-arrow">▶</span>
+                                <div class="context-submenu">
+                                    <div class="context-item" data-action="connectHelix">🔗 Parallel Thread (sibling dimension)</div>
+                                    <div class="context-item" data-action="connectInner">⬇️ Add Inner Point (contained)</div>
+                                    <div class="context-item" data-action="connectOuter">⬆️ Set Outer Container</div>
+                                    <div class="context-separator"></div>
+                                    <div class="context-item" data-action="searchConnect">🔍 Search & Connect...</div>
+                                </div>
+                            </div>
+                            <div class="context-item dimensional-action" data-action="viewHelix">🌀 View Helix Structure</div>
+                            <div class="context-separator"></div>
+                            <div class="context-item" data-action="rename">✏️ Rename</div>
+                            <div class="context-item" data-action="delete">🗑️ Delete</div>
+                            <div class="context-separator"></div>
+                            <div class="context-item" data-action="properties">ℹ️ Properties</div>
+                        </div>
+                    </div>
+
+                    <!-- Table View -->
+                    <div class="view-panel" id="table-view">
+                        <div class="table-toolbar">
+                            <button class="table-btn" id="btn-add-column">➕ Add Column</button>
+                            <button class="table-btn" id="btn-filter">🔍 Filter</button>
+                            <button class="table-btn" id="btn-sort">⬇ Sort</button>
+                            <button class="table-btn" id="btn-group">📊 Group By</button>
+                            <div class="table-spacer"></div>
+                            <button class="table-btn" id="btn-export-csv">📤 Export CSV</button>
+                            <button class="table-btn" id="btn-export-json">📤 Export JSON</button>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="data-table" id="data-table">
+                                <thead id="table-head">
+                                    <tr>
+                                        <th data-col="id">ID</th>
+                                        <th data-col="name">Name</th>
+                                        <th data-col="type">Type</th>
+                                        <th data-col="source">Source</th>
+                                        <th data-col="created">Created</th>
+                                        <th data-col="size">Size</th>
+                                        <th data-col="dimensions">Dimensions</th>
+                                        <th data-col="actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    <!-- Rows populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="table-pagination">
+                            <span id="table-info">Showing 1-50 of 234 items</span>
+                            <div class="pagination-controls">
+                                <button class="page-btn" id="btn-prev-page">◀</button>
+                                <span id="current-page">Page 1</span>
+                                <button class="page-btn" id="btn-next-page">▶</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visualizations View -->
+                    <div class="view-panel" id="visual-view">
+                        <div class="visual-toolbar">
+                            <div class="chart-type-selector">
+                                <button class="chart-btn active" data-chart="bar">📊 Bar</button>
+                                <button class="chart-btn" data-chart="line">📈 Line</button>
+                                <button class="chart-btn" data-chart="pie">🥧 Pie</button>
+                                <button class="chart-btn" data-chart="trend">📉 Trend</button>
+                                <button class="chart-btn" data-chart="bell">🔔 Bell Curve</button>
+                                <button class="chart-btn" data-chart="scatter">⚬ Scatter</button>
+                            </div>
+                            <div class="visual-actions">
+                                <button class="visual-btn" id="btn-create-report">📝 Create Report</button>
+                                <button class="visual-btn" id="btn-export-chart">📥 Export</button>
+                                <button class="visual-btn" id="btn-fullscreen">⛶ Fullscreen</button>
+                            </div>
+                        </div>
+
+                        <div class="visual-content">
+                            <div class="chart-area">
+                                <canvas id="main-chart"></canvas>
+                            </div>
+                            
+                            <div class="visual-sidebar">
+                                <div class="data-selector">
+                                    <h4>Data Source</h4>
+                                    <select id="chart-data-source">
+                                        <option value="">Select source...</option>
+                                        <optgroup label="Connected">
+                                            <!-- Dynamically populated -->
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                
+                                <div class="chart-config">
+                                    <h4>Chart Options</h4>
+                                    <label>X-Axis:</label>
+                                    <select id="chart-x-axis"></select>
+                                    <label>Y-Axis:</label>
+                                    <select id="chart-y-axis"></select>
+                                    <label>Group By:</label>
+                                    <select id="chart-group"></select>
+                                </div>
+
+                                <div class="quick-stats" id="quick-stats">
+                                    <h4>Quick Stats</h4>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Sum</span>
+                                        <span class="stat-value" id="stat-sum">-</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Average</span>
+                                        <span class="stat-value" id="stat-avg">-</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Min</span>
+                                        <span class="stat-value" id="stat-min">-</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Max</span>
+                                        <span class="stat-value" id="stat-max">-</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Std Dev</span>
+                                        <span class="stat-value" id="stat-std">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Report Builder Modal -->
+                        <div class="modal" id="report-modal">
+                            <div class="modal-content report-builder">
+                                <div class="modal-header">
+                                    <h2>📝 Report Builder</h2>
+                                    <button class="modal-close" id="close-report-modal">×</button>
+                                </div>
+                                <div class="report-builder-content">
+                                    <div class="report-canvas" id="report-canvas">
+                                        <!-- Drag and drop report elements here -->
+                                    </div>
+                                    <div class="report-elements">
+                                        <h4>Elements</h4>
+                                        <div class="element-item" draggable="true" data-element="chart">📊 Chart</div>
+                                        <div class="element-item" draggable="true" data-element="table">📋 Table</div>
+                                        <div class="element-item" draggable="true" data-element="text">📝 Text</div>
+                                        <div class="element-item" draggable="true" data-element="metric">🔢 Metric</div>
+                                        <div class="element-item" draggable="true" data-element="image">🖼️ Image</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API Interface View -->
+                    <div class="view-panel" id="api-view">
+                        <div class="api-toolbar">
+                            <select id="api-category-filter">
+                                <option value="all">All Categories</option>
+                                <option value="weather">🌤️ Weather</option>
+                                <option value="finance">💰 Finance</option>
+                                <option value="news">📰 News</option>
+                                <option value="music">🎵 Music</option>
+                                <option value="photos">📷 Photos</option>
+                                <option value="calendar">📅 Calendar</option>
+                                <option value="email">📧 Email</option>
+                                <option value="social">💬 Social</option>
+                                <option value="ai">🤖 AI Services</option>
+                            </select>
+                            <select id="api-auth-filter">
+                                <option value="all">All Auth Types</option>
+                                <option value="free">🆓 No Key Required</option>
+                                <option value="key">🔑 API Key Needed</option>
+                                <option value="oauth">🔐 OAuth Required</option>
+                            </select>
+                            <input type="text" id="api-search" placeholder="Search APIs...">
+                        </div>
+
+                        <div class="api-grid" id="api-grid">
+                            <!-- API cards populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Details/Preview -->
+            <div class="uhd-right-panel" id="right-panel">
+                <div class="panel-header">
+                    <h3>📋 Details</h3>
+                    <button class="panel-collapse-btn" id="collapse-right">×</button>
+                </div>
+                
+                <div class="details-content" id="details-content">
+                    <div class="details-preview" id="preview-area">
+                        <div class="no-selection">
+                            <span class="no-selection-icon">👆</span>
+                            <p>Select an item to preview</p>
+                        </div>
+                    </div>
+                    
+                    <div class="details-info" id="details-info">
+                        <!-- Selected item details -->
+                    </div>
+                    
+                    <div class="details-actions" id="details-actions">
+                        <!-- Context-sensitive actions -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="uhd-status-bar">
+            <div class="status-left">
+                <span class="status-indicator connected" id="status-indicator">●</span>
+                <span id="status-text">Ready</span>
+            </div>
+            <div class="status-center">
+                <span id="item-count">0 items</span>
+                <span class="status-separator">|</span>
+                <span id="selected-count">0 selected</span>
+            </div>
+            <div class="status-right">
+                <span id="connection-status">🔗 5 connections active</span>
+                <span class="status-separator">|</span>
+                <span id="query-history">📜 History</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Wizard Modal -->
+    <div class="modal" id="connection-modal">
+        <div class="modal-content connection-wizard">
+            <div class="modal-header">
+                <h2>🔗 New Connection</h2>
+                <button class="modal-close" id="close-connection-modal">×</button>
+            </div>
+            
+            <div class="wizard-steps">
+                <div class="wizard-step active" data-step="1">
+                    <span class="step-number">1</span>
+                    <span class="step-label">Select Service</span>
+                </div>
+                <div class="wizard-step" data-step="2">
+                    <span class="step-number">2</span>
+                    <span class="step-label">Configure</span>
+                </div>
+                <div class="wizard-step" data-step="3">
+                    <span class="step-number">3</span>
+                    <span class="step-label">Connect</span>
+                </div>
+            </div>
+
+            <div class="wizard-content">
+                <!-- Step 1: Select Service -->
+                <div class="wizard-panel active" data-step="1">
+                    <div class="service-categories">
+                        <button class="category-btn active" data-category="all">All</button>
+                        <button class="category-btn" data-category="weather">🌤️ Weather</button>
+                        <button class="category-btn" data-category="finance">💰 Finance</button>
+                        <button class="category-btn" data-category="news">📰 News</button>
+                        <button class="category-btn" data-category="knowledge">📖 Knowledge</button>
+                        <button class="category-btn" data-category="google">🔍 Google</button>
+                        <button class="category-btn" data-category="music">🎵 Music</button>
+                        <button class="category-btn" data-category="photos">📷 Photos</button>
+                        <button class="category-btn" data-category="food">🍲 Food</button>
+                        <button class="category-btn" data-category="ai">🤖 AI</button>
+                        <button class="category-btn" data-category="developer">👨‍💻 Developer</button>
+                        <button class="category-btn" data-category="database">🗄️ Database</button>
+                    </div>
+                    
+                    <div class="services-grid" id="services-grid">
+                        <!-- Service cards populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Step 2: Configure -->
+                <div class="wizard-panel" data-step="2" id="config-panel">
+                    <div class="config-header">
+                        <img src="" id="config-service-logo" class="service-logo-large">
+                        <div class="config-info">
+                            <h3 id="config-service-name">Service Name</h3>
+                            <p id="config-service-desc">Description</p>
+                        </div>
+                    </div>
+                    
+                    <div class="config-form" id="config-form">
+                        <!-- Form fields populated dynamically -->
+                    </div>
+                    
+                    <div class="signup-link" id="signup-link-container" style="display: none;">
+                        <p>🔑 Need an API key?</p>
+                        <a href="#" id="signup-link" target="_blank" class="btn-signup">
+                            Get your free API key →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Step 3: Connect -->
+                <div class="wizard-panel" data-step="3">
+                    <div class="connect-status" id="connect-status">
+                        <div class="loader" id="connect-loader"></div>
+                        <p id="connect-message">Testing connection...</p>
+                    </div>
+                    
+                    <div class="connect-result" id="connect-result" style="display: none;">
+                        <div class="result-icon" id="result-icon">✅</div>
+                        <h3 id="result-title">Connected!</h3>
+                        <p id="result-message">Your connection is ready to use.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wizard-footer">
+                <button class="btn-secondary" id="wizard-back" style="display: none;">← Back</button>
+                <button class="btn-secondary" id="wizard-cancel">Cancel</button>
+                <button class="btn-primary" id="wizard-next">Next →</button>
+                <button class="btn-primary" id="wizard-finish" style="display: none;">Finish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Crawler Modal -->
+    <div class="modal" id="crawler-modal">
+        <div class="modal-content crawler-content">
+            <div class="modal-header">
+                <h2>🕷️ API Crawler - Discover Data Sources</h2>
+                <button class="modal-close" id="close-crawler-modal">×</button>
+            </div>
+            
+            <div class="crawler-search">
+                <input type="text" id="crawler-query" 
+                       placeholder="What data are you looking for? (e.g., 'stock prices', 'recipe ideas', 'weather forecasts')">
+                <button class="btn-primary" id="btn-crawl">🔍 Search</button>
+            </div>
+            
+            <div class="crawler-filters">
+                <label><input type="checkbox" id="filter-free" checked> 🆓 Free APIs only</label>
+                <label><input type="checkbox" id="filter-no-key" checked> 🔓 No API key required</label>
+                <label><input type="checkbox" id="filter-safe" checked> ✅ Safe content only</label>
+            </div>
+            
+            <div class="crawler-results" id="crawler-results">
+                <p class="crawler-placeholder">Enter a search query to discover APIs...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Properties Modal -->
+    <div class="modal" id="properties-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ℹ️ Properties</h2>
+                <button class="modal-close" id="close-properties-modal">×</button>
+            </div>
+            <div class="properties-content" id="properties-content">
+                <!-- Properties populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='universal_hard_drive.js') }}"></script>
+</body>
+</html>

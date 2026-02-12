@@ -1,6 +1,9 @@
 # ButterflyFx .gitignore
 # Tests are deployed separately to server
 
+# Archive - old code not for GitHub
+_archive/
+
 # Test directories and files
 tests/
 *.pyc

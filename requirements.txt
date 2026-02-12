@@ -1,0 +1,20 @@
+# ButterflyFX Requirements
+# No external dependencies required for core functionality!
+# The framework uses only Python standard library.
+
+# Optional dependencies for enhanced features:
+
+# For async WebSocket support (future)
+# websockets>=11.0
+
+# For faster JSON (optional)
+# orjson>=3.9
+
+# For production WSGI server (optional)
+# gunicorn>=21.0
+# uvicorn>=0.24
+
+# For development
+# pytest>=7.0
+# black>=23.0
+# mypy>=1.0

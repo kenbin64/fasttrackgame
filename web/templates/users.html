@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - Substrate Database Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <h1>🦋 Substrate Database Admin</h1>
+                <p>User Management</p>
+            </div>
+            <div class="header-right">
+                <span class="user-info">{{ username }} ({{ role }})</span>
+                <a href="{{ url_for('connections') }}" class="btn btn-secondary">Connections</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+            </div>
+        </header>
+        
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="showCreateUserDialog()">
+                ➕ Create User
+            </button>
+            <button class="btn btn-secondary" onclick="refreshUsers()">
+                🔄 Refresh
+            </button>
+        </div>
+        
+        <div class="table-container">
+            <table class="connection-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Created By</th>
+                        <th>Created At</th>
+                        <th>Last Login</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td><strong>{{ user.username }}</strong></td>
+                        <td>
+                            <span class="badge badge-{% if user.role == 'SUPERADMIN' %}database{% elif user.role == 'ADMIN' %}api{% else %}file{% endif %}">
+                                {{ user.role }}
+                            </span>
+                        </td>
+                        <td>{{ user.created_by }}</td>
+                        <td class="timestamp">{{ user.created_at }}</td>
+                        <td class="timestamp">
+                            {% if user.last_login > 0 %}
+                                {{ user.last_login }}
+                            {% else %}
+                                Never
+                            {% endif %}
+                        </td>
+                        <td class="status-cell">
+                            {% if user.is_active %}
+                                ✅ Active
+                            {% else %}
+                                ❌ Inactive
+                            {% endif %}
+                        </td>
+                        <td class="actions">
+                            {% if not user.is_superadmin %}
+                                <button class="btn-icon btn-danger" onclick="deleteUser('{{ user.username }}')" title="Delete">
+                                    🗑️
+                                </button>
+                            {% else %}
+                                <button class="btn-icon" onclick="showEmergencyRemovalDialog('{{ user.username }}')" title="Emergency Removal">
+                                    ⚠️
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="info-panel">
+            <h3>User Roles</h3>
+            <div class="legend">
+                <div class="legend-item">
+                    <span>👑</span> <strong>SUPERADMIN:</strong> Database initializer, cannot be deleted (except emergency with 3+ admins, 2 signatures)
+                </div>
+                <div class="legend-item">
+                    <span>🔧</span> <strong>ADMIN:</strong> Full access to admin interface, can manage users
+                </div>
+                <div class="legend-item">
+                    <span>👤</span> <strong>USER:</strong> Read-only access, no admin interface access
+                </div>
+            </div>
+            
+            {% if admin_count >= 3 %}
+            <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 5px;">
+                <strong>⚠️ Emergency Removal Available</strong><br>
+                With {{ admin_count }} admins, emergency removal of superadmin is possible (requires 2 admin signatures).
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Create User Dialog -->
+    <div id="createUserDialog" class="modal">
+        <div class="modal-content">
+            <h2>Create User</h2>
+            <div class="form-group">
+                <label for="newUsername">Username</label>
+                <input type="text" id="newUsername" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="newUserPassword">Password</label>
+                <input type="password" id="newUserPassword" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="newUserRole">Role</label>
+                <select id="newUserRole" class="form-control">
+                    <option value="ADMIN">ADMIN</option>
+                    <option value="USER">USER</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="createUser()">Create User</button>
+                <button class="btn btn-secondary" onclick="closeCreateUserDialog()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Emergency Removal Dialog -->
+    <div id="emergencyRemovalDialog" class="modal">
+        <div class="modal-content">
+            <h2>⚠️ Emergency Superadmin Removal</h2>
+            <p>This is a serious action that requires 2 admin signatures.</p>
+            <p>Target: <strong id="emergencyTargetUser"></strong></p>
+            <div class="form-group">
+                <label for="emergencyReason">Reason</label>
+                <textarea id="emergencyReason" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-danger" onclick="requestEmergencyRemoval()">Request Removal</button>
+                <button class="btn btn-secondary" onclick="closeEmergencyRemovalDialog()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='users.js') }}"></script>
+</body>
+</html>
+

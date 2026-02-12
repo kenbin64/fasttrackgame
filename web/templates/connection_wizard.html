@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connection Wizard - Substrate Database Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .wizard-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .wizard-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .wizard-header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .wizard-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .wizard-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+        
+        .wizard-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .wizard-step.active .step-circle {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .wizard-step.completed .step-circle {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .wizard-step.active .step-label {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .wizard-content {
+            min-height: 300px;
+        }
+        
+        .step-content {
+            display: none;
+        }
+        
+        .step-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .connection-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .connection-type-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .connection-type-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .connection-type-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+        
+        .connection-type-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .connection-type-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .connection-type-desc {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .wizard-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-row-full {
+            grid-column: 1 / -1;
+        }
+        
+        .info-box {
+            background: #f0f7ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box h4 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        
+        .test-result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .test-result.success {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            color: #2e7d32;
+            display: block;
+        }
+        
+        .test-result.error {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            color: #c62828;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="wizard-container">
+        <div class="wizard-header">
+            <h1>🧙‍♂️ Connection Wizard</h1>
+            <p>Create a new SRL connection to external data sources</p>
+        </div>
+        
+        <!-- Wizard Steps -->
+        <div class="wizard-steps">
+            <div class="wizard-step active" data-step="1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Connection Type</div>
+            </div>
+            <div class="wizard-step" data-step="2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Configuration</div>
+            </div>
+            <div class="wizard-step" data-step="3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Test & Save</div>
+            </div>
+        </div>
+        
+        <!-- Wizard Content -->
+        <div class="wizard-content">
+            <!-- Step 1: Connection Type -->
+            <div class="step-content active" data-step="1">
+                <h2>Select Connection Type</h2>
+                <p>Choose the type of external data source you want to connect to</p>
+                
+                <div class="connection-type-grid">
+                    <div class="connection-type-card" onclick="selectConnectionType('DATABASE')">
+                        <div class="connection-type-icon">🗄️</div>
+                        <div class="connection-type-name">Database</div>
+                        <div class="connection-type-desc">PostgreSQL, MySQL, etc.</div>
+                    </div>
+                    
+                    <div class="connection-type-card" onclick="selectConnectionType('API')">
+                        <div class="connection-type-icon">🌐</div>
+                        <div class="connection-type-name">REST API</div>
+                        <div class="connection-type-desc">HTTP/HTTPS APIs</div>
+                    </div>
+                    
+                    <div class="connection-type-card" onclick="selectConnectionType('FILE')">
+                        <div class="connection-type-icon">📁</div>
+                        <div class="connection-type-name">File System</div>
+                        <div class="connection-type-desc">Local or network files</div>
+                    </div>
+                    
+                    <div class="connection-type-card" onclick="selectConnectionType('STREAM')">
+                        <div class="connection-type-icon">📡</div>
+                        <div class="connection-type-name">Stream</div>
+                        <div class="connection-type-desc">Real-time data streams</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Configuration -->
+            <div class="step-content" data-step="2">
+                <h2>Configure Connection</h2>
+                <p>Enter the connection details</p>
+
+                <!-- Database Configuration -->
+                <div id="config-database" class="config-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="db-name">Connection Name *</label>
+                        <input type="text" id="db-name" class="form-control" placeholder="e.g., production_db">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="db-host">Host *</label>
+                            <input type="text" id="db-host" class="form-control" placeholder="e.g., localhost">
+                        </div>
+                        <div class="form-group">
+                            <label for="db-port">Port *</label>
+                            <input type="text" id="db-port" class="form-control" placeholder="e.g., 5432">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="db-database">Database *</label>
+                            <input type="text" id="db-database" class="form-control" placeholder="e.g., mydb">
+                        </div>
+                        <div class="form-group">
+                            <label for="db-protocol">Protocol *</label>
+                            <select id="db-protocol" class="form-control">
+                                <option value="postgresql">PostgreSQL</option>
+                                <option value="mysql">MySQL</option>
+                                <option value="mssql">MS SQL Server</option>
+                                <option value="oracle">Oracle</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="db-username">Username *</label>
+                            <input type="text" id="db-username" class="form-control" placeholder="Database username">
+                        </div>
+                        <div class="form-group">
+                            <label for="db-password">Password *</label>
+                            <input type="password" id="db-password" class="form-control" placeholder="Database password">
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>🔒 Security Note</h4>
+                        <p>Credentials will be encrypted with the master key and stored with bitcount anti-tampering verification.</p>
+                    </div>
+                </div>
+
+                <!-- API Configuration -->
+                <div id="config-api" class="config-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="api-name">Connection Name *</label>
+                        <input type="text" id="api-name" class="form-control" placeholder="e.g., weather_api">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="api-url">API URL *</label>
+                        <input type="text" id="api-url" class="form-control" placeholder="e.g., https://api.openweathermap.org/data/2.5">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="api-key">API Key *</label>
+                        <input type="password" id="api-key" class="form-control" placeholder="Your API key">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="api-method">HTTP Method</label>
+                        <select id="api-method" class="form-control">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                        </select>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>🌐 Weather API Example (WeatherAPI.com)</h4>
+                        <p><strong>URL:</strong> http://api.weatherapi.com/v1</p>
+                        <p><strong>API Key:</strong> Get your free key at <a href="https://www.weatherapi.com/" target="_blank">weatherapi.com</a></p>
+                        <p><strong>Current Weather:</strong> /current.json?key=YOUR_KEY&q=London</p>
+                        <p><strong>Forecast:</strong> /forecast.json?key=YOUR_KEY&q=London&days=5</p>
+                    </div>
+                </div>
+
+                <!-- File Configuration -->
+                <div id="config-file" class="config-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="file-name">Connection Name *</label>
+                        <input type="text" id="file-name" class="form-control" placeholder="e.g., config_file">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="file-path">File Path *</label>
+                        <input type="text" id="file-path" class="form-control" placeholder="e.g., C:\data\config.json">
+                    </div>
+
+                    <div class="info-box">
+                        <h4>⚠️ Blacklist Protection</h4>
+                        <p>Critical OS and system files are automatically blacklisted and cannot be accessed.</p>
+                        <p><strong>Protected:</strong> Windows System32, Program Files, /etc, /boot, etc.</p>
+                    </div>
+                </div>
+
+                <!-- Stream Configuration -->
+                <div id="config-stream" class="config-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="stream-name">Connection Name *</label>
+                        <input type="text" id="stream-name" class="form-control" placeholder="e.g., sensor_stream">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stream-url">Stream URL *</label>
+                        <input type="text" id="stream-url" class="form-control" placeholder="e.g., ws://localhost:8080/stream">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stream-protocol">Protocol</label>
+                        <select id="stream-protocol" class="form-control">
+                            <option value="websocket">WebSocket</option>
+                            <option value="mqtt">MQTT</option>
+                            <option value="kafka">Kafka</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Test & Save -->
+            <div class="step-content" data-step="3">
+                <h2>Test & Save Connection</h2>
+                <p>Test the connection before saving</p>
+
+                <div id="connection-summary" class="info-box">
+                    <h4>📋 Connection Summary</h4>
+                    <div id="summary-content"></div>
+                </div>
+
+                <button class="btn btn-primary" onclick="testConnection()" style="width: 100%;">
+                    🔍 Test Connection
+                </button>
+
+                <div id="test-result" class="test-result"></div>
+
+                <div class="info-box" style="margin-top: 20px;">
+                    <h4>💾 What Happens Next</h4>
+                    <p>1. Connection will be tested</p>
+                    <p>2. Credentials will be encrypted with master key</p>
+                    <p>3. Bitcount will be calculated for anti-tampering</p>
+                    <p>4. SRL will be registered in connection table</p>
+                    <p>5. Connection will be lazy-loaded (created on first query)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wizard Actions -->
+        <div class="wizard-actions">
+            <button class="btn btn-secondary" onclick="previousStep()" id="btn-previous" style="display: none;">
+                ← Previous
+            </button>
+            <button class="btn btn-secondary" onclick="cancelWizard()">
+                Cancel
+            </button>
+            <button class="btn btn-primary" onclick="nextStep()" id="btn-next">
+                Next →
+            </button>
+            <button class="btn btn-primary" onclick="saveConnection()" id="btn-save" style="display: none;">
+                💾 Save Connection
+            </button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='connection_wizard.js') }}"></script>
+</body>
+</html>
+

@@ -1,0 +1,130 @@
+{
+  "name": "demo_db",
+  "saved_at": "2026-02-12T08:54:45.117486",
+  "collections": [
+    {
+      "name": "users",
+      "level": 5,
+      "spiral": 0,
+      "record_count": 3,
+      "created_at": "2026-02-12T08:54:45.116465",
+      "schema": null
+    },
+    {
+      "name": "posts",
+      "level": 4,
+      "spiral": 0,
+      "record_count": 2,
+      "created_at": "2026-02-12T08:54:45.116473",
+      "schema": null
+    },
+    {
+      "name": "comments",
+      "level": 3,
+      "spiral": 0,
+      "record_count": 2,
+      "created_at": "2026-02-12T08:54:45.116478",
+      "schema": null
+    }
+  ],
+  "records": [
+    {
+      "id": "users_2a4884125c8d",
+      "collection": "users",
+      "level": 4,
+      "data": {
+        "name": "Alice",
+        "role": "admin",
+        "age": 30
+      },
+      "spiral": 0,
+      "created_at": "2026-02-12T08:54:45.116500",
+      "updated_at": "2026-02-12T08:54:45.116501",
+      "links": [
+        "posts_60a69a431874"
+      ]
+    },
+    {
+      "id": "users_f504e6794d10",
+      "collection": "users",
+      "level": 4,
+      "data": {
+        "name": "Bob",
+        "role": "user",
+        "age": 25
+      },
+      "spiral": 0,
+      "created_at": "2026-02-12T08:54:45.116521",
+      "updated_at": "2026-02-12T08:54:45.116522",
+      "links": [
+        "posts_75668c93cfa2"
+      ]
+    },
+    {
+      "id": "users_61fbb063508c",
+      "collection": "users",
+      "level": 4,
+      "data": {
+        "name": "Charlie",
+        "role": "user",
+        "age": 35
+      },
+      "spiral": 0,
+      "created_at": "2026-02-12T08:54:45.116533",
+      "updated_at": "2026-02-12T08:54:45.116534",
+      "links": []
+    },
+    {
+      "id": "posts_60a69a431874",
+      "collection": "posts",
+      "level": 3,
+      "data": {
+        "title": "Hello World",
+        "author": "Alice"
+      },
+      "spiral": 0,
+      "created_at": "2026-02-12T08:54:45.116543",
+      "updated_at": "2026-02-12T08:54:45.116543",
+      "links": []
+    },
+    {
+      "id": "posts_75668c93cfa2",
+      "collection": "posts",
+      "level": 3,
+      "data": {
+        "title": "Helix Computing",
+        "author": "Bob"
+      },
+      "spiral": 0,
+      "created_at": "2026-02-12T08:54:45.116549",
+      "updated_at": "2026-02-12T08:54:45.116550",
+      "links": []
+    },
+    {
+      "id": "comments_7c4e545fc741",
+      "collection": "comments",
+      "level": 2,
+      "data": {
+        "text": "Great post!",
+        "author": "Charlie"
+      },
+      "spiral": 0,
+      "created_at": "2026-02-12T08:54:45.116556",
+      "updated_at": "2026-02-12T08:54:45.116557",
+      "links": []
+    },
+    {
+      "id": "comments_552d82cf0743",
+      "collection": "comments",
+      "level": 2,
+      "data": {
+        "text": "Interesting",
+        "author": "Alice"
+      },
+      "spiral": 0,
+      "created_at": "2026-02-12T08:54:45.116566",
+      "updated_at": "2026-02-12T08:54:45.116567",
+      "links": []
+    }
+  ]
+}
