@@ -2187,34 +2187,26 @@ car.sync()    // real-time</code></pre>
         const width = canvas.width;
         const height = canvas.height;
         
-        let rotationX = 0.45; // Tilt down to look into the cube
-        let rotationY = Math.PI / 4; // 45° diamond orientation
-        
-        const cubeSize = 1.4; // Size to match reference
+        // Animation angle for slow rotation
+        let angle = 0;
         
         // Mouse interaction state
         let isDragging = false;
         let lastMouseX = 0;
-        let lastMouseY = 0;
+        let dragOffset = 0;
         
         // Mouse event handlers
         canvas.addEventListener('mousedown', (e) => {
             isDragging = true;
             lastMouseX = e.clientX;
-            lastMouseY = e.clientY;
             canvas.style.cursor = 'grabbing';
         });
         
         canvas.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
             const deltaX = e.clientX - lastMouseX;
-            const deltaY = e.clientY - lastMouseY;
-            rotationY -= deltaX * 0.01;
-            rotationX += deltaY * 0.01;
-            // Clamp X rotation to prevent flipping
-            rotationX = Math.max(-1.2, Math.min(1.2, rotationX));
+            dragOffset += deltaX * 0.01;
             lastMouseX = e.clientX;
-            lastMouseY = e.clientY;
         });
         
         canvas.addEventListener('mouseup', () => {
@@ -2227,62 +2219,61 @@ car.sync()    // real-time</code></pre>
             canvas.style.cursor = 'grab';
         });
         
-        // Touch support for mobile
+        // Touch support
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             isDragging = true;
             lastMouseX = e.touches[0].clientX;
-            lastMouseY = e.touches[0].clientY;
         });
         
         canvas.addEventListener('touchmove', (e) => {
             if (!isDragging) return;
             e.preventDefault();
             const deltaX = e.touches[0].clientX - lastMouseX;
-            const deltaY = e.touches[0].clientY - lastMouseY;
-            rotationY -= deltaX * 0.01;
-            rotationX += deltaY * 0.01;
-            rotationX = Math.max(-1.2, Math.min(1.2, rotationX));
+            dragOffset += deltaX * 0.01;
             lastMouseX = e.touches[0].clientX;
-            lastMouseY = e.touches[0].clientY;
         });
         
         canvas.addEventListener('touchend', () => {
             isDragging = false;
         });
         
-        // Set initial cursor
         canvas.style.cursor = 'grab';
         
-        const baseTilt = Math.PI / 2; // 90° - rest cube on different face
+        // Camera looking INTO the cube from the front
+        // Camera at z = -5.5, looking toward z = 0 (cube center)
+        const cameraZ = -5.5;
+        const fov = 45 * Math.PI / 180; // 45° FOV for tighter fit
+        const cubeSize = 1.1; // Smaller cube to fit in panel
         
-        // 3D projection - turntable rotation (Y spin first, then X tilt for viewing angle)
+        // Project 3D point to 2D screen with perspective
+        // Camera is at (0, 0, cameraZ) looking toward +z
         function project(x, y, z) {
-            // First tip cube onto different face (rotate around Z by 90°)
-            const cosZ = Math.cos(baseTilt);
-            const sinZ = Math.sin(baseTilt);
-            const x0 = x * cosZ - y * sinZ;
-            const y0 = x * sinZ + y * cosZ;
+            // Rotate the scene around Y axis (vertical) for animation
+            const rotY = angle + dragOffset;
+            const cosR = Math.cos(rotY);
+            const sinR = Math.sin(rotY);
+            const rx = x * cosR - z * sinR;
+            const rz = x * sinR + z * cosR;
             
-            // Then rotate around Y axis (turntable spin - left to right)
-            const cosY = Math.cos(rotationY);
-            const sinY = Math.sin(rotationY);
-            const x1 = x0 * cosY - z * sinY;
-            const z1 = x0 * sinY + z * cosY;
+            // Distance from camera to point
+            const dz = rz - cameraZ;
             
-            // Then tilt around X axis (viewing angle - looking down)
-            const cosX = Math.cos(rotationX);
-            const sinX = Math.sin(rotationX);
-            const y1 = y0 * cosX - z1 * sinX;
-            const z2 = y0 * sinX + z1 * cosX;
+            if (dz <= 0.1) {
+                return { x: -1000, y: -1000, z: dz, scale: 0 };
+            }
             
-            const perspective = 300;
-            const scale = perspective / (perspective + z2 + 200);
+            // Perspective projection
+            const tanFov = Math.tan(fov / 2);
+            const scale = 1 / (dz * tanFov);
+            
+            const screenX = width / 2 + rx * scale * (height / 2);
+            const screenY = height / 2 - y * scale * (height / 2);
             
             return {
-                x: width / 2 + x1 * scale * 100,
-                y: height / 2 - y1 * scale * 100,
-                z: z2,
+                x: screenX,
+                y: screenY,
+                z: dz,
                 scale: scale
             };
         }
@@ -2294,88 +2285,127 @@ car.sync()    // real-time</code></pre>
             const s = cubeSize;
             
             // 8 vertices of the cube
+            // Front face (z = -s): vertices 0-3
+            // Back face (z = +s): vertices 4-7
             const vertices = [
-                [-s, -s, -s], [s, -s, -s], [s, s, -s], [-s, s, -s],
-                [-s, -s, s], [s, -s, s], [s, s, s], [-s, s, s]
+                [-s, -s, -s], [s, -s, -s], [s, s, -s], [-s, s, -s],  // front face
+                [-s, -s, s], [s, -s, s], [s, s, s], [-s, s, s]       // back face
             ];
             
             // 12 edges
             const edges = [
-                [0, 1], [1, 2], [2, 3], [3, 0],
-                [4, 5], [5, 6], [6, 7], [7, 4],
-                [0, 4], [1, 5], [2, 6], [3, 7]
+                [0, 1], [1, 2], [2, 3], [3, 0],  // front face
+                [4, 5], [5, 6], [6, 7], [7, 4],  // back face
+                [0, 4], [1, 5], [2, 6], [3, 7]   // connecting edges
             ];
             
             const projectedVerts = vertices.map(v => project(v[0], v[1], v[2]));
             
-            // Add cube edges with glow
+            // Add cube edges
             edges.forEach(edge => {
                 const p1 = projectedVerts[edge[0]];
                 const p2 = projectedVerts[edge[1]];
                 const avgZ = (p1.z + p2.z) / 2;
-                drawables.push({ type: 'edgeGlow', p1, p2, z: avgZ - 0.5 });
-                drawables.push({ type: 'edge', p1, p2, z: avgZ });
+                drawables.push({ type: 'edgeGlow', p1, p2, z: avgZ });
+                drawables.push({ type: 'edge', p1, p2, z: avgZ + 0.001 });
             });
             
-            // Build z=xy saddle surface - dense dot grid
-            const gridSize = 22;
-            const range = cubeSize * 0.95;
-            const step = range * 2 / gridSize;
+            // Build the saddle surface z = x*y/s (rotated 90° from before)
+            // The surface now spans from left-right walls instead of floor-ceiling
+            // At corners: z = (±s)*(±s)/s = ±s (touches front/back walls)
+            // At center (x=0 or y=0): z = 0 (passes through middle)
+            const gridSize = 45;
+            const step = (2 * s) / gridSize;
             
+            const surfaceGrid = [];
             for (let i = 0; i <= gridSize; i++) {
+                surfaceGrid[i] = [];
                 for (let j = 0; j <= gridSize; j++) {
-                    const x = -range + i * step;
-                    const z = -range + j * step;
-                    const y = (x * z) / range; // y = xz saddle (low at bottom, high at top)
-                    const p = project(x, y, z);
-                    drawables.push({ type: 'surfaceDot', p, z: p.z });
+                    const x = -s + i * step;
+                    const y = -s + j * step;
+                    const z = (x * y) / s;  // saddle: z = xy/s (rotated 90°)
+                    surfaceGrid[i][j] = { world: {x, y, z}, proj: project(x, y, z) };
                 }
             }
             
-            // Sort by depth (back to front)
-            drawables.sort((a, b) => a.z - b.z);
+            // Add surface dots
+            for (let i = 0; i <= gridSize; i++) {
+                for (let j = 0; j <= gridSize; j++) {
+                    const pt = surfaceGrid[i][j];
+                    drawables.push({ type: 'dot', p: pt.proj, z: pt.proj.z });
+                }
+            }
+            
+            // Add cyan axis lines through center of surface
+            // X-axis line (y=0, z=0)
+            const axisXStart = project(-s, 0, 0);
+            const axisXEnd = project(s, 0, 0);
+            drawables.push({ type: 'axis', p1: axisXStart, p2: axisXEnd, z: (axisXStart.z + axisXEnd.z)/2 + 0.01 });
+            
+            // Y-axis line (x=0, z=0)
+            const axisYStart = project(0, -s, 0);
+            const axisYEnd = project(0, s, 0);
+            drawables.push({ type: 'axisY', p1: axisYStart, p2: axisYEnd, z: (axisYStart.z + axisYEnd.z)/2 + 0.01 });
+            
+            // Sort by depth (larger z = farther from camera = draw first)
+            drawables.sort((a, b) => b.z - a.z);
             
             // Draw everything
             drawables.forEach(d => {
                 if (d.type === 'edgeGlow') {
-                    // Subtle glow behind the edge
-                    ctx.strokeStyle = 'rgba(0, 200, 255, 0.2)';
-                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = 'rgba(100, 150, 255, 0.3)';
+                    ctx.lineWidth = 5;
                     ctx.lineCap = 'round';
                     ctx.beginPath();
                     ctx.moveTo(d.p1.x, d.p1.y);
                     ctx.lineTo(d.p2.x, d.p2.y);
                     ctx.stroke();
                 } else if (d.type === 'edge') {
-                    // Thin cyan wireframe
-                    ctx.strokeStyle = 'rgba(0, 255, 255, 0.85)';
-                    ctx.lineWidth = 1;
+                    ctx.strokeStyle = 'rgba(100, 180, 255, 0.7)';
+                    ctx.lineWidth = 1.5;
                     ctx.lineCap = 'round';
                     ctx.beginPath();
                     ctx.moveTo(d.p1.x, d.p1.y);
                     ctx.lineTo(d.p2.x, d.p2.y);
                     ctx.stroke();
-                } else if (d.type === 'surfaceDot') {
-                    // Pink/magenta dots for saddle surface
-                    const alpha = 0.5 + (d.z + 200) / 400 * 0.5;
-                    const dotSize = 2.2 * d.p.scale;
-                    ctx.fillStyle = `rgba(200, 80, 255, ${Math.min(0.9, alpha)})`;
+                } else if (d.type === 'dot') {
+                    // Purple/magenta dots - size based on depth
+                    const baseSize = 2.5;
+                    const dotSize = Math.max(1.2, baseSize * d.p.scale * 1.5);
+                    const alpha = 0.4 + 0.5 * Math.min(1, d.p.scale * 0.8);
+                    ctx.fillStyle = `rgba(180, 100, 255, ${alpha})`;
                     ctx.beginPath();
-                    ctx.arc(d.p.x, d.p.y, Math.max(1.5, dotSize), 0, Math.PI * 2);
+                    ctx.arc(d.p.x, d.p.y, dotSize, 0, Math.PI * 2);
                     ctx.fill();
+                } else if (d.type === 'axis') {
+                    ctx.strokeStyle = 'rgba(0, 255, 255, 0.9)';
+                    ctx.lineWidth = 2;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(d.p1.x, d.p1.y);
+                    ctx.lineTo(d.p2.x, d.p2.y);
+                    ctx.stroke();
+                } else if (d.type === 'axisY') {
+                    ctx.strokeStyle = 'rgba(100, 255, 150, 0.9)';
+                    ctx.lineWidth = 2;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(d.p1.x, d.p1.y);
+                    ctx.lineTo(d.p2.x, d.p2.y);
+                    ctx.stroke();
                 }
             });
             
-            // z = xy label on the surface
+            // Label
             const labelPos = project(0, 0, 0);
             ctx.fillStyle = 'rgba(0, 255, 100, 0.95)';
-            ctx.font = 'bold 12px Courier New';
+            ctx.font = 'bold 11px Courier New';
             ctx.textAlign = 'center';
-            ctx.fillText('z = xy', labelPos.x, labelPos.y - 5);
+            ctx.fillText('z = xy', labelPos.x, labelPos.y - 8);
             
-            // Auto-rotate on Y axis (spinning left to right) when not dragging
+            // Slow rotation when not dragging
             if (!isDragging) {
-                rotationY -= 0.012;
+                angle += 0.006;
             }
             requestAnimationFrame(drawFrame);
         }
