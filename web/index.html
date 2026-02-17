@@ -2188,7 +2188,7 @@ car.sync()    // real-time</code></pre>
         const height = canvas.height;
         
         let rotationX = 0.45; // Tilt down to look into the cube
-        let rotationY = Math.PI / 4; // 45° for diamond orientation
+        let rotationY = Math.PI / 4; // 45° diamond orientation
         
         const cubeSize = 1.4; // Size to match reference
         
@@ -2254,19 +2254,27 @@ car.sync()    // real-time</code></pre>
         // Set initial cursor
         canvas.style.cursor = 'grab';
         
-        // 3D projection - Y rotation animated (left-right spin), X fixed tilt
+        const baseTilt = Math.PI / 2; // 90° - rest cube on different face
+        
+        // 3D projection - turntable rotation (Y spin first, then X tilt for viewing angle)
         function project(x, y, z) {
-            // Rotate around Y (animated spin)
+            // First tip cube onto different face (rotate around Z by 90°)
+            const cosZ = Math.cos(baseTilt);
+            const sinZ = Math.sin(baseTilt);
+            const x0 = x * cosZ - y * sinZ;
+            const y0 = x * sinZ + y * cosZ;
+            
+            // Then rotate around Y axis (turntable spin - left to right)
             const cosY = Math.cos(rotationY);
             const sinY = Math.sin(rotationY);
-            const x1 = x * cosY - z * sinY;
-            const z1 = x * sinY + z * cosY;
+            const x1 = x0 * cosY - z * sinY;
+            const z1 = x0 * sinY + z * cosY;
             
-            // Rotate around X (fixed tilt - looking down)
+            // Then tilt around X axis (viewing angle - looking down)
             const cosX = Math.cos(rotationX);
             const sinX = Math.sin(rotationX);
-            const y1 = y * cosX - z1 * sinX;
-            const z2 = y * sinX + z1 * cosX;
+            const y1 = y0 * cosX - z1 * sinX;
+            const z2 = y0 * sinX + z1 * cosX;
             
             const perspective = 300;
             const scale = perspective / (perspective + z2 + 200);
@@ -2317,9 +2325,9 @@ car.sync()    // real-time</code></pre>
             for (let i = 0; i <= gridSize; i++) {
                 for (let j = 0; j <= gridSize; j++) {
                     const x = -range + i * step;
-                    const y = -range + j * step;
-                    const z = (x * y) / range; // z = xy saddle
-                    const p = project(x, z, y); // y and z swapped to orient surface correctly
+                    const z = -range + j * step;
+                    const y = (x * z) / range; // y = xz saddle (low at bottom, high at top)
+                    const p = project(x, y, z);
                     drawables.push({ type: 'surfaceDot', p, z: p.z });
                 }
             }
