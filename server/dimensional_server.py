@@ -384,9 +384,14 @@ class DimensionalRequestHandler(BaseHTTPRequestHandler):
         elif path.startswith('/turbo/'):
             self._serve_turbo_demo(path)
         
+        # Games (Fast Track, etc.)
+        elif path.startswith('/games/'):
+            self._serve_game(path, query)
+        
         # Static files
         else:
             self._serve_static(path)
+
     
     def do_POST(self):
         # Rate limiting check
@@ -1055,6 +1060,57 @@ a { color: #58a6ff; }
             self._send_file(file_path)
         else:
             self._send_error(404, f"Not found: {path}")
+
+    def _serve_game(self, path: str, query: Dict):
+        """Serve game files from web/games directory"""
+        from urllib.parse import unquote
+        
+        # Remove /games/ prefix
+        remaining = path[7:]  # len('/games/') = 7
+        
+        if not remaining or remaining == '/':
+            # Show games index
+            self._send_json({
+                "games": {
+                    "fasttrack": {
+                        "name": "Fast Track",
+                        "description": "2-6 player board game with online multiplayer and AI",
+                        "url": "/games/fasttrack/",
+                        "players": "2-6",
+                        "supports_ai": True,
+                        "supports_multiplayer": True
+                    }
+                }
+            })
+            return
+        
+        # Parse game name and file path
+        parts = remaining.strip('/').split('/', 1)
+        game_name = parts[0]
+        file_name = parts[1] if len(parts) > 1 else 'index.html'
+        
+        # Resolve path
+        games_base = Path(__file__).parent.parent / 'web' / 'games'
+        game_dir = games_base / game_name
+        file_path = game_dir / unquote(file_name)
+        
+        # Security check - ensure path is within game directory
+        try:
+            file_path = file_path.resolve()
+            game_dir = game_dir.resolve()
+            file_path.relative_to(game_dir)
+        except (ValueError, OSError):
+            self._send_error(403, "Forbidden: Access denied")
+            return
+        
+        if file_path.exists() and file_path.is_file():
+            self._send_file(file_path)
+        else:
+            # Try index.html for directory requests
+            if (game_dir / 'index.html').exists():
+                self._send_file(game_dir / 'index.html')
+            else:
+                self._send_error(404, f"Game not found: {path}")
 
     def _serve_static(self, path: str):
         """Serve static files with secure path validation"""

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fast Track - ButterflyFX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        header {
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+        
+        header p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .game-container {
+            display: flex;
+            gap: 30px;
+            padding: 20px;
+            max-width: 1400px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .board-wrapper {
+            position: relative;
+        }
+        
+        #gameBoard {
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 200, 255, 0.2);
+        }
+        
+        .sidebar {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 280px;
+            max-width: 320px;
+            border: 1px solid rgba(100, 100, 150, 0.3);
+        }
+        
+        .sidebar h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            border-bottom: 1px solid rgba(100, 100, 150, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        .player-list {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        
+        .player-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: rgba(40, 40, 60, 0.5);
+            transition: all 0.3s;
+        }
+        
+        .player-item.active {
+            background: rgba(0, 200, 255, 0.15);
+            border: 1px solid rgba(0, 200, 255, 0.4);
+        }
+        
+        .player-item.winner {
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid gold;
+        }
+        
+        .player-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .player-name {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .player-pegs {
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        .dice-container {
+            text-align: center;
+            padding: 20px;
+            background: rgba(30, 30, 50, 0.6);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .dice {
+            font-size: 4rem;
+            margin: 10px 0;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+        
+        .roll-btn {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border: none;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .roll-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 200, 255, 0.5);
+        }
+        
+        .roll-btn:disabled {
+            background: #444;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .game-log {
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(100, 100, 150, 0.2);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid rgba(100, 100, 150, 0.5);
+            background: rgba(40, 40, 60, 0.5);
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+        
+        .control-btn:hover {
+            background: rgba(60, 60, 80, 0.8);
+            border-color: #00d4ff;
+        }
+        
+        .lobby {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 10, 26, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        
+        .lobby-content {
+            background: rgba(30, 30, 50, 0.9);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(100, 100, 150, 0.3);
+        }
+        
+        .lobby h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #00d4ff;
+        }
+        
+        .lobby-option {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .lobby-option label {
+            min-width: 120px;
+            color: #ccc;
+        }
+        
+        .lobby-option select,
+        .lobby-option input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(100, 100, 150, 0.5);
+            background: rgba(20, 20, 40, 0.8);
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        .player-setup {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(40, 40, 60, 0.5);
+            border-radius: 10px;
+        }
+        
+        .player-setup h3 {
+            margin-bottom: 15px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .player-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .player-row select {
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(100, 100, 150, 0.5);
+            background: rgba(20, 20, 40, 0.8);
+            color: #fff;
+        }
+        
+        .player-row input {
+            flex: 1;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(100, 100, 150, 0.5);
+            background: rgba(20, 20, 40, 0.8);
+            color: #fff;
+        }
+        
+        .start-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        
+        .start-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(255, 100, 150, 0.5);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .connection-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .connection-status.connected {
+            background: rgba(0, 200, 100, 0.2);
+            border: 1px solid rgba(0, 200, 100, 0.5);
+            color: #0f8;
+        }
+        
+        .connection-status.disconnected {
+            background: rgba(200, 100, 0, 0.2);
+            border: 1px solid rgba(200, 100, 0, 0.5);
+            color: #f80;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            background: rgba(40, 40, 60, 0.95);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 200, 255, 0.5);
+            color: #fff;
+            z-index: 200;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translate(-50%, 20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        
+        /* Peg selection highlight */
+        .peg-highlight {
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status disconnected" id="connectionStatus">
+        <span class="status-dot"></span>
+        <span id="statusText">Offline</span>
+    </div>
+    
+    <header>
+        <h1>⚡ Fast Track</h1>
+        <p>Powered by ButterflyFX Dimensional Kernel</p>
+    </header>
+    
+    <!-- Game Lobby -->
+    <div class="lobby" id="gameLobby">
+        <div class="lobby-content">
+            <h2>🎮 New Game</h2>
+            
+            <div class="lobby-option">
+                <label>Game Mode:</label>
+                <select id="gameMode">
+                    <option value="local">Local (Same Device)</option>
+                    <option value="online">Online Multiplayer</option>
+                    <option value="ai">vs AI</option>
+                </select>
+            </div>
+            
+            <div class="lobby-option">
+                <label>Players:</label>
+                <select id="playerCount">
+                    <option value="2">2 Players</option>
+                    <option value="3">3 Players</option>
+                    <option value="4">4 Players</option>
+                    <option value="5">5 Players</option>
+                    <option value="6">6 Players</option>
+                </select>
+            </div>
+            
+            <div class="lobby-option" id="roomOption" style="display: none;">
+                <label>Room Code:</label>
+                <input type="text" id="roomCode" placeholder="Enter or create room code">
+            </div>
+            
+            <div class="player-setup" id="playerSetup">
+                <h3>Player Configuration</h3>
+                <div id="playerSlots"></div>
+            </div>
+            
+            <button class="start-btn" id="startGameBtn">Start Game</button>
+        </div>
+    </div>
+    
+    <!-- Main Game -->
+    <div class="game-container">
+        <div class="board-wrapper">
+            <canvas id="gameBoard" width="700" height="700"></canvas>
+        </div>
+        
+        <div class="sidebar">
+            <h2>Players</h2>
+            <ul class="player-list" id="playerList"></ul>
+            
+            <div class="dice-container">
+                <div class="dice" id="diceDisplay">🎲</div>
+                <button class="roll-btn" id="rollBtn">Roll Dice</button>
+            </div>
+            
+            <h2>Game Log</h2>
+            <div class="game-log" id="gameLog"></div>
+            
+            <div class="controls">
+                <button class="control-btn" id="newGameBtn">New Game</button>
+                <button class="control-btn" id="rulesBtn">Rules</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="fasttrack.js"></script>
+</body>
+</html>
