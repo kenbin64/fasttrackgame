@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Hard Drive — ButterflyFX</title>
+    <meta name="description" content="Connect every cloud, every file, every database into one unified storage system. Search across everything instantly.">
+    <link rel="stylesheet" href="../static/css/product.css">
+    <style>
+        :root {
+            --bg: #0a0a12;
+            --bg-card: #12121c;
+            --neon-purple: #8855ff;
+            --neon-pink: #ff55aa;
+            --neon-cyan: #40ffff;
+            --neon-green: #60ff90;
+            --neon-blue: #4285F4;
+            --text: #ffffff;
+            --text-dim: #a0a8c0;
+            --border: #2a2a40;
+            --product-accent: #4285F4;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        .bg-effects {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse at 30% 20%, rgba(66, 133, 244, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(136, 85, 255, 0.1) 0%, transparent 50%);
+        }
+        
+        /* Header */
+        header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 18, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+        .logo-icon { font-size: 1.8em; }
+        .logo-text {
+            font-size: 1.4em; font-weight: 700;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        
+        nav { display: flex; gap: 30px; align-items: center; }
+        nav a { color: var(--text-dim); text-decoration: none; font-size: 0.95em; transition: color 0.2s; }
+        nav a:hover { color: var(--text); }
+        .nav-cta {
+            padding: 10px 25px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            border-radius: 25px; font-weight: 600; color: white !important;
+        }
+        
+        /* Product Hero */
+        .product-hero {
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 40px 80px;
+        }
+        
+        .hero-content {
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        
+        @media (max-width: 900px) {
+            .hero-content { grid-template-columns: 1fr; text-align: center; }
+        }
+        
+        .hero-text .breadcrumb {
+            color: var(--text-dim);
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        
+        .hero-text .breadcrumb a {
+            color: var(--neon-blue);
+            text-decoration: none;
+        }
+        
+        .hero-text h1 {
+            font-size: 3.5em;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 25px;
+        }
+        
+        .hero-text h1 .accent {
+            color: var(--neon-blue);
+        }
+        
+        .hero-text .tagline {
+            font-size: 1.5em;
+            color: var(--text-dim);
+            margin-bottom: 25px;
+        }
+        
+        .hero-text p {
+            font-size: 1.15em;
+            color: var(--text-dim);
+            line-height: 1.8;
+            margin-bottom: 35px;
+        }
+        
+        .hero-cta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary {
+            padding: 16px 40px;
+            background: linear-gradient(135deg, var(--product-accent), var(--neon-purple));
+            border: none; border-radius: 30px;
+            color: white; font-size: 1.1em; font-weight: 700;
+            cursor: pointer; text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(66, 133, 244, 0.4);
+        }
+        
+        .btn-secondary {
+            padding: 16px 40px;
+            background: transparent;
+            border: 2px solid var(--border);
+            border-radius: 30px;
+            color: var(--text); font-size: 1.1em; font-weight: 600;
+            cursor: pointer; text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+        
+        .hero-visual {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hero-image {
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 4/3;
+            background: linear-gradient(145deg, var(--bg-card), rgba(66, 133, 244, 0.1));
+            border: 2px solid var(--product-accent);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8em;
+            box-shadow: 0 30px 80px rgba(66, 133, 244, 0.3);
+        }
+        
+        /* Features Section */
+        .features-section {
+            padding: 100px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-header h2 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        .section-header p {
+            color: var(--text-dim);
+            font-size: 1.2em;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .features-grid { grid-template-columns: 1fr; }
+        }
+        
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 35px;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            border-color: var(--product-accent);
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+        
+        .feature-card p {
+            color: var(--text-dim);
+            line-height: 1.7;
+        }
+        
+        /* Connectors Grid */
+        .connectors-section {
+            padding: 100px 40px;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .connectors-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .connector-badge {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        
+        .connector-badge:hover {
+            border-color: var(--product-accent);
+            background: rgba(66, 133, 244, 0.1);
+        }
+        
+        /* Demo Section */
+        .demo-section {
+            padding: 100px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .demo-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .demo-header {
+            padding: 15px 20px;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .demo-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+        }
+        
+        .demo-content {
+            padding: 30px;
+            min-height: 400px;
+        }
+        
+        .demo-tree {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 2;
+        }
+        
+        .demo-tree .folder {
+            color: var(--neon-blue);
+        }
+        
+        .demo-tree .file {
+            color: var(--text-dim);
+        }
+        
+        .demo-tree .cloud {
+            color: var(--neon-green);
+        }
+        
+        /* Specs Section */
+        .specs-section {
+            padding: 100px 40px;
+            background: linear-gradient(180deg, var(--bg) 0%, var(--bg-card) 100%);
+        }
+        
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 900px) {
+            .specs-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        .spec-item {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .spec-value {
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-green));
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        
+        .spec-label {
+            color: var(--text-dim);
+            margin-top: 10px;
+        }
+        
+        /* Examples Section */
+        .examples-section {
+            padding: 100px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+        
+        @media (max-width: 800px) {
+            .examples-grid { grid-template-columns: 1fr; }
+        }
+        
+        .example-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+        }
+        
+        .example-card h4 {
+            color: var(--neon-blue);
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+        
+        .example-card p {
+            color: var(--text-dim);
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+        
+        .example-code {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: var(--neon-green);
+            overflow-x: auto;
+        }
+        
+        /* Pricing Section */
+        .pricing-section {
+            padding: 100px 40px;
+            background: var(--bg-card);
+            text-align: center;
+        }
+        
+        .pricing-box {
+            display: inline-block;
+            background: var(--bg);
+            border: 2px solid var(--product-accent);
+            border-radius: 24px;
+            padding: 50px 60px;
+            max-width: 400px;
+        }
+        
+        .pricing-box h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        
+        .pricing-amount {
+            font-size: 4em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--product-accent), var(--neon-purple));
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        
+        .pricing-amount span {
+            font-size: 0.3em;
+            color: var(--text-dim);
+            -webkit-text-fill-color: var(--text-dim);
+        }
+        
+        .pricing-box ul {
+            list-style: none;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .pricing-box li {
+            padding: 12px 0;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .pricing-box li::before {
+            content: '✓';
+            color: var(--neon-green);
+        }
+        
+        .pricing-box .btn-primary {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .pricing-note {
+            margin-top: 20px;
+            color: var(--text-dim);
+            font-size: 0.9em;
+        }
+        
+        .pricing-note a {
+            color: var(--neon-cyan);
+            text-decoration: none;
+        }
+        
+        /* Footer */
+        footer {
+            padding: 40px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-dim);
+        }
+        
+        footer a {
+            color: var(--text-dim);
+            text-decoration: none;
+            margin: 0 15px;
+        }
+        
+        footer a:hover {
+            color: var(--neon-purple);
+        }
+        
+        @media (max-width: 900px) {
+            nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-effects"></div>
+    
+    <!-- Header -->
+    <header>
+        <a href="../index.html" class="logo">
+            <span class="logo-icon">🦋</span>
+            <span class="logo-text">ButterflyFX</span>
+        </a>
+        <nav>
+            <a href="../index.html#products">Products</a>
+            <a href="../apps.html">App Suites</a>
+            <a href="../pricing.html">Pricing</a>
+            <a href="../login.html">Log In</a>
+            <a href="../register.html" class="nav-cta">Get Started</a>
+        </nav>
+    </header>
+    
+    <!-- Product Hero -->
+    <section class="product-hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="breadcrumb">
+                    <a href="../index.html">Home</a> → 
+                    <a href="../index.html#products">Products</a> → 
+                    Universal Hard Drive
+                </div>
+                <h1>Universal <span class="accent">Hard Drive</span></h1>
+                <p class="tagline">Every file. Every cloud. One place.</p>
+                <p>
+                    Stop switching between Google Drive, Dropbox, OneDrive, and your local files. 
+                    UHD connects all your storage into a single, unified explorer. 
+                    Search across <strong>everything</strong>. Organize <strong>everything</strong>. 
+                    Access <strong>instantly</strong>.
+                </p>
+                <div class="hero-cta">
+                    <a href="../register.html" class="btn-primary">Start Free Trial →</a>
+                    <a href="#demo" class="btn-secondary">See Demo</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-image">💾</div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features -->
+    <section class="features-section">
+        <div class="section-header">
+            <h2>Everything You Need</h2>
+            <p>A complete solution for managing data across any source.</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔗</div>
+                <h3>Universal Connectors</h3>
+                <p>Connect Google Drive, Dropbox, OneDrive, AWS S3, local drives, FTP servers, and 100+ more sources.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>Instant Search</h3>
+                <p>Search across all your connected sources simultaneously. Find any file in milliseconds, not minutes.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Smart Organization</h3>
+                <p>AI-powered tagging and categorization. Your files organize themselves based on content and context.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔐</div>
+                <h3>Secure Vault</h3>
+                <p>End-to-end encryption for sensitive data. Your files are private, always. Zero-knowledge architecture.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔄</div>
+                <h3>Smart Sync</h3>
+                <p>Selective sync across devices. Changes propagate instantly. Work offline, sync when connected.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📁</div>
+                <h3>Virtual Folders</h3>
+                <p>Create folders that span multiple sources. Organize by project, not by where files happen to live.</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Supported Connectors -->
+    <section class="connectors-section">
+        <div class="section-header">
+            <h2>Connect Anything</h2>
+            <p>100+ integrations and growing</p>
+        </div>
+        
+        <div class="connectors-grid">
+            <div class="connector-badge">☁️ Google Drive</div>
+            <div class="connector-badge">📦 Dropbox</div>
+            <div class="connector-badge">☁️ OneDrive</div>
+            <div class="connector-badge">🔸 AWS S3</div>
+            <div class="connector-badge">☁️ Azure Blob</div>
+            <div class="connector-badge">☁️ Google Cloud</div>
+            <div class="connector-badge">📁 Local Files</div>
+            <div class="connector-badge">🔒 FTP/SFTP</div>
+            <div class="connector-badge">🗄️ PostgreSQL</div>
+            <div class="connector-badge">🗄️ MongoDB</div>
+            <div class="connector-badge">🌐 WebDAV</div>
+            <div class="connector-badge">📂 NFS</div>
+            <div class="connector-badge">📂 SMB/CIFS</div>
+            <div class="connector-badge">🗂️ SQLite</div>
+            <div class="connector-badge">📧 Gmail</div>
+            <div class="connector-badge">🐙 GitHub</div>
+            <div class="connector-badge">🔶 GitLab</div>
+            <div class="connector-badge">+ 85 More</div>
+        </div>
+    </section>
+    
+    <!-- Demo Section -->
+    <section id="demo" class="demo-section">
+        <div class="section-header">
+            <h2>See It In Action</h2>
+            <p>One interface. All your data.</p>
+        </div>
+        
+        <div class="demo-container">
+            <div class="demo-header">
+                <div class="demo-dot" style="background: #ff5f56;"></div>
+                <div class="demo-dot" style="background: #ffbd2e;"></div>
+                <div class="demo-dot" style="background: #27ca41;"></div>
+                <span style="margin-left: 15px; color: var(--text-dim);">Universal Hard Drive</span>
+            </div>
+            <div class="demo-content">
+                <div class="demo-tree">
+                    <div><span class="folder">📁 All Sources</span></div>
+                    <div style="margin-left: 20px;"><span class="cloud">☁️ Google Drive</span></div>
+                    <div style="margin-left: 40px;"><span class="folder">📁 Projects</span></div>
+                    <div style="margin-left: 60px;"><span class="file">📄 proposal.docx</span></div>
+                    <div style="margin-left: 60px;"><span class="file">📊 budget.xlsx</span></div>
+                    <div style="margin-left: 20px;"><span class="cloud">📦 Dropbox</span></div>
+                    <div style="margin-left: 40px;"><span class="folder">📁 Media</span></div>
+                    <div style="margin-left: 60px;"><span class="file">🎥 demo_video.mp4</span></div>
+                    <div style="margin-left: 20px;"><span class="cloud">💻 Local Drive (C:)</span></div>
+                    <div style="margin-left: 40px;"><span class="folder">📁 Code</span></div>
+                    <div style="margin-left: 60px;"><span class="file">📜 app.py</span></div>
+                    <div style="margin-left: 20px;"><span class="cloud">🗄️ PostgreSQL</span></div>
+                    <div style="margin-left: 40px;"><span class="folder">📁 customers_db</span></div>
+                    <div style="margin-left: 60px;"><span class="file">📋 users (50,432 rows)</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Specs Section -->
+    <section class="specs-section">
+        <div class="section-header">
+            <h2>Performance Metrics</h2>
+            <p>Built on dimensional architecture for instant access.</p>
+        </div>
+        
+        <div class="specs-grid">
+            <div class="spec-item">
+                <div class="spec-value">O(1)</div>
+                <div class="spec-label">Access Time</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">~5ms</div>
+                <div class="spec-label">Search Latency</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">100+</div>
+                <div class="spec-label">Connectors</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">∞</div>
+                <div class="spec-label">Scalability</div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Examples Section -->
+    <section class="examples-section">
+        <div class="section-header">
+            <h2>Real-World Examples</h2>
+            <p>See how UHD transforms your workflow.</p>
+        </div>
+        
+        <div class="examples-grid">
+            <div class="example-card">
+                <h4>📁 Cross-Cloud Project Folder</h4>
+                <p>Create a virtual folder combining files from Google Drive, Dropbox, and your local machine. Work on projects without moving files around.</p>
+                <div class="example-code">
+uhd create-folder "Project Alpha"<br>
+uhd link "gdrive://proposals" → "Project Alpha"<br>
+uhd link "dropbox://media" → "Project Alpha"<br>
+uhd link "local://code/alpha" → "Project Alpha"
+                </div>
+            </div>
+            <div class="example-card">
+                <h4>🔍 Universal Search</h4>
+                <p>Find that file you know exists... somewhere. Search across all sources with a single query.</p>
+                <div class="example-code">
+uhd search "Q4 report"<br>
+<br>
+Results:<br>
+  ☁️ gdrive > Reports > Q4_report_final.docx<br>
+  📦 dropbox > Archive > q4-report-backup.pdf<br>
+  🗄️ postgres > documents > row:1842
+                </div>
+            </div>
+            <div class="example-card">
+                <h4>🔐 Secure Backup</h4>
+                <p>Encrypt and distribute important files across multiple clouds automatically.</p>
+                <div class="example-code">
+uhd vault create "Sensitive Docs"<br>
+uhd vault add contracts/*.pdf<br>
+uhd vault mirror → gdrive, aws-s3<br>
+<br>
+✓ Encrypted and distributed
+                </div>
+            </div>
+            <div class="example-card">
+                <h4>📊 Data Integration</h4>
+                <p>Query your database alongside regular files. Mix structured and unstructured data.</p>
+                <div class="example-code">
+uhd query "customers where signup > 2024"<br>
+uhd export → "gdrive://exports/customers.csv"<br>
+<br>
+✓ 1,247 records exported
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Pricing Section -->
+    <section class="pricing-section">
+        <div class="section-header">
+            <h2>Start Using Universal Hard Drive</h2>
+            <p>Included in the Universal Connector Suite</p>
+        </div>
+        
+        <div class="pricing-box">
+            <h3>Universal Connector Suite</h3>
+            <div class="pricing-amount">$8<span>/month</span></div>
+            <ul>
+                <li>Universal Hard Drive</li>
+                <li>Universal Connector (102+ services)</li>
+                <li>Dimensional Explorer</li>
+                <li>File Mover & Sync</li>
+                <li>Secure Clipboard</li>
+                <li>Standard support</li>
+            </ul>
+            <a href="../register.html" class="btn-primary">Start Free Trial</a>
+        </div>
+        
+        <p class="pricing-note">
+            Or get the <a href="../pricing.html">Data Power Bundle ($20/mo)</a> for all 13 apps.
+        </p>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div>
+            <a href="../index.html">Home</a>
+            <a href="../apps.html">All Apps</a>
+            <a href="../pricing.html">Pricing</a>
+            <a href="../documents.html">Documentation</a>
+            <a href="../login.html">Login</a>
+        </div>
+        <p style="margin-top: 20px;">© 2026 ButterflyFX. All rights reserved.</p>
+    </footer>
+</body>
+</html>

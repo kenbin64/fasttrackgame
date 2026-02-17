@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrade Required | ButterflyFX</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-green: #2ecc71;
+            --accent-purple: #9B59B6;
+            --accent-gold: #f0c14b;
+            --border-color: #30363d;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        /* Feature Box */
+        .feature-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-box h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-box p {
+            color: var(--text-secondary);
+        }
+        
+        /* Plans Grid */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .plan-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+            transition: all 0.2s;
+        }
+        
+        .plan-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-4px);
+        }
+        
+        .plan-card.popular {
+            border-color: var(--accent-gold);
+        }
+        
+        .plan-card.popular::before {
+            content: '⭐ BEST VALUE';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-gold);
+            color: black;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        .plan-name {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .plan-price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-blue);
+        }
+        
+        .plan-price span {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: normal;
+        }
+        
+        .plan-original {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .plan-description {
+            color: var(--text-secondary);
+            margin: 0.5rem 0 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+        
+        .plan-features li {
+            padding: 0.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .plan-features li::before {
+            content: '✓';
+            color: var(--accent-green);
+        }
+        
+        .plan-btn {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .plan-btn.primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .plan-btn.primary:hover {
+            background: #4090e0;
+        }
+        
+        .plan-btn.gold {
+            background: var(--accent-gold);
+            color: black;
+        }
+        
+        .plan-btn.gold:hover {
+            background: #d4a53c;
+        }
+        
+        /* Payment Methods */
+        .payment-methods {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .payment-methods h3 {
+            margin-bottom: 1rem;
+        }
+        
+        .methods-grid {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .method-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        
+        .method-icon {
+            font-size: 1.5rem;
+        }
+        
+        /* FAQ */
+        .faq-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        
+        .faq-section h3 {
+            margin-bottom: 1rem;
+        }
+        
+        .faq-item {
+            margin-bottom: 1rem;
+        }
+        
+        .faq-item strong {
+            color: var(--accent-blue);
+        }
+        
+        .faq-item p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* Back Link */
+        .back-link {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .back-link a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+        
+        .back-link a:hover {
+            color: var(--text-primary);
+        }
+        
+        /* Guarantee Badge */
+        .guarantee {
+            text-align: center;
+            padding: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .guarantee span {
+            color: var(--accent-green);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-icon">🔐</div>
+            <h1>Upgrade Required</h1>
+            <p>You're trying to access a premium feature</p>
+        </div>
+        
+        <!-- Feature Being Accessed -->
+        <div class="feature-box">
+            <h3>
+                <span>🎯</span>
+                <span id="feature-name">Premium Feature</span>
+            </h3>
+            <p id="feature-description">This feature requires a paid subscription to access.</p>
+        </div>
+        
+        <!-- Subscription Plans -->
+        <div class="plans-grid">
+            <!-- Monthly -->
+            <div class="plan-card">
+                <div class="plan-name">Developer Monthly</div>
+                <div class="plan-price">$29<span>/month</span></div>
+                <p class="plan-description">Full developer access, billed monthly</p>
+                <ul class="plan-features">
+                    <li>Premium packages</li>
+                    <li>Developer tools</li>
+                    <li>Local sandbox</li>
+                    <li>Marketplace submission</li>
+                    <li>Priority support</li>
+                </ul>
+                <button class="plan-btn primary" onclick="selectPlan('monthly')">
+                    Get Started
+                </button>
+            </div>
+            
+            <!-- Yearly (Popular) -->
+            <div class="plan-card popular">
+                <div class="plan-name">Developer Yearly</div>
+                <div class="plan-original">$348/year</div>
+                <div class="plan-price">$290<span>/year</span></div>
+                <p class="plan-description">Save 17% - 2 months free!</p>
+                <ul class="plan-features">
+                    <li>Everything in Monthly</li>
+                    <li>2 months free</li>
+                    <li>Early feature access</li>
+                    <li>Annual billing</li>
+                </ul>
+                <button class="plan-btn gold" onclick="selectPlan('yearly')">
+                    Best Value
+                </button>
+            </div>
+            
+            <!-- Lifetime -->
+            <div class="plan-card">
+                <div class="plan-name">Developer Lifetime</div>
+                <div class="plan-price">$999<span> one-time</span></div>
+                <p class="plan-description">Pay once, access forever</p>
+                <ul class="plan-features">
+                    <li>Everything in Yearly</li>
+                    <li>Never pay again</li>
+                    <li>Lifetime updates</li>
+                    <li>Founding badge</li>
+                </ul>
+                <button class="plan-btn primary" onclick="selectPlan('lifetime')">
+                    Get Lifetime
+                </button>
+            </div>
+        </div>
+        
+        <!-- Payment Methods -->
+        <div class="payment-methods">
+            <h3>Payment Methods</h3>
+            <div class="methods-grid">
+                <div class="method-item">
+                    <span class="method-icon">💳</span>
+                    <span>Credit/Debit Card</span>
+                </div>
+                <div class="method-item">
+                    <span class="method-icon">🅿️</span>
+                    <span>PayPal</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Guarantee -->
+        <div class="guarantee">
+            <span>✓</span> 30-day money-back guarantee. No questions asked.
+        </div>
+        
+        <!-- FAQ -->
+        <div class="faq-section">
+            <h3>Frequently Asked Questions</h3>
+            
+            <div class="faq-item">
+                <strong>What happens after I pay?</strong>
+                <p>Your account is instantly upgraded and you'll have immediate access to all developer features.</p>
+            </div>
+            
+            <div class="faq-item">
+                <strong>Can I cancel anytime?</strong>
+                <p>Yes! Monthly and yearly plans can be cancelled at any time. You'll keep access until the end of your billing period.</p>
+            </div>
+            
+            <div class="faq-item">
+                <strong>What about the free tier?</strong>
+                <p>Open source downloads and basic API access are always free. Premium features require a paid subscription.</p>
+            </div>
+            
+            <div class="faq-item">
+                <strong>Are beta testers affected?</strong>
+                <p>No! Beta testers have free access to all features for Kenneth's content. This page is for developer tier upgrades.</p>
+            </div>
+        </div>
+        
+        <!-- Back Link -->
+        <div class="back-link">
+            <a href="/dashboard">← Back to Dashboard</a>
+        </div>
+    </div>
+    
+    <script>
+        // Get feature info from URL params or server
+        function loadFeatureInfo() {
+            const params = new URLSearchParams(window.location.search);
+            const feature = params.get('feature') || 'premium_feature';
+            
+            const featureInfo = {
+                'premium_packages': {
+                    name: 'Premium Packages',
+                    description: 'Download premium development packages and libraries.'
+                },
+                'dev_tools': {
+                    name: 'Developer Tools',
+                    description: 'Access advanced developer tools for building applications.'
+                },
+                'local_sandbox': {
+                    name: 'Local Sandbox',
+                    description: 'Run a local development sandbox for testing.'
+                },
+                'marketplace_submit': {
+                    name: 'Marketplace Submission',
+                    description: 'Submit your apps to the ButterflyFX marketplace.'
+                },
+                'collab_chat': {
+                    name: 'Collaboration Chat',
+                    description: 'Chat with collaborators on your projects.'
+                }
+            };
+            
+            const info = featureInfo[feature] || {
+                name: 'Premium Feature',
+                description: 'This feature requires a paid subscription.'
+            };
+            
+            document.getElementById('feature-name').textContent = info.name;
+            document.getElementById('feature-description').textContent = info.description;
+        }
+        
+        function selectPlan(plan) {
+            // Redirect to checkout with selected plan
+            window.location.href = `/checkout?plan=${plan}`;
+        }
+        
+        // Initialize
+        loadFeatureInfo();
+    </script>
+</body>
+</html>

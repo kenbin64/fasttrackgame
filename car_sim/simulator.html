@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX Car Simulator - Real-Time Telemetry</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-green: #2ecc71;
+            --accent-red: #e74c3c;
+            --accent-orange: #f39c12;
+            --accent-purple: #9B59B6;
+            --accent-cyan: #00bcd4;
+            --accent-pink: #e91e63;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            user-select: none;
+        }
+        
+        /* Main Layout - with telemetry sidebar */
+        .simulator {
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            grid-template-rows: 1fr 180px;
+        }
+        
+        /* Telemetry Panel (Right Side) */
+        .telemetry-panel {
+            grid-row: 1 / 3;
+            grid-column: 2;
+            background: var(--bg-secondary);
+            border-left: 2px solid #333;
+            overflow-y: auto;
+            padding: 10px;
+            font-size: 11px;
+        }
+        
+        .telemetry-section {
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+        }
+        
+        .telemetry-header {
+            color: var(--accent-blue);
+            font-weight: bold;
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 0;
+        }
+        
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 10px;
+        }
+        
+        .metric-value {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        
+        .metric-value.green { color: var(--accent-green); }
+        .metric-value.blue { color: var(--accent-blue); }
+        .metric-value.orange { color: var(--accent-orange); }
+        .metric-value.red { color: var(--accent-red); }
+        .metric-value.cyan { color: var(--accent-cyan); }
+        .metric-value.purple { color: var(--accent-purple); }
+        .metric-value.pink { color: var(--accent-pink); }
+        
+        /* Piston/Spark Visualization */
+        .cylinder-bank {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            margin-top: 6px;
+        }
+        
+        .cylinder {
+            background: #1a1a1a;
+            border-radius: 4px;
+            padding: 4px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .cylinder-num {
+            font-size: 8px;
+            color: var(--text-secondary);
+        }
+        
+        .piston-bar {
+            height: 20px;
+            background: #333;
+            border-radius: 2px;
+            margin-top: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .piston-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--accent-orange);
+            transition: height 0.05s;
+        }
+        
+        .spark-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #333;
+            margin: 2px auto 0;
+        }
+        
+        .spark-indicator.firing {
+            background: var(--accent-orange);
+            box-shadow: 0 0 6px var(--accent-orange);
+        }
+        
+        /* Tire Grid */
+        .tire-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        
+        .tire {
+            background: #1a1a1a;
+            border-radius: 4px;
+            padding: 6px;
+            text-align: center;
+        }
+        
+        .tire-label {
+            font-size: 8px;
+            color: var(--text-secondary);
+        }
+        
+        .tire-rpm {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--accent-cyan);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .tire-visual {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #555;
+            border-radius: 50%;
+            margin: 4px auto;
+            position: relative;
+        }
+        
+        .tire-spoke {
+            position: absolute;
+            width: 2px;
+            height: 12px;
+            background: #555;
+            left: 50%;
+            top: 50%;
+            transform-origin: center bottom;
+        }
+        
+        /* Spec Query Box */
+        .spec-query {
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 8px;
+        }
+        
+        .spec-query-header {
+            color: var(--accent-purple);
+            font-weight: bold;
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        
+        .spec-input-wrapper {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .spec-input {
+            flex: 1;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 6px 8px;
+            color: var(--text-primary);
+            font-size: 11px;
+            font-family: inherit;
+        }
+        
+        .spec-input:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+        }
+        
+        .spec-btn {
+            background: var(--accent-purple);
+            border: none;
+            border-radius: 4px;
+            padding: 6px 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        
+        .spec-btn:hover {
+            background: #8e44ad;
+        }
+        
+        .spec-result {
+            margin-top: 8px;
+            padding: 8px;
+            background: #1a1a1a;
+            border-radius: 4px;
+            font-size: 10px;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        
+        .spec-result-label {
+            color: var(--accent-cyan);
+        }
+        
+        .spec-result-value {
+            color: var(--accent-green);
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Road View (Top) */
+        .road-view {
+            position: relative;
+            background: linear-gradient(to bottom, #1a3a1a 0%, #2d4a2d 50%, #4a4a4a 100%);
+            overflow: hidden;
+        }
+        
+        .road-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Sky */
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(to bottom, #1a2a3a 0%, #3a5a7a 100%);
+            z-index: 0;
+        }
+        
+        /* Instructions Overlay */
+        .instructions {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 100;
+        }
+        
+        .instructions h4 {
+            color: var(--accent-blue);
+            margin-bottom: 5px;
+        }
+        
+        .instructions p {
+            color: var(--text-secondary);
+            margin: 2px 0;
+        }
+        
+        /* Car Info */
+        .car-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 8px;
+            z-index: 100;
+        }
+        
+        .car-name {
+            color: var(--accent-purple);
+            font-weight: bold;
+        }
+        
+        .car-specs {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        
+        /* Dashboard (Bottom) */
+        .dashboard {
+            background: var(--bg-secondary);
+            border-top: 2px solid #333;
+            display: grid;
+            grid-template-columns: 200px 1fr 200px;
+            padding: 15px 30px;
+            gap: 20px;
+        }
+        
+        /* Speedometer */
+        .speedometer {
+            position: relative;
+            width: 170px;
+            height: 170px;
+        }
+        
+        .speedo-ring {
+            width: 100%;
+            height: 100%;
+            border: 3px solid #333;
+            border-radius: 50%;
+            background: radial-gradient(circle, #1a1a1a 0%, #0d0d0d 100%);
+            position: relative;
+        }
+        
+        .speedo-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        .speed-number {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--accent-green);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .speed-unit {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .speedo-needle {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            width: 3px;
+            height: 70px;
+            background: var(--accent-red);
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(0deg);
+            border-radius: 2px;
+        }
+        
+        /* Center Gauges */
+        .center-gauges {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .gauge {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .gauge-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        
+        .gauge-value {
+            font-size: 24px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .gauge-value.blue { color: var(--accent-blue); }
+        .gauge-value.green { color: var(--accent-green); }
+        .gauge-value.orange { color: var(--accent-orange); }
+        .gauge-value.red { color: var(--accent-red); }
+        
+        /* Fuel Bar */
+        .fuel-bar-container {
+            margin-top: 5px;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .fuel-bar {
+            height: 100%;
+            background: var(--accent-green);
+            transition: width 0.3s, background 0.3s;
+        }
+        
+        .fuel-bar.low {
+            background: var(--accent-orange);
+        }
+        
+        .fuel-bar.critical {
+            background: var(--accent-red);
+        }
+        
+        /* Tachometer */
+        .tachometer {
+            position: relative;
+            width: 170px;
+            height: 170px;
+        }
+        
+        .tacho-ring {
+            width: 100%;
+            height: 100%;
+            border: 3px solid #333;
+            border-radius: 50%;
+            background: radial-gradient(circle, #1a1a1a 0%, #0d0d0d 100%);
+            position: relative;
+        }
+        
+        .tacho-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        .rpm-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--accent-blue);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .rpm-unit {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .gear-display {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-orange);
+            background: #222;
+            padding: 5px 15px;
+            border-radius: 5px;
+        }
+        
+        /* Pedals Visualization */
+        .pedals {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        .pedal {
+            width: 30px;
+            height: 60px;
+            background: #333;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pedal-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--accent-green);
+            transition: height 0.1s;
+        }
+        
+        .pedal.brake .pedal-fill {
+            background: var(--accent-red);
+        }
+        
+        .pedal-label {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+        
+        /* Steering Indicator */
+        .steering-indicator {
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            margin-top: 15px;
+            position: relative;
+        }
+        
+        .steering-marker {
+            position: absolute;
+            top: -3px;
+            width: 14px;
+            height: 14px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            left: 50%;
+            transition: left 0.1s;
+        }
+    </style>
+</head>
+<body>
+    <div class="simulator">
+        <!-- Road View -->
+        <div class="road-view">
+            <div class="sky"></div>
+            <canvas id="roadCanvas" class="road-canvas"></canvas>
+            
+            <!-- Instructions -->
+            <div class="instructions">
+                <h4>🦋 ButterflyFX Car Simulator</h4>
+                <p>🖱️ <strong>Right Click (Hold)</strong>: Accelerate</p>
+                <p>🖱️ <strong>Left Click (Hold)</strong>: Brake</p>
+                <p>🖱️ <strong>Mouse Position</strong>: Steering</p>
+                <p>⌨️ <strong>P</strong>: Park | <strong>R</strong>: Reverse | <strong>D</strong>: Drive</p>
+            </div>
+            
+            <!-- Car Info & Selector -->
+            <div class="car-info">
+                <select id="carSelector" style="background: #1a1a1a; color: var(--text-primary); border: 1px solid #333; border-radius: 4px; padding: 4px 8px; font-size: 11px; margin-bottom: 6px; width: 100%;">
+                    <option value="camry">2024 Toyota Camry</option>
+                    <option value="mustang">2024 Ford Mustang GT</option>
+                    <option value="corvette">2024 Chevrolet Corvette</option>
+                    <option value="model3">2024 Tesla Model 3</option>
+                    <option value="civic">2024 Honda Civic</option>
+                    <option value="m3">2024 BMW M3</option>
+                    <option value="911">2024 Porsche 911</option>
+                    <option value="hellcat">2024 Dodge Challenger Hellcat</option>
+                </select>
+                <div class="car-name" id="carName">Loading...</div>
+                <div class="car-specs" id="carSpecs"></div>
+            </div>
+        </div>
+        
+        <!-- Dashboard -->
+        <div class="dashboard">
+            <!-- Speedometer -->
+            <div class="speedometer">
+                <div class="speedo-ring">
+                    <div class="speedo-needle" id="speedoNeedle"></div>
+                    <div class="speedo-value">
+                        <div class="speed-number" id="speedValue">0</div>
+                        <div class="speed-unit">MPH</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Center Gauges -->
+            <div class="center-gauges">
+                <div class="gauge">
+                    <div class="gauge-label">Odometer</div>
+                    <div class="gauge-value blue" id="odometer">0.0</div>
+                    <div class="gauge-label">miles</div>
+                </div>
+                
+                <div class="gauge">
+                    <div class="gauge-label">Trip</div>
+                    <div class="gauge-value green" id="tripMiles">0.00</div>
+                    <div class="gauge-label">miles</div>
+                </div>
+                
+                <div class="gauge">
+                    <div class="gauge-label">Fuel</div>
+                    <div class="gauge-value orange" id="fuelGallons">14.0</div>
+                    <div class="fuel-bar-container">
+                        <div class="fuel-bar" id="fuelBar" style="width: 100%"></div>
+                    </div>
+                </div>
+                
+                <div class="gauge">
+                    <div class="gauge-label">MPG</div>
+                    <div class="gauge-value green" id="mpgValue">28.0</div>
+                    <div class="gauge-label">efficiency</div>
+                </div>
+                
+                <div class="gauge">
+                    <div class="gauge-label">Range</div>
+                    <div class="gauge-value blue" id="rangeValue">392</div>
+                    <div class="gauge-label">miles</div>
+                </div>
+                
+                <div class="gauge">
+                    <div class="gauge-label">State</div>
+                    <div class="gauge-value" id="driveState">PARKED</div>
+                </div>
+                
+                <!-- Pedals -->
+                <div style="grid-column: span 3;">
+                    <div class="steering-indicator">
+                        <div class="steering-marker" id="steeringMarker"></div>
+                    </div>
+                    <div class="pedals">
+                        <div class="pedal brake">
+                            <div class="pedal-fill" id="brakePedal" style="height: 0%"></div>
+                            <span class="pedal-label">BRK</span>
+                        </div>
+                        <div class="pedal">
+                            <div class="pedal-fill" id="throttlePedal" style="height: 0%"></div>
+                            <span class="pedal-label">GAS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tachometer -->
+            <div class="tachometer">
+                <div class="tacho-ring">
+                    <div class="tacho-value">
+                        <div class="rpm-number" id="rpmValue">0</div>
+                        <div class="rpm-unit">RPM</div>
+                    </div>
+                    <div class="gear-display" id="gearDisplay">P</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TELEMETRY PANEL -->
+        <div class="telemetry-panel">
+            <!-- Engine Metrics -->
+            <div class="telemetry-section">
+                <div class="telemetry-header">🔧 Engine Metrics</div>
+                <div class="metric-row">
+                    <span class="metric-label">Horsepower</span>
+                    <span class="metric-value orange" id="telemetryHp">180</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Torque (lb-ft)</span>
+                    <span class="metric-value orange" id="telemetryTorque">170</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Power Output</span>
+                    <span class="metric-value green" id="telemetryPowerOut">0 kW</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Engine Temp</span>
+                    <span class="metric-value cyan" id="telemetryEngineTemp">185°F</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Oil Pressure</span>
+                    <span class="metric-value blue" id="telemetryOilPressure">45 PSI</span>
+                </div>
+            </div>
+            
+            <!-- Acceleration & Speed -->
+            <div class="telemetry-section">
+                <div class="telemetry-header">⚡ Acceleration</div>
+                <div class="metric-row">
+                    <span class="metric-label">Accel (mph/s)</span>
+                    <span class="metric-value green" id="telemetryAccel">0.00</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">G-Force</span>
+                    <span class="metric-value purple" id="telemetryGforce">0.00 G</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Speed (km/h)</span>
+                    <span class="metric-value blue" id="telemetryKmh">0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">0-60 Progress</span>
+                    <span class="metric-value cyan" id="telemetry060">--</span>
+                </div>
+            </div>
+            
+            <!-- Fuel System -->
+            <div class="telemetry-section">
+                <div class="telemetry-header">⛽ Fuel System</div>
+                <div class="metric-row">
+                    <span class="metric-label">Consumption</span>
+                    <span class="metric-value orange" id="telemetryFuelRate">0.00 gph</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Instant MPG</span>
+                    <span class="metric-value green" id="telemetryInstantMpg">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Fuel Injector</span>
+                    <span class="metric-value cyan" id="telemetryInjector">0 ms</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Carburetor</span>
+                    <span class="metric-value blue" id="telemetryCarb">14.7:1</span>
+                </div>
+            </div>
+            
+            <!-- Cylinders & Spark Plugs -->
+            <div class="telemetry-section">
+                <div class="telemetry-header">🔥 Pistons & Spark Plugs</div>
+                <div class="cylinder-bank" id="cylinderBank">
+                    <!-- Generated by JS -->
+                </div>
+                <div class="metric-row" style="margin-top: 8px;">
+                    <span class="metric-label">Firing Order</span>
+                    <span class="metric-value cyan" id="telemetryFiringOrder">1-3-4-2</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Spark Advance</span>
+                    <span class="metric-value orange" id="telemetrySparkAdvance">0°</span>
+                </div>
+            </div>
+            
+            <!-- Drivetrain -->
+            <div class="telemetry-section">
+                <div class="telemetry-header">⚙️ Drivetrain</div>
+                <div class="metric-row">
+                    <span class="metric-label">Differential</span>
+                    <span class="metric-value purple" id="telemetryDiff">3.42:1</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Gear Ratio</span>
+                    <span class="metric-value blue" id="telemetryGearRatio">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Transmission</span>
+                    <span class="metric-value cyan" id="telemetryTrans">Auto 8-spd</span>
+                </div>
+            </div>
+            
+            <!-- Tire Data -->
+            <div class="telemetry-section">
+                <div class="telemetry-header">🛞 Tire Rotation (RPM)</div>
+                <div class="tire-grid">
+                    <div class="tire">
+                        <div class="tire-label">FL</div>
+                        <div class="tire-visual" id="tireFLVisual"></div>
+                        <div class="tire-rpm" id="tireFLRpm">0</div>
+                    </div>
+                    <div class="tire">
+                        <div class="tire-label">FR</div>
+                        <div class="tire-visual" id="tireFRVisual"></div>
+                        <div class="tire-rpm" id="tireFRRpm">0</div>
+                    </div>
+                    <div class="tire">
+                        <div class="tire-label">RL</div>
+                        <div class="tire-visual" id="tireRLVisual"></div>
+                        <div class="tire-rpm" id="tireRLRpm">0</div>
+                    </div>
+                    <div class="tire">
+                        <div class="tire-label">RR</div>
+                        <div class="tire-visual" id="tireRRVisual"></div>
+                        <div class="tire-rpm" id="tireRRRpm">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Spec Query -->
+            <div class="spec-query">
+                <div class="spec-query-header">🔍 Ask About Specs</div>
+                <div class="spec-input-wrapper">
+                    <input type="text" class="spec-input" id="specInput" placeholder="e.g. horsepower, torque, 0-60...">
+                    <button class="spec-btn" id="specBtn">Ask</button>
+                </div>
+                <div class="spec-result" id="specResult">
+                    <span style="color: var(--text-secondary);">Type a spec to query...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // =================================================================
+        // BUTTERFLYFX DIMENSIONAL CAR SIMULATOR
+        // Pure Substrate Transformations - No AI
+        // Real-Time Engine Telemetry
+        // =================================================================
+        
+        // CAR DATABASE
+        const CAR_DATABASE = {
+            camry: {
+                make: "Toyota", model: "Camry", year: 2024,
+                horsepower: 203, torque: 184, weight_lbs: 3310,
+                mpg_combined: 32, fuel_capacity: 15.8, top_speed: 135,
+                zero_to_sixty: 7.6, cylinders: 4, displacement: 2.5,
+                transmission: "Auto 8-spd", drivetrain: "FWD",
+                differential: 3.52, firing_order: "1-3-4-2",
+                tire_diameter: 27.7, compression: "13.0:1"
+            },
+            mustang: {
+                make: "Ford", model: "Mustang GT", year: 2024,
+                horsepower: 480, torque: 415, weight_lbs: 3832,
+                mpg_combined: 19, fuel_capacity: 16.0, top_speed: 164,
+                zero_to_sixty: 4.3, cylinders: 8, displacement: 5.0,
+                transmission: "Manual 6-spd", drivetrain: "RWD",
+                differential: 3.55, firing_order: "1-5-4-2-6-3-7-8",
+                tire_diameter: 28.2, compression: "12.0:1"
+            },
+            corvette: {
+                make: "Chevrolet", model: "Corvette", year: 2024,
+                horsepower: 490, torque: 465, weight_lbs: 3647,
+                mpg_combined: 19, fuel_capacity: 18.5, top_speed: 194,
+                zero_to_sixty: 2.9, cylinders: 8, displacement: 6.2,
+                transmission: "DCT 8-spd", drivetrain: "RWD",
+                differential: 5.17, firing_order: "1-8-7-2-6-5-4-3",
+                tire_diameter: 29.5, compression: "11.5:1"
+            },
+            model3: {
+                make: "Tesla", model: "Model 3", year: 2024,
+                horsepower: 283, torque: 330, weight_lbs: 3862,
+                mpg_combined: 132, fuel_capacity: 82, top_speed: 140,
+                zero_to_sixty: 5.8, cylinders: 0, displacement: 0,
+                transmission: "1-spd Direct", drivetrain: "RWD",
+                differential: 9.0, firing_order: "N/A (Electric)",
+                tire_diameter: 27.2, compression: "N/A", electric: true
+            },
+            civic: {
+                make: "Honda", model: "Civic", year: 2024,
+                horsepower: 180, torque: 177, weight_lbs: 2906,
+                mpg_combined: 36, fuel_capacity: 12.4, top_speed: 137,
+                zero_to_sixty: 7.3, cylinders: 4, displacement: 1.5,
+                transmission: "CVT", drivetrain: "FWD",
+                differential: 4.10, firing_order: "1-3-4-2",
+                tire_diameter: 26.5, compression: "10.6:1"
+            },
+            m3: {
+                make: "BMW", model: "M3", year: 2024,
+                horsepower: 473, torque: 406, weight_lbs: 3840,
+                mpg_combined: 19, fuel_capacity: 15.6, top_speed: 180,
+                zero_to_sixty: 3.8, cylinders: 6, displacement: 3.0,
+                transmission: "Auto 8-spd", drivetrain: "RWD",
+                differential: 3.15, firing_order: "1-5-3-6-2-4",
+                tire_diameter: 28.0, compression: "9.3:1"
+            },
+            "911": {
+                make: "Porsche", model: "911 Carrera", year: 2024,
+                horsepower: 379, torque: 331, weight_lbs: 3354,
+                mpg_combined: 22, fuel_capacity: 16.9, top_speed: 182,
+                zero_to_sixty: 4.0, cylinders: 6, displacement: 3.0,
+                transmission: "PDK 8-spd", drivetrain: "RWD",
+                differential: 3.44, firing_order: "1-6-2-4-3-5",
+                tire_diameter: 27.8, compression: "10.2:1"
+            },
+            hellcat: {
+                make: "Dodge", model: "Challenger Hellcat", year: 2024,
+                horsepower: 717, torque: 656, weight_lbs: 4448,
+                mpg_combined: 15, fuel_capacity: 18.5, top_speed: 199,
+                zero_to_sixty: 3.6, cylinders: 8, displacement: 6.2,
+                transmission: "Auto 8-spd", drivetrain: "RWD",
+                differential: 2.62, firing_order: "1-8-4-3-6-5-7-2",
+                tire_diameter: 30.0, compression: "9.5:1", supercharged: true
+            }
+        };
+        
+        // Current car specs (mutable)
+        let carSpecs = { ...CAR_DATABASE.camry };
+        
+        // Engine telemetry state
+        const engineState = {
+            cylinders: [],
+            currentCylinder: 0,
+            sparkAdvance: 10,
+            injectorPulse: 2.5,
+            airFuelRatio: 14.7,
+            engineTemp: 185,
+            oilPressure: 45,
+            powerOutput: 0,
+            acceleration: 0,
+            lastSpeed: 0,
+            timer060: null,
+            time060: null,
+            tireAngle: 0
+        };
+        
+        // Car State (Substrate/Manifold Coordinates)
+        const carState = {
+            // Position on road manifold
+            position: {
+                distance: 0,      // feet traveled
+                lane_offset: 0,   // -1 to 1
+                heading: 0        // radians
+            },
+            
+            // Velocity tangent vector
+            velocity: {
+                speed: 0,         // mph
+                angular: 0        // rad/s
+            },
+            
+            // Force field
+            forces: {
+                engine: 0,
+                braking: 0,
+                drag: 0,
+                rolling: 0
+            },
+            
+            // State
+            gear: 0,              // 0=P, -1=R, 1-6=gears
+            rpm: 0,
+            
+            // Resources
+            fuel: carSpecs.fuel_capacity,
+            fuel_consumed: 0,
+            trip_distance: 0,
+            
+            // Controls
+            throttle: 0,
+            brake: 0,
+            steering: 0
+        };
+        
+        // Physics constants
+        const PHYSICS = {
+            mass_kg: carSpecs.weight_lbs * 0.453592,
+            drag_coeff: 0.30,
+            frontal_area: 2.2,
+            air_density: 1.225,
+            rolling_resistance: 0.01,
+            gravity: 9.81
+        };
+        
+        // Canvas setup
+        const canvas = document.getElementById('roadCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // =================================================================
+        // DIMENSIONAL PHYSICS TRANSFORMATIONS
+        // =================================================================
+        
+        function computeForces() {
+            const speed_mps = carState.velocity.speed * 0.44704;
+            
+            // Engine force
+            const power_watts = carSpecs.horsepower * 745.7;
+            const max_engine_force = speed_mps > 0.1 
+                ? Math.min(power_watts / speed_mps, 5000) 
+                : 5000;
+            carState.forces.engine = carState.throttle * max_engine_force;
+            
+            // Braking force
+            carState.forces.braking = carState.brake * PHYSICS.mass_kg * 10;
+            
+            // Drag: F = 0.5 * rho * Cd * A * v²
+            carState.forces.drag = 0.5 * PHYSICS.air_density * 
+                PHYSICS.drag_coeff * PHYSICS.frontal_area * speed_mps * speed_mps;
+            
+            // Rolling resistance
+            carState.forces.rolling = speed_mps > 0.1 
+                ? PHYSICS.rolling_resistance * PHYSICS.mass_kg * PHYSICS.gravity 
+                : 0;
+        }
+        
+        function transformState(dt) {
+            // Only process if not in park
+            if (carState.gear === 0) {
+                carState.velocity.speed = 0;
+                carState.rpm = 0;
+                return;
+            }
+            
+            // 1. Compute forces
+            computeForces();
+            
+            // 2. Net force
+            const netForce = carState.forces.engine - carState.forces.braking 
+                - carState.forces.drag - carState.forces.rolling;
+            
+            // 3. Acceleration (F = ma, a = F/m)
+            const accel_mps2 = netForce / PHYSICS.mass_kg;
+            const accel_mph_s = accel_mps2 * 2.23694;
+            
+            // 4. Velocity update (v = v0 + a*dt)
+            carState.velocity.speed += accel_mph_s * dt;
+            
+            // Direction based on gear
+            if (carState.gear === -1) {
+                carState.velocity.speed = Math.min(0, carState.velocity.speed);
+                carState.velocity.speed = Math.max(-10, carState.velocity.speed); // Max 10 mph reverse
+            } else {
+                carState.velocity.speed = Math.max(0, carState.velocity.speed);
+                carState.velocity.speed = Math.min(carSpecs.top_speed, carState.velocity.speed);
+            }
+            
+            // 5. Position update (x = x0 + v*dt)
+            const speed_fps = Math.abs(carState.velocity.speed) * 1.46667;
+            const distance_ft = speed_fps * dt;
+            carState.position.distance += distance_ft;
+            carState.trip_distance += distance_ft;
+            
+            // 6. Steering (lane change)
+            const steering_rate = carState.steering * 0.5;
+            carState.position.lane_offset += steering_rate * dt;
+            carState.position.lane_offset = Math.max(-1, Math.min(1, carState.position.lane_offset));
+            
+            // 7. RPM calculation
+            if (Math.abs(carState.velocity.speed) < 1) {
+                carState.rpm = carState.gear !== 0 ? 800 : 0;
+            } else {
+                const gear_ratios = [0, 3.5, 2.1, 1.4, 1.0, 0.8, 0.65];
+                const gear = Math.max(1, Math.min(6, Math.abs(carState.gear)));
+                const ratio = gear_ratios[gear] * 3.5;
+                const speed_mps = Math.abs(carState.velocity.speed) * 0.44704;
+                carState.rpm = Math.min(7000, Math.max(800, 
+                    (speed_mps * ratio * 60) / (2 * Math.PI * 0.35)));
+            }
+            
+            // 8. Auto-shift
+            if (carState.gear > 0) {
+                const shift_up = [15, 25, 40, 55, 70];
+                const shift_down = [10, 18, 30, 45, 60];
+                
+                if (carState.gear < 6 && carState.velocity.speed > shift_up[carState.gear - 1]) {
+                    carState.gear++;
+                } else if (carState.gear > 1 && carState.velocity.speed < shift_down[carState.gear - 2]) {
+                    carState.gear--;
+                }
+            }
+            
+            // 9. Fuel consumption
+            let fuelRate;
+            if (Math.abs(carState.velocity.speed) < 5) {
+                fuelRate = carState.throttle > 0 ? 0.5 : 0;
+            } else {
+                const speed = Math.abs(carState.velocity.speed);
+                let efficiency = 1.0;
+                if (speed < 30) efficiency = 0.7;
+                else if (speed < 60) efficiency = 1.0;
+                else if (speed < 80) efficiency = 0.85;
+                else efficiency = 0.7;
+                
+                const throttle_factor = 0.5 + carState.throttle * 0.5;
+                const effective_mpg = carSpecs.mpg_combined * efficiency / throttle_factor;
+                fuelRate = speed / Math.max(1, effective_mpg);
+            }
+            
+            const fuel_used = fuelRate * dt / 3600;
+            carState.fuel = Math.max(0, carState.fuel - fuel_used);
+            carState.fuel_consumed += fuel_used;
+        }
+        
+        // =================================================================
+        // ROAD RENDERING (Manifold Visualization)
+        // =================================================================
+        
+        function drawRoad() {
+            const w = canvas.width;
+            const h = canvas.height;
+            
+            // Clear
+            ctx.fillStyle = '#4a5a4a';
+            ctx.fillRect(0, 0, w, h);
+            
+            // Horizon line
+            const horizon = h * 0.35;
+            
+            // Sky gradient
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, horizon);
+            skyGrad.addColorStop(0, '#1a2a3a');
+            skyGrad.addColorStop(1, '#3a5a7a');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, w, horizon);
+            
+            // Ground
+            const groundGrad = ctx.createLinearGradient(0, horizon, 0, h);
+            groundGrad.addColorStop(0, '#3a5a3a');
+            groundGrad.addColorStop(0.5, '#2a4a2a');
+            groundGrad.addColorStop(1, '#1a3a1a');
+            ctx.fillStyle = groundGrad;
+            ctx.fillRect(0, horizon, w, h - horizon);
+            
+            // Road with perspective
+            const roadWidth = 300;
+            const vanishY = horizon;
+            const bottomY = h;
+            
+            // Road surface
+            ctx.beginPath();
+            ctx.moveTo(w/2 - roadWidth * 2, bottomY);
+            ctx.lineTo(w/2 - 10, vanishY);
+            ctx.lineTo(w/2 + 10, vanishY);
+            ctx.lineTo(w/2 + roadWidth * 2, bottomY);
+            ctx.closePath();
+            ctx.fillStyle = '#333';
+            ctx.fill();
+            
+            // Road lines (animated based on car position)
+            const lineOffset = (carState.position.distance % 100) / 100;
+            
+            // Center dashed line
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            
+            for (let i = 0; i < 20; i++) {
+                const t = (i / 20 + lineOffset) % 1;
+                const y = vanishY + (bottomY - vanishY) * t;
+                const perspScale = t;
+                
+                if (i % 2 === 0) {
+                    ctx.beginPath();
+                    ctx.moveTo(w/2, y);
+                    ctx.lineTo(w/2, y + (bottomY - vanishY) / 40);
+                    ctx.stroke();
+                }
+            }
+            
+            // Lane edges
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(w/2 - roadWidth * 2, bottomY);
+            ctx.lineTo(w/2 - 10, vanishY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(w/2 + roadWidth * 2, bottomY);
+            ctx.lineTo(w/2 + 10, vanishY);
+            ctx.stroke();
+            
+            // Draw car (from behind view at bottom of screen)
+            drawCar(w/2 + carState.position.lane_offset * 150, h - 80);
+        }
+        
+        function drawCar(x, y) {
+            const carWidth = 100;
+            const carHeight = 60;
+            
+            // Car body
+            ctx.fillStyle = '#c00';
+            ctx.beginPath();
+            ctx.roundRect(x - carWidth/2, y - carHeight, carWidth, carHeight, 8);
+            ctx.fill();
+            
+            // Roof
+            ctx.fillStyle = '#800';
+            ctx.beginPath();
+            ctx.roundRect(x - carWidth/3, y - carHeight - 20, carWidth * 0.66, 25, 6);
+            ctx.fill();
+            
+            // Windows
+            ctx.fillStyle = '#58a6ff';
+            ctx.beginPath();
+            ctx.roundRect(x - carWidth/3.5, y - carHeight - 15, carWidth * 0.55, 18, 4);
+            ctx.fill();
+            
+            // Wheels
+            ctx.fillStyle = '#222';
+            ctx.beginPath();
+            ctx.ellipse(x - carWidth/2 + 10, y, 15, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(x + carWidth/2 - 10, y, 15, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Brake lights (if braking)
+            if (carState.brake > 0.1) {
+                ctx.fillStyle = '#f00';
+                ctx.beginPath();
+                ctx.ellipse(x - 35, y - 20, 8, 5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(x + 35, y - 20, 8, 5, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // =================================================================
+        // DASHBOARD UPDATE
+        // =================================================================
+        
+        function updateDashboard() {
+            const speed = Math.abs(carState.velocity.speed);
+            
+            // Speed
+            document.getElementById('speedValue').textContent = Math.round(speed);
+            const needleAngle = -135 + (speed / 160) * 270;
+            document.getElementById('speedoNeedle').style.transform = 
+                `translateX(-50%) rotate(${needleAngle}deg)`;
+            
+            // RPM
+            document.getElementById('rpmValue').textContent = Math.round(carState.rpm);
+            
+            // Gear
+            let gearText = 'P';
+            if (carState.gear === -1) gearText = 'R';
+            else if (carState.gear > 0) gearText = carState.gear.toString();
+            document.getElementById('gearDisplay').textContent = gearText;
+            
+            // Odometer
+            const odometer = carState.position.distance / 5280;
+            document.getElementById('odometer').textContent = odometer.toFixed(1);
+            
+            // Trip
+            const tripMiles = carState.trip_distance / 5280;
+            document.getElementById('tripMiles').textContent = tripMiles.toFixed(2);
+            
+            // Fuel
+            document.getElementById('fuelGallons').textContent = carState.fuel.toFixed(1);
+            const fuelPercent = (carState.fuel / carSpecs.fuel_capacity) * 100;
+            const fuelBar = document.getElementById('fuelBar');
+            fuelBar.style.width = fuelPercent + '%';
+            fuelBar.classList.remove('low', 'critical');
+            if (fuelPercent < 25) fuelBar.classList.add('low');
+            if (fuelPercent < 10) fuelBar.classList.add('critical');
+            
+            // MPG
+            const mpg = carState.fuel_consumed > 0.001 
+                ? tripMiles / carState.fuel_consumed 
+                : carSpecs.mpg_combined;
+            document.getElementById('mpgValue').textContent = mpg.toFixed(1);
+            
+            // Range
+            const range = carState.fuel * carSpecs.mpg_combined;
+            document.getElementById('rangeValue').textContent = Math.round(range);
+            
+            // State
+            let state = 'PARKED';
+            if (carState.gear === 0) state = 'PARKED';
+            else if (speed < 1) state = 'IDLE';
+            else if (carState.brake > 0.1) state = 'BRAKING';
+            else if (carState.throttle > 0.3) state = 'ACCEL';
+            else if (carState.throttle > 0) state = 'CRUISE';
+            else state = 'COAST';
+            
+            const stateEl = document.getElementById('driveState');
+            stateEl.textContent = state;
+            stateEl.className = 'gauge-value';
+            if (state === 'ACCEL') stateEl.classList.add('green');
+            else if (state === 'BRAKING') stateEl.classList.add('red');
+            else if (state === 'CRUISE') stateEl.classList.add('blue');
+            
+            // Pedals
+            document.getElementById('throttlePedal').style.height = 
+                (carState.throttle * 100) + '%';
+            document.getElementById('brakePedal').style.height = 
+                (carState.brake * 100) + '%';
+            
+            // Steering indicator
+            const steerPercent = 50 + carState.steering * 40;
+            document.getElementById('steeringMarker').style.left = steerPercent + '%';
+        }
+        
+        // =================================================================
+        // CONTROLS (Mouse = Steering, Right = Gas, Left = Brake)
+        // =================================================================
+        
+        let mouseX = 0;
+        let isAccelerating = false;
+        let isBraking = false;
+        
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = (e.clientX - rect.left) / rect.width;
+            // Map to steering: center = 0, left = -1, right = 1
+            carState.steering = (mouseX - 0.5) * 2;
+        });
+        
+        // Prevent context menu on right click
+        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        
+        canvas.addEventListener('mousedown', (e) => {
+            if (e.button === 2) { // Right click = accelerate
+                isAccelerating = true;
+            } else if (e.button === 0) { // Left click = brake
+                isBraking = true;
+            }
+        });
+        
+        canvas.addEventListener('mouseup', (e) => {
+            if (e.button === 2) {
+                isAccelerating = false;
+            } else if (e.button === 0) {
+                isBraking = false;
+            }
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
+            isAccelerating = false;
+            isBraking = false;
+        });
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch (e.key.toLowerCase()) {
+                case 'p': carState.gear = 0; break;
+                case 'r': carState.gear = -1; break;
+                case 'd': carState.gear = 1; break;
+                case 't': carState.trip_distance = 0; carState.fuel_consumed = 0; break;
+            }
+        });
+        
+        // =================================================================
+        // CYLINDER BANK VISUALIZATION (Dimensional Manifold)
+        // =================================================================
+        
+        function initCylinderBank() {
+            const bank = document.getElementById('cylinderBank');
+            if (!bank) return;
+            
+            bank.innerHTML = '';
+            const numCylinders = carSpecs.cylinders || 4;
+            
+            if (numCylinders === 0) {
+                // Electric motor visualization
+                bank.innerHTML = `
+                    <div style="grid-column: span 4; text-align: center; padding: 10px;">
+                        <div style="color: var(--accent-cyan); font-size: 14px;">⚡ Electric Motor</div>
+                        <div style="color: var(--text-secondary); font-size: 10px;">No pistons/spark plugs</div>
+                        <div class="metric-value cyan" id="motorPower" style="margin-top: 5px;">0 kW</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Initialize cylinder states
+            engineState.cylinders = [];
+            for (let i = 0; i < numCylinders; i++) {
+                engineState.cylinders.push({
+                    pistonPosition: 0,  // 0 = BDC, 1 = TDC
+                    phase: i * (720 / numCylinders),  // Degrees offset
+                    firing: false
+                });
+                
+                bank.innerHTML += `
+                    <div class="cylinder">
+                        <div class="cylinder-num">#${i + 1}</div>
+                        <div class="piston-bar">
+                            <div class="piston-fill" id="piston${i}" style="height: 50%"></div>
+                        </div>
+                        <div class="spark-indicator" id="spark${i}"></div>
+                    </div>
+                `;
+            }
+        }
+        
+        function updateCylinders(dt) {
+            if (carSpecs.cylinders === 0) {
+                // Electric: show motor power
+                const motorPowerEl = document.getElementById('motorPower');
+                if (motorPowerEl) {
+                    const kW = (carSpecs.horsepower * 0.7457 * carState.throttle * (carState.rpm / 7000)).toFixed(1);
+                    motorPowerEl.textContent = kW + ' kW';
+                }
+                return;
+            }
+            
+            const rpm = carState.rpm || 0;
+            if (rpm < 100) return;
+            
+            // Crankshaft angular velocity (rad/s)
+            const omega = (rpm * 2 * Math.PI) / 60;
+            
+            // Parse firing order
+            const firingOrder = carSpecs.firing_order.split('-').map(n => parseInt(n) - 1);
+            
+            // Degrees per second
+            const degreesPerSec = rpm * 6; // 360 deg/rev * rpm/60
+            
+            for (let i = 0; i < engineState.cylinders.length; i++) {
+                const cyl = engineState.cylinders[i];
+                
+                // Update phase (4-stroke = 720 degrees per cycle)
+                cyl.phase = (cyl.phase + degreesPerSec * dt) % 720;
+                
+                // Piston position: sinusoidal motion based on crank angle
+                // Simplified piston motion: 0.5 + 0.5 * cos(phase_rad)
+                const phaseRad = (cyl.phase % 360) * (Math.PI / 180);
+                cyl.pistonPosition = 0.5 + 0.5 * Math.cos(phaseRad);
+                
+                // Firing detection: fires at TDC on power stroke (phase ~0 or ~720)
+                // Power stroke is phase 0-180
+                const isFiring = cyl.phase < 30 || (cyl.phase > 690);
+                cyl.firing = isFiring && carState.throttle > 0;
+                
+                // Update DOM
+                const pistonEl = document.getElementById('piston' + i);
+                const sparkEl = document.getElementById('spark' + i);
+                
+                if (pistonEl) {
+                    pistonEl.style.height = (cyl.pistonPosition * 100) + '%';
+                }
+                if (sparkEl) {
+                    if (cyl.firing) {
+                        sparkEl.classList.add('firing');
+                    } else {
+                        sparkEl.classList.remove('firing');
+                    }
+                }
+            }
+        }
+        
+        // =================================================================
+        // TIRE ROTATION CALCULATION (Kinematic Transform)
+        // =================================================================
+        
+        function updateTireRotation(dt) {
+            const speed_mph = Math.abs(carState.velocity.speed);
+            
+            // Tire circumference: π * diameter (inches) / 12 = feet
+            const tireDiameter = carSpecs.tire_diameter || 27.0;
+            const circumference_ft = (Math.PI * tireDiameter) / 12;
+            
+            // Speed in feet per minute
+            const speed_fpm = speed_mph * 5280 / 60;
+            
+            // Tire RPM = speed / circumference
+            const tireRpm = speed_fpm / circumference_ft;
+            
+            // Differential effect on driven wheels
+            const diff = carSpecs.differential || 3.5;
+            const drivetrain = carSpecs.drivetrain || 'FWD';
+            
+            // Steering differential (inner wheel slower)
+            const steerFactor = Math.abs(carState.steering) * 0.1;
+            const leftFactor = carState.steering > 0 ? (1 - steerFactor) : 1;
+            const rightFactor = carState.steering < 0 ? (1 - steerFactor) : 1;
+            
+            // Calculate individual tire RPMs
+            let flRpm, frRpm, rlRpm, rrRpm;
+            
+            if (drivetrain === 'FWD') {
+                // Front wheels driven
+                flRpm = tireRpm * leftFactor;
+                frRpm = tireRpm * rightFactor;
+                rlRpm = tireRpm * leftFactor * 0.98;  // Slight drag
+                rrRpm = tireRpm * rightFactor * 0.98;
+            } else if (drivetrain === 'RWD') {
+                // Rear wheels driven
+                flRpm = tireRpm * leftFactor * 0.98;
+                frRpm = tireRpm * rightFactor * 0.98;
+                rlRpm = tireRpm * leftFactor;
+                rrRpm = tireRpm * rightFactor;
+            } else {
+                // AWD
+                flRpm = tireRpm * leftFactor;
+                frRpm = tireRpm * rightFactor;
+                rlRpm = tireRpm * leftFactor;
+                rrRpm = tireRpm * rightFactor;
+            }
+            
+            // Update tire angle for visual rotation
+            engineState.tireAngle = (engineState.tireAngle + tireRpm * dt * 6) % 360;
+            
+            // Update DOM
+            document.getElementById('tireFLRpm').textContent = Math.round(flRpm);
+            document.getElementById('tireFRRpm').textContent = Math.round(frRpm);
+            document.getElementById('tireRLRpm').textContent = Math.round(rlRpm);
+            document.getElementById('tireRRRpm').textContent = Math.round(rrRpm);
+            
+            // Rotate tire visuals
+            ['tireFLVisual', 'tireFRVisual', 'tireRLVisual', 'tireRRVisual'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.transform = `rotate(${engineState.tireAngle}deg)`;
+                }
+            });
+        }
+        
+        // =================================================================
+        // TELEMETRY UPDATE (Real-Time Engine Metrics)
+        // =================================================================
+        
+        function updateTelemetry(dt) {
+            const speed = Math.abs(carState.velocity.speed);
+            const rpm = carState.rpm;
+            
+            // --- Acceleration calculation ---
+            const prevSpeed = engineState.lastSpeed || 0;
+            const accel_mph_s = (speed - prevSpeed) / Math.max(dt, 0.001);
+            engineState.acceleration = accel_mph_s;
+            engineState.lastSpeed = speed;
+            
+            // G-Force: 1G = 21.937 mph/s
+            const gForce = accel_mph_s / 21.937;
+            
+            // 0-60 timer
+            if (carState.throttle > 0 && engineState.timer060 === null && speed < 2) {
+                engineState.timer060 = performance.now();
+                engineState.time060 = null;
+            }
+            if (engineState.timer060 !== null && speed >= 60 && engineState.time060 === null) {
+                engineState.time060 = (performance.now() - engineState.timer060) / 1000;
+            }
+            if (speed < 1 && carState.gear === 0) {
+                engineState.timer060 = null;
+                engineState.time060 = null;
+            }
+            
+            // --- Power output: P = τω / 5252 (simplified) ---
+            const torqueAtRpm = carSpecs.torque * (rpm / 4500) * Math.min(1, rpm / 2000);
+            const powerOutput_kW = (torqueAtRpm * rpm / 7127) * carState.throttle;
+            engineState.powerOutput = powerOutput_kW;
+            
+            // --- Engine temperature model ---
+            const baseTemp = 185;
+            const loadTemp = carState.throttle * 30 + (rpm / 7000) * 20;
+            const coolingRate = 0.1;
+            engineState.engineTemp += (baseTemp + loadTemp - engineState.engineTemp) * coolingRate * dt;
+            
+            // --- Oil pressure model ---
+            const baseOilPressure = 25;
+            const rpmPressure = (rpm / 7000) * 40;
+            engineState.oilPressure = baseOilPressure + rpmPressure + Math.random() * 2;
+            
+            // --- Spark advance ---
+            // More advance at higher RPM, less under load
+            engineState.sparkAdvance = 10 + (rpm / 1000) * 3 - carState.throttle * 5;
+            
+            // --- Injector pulse width ---
+            // ms per injection, increases with throttle and RPM
+            engineState.injectorPulse = 1.5 + carState.throttle * 2 + (rpm / 7000) * 1.5;
+            
+            // --- Air/Fuel ratio ---
+            // Stoichiometric is 14.7:1, richer under load
+            if (carSpecs.electric) {
+                engineState.airFuelRatio = 0;
+            } else {
+                engineState.airFuelRatio = 14.7 - carState.throttle * 2.5;
+            }
+            
+            // --- Fuel consumption rate (gal/hour) ---
+            let fuelRate_gph;
+            if (speed < 5) {
+                fuelRate_gph = carState.gear !== 0 ? 0.3 + carState.throttle * 0.5 : 0;
+            } else {
+                fuelRate_gph = speed / carSpecs.mpg_combined * carState.throttle + 0.3;
+            }
+            
+            // --- Instant MPG ---
+            let instantMpg;
+            if (fuelRate_gph > 0.01 && speed > 1) {
+                instantMpg = speed / fuelRate_gph;
+            } else {
+                instantMpg = null;
+            }
+            
+            // --- Gear ratio ---
+            const gearRatios = [0, 3.5, 2.1, 1.4, 1.0, 0.8, 0.65, 0.55, 0.45];
+            const currentGearRatio = carState.gear > 0 ? gearRatios[carState.gear] : 0;
+            const finalDrive = currentGearRatio * (carSpecs.differential || 3.5);
+            
+            // --- UPDATE DOM ---
+            document.getElementById('telemetryHp').textContent = carSpecs.horsepower;
+            document.getElementById('telemetryTorque').textContent = carSpecs.torque;
+            document.getElementById('telemetryPowerOut').textContent = powerOutput_kW.toFixed(1) + ' kW';
+            document.getElementById('telemetryEngineTemp').textContent = Math.round(engineState.engineTemp) + '°F';
+            document.getElementById('telemetryOilPressure').textContent = Math.round(engineState.oilPressure) + ' PSI';
+            
+            document.getElementById('telemetryAccel').textContent = accel_mph_s.toFixed(2);
+            document.getElementById('telemetryGforce').textContent = gForce.toFixed(2) + ' G';
+            document.getElementById('telemetryKmh').textContent = Math.round(speed * 1.60934);
+            
+            if (engineState.time060 !== null) {
+                document.getElementById('telemetry060').textContent = engineState.time060.toFixed(2) + 's';
+            } else if (engineState.timer060 !== null) {
+                const elapsed = (performance.now() - engineState.timer060) / 1000;
+                document.getElementById('telemetry060').textContent = elapsed.toFixed(1) + 's...';
+            } else {
+                document.getElementById('telemetry060').textContent = '--';
+            }
+            
+            document.getElementById('telemetryFuelRate').textContent = fuelRate_gph.toFixed(2) + ' gph';
+            document.getElementById('telemetryInstantMpg').textContent = instantMpg ? instantMpg.toFixed(1) : '--';
+            document.getElementById('telemetryInjector').textContent = engineState.injectorPulse.toFixed(1) + ' ms';
+            
+            if (carSpecs.electric) {
+                document.getElementById('telemetryCarb').textContent = 'N/A (Electric)';
+            } else {
+                document.getElementById('telemetryCarb').textContent = engineState.airFuelRatio.toFixed(1) + ':1';
+            }
+            
+            document.getElementById('telemetryFiringOrder').textContent = carSpecs.firing_order;
+            document.getElementById('telemetrySparkAdvance').textContent = Math.round(engineState.sparkAdvance) + '°';
+            
+            document.getElementById('telemetryDiff').textContent = carSpecs.differential.toFixed(2) + ':1';
+            document.getElementById('telemetryGearRatio').textContent = currentGearRatio > 0 ? currentGearRatio.toFixed(2) + ':1' : '--';
+            document.getElementById('telemetryTrans').textContent = carSpecs.transmission;
+            
+            // Update cylinders and tires
+            updateCylinders(dt);
+            updateTireRotation(dt);
+        }
+        
+        // =================================================================
+        // SPEC QUERY SYSTEM (Direct Lookup - No AI)
+        // =================================================================
+        
+        function handleSpecQuery() {
+            const input = document.getElementById('specInput');
+            const result = document.getElementById('specResult');
+            const query = input.value.toLowerCase().trim();
+            
+            if (!query) {
+                result.innerHTML = '<span style="color: var(--text-secondary);">Enter a spec to query...</span>';
+                return;
+            }
+            
+            // Build comprehensive spec dictionary
+            const specDict = {
+                'horsepower': { label: 'Horsepower', value: carSpecs.horsepower + ' hp' },
+                'hp': { label: 'Horsepower', value: carSpecs.horsepower + ' hp' },
+                'power': { label: 'Horsepower', value: carSpecs.horsepower + ' hp' },
+                
+                'torque': { label: 'Torque', value: carSpecs.torque + ' lb-ft' },
+                'tq': { label: 'Torque', value: carSpecs.torque + ' lb-ft' },
+                
+                'weight': { label: 'Weight', value: carSpecs.weight_lbs.toLocaleString() + ' lbs' },
+                'mass': { label: 'Weight', value: carSpecs.weight_lbs.toLocaleString() + ' lbs' },
+                
+                'mpg': { label: 'Fuel Economy', value: carSpecs.mpg_combined + ' mpg' },
+                'fuel economy': { label: 'Fuel Economy', value: carSpecs.mpg_combined + ' mpg' },
+                'mileage': { label: 'Fuel Economy', value: carSpecs.mpg_combined + ' mpg' },
+                
+                '0-60': { label: '0-60 mph', value: carSpecs.zero_to_sixty + ' seconds' },
+                'zero to sixty': { label: '0-60 mph', value: carSpecs.zero_to_sixty + ' seconds' },
+                'acceleration': { label: '0-60 mph', value: carSpecs.zero_to_sixty + ' seconds' },
+                
+                'top speed': { label: 'Top Speed', value: carSpecs.top_speed + ' mph' },
+                'max speed': { label: 'Top Speed', value: carSpecs.top_speed + ' mph' },
+                'vmax': { label: 'Top Speed', value: carSpecs.top_speed + ' mph' },
+                
+                'cylinders': { label: 'Cylinders', value: carSpecs.cylinders || 'Electric' },
+                'engine': { label: 'Engine', value: carSpecs.cylinders > 0 ? carSpecs.displacement + 'L ' + carSpecs.cylinders + '-cyl' : 'Electric Motor' },
+                
+                'displacement': { label: 'Displacement', value: carSpecs.displacement + ' L' },
+                'liters': { label: 'Displacement', value: carSpecs.displacement + ' L' },
+                
+                'transmission': { label: 'Transmission', value: carSpecs.transmission },
+                'trans': { label: 'Transmission', value: carSpecs.transmission },
+                'gearbox': { label: 'Transmission', value: carSpecs.transmission },
+                
+                'drivetrain': { label: 'Drivetrain', value: carSpecs.drivetrain },
+                'drive': { label: 'Drivetrain', value: carSpecs.drivetrain },
+                'fwd': { label: 'Drivetrain', value: carSpecs.drivetrain },
+                'rwd': { label: 'Drivetrain', value: carSpecs.drivetrain },
+                'awd': { label: 'Drivetrain', value: carSpecs.drivetrain },
+                
+                'differential': { label: 'Differential Ratio', value: carSpecs.differential + ':1' },
+                'diff': { label: 'Differential Ratio', value: carSpecs.differential + ':1' },
+                'final drive': { label: 'Differential Ratio', value: carSpecs.differential + ':1' },
+                
+                'firing order': { label: 'Firing Order', value: carSpecs.firing_order },
+                'firing': { label: 'Firing Order', value: carSpecs.firing_order },
+                
+                'fuel tank': { label: 'Fuel Capacity', value: carSpecs.fuel_capacity + ' gal' },
+                'tank': { label: 'Fuel Capacity', value: carSpecs.fuel_capacity + ' gal' },
+                'fuel capacity': { label: 'Fuel Capacity', value: carSpecs.fuel_capacity + ' gal' },
+                
+                'tire': { label: 'Tire Diameter', value: carSpecs.tire_diameter + ' in' },
+                'tires': { label: 'Tire Diameter', value: carSpecs.tire_diameter + ' in' },
+                'wheel': { label: 'Tire Diameter', value: carSpecs.tire_diameter + ' in' },
+                
+                'compression': { label: 'Compression Ratio', value: carSpecs.compression },
+                
+                'make': { label: 'Make', value: carSpecs.make },
+                'model': { label: 'Model', value: carSpecs.model },
+                'year': { label: 'Year', value: carSpecs.year },
+                
+                'car': { label: 'Vehicle', value: carSpecs.year + ' ' + carSpecs.make + ' ' + carSpecs.model },
+                'vehicle': { label: 'Vehicle', value: carSpecs.year + ' ' + carSpecs.make + ' ' + carSpecs.model },
+                
+                'power to weight': { label: 'Power-to-Weight', value: (carSpecs.horsepower / (carSpecs.weight_lbs / 1000)).toFixed(1) + ' hp/1000lb' },
+                'ptw': { label: 'Power-to-Weight', value: (carSpecs.horsepower / (carSpecs.weight_lbs / 1000)).toFixed(1) + ' hp/1000lb' },
+                
+                'all': { label: 'All Specs', value: 'scroll down' },
+                'specs': { label: 'All Specs', value: 'see below' }
+            };
+            
+            // Search for matches
+            let found = specDict[query];
+            
+            if (!found) {
+                // Fuzzy search
+                for (const key of Object.keys(specDict)) {
+                    if (key.includes(query) || query.includes(key)) {
+                        found = specDict[key];
+                        break;
+                    }
+                }
+            }
+            
+            if (found) {
+                if (query === 'all' || query === 'specs') {
+                    // Show all specs
+                    let html = '';
+                    const shown = new Set();
+                    for (const [key, val] of Object.entries(specDict)) {
+                        const label = val.label;
+                        if (!shown.has(label)) {
+                            html += `<div><span class="spec-result-label">${label}:</span> <span class="spec-result-value">${val.value}</span></div>`;
+                            shown.add(label);
+                        }
+                    }
+                    result.innerHTML = html;
+                } else {
+                    result.innerHTML = `<div><span class="spec-result-label">${found.label}:</span> <span class="spec-result-value">${found.value}</span></div>`;
+                }
+            } else {
+                result.innerHTML = `<span style="color: var(--accent-orange);">Spec "${query}" not found. Try: hp, torque, 0-60, mpg, weight, tires, differential...</span>`;
+            }
+            
+            input.value = '';
+        }
+        
+        // =================================================================
+        // CAR SELECTOR (Switch Vehicle Substrate)
+        // =================================================================
+        
+        function switchCar(carKey) {
+            const newSpecs = CAR_DATABASE[carKey];
+            if (!newSpecs) return;
+            
+            // Update specs
+            Object.assign(carSpecs, newSpecs);
+            
+            // Update physics constants
+            PHYSICS.mass_kg = carSpecs.weight_lbs * 0.453592;
+            
+            // Reset fuel
+            carState.fuel = carSpecs.fuel_capacity;
+            carState.fuel_consumed = 0;
+            carState.trip_distance = 0;
+            
+            // Reset timers
+            engineState.timer060 = null;
+            engineState.time060 = null;
+            
+            // Re-initialize cylinder bank
+            initCylinderBank();
+            
+            // Update display
+            document.getElementById('carName').textContent = 
+                `${carSpecs.year} ${carSpecs.make} ${carSpecs.model}`;
+            document.getElementById('carSpecs').textContent = 
+                `${carSpecs.horsepower}hp | ${carSpecs.mpg_combined}mpg | 0-60: ${carSpecs.zero_to_sixty}s`;
+        }
+        
+        // =================================================================
+        // GAME LOOP (Substrate Transformation at 60Hz)
+        // =================================================================
+        
+        let lastTime = performance.now();
+        
+        function gameLoop(currentTime) {
+            const dt = Math.min((currentTime - lastTime) / 1000, 0.1);
+            lastTime = currentTime;
+            
+            // Update controls
+            carState.throttle = isAccelerating ? 0.8 : 0;
+            carState.brake = isBraking ? 0.7 : 0;
+            
+            // Apply physics transformation
+            transformState(dt);
+            
+            // Update telemetry (real-time engine metrics)
+            updateTelemetry(dt);
+            
+            // Render
+            drawRoad();
+            updateDashboard();
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // =================================================================
+        // INITIALIZATION
+        // =================================================================
+        
+        function init() {
+            // Display car info
+            document.getElementById('carName').textContent = 
+                `${carSpecs.year} ${carSpecs.make} ${carSpecs.model}`;
+            document.getElementById('carSpecs').textContent = 
+                `${carSpecs.horsepower}hp | ${carSpecs.mpg_combined}mpg | 0-60: ${carSpecs.zero_to_sixty}s`;
+            
+            // Initialize cylinder bank visualization
+            initCylinderBank();
+            
+            // Wire up car selector
+            const carSelector = document.getElementById('carSelector');
+            if (carSelector) {
+                carSelector.addEventListener('change', (e) => {
+                    switchCar(e.target.value);
+                });
+            }
+            
+            // Wire up spec query
+            const specBtn = document.getElementById('specBtn');
+            const specInput = document.getElementById('specInput');
+            if (specBtn) {
+                specBtn.addEventListener('click', handleSpecQuery);
+            }
+            if (specInput) {
+                specInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') handleSpecQuery();
+                });
+            }
+            
+            // Start in park
+            carState.gear = 0;
+            
+            // Start game loop
+            requestAnimationFrame(gameLoop);
+            
+            console.log('🦋 ButterflyFX Car Simulator initialized');
+            console.log('   Dimensional Programming Paradigm: Pure Substrate Transformations');
+            console.log('   No AI heuristics - Mathematics only');
+        }
+        
+        init();
+    </script>
+</body>
+</html>

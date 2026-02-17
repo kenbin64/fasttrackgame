@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Car Simulator | ButterflyFX - Dimensional Racing Game</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Retro Car Simulator - An 80s synthwave racing game built on ButterflyFX Helix Kernel. Watch dimensions build the world from a point of light to a complete game.">
+    <meta name="keywords" content="ButterflyFX, Retro Simulator, racing game, dimensional computing, helix kernel, synthwave">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="game">
+    <meta property="og:url" content="https://butterflyfx.us/apps/retro-simulator.html">
+    <meta property="og:title" content="Retro Car Simulator | ButterflyFX">
+    <meta property="og:description" content="Watch dimensions literally build a racing game. Then drive it!">
+    
+    <link rel="canonical" href="https://butterflyfx.us/apps/retro-simulator.html">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #050510;
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        header {
+            background: rgba(5, 5, 16, 0.95);
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+        
+        nav a {
+            color: #8090aa;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+        
+        nav a:hover, nav a.active {
+            color: #60b0ff;
+        }
+        
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+        
+        .hamburger span {
+            width: 25px;
+            height: 2px;
+            background: #60b0ff;
+        }
+        
+        @media (max-width: 768px) {
+            nav { display: none; }
+            .hamburger { display: flex; }
+        }
+        
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 100px 25px 60px;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 60px 0;
+        }
+        
+        .product-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #f0f, #0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .tagline {
+            font-size: 1.4em;
+            color: #f0a;
+            margin-bottom: 30px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #0f0, #0a0);
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 40px;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .cta-btn {
+            padding: 15px 35px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .cta-btn.primary {
+            background: linear-gradient(135deg, #f0f, #60f);
+            color: #fff;
+        }
+        
+        .cta-btn.secondary {
+            background: rgba(255, 0, 255, 0.15);
+            color: #f0a;
+            border: 1px solid rgba(255, 0, 255, 0.3);
+        }
+        
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 0, 255, 0.3);
+        }
+        
+        .section {
+            margin: 60px 0;
+        }
+        
+        .section h2 {
+            font-size: 1.8em;
+            color: #fff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .section p {
+            color: #a0b0cc;
+            line-height: 1.8;
+            font-size: 1.1em;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            text-align: center;
+        }
+        
+        .game-preview {
+            background: linear-gradient(135deg, #100020, #200030);
+            border: 2px solid #f0f;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 40px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 48%, #f0f 49%, #f0f 51%, transparent 52%);
+            background-size: 20px 20px;
+            opacity: 0.1;
+        }
+        
+        .game-preview img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 0 40px rgba(255, 0, 255, 0.4);
+        }
+        
+        .game-preview .preview-text {
+            position: relative;
+            z-index: 1;
+            font-size: 1.2em;
+            color: #f0f;
+            padding: 40px;
+        }
+        
+        .dimension-levels {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin: 40px 0;
+        }
+        
+        @media (max-width: 700px) {
+            .dimension-levels {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .dim-level {
+            background: rgba(20, 10, 40, 0.8);
+            border: 1px solid rgba(255, 0, 255, 0.3);
+            border-radius: 12px;
+            padding: 15px 10px;
+            text-align: center;
+        }
+        
+        .dim-level .num {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #f0f;
+        }
+        
+        .dim-level .name {
+            font-size: 0.75em;
+            color: #a080cc;
+            margin-top: 5px;
+        }
+        
+        .dim-level .desc {
+            font-size: 0.7em;
+            color: #6060aa;
+            margin-top: 5px;
+        }
+        
+        .kernel-display {
+            background: rgba(10, 5, 20, 0.9);
+            border: 2px solid #60f;
+            border-radius: 15px;
+            padding: 25px;
+            font-family: 'SF Mono', Monaco, monospace;
+            margin: 30px 0;
+        }
+        
+        .kernel-title {
+            color: #f0f;
+            font-size: 1.1em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .kernel-ops {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            .kernel-ops {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .kernel-op {
+            background: rgba(255, 0, 255, 0.1);
+            border: 1px solid rgba(255, 0, 255, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .kernel-op .op-name {
+            color: #0ff;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .kernel-op .op-desc {
+            color: #6080aa;
+            font-size: 0.7em;
+            margin-top: 5px;
+        }
+        
+        .controls-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        @media (max-width: 600px) {
+            .controls-section { grid-template-columns: 1fr; }
+        }
+        
+        .controls-card {
+            background: rgba(20, 10, 40, 0.8);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+        }
+        
+        .controls-card h3 {
+            color: #0ff;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(100, 150, 255, 0.1);
+            color: #8090aa;
+            font-size: 0.9em;
+        }
+        
+        .control-key {
+            color: #f0f;
+            font-family: 'SF Mono', Monaco, monospace;
+            background: rgba(255, 0, 255, 0.15);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .feature-card {
+            background: rgba(20, 10, 40, 0.8);
+            border: 1px solid rgba(255, 0, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px;
+        }
+        
+        .feature-card h3 {
+            color: #f0a;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+        
+        .feature-card p {
+            color: #8090aa;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        
+        .feature-icon {
+            font-size: 1.8em;
+            margin-bottom: 12px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #6080aa;
+            border-top: 1px solid rgba(100, 150, 255, 0.1);
+            margin-top: 60px;
+        }
+        
+        footer a {
+            color: #f0a;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+    
+    <header>
+        <a href="../index.html" class="logo">🦋 ButterflyFX</a>
+        <nav>
+            <a href="../start-here.html">Start Here</a>
+            <a href="../genesis.html">Genesis</a>
+            <a href="../apps.html" class="active">Apps</a>
+            <a href="../platform.html">Platform</a>
+            <a href="../developer.html">Developer</a>
+            <a href="../documents.html">Documents</a>
+            <a href="../about.html">About</a>
+        </nav>
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+    
+    <main>
+        <section class="hero">
+            <span class="product-icon">🏎️</span>
+            <h1>Retro Car Simulator</h1>
+            <p class="tagline">Watch Dimensions Build a World — Then Drive It!</p>
+            <span class="status-badge">✅ Play Now</span>
+            
+            <div class="cta-buttons">
+                <a href="../demos/retro_simulator.html" class="cta-btn primary">🎮 Play Game</a>
+                <a href="../developer.html" class="cta-btn secondary">View Source</a>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>Dimensional Gaming</h2>
+            <p>
+                This isn't just a game — it's a <strong>demonstration</strong> of dimensional computing in action.
+                Watch as each dimension literally adds creative building blocks to the scene, transforming 
+                pure darkness into a complete racing experience.
+            </p>
+        </section>
+        
+        <section class="section">
+            <h2>The 7 Dimensions</h2>
+            <p>Each level adds a new layer to the world. Press 1-6 or click SPIRAL UP to invoke dimensions.</p>
+            
+            <div class="dimension-levels">
+                <div class="dim-level">
+                    <div class="num">0</div>
+                    <div class="name">Void</div>
+                    <div class="desc">Pure darkness</div>
+                </div>
+                <div class="dim-level">
+                    <div class="num">1</div>
+                    <div class="name">Point</div>
+                    <div class="desc">Origin appears</div>
+                </div>
+                <div class="dim-level">
+                    <div class="num">2</div>
+                    <div class="name">Line</div>
+                    <div class="desc">Horizon extends</div>
+                </div>
+                <div class="dim-level">
+                    <div class="num">3</div>
+                    <div class="name">Plane</div>
+                    <div class="desc">Grid + Sun</div>
+                </div>
+                <div class="dim-level">
+                    <div class="num">4</div>
+                    <div class="name">Depth</div>
+                    <div class="desc">Mountains</div>
+                </div>
+                <div class="dim-level">
+                    <div class="num">5</div>
+                    <div class="name">Volume</div>
+                    <div class="desc">Road forms</div>
+                </div>
+                <div class="dim-level">
+                    <div class="num">6</div>
+                    <div class="name">Whole</div>
+                    <div class="desc">Trees + Car!</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>Helix Kernel</h2>
+            <p>The game runs on the ButterflyFX Helix Kernel — a state machine with 7 levels.</p>
+            
+            <div class="kernel-display">
+                <div class="kernel-title">⬡ HELIX KERNEL OPERATORS ⬡</div>
+                <div class="kernel-ops">
+                    <div class="kernel-op">
+                        <div class="op-name">INVOKE</div>
+                        <div class="op-desc">Jump to level</div>
+                    </div>
+                    <div class="kernel-op">
+                        <div class="op-name">SPIRAL_UP</div>
+                        <div class="op-desc">↑ Next dimension</div>
+                    </div>
+                    <div class="kernel-op">
+                        <div class="op-name">SPIRAL_DOWN</div>
+                        <div class="op-desc">↓ Prev dimension</div>
+                    </div>
+                    <div class="kernel-op">
+                        <div class="op-name">COLLAPSE</div>
+                        <div class="op-desc">Reset to Level 0</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>Controls</h2>
+            
+            <div class="controls-section">
+                <div class="controls-card">
+                    <h3>⌨️ Keyboard</h3>
+                    <div class="control-row">
+                        <span>Accelerate</span>
+                        <span><span class="control-key">↑</span> or <span class="control-key">W</span></span>
+                    </div>
+                    <div class="control-row">
+                        <span>Brake</span>
+                        <span><span class="control-key">↓</span> or <span class="control-key">S</span></span>
+                    </div>
+                    <div class="control-row">
+                        <span>Steer</span>
+                        <span><span class="control-key">← →</span> or <span class="control-key">A D</span></span>
+                    </div>
+                    <div class="control-row">
+                        <span>Invoke Level</span>
+                        <span><span class="control-key">1</span> - <span class="control-key">6</span></span>
+                    </div>
+                    <div class="control-row">
+                        <span>Jump to Drive</span>
+                        <span><span class="control-key">7</span></span>
+                    </div>
+                </div>
+                
+                <div class="controls-card">
+                    <h3>🖱️ Mouse</h3>
+                    <div class="control-row">
+                        <span>Gas</span>
+                        <span>Click left side</span>
+                    </div>
+                    <div class="control-row">
+                        <span>Brake</span>
+                        <span>Click right side</span>
+                    </div>
+                    <div class="control-row">
+                        <span>Steer</span>
+                        <span>Move mouse L/R</span>
+                    </div>
+                    <div class="control-row">
+                        <span>Start driving</span>
+                        <span>Click at Level 6</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>What You'll Learn</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🌀</span>
+                    <h3>Dimensional Tokens</h3>
+                    <p>See how car properties (horsepower, torque, speed) appear at different sigma levels. Tokens are only visible when invoked.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">📐</span>
+                    <h3>Level Visibility</h3>
+                    <p>Properties exist but aren't visible until their dimension is invoked. At Level 6, the whole car with all attributes appears.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">⚡</span>
+                    <h3>Substrate Physics</h3>
+                    <p>The road, mountains, and trees are part of the world substrate. The car interacts with the dimensional substrate in real-time.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🎯</span>
+                    <h3>Instant Invocation</h3>
+                    <p>Press any number 1-6 to instantly invoke that dimension. No loading, no building — just invocation.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section" style="text-align: center;">
+            <h2>Ready to Drive?</h2>
+            <p>Experience dimensional computing in action. See the theory become reality.</p>
+            
+            <div class="cta-buttons" style="margin-top: 30px;">
+                <a href="../demos/retro_simulator.html" class="cta-btn primary" style="font-size: 1.3em; padding: 20px 50px;">
+                    🎮 PLAY NOW
+                </a>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>🦋 <a href="../index.html">ButterflyFX</a> — Dimensional Computing</p>
+        <p style="margin-top: 10px;">
+            <a href="../apps.html">All Apps</a> · 
+            <a href="../developer.html">Developers</a> · 
+            <a href="../about.html">About</a>
+        </p>
+    </footer>
+    
+    <script>
+        // Starfield background with neon synthwave colors
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        const stars = Array.from({length: 150}, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 1.5 + 0.5,
+            speed: Math.random() * 0.3 + 0.1,
+            color: Math.random() > 0.5 ? 'f0f' : '0ff'
+        }));
+        
+        function animateStars() {
+            ctx.fillStyle = '#050510';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            stars.forEach(star => {
+                ctx.fillStyle = `rgba(${star.color === 'f0f' ? '255, 0, 255' : '0, 255, 255'}, ${Math.random() * 0.3 + 0.4})`;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                star.y += star.speed;
+                if (star.y > canvas.height) {
+                    star.y = 0;
+                    star.x = Math.random() * canvas.width;
+                }
+            });
+            
+            requestAnimationFrame(animateStars);
+        }
+        
+        animateStars();
+    </script>
+</body>
+</html>

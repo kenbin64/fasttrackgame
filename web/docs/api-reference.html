@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX — Substrate API Reference</title>
+    <meta name="description" content="Complete API reference for the ButterflyFX Dimensional Substrate Model — manifolds, substrates, geometric properties.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #050510, #0a1020);
+            color: #fff;
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+        
+        header {
+            background: rgba(5, 5, 16, 0.95);
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        nav { display: flex; gap: 20px; }
+        nav a { color: #8090aa; text-decoration: none; font-size: 0.9em; }
+        nav a:hover { color: #60b0ff; }
+        
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 100px 25px 60px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle { font-size: 1.1em; color: #60b0ff; margin-bottom: 40px; }
+        
+        h2 {
+            font-size: 1.6em;
+            color: #ff6090;
+            margin: 50px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 96, 144, 0.3);
+        }
+        
+        h3 { color: #60b0ff; margin: 30px 0 15px; font-size: 1.3em; }
+        h4 { color: #80ff80; margin: 20px 0 10px; font-size: 1.1em; }
+        
+        p { color: #b0c0e0; margin-bottom: 15px; }
+        
+        code {
+            background: rgba(100, 150, 255, 0.15);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.9em;
+            color: #80ff80;
+        }
+        
+        pre {
+            background: rgba(10, 15, 30, 0.9);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        pre code { background: none; padding: 0; font-size: 0.85em; line-height: 1.6; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+        }
+        
+        th { background: rgba(64, 96, 255, 0.2); color: #60b0ff; }
+        td { color: #b0c0e0; }
+        td:first-child { color: #80ff80; font-family: monospace; }
+        
+        .api-box {
+            background: rgba(20, 30, 50, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px 25px;
+            margin: 20px 0;
+        }
+        
+        .api-box h4 { margin-top: 0; }
+        
+        .returns {
+            color: #ffd700;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+        
+        .toc {
+            background: rgba(20, 30, 50, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px 25px;
+            margin: 30px 0;
+        }
+        
+        .toc h3 { margin-top: 0; color: #ff6090; }
+        .toc ul { list-style: none; margin: 15px 0 0 0; }
+        .toc li { margin: 8px 0; }
+        .toc a { color: #60b0ff; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .tag-function { background: rgba(80, 200, 120, 0.3); color: #80ff80; }
+        .tag-class { background: rgba(64, 96, 255, 0.3); color: #80b0ff; }
+        .tag-const { background: rgba(255, 200, 100, 0.3); color: #ffd080; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="../index.html" class="logo">🦋 ButterflyFX</a>
+        <nav>
+            <a href="../developer.html">Developer</a>
+            <a href="index.html">Docs</a>
+            <a href="../apps.html">Apps</a>
+        </nav>
+    </header>
+    
+    <main>
+        <h1>📖 Substrate API Reference</h1>
+        <p class="subtitle">Complete Reference for the ButterflyFX Dimensional Substrate Model</p>
+        
+        <div class="toc">
+            <h3>📑 Contents</h3>
+            <ul>
+                <li><a href="#human-first">Human-First API</a> — space, shape, text, line (recommended)</li>
+                <li><a href="#import">Import Statement</a></li>
+                <li><a href="#substrates">Substrates</a> — Substrate2D, Substrate3D, etc.</li>
+                <li><a href="#operations">Operations</a> — ingest, invoke, evaluate</li>
+                <li><a href="#geometry">Geometric Properties</a> — sin, cos, slope, curvature</li>
+                <li><a href="#shapes">Geometric Shapes</a> — SINE, SADDLE, HELIX</li>
+                <li><a href="#lens">Lens Interpretations</a> — COLOR, SOUND, LIGHT</li>
+                <li><a href="#levels">The 7 Levels</a> — VOID through WHOLE</li>
+            </ul>
+        </div>
+        
+        <!-- Human-First API -->
+        <section id="human-first">
+            <h2>Human-First API <span class="tag tag-class">recommended</span></h2>
+            
+            <p>The recommended way to build with ButterflyFX — speak your intentions, not coordinates.</p>
+            
+<pre><code><span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> space
+
+canvas = space(<span style="color: #80ff80;">"MyApp"</span>, 800, 600)
+
+<span style="color: #666;"># Semantic positions</span>
+title = canvas.text(<span style="color: #80ff80;">"Hello"</span>).place(<span style="color: #80ff80;">"top"</span>).done()
+card = canvas.shape(<span style="color: #80ff80;">"rectangle"</span>).size(<span style="color: #80ff80;">"medium"</span>).place(<span style="color: #80ff80;">"center"</span>).done()
+
+<span style="color: #666;"># Semantic orientations</span>
+box = canvas.shape(<span style="color: #80ff80;">"rectangle"</span>).orient(<span style="color: #80ff80;">"landscape"</span>).place(<span style="color: #80ff80;">"bottom"</span>).done()
+
+<span style="color: #666;"># Relationships</span>
+badge = canvas.shape(<span style="color: #80ff80;">"circle"</span>).attachTo(card, <span style="color: #80ff80;">"top-right-inside"</span>).done()
+
+<span style="color: #666;"># Lines speak connections</span>
+line = canvas.line().fromPoint(<span style="color: #80ff80;">"center"</span>).toPoint(<span style="color: #80ff80;">"top-right"</span>).done()
+</code></pre>
+
+            <h3>Semantic Vocabulary</h3>
+            <table>
+                <thead><tr><th>Category</th><th>Values</th></tr></thead>
+                <tbody>
+                    <tr><td>Positions</td><td>"center", "top", "bottom", "left", "right", "top-left", "top-right", "bottom-left", "bottom-right"</td></tr>
+                    <tr><td>Orientations</td><td>"landscape", "portrait", "diagonal", "facing-up", "facing-down", "facing-left", "facing-right"</td></tr>
+                    <tr><td>Sizes</td><td>"tiny" (0.05), "small" (0.1), "medium" (0.2), "large" (0.4), "huge" (0.6), "full" (1.0)</td></tr>
+                    <tr><td>Relations</td><td>"above", "below", "left-of", "right-of", "top-inside", "bottom-right-outside"</td></tr>
+                </tbody>
+            </table>
+            
+            <h3>Fluent Builder Methods</h3>
+            <table>
+                <thead><tr><th>Method</th><th>Description</th><th>Example</th></tr></thead>
+                <tbody>
+                    <tr><td>.place(position)</td><td>Position with semantic name</td><td>.place("center")</td></tr>
+                    <tr><td>.size(size)</td><td>Size with semantic or numeric</td><td>.size("medium") or .size(200)</td></tr>
+                    <tr><td>.orient(orientation)</td><td>Orientation by name</td><td>.orient("landscape")</td></tr>
+                    <tr><td>.attachTo(target, rel)</td><td>Attach relative to target</td><td>.attachTo(card, "top-inside")</td></tr>
+                    <tr><td>.rotateBy(amount)</td><td>Rotate by semantic amount</td><td>.rotateBy("quarter-turn")</td></tr>
+                    <tr><td>.snapTo(constraint)</td><td>Snap to angle constraint</td><td>.snapTo("golden-angle")</td></tr>
+                    <tr><td>.done()</td><td>Finalize and return Entity</td><td>.done()</td></tr>
+                </tbody>
+            </table>
+            
+            <h3>Expert Mode (Escape Hatch)</h3>
+<pre><code><span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> advanced
+
+<span style="color: #666;"># When you need exact control</span>
+advanced.rotateByRadians(entity, 1.5708)
+advanced.setPosition(entity, 123.45, 67.89)
+advanced.setAngle(entity, 0.785)
+substrate = advanced.substrate(space)  <span style="color: #666;"># Direct substrate access</span></code></pre>
+        </section>
+        
+        <!-- Import -->
+        <section id="import">
+            <h2>Import Statement</h2>
+            
+<pre><code><span style="color: #666;"># Core dimensional substrate API</span>
+<span style="color: #ff80a0;">from</span> helix.dimensional_api <span style="color: #ff80a0;">import</span> (
+    <span style="color: #666;"># Substrates by dimensional depth</span>
+    Substrate, Substrate0D, Substrate1D, Substrate2D, 
+    Substrate3D, Substrate4D,
+    
+    <span style="color: #666;"># Core operations</span>
+    invoke, ingest, invoke_from, materialize,
+    
+    <span style="color: #666;"># Interface class</span>
+    Interface, Object,
+    
+    <span style="color: #666;"># Levels</span>
+    Level, LEVEL_ANGLES,
+    
+    <span style="color: #666;"># SRL - Secure Resource Locator</span>
+    SRL, srl,
+)
+
+<span style="color: #666;"># Geometric substrate for shapes</span>
+<span style="color: #ff80a0;">from</span> helix.geometric_substrate <span style="color: #ff80a0;">import</span> (
+    GeometricSubstrate, Point, Shape, Lens,
+)</code></pre>
+        </section>
+        
+        <!-- Substrates -->
+        <section id="substrates">
+            <h2>Substrates <span class="tag tag-class">classes</span></h2>
+            
+            <p>Substrates are mathematical surfaces. Objects are INGESTED from substrates, not instantiated.</p>
+            
+            <div class="api-box">
+                <h4>Substrate2D (z = xy)</h4>
+                <p>The canonical identity manifold — a saddle surface. This is the FIRST substrate where structure emerges.</p>
+<pre><code>substrate = Substrate2D(name=<span style="color: #80ff80;">"Engine"</span>)
+piston = substrate.ingest(<span style="color: #80ff80;">"Piston"</span>, x=2.0, y=3.0)
+print(piston.z)  <span style="color: #666;"># 6.0 (computed: 2.0 * 3.0)</span></code></pre>
+                <p class="returns"><strong>Formula:</strong> <code>z = x * y</code></p>
+            </div>
+            
+            <div class="api-box">
+                <h4>Substrate3D (m = xyz)</h4>
+                <p>Volumetric interaction manifold — 3D structure where surfaces combine.</p>
+<pre><code>substrate = Substrate3D(name=<span style="color: #80ff80;">"Car"</span>)
+car = substrate.ingest(<span style="color: #80ff80;">"SportsCar"</span>, x=2.0, y=3.0, z=4.0)
+print(car.m)  <span style="color: #666;"># 24.0 (computed: 2.0 * 3.0 * 4.0)</span></code></pre>
+                <p class="returns"><strong>Formula:</strong> <code>m = x * y * z</code></p>
+            </div>
+            
+            <table>
+                <thead><tr><th>Class</th><th>Formula</th><th>Dimensional Depth</th></tr></thead>
+                <tbody>
+                    <tr><td>Substrate0D</td><td>point</td><td>Atomic identity</td></tr>
+                    <tr><td>Substrate1D</td><td>y = x</td><td>Line / connection</td></tr>
+                    <tr><td>Substrate2D</td><td>z = xy</td><td>Plane / surface (first substrate)</td></tr>
+                    <tr><td>Substrate3D</td><td>m = xyz</td><td>Volume / 3D structure</td></tr>
+                    <tr><td>Substrate4D</td><td>q = xyzm</td><td>Completion / spiral twist</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Operations -->
+        <section id="operations">
+            <h2>Operations <span class="tag tag-function">functions</span></h2>
+            
+            <div class="api-box">
+                <h4>substrate.ingest(name, **coords)</h4>
+                <p>Place an object on the substrate at the given coordinates. The object's properties are DERIVED from its position on the manifold.</p>
+<pre><code>obj = substrate.ingest(<span style="color: #80ff80;">"Car"</span>, x=2.0, y=3.0)
+<span style="color: #666;"># obj.z = 6.0 (derived from position)</span>
+<span style="color: #666;"># obj.slope = derivative at position</span>
+<span style="color: #666;"># obj.curvature = second derivative</span></code></pre>
+                <p class="returns"><strong>Returns:</strong> <code>Interface</code> — The object ingested from substrate</p>
+            </div>
+            
+            <div class="api-box">
+                <h4>invoke(obj)</h4>
+                <p>Invoke an object to its next dimensional level. When an object reaches WHOLE (level 6), it becomes a POINT in the parent dimension.</p>
+<pre><code>invoked = invoke(car)
+print(invoked.level)  <span style="color: #666;"># Level.WHOLE</span></code></pre>
+            </div>
+            
+            <div class="api-box">
+                <h4>substrate.evaluate(x, y)</h4>
+                <p>Get the raw value at a position on the substrate. For z=xy, this returns x*y.</p>
+<pre><code>value = substrate.evaluate(2.0, 3.0)  <span style="color: #666;"># 6.0</span></code></pre>
+            </div>
+            
+            <div class="api-box">
+                <h4>obj.at_level(n)</h4>
+                <p>Jump to level n in O(1) time. No iteration, no joins — direct access by manifold geometry.</p>
+<pre><code>obj.at_level(0)  <span style="color: #666;"># VOID (θ=0)</span>
+obj.at_level(3)  <span style="color: #666;"># WIDTH (θ=π/2)</span>
+obj.at_level(6)  <span style="color: #666;"># WHOLE (θ=π)</span></code></pre>
+            </div>
+        </section>
+        
+        <!-- Geometry -->
+        <section id="geometry">
+            <h2>Geometric Properties <span class="tag tag-const">derived</span></h2>
+            
+            <p>All properties are DERIVED from position on the manifold. We do not store what the substrate gives us inherently.</p>
+            
+            <table>
+                <thead><tr><th>Property</th><th>Description</th><th>Derivation</th></tr></thead>
+                <tbody>
+                    <tr><td>point.z</td><td>Value at position</td><td>z = x * y (for Substrate2D)</td></tr>
+                    <tr><td>point.sin</td><td>Sine at position</td><td>sin(x)</td></tr>
+                    <tr><td>point.cos</td><td>Cosine at position</td><td>cos(x)</td></tr>
+                    <tr><td>point.tan</td><td>Tangent at position</td><td>tan(x)</td></tr>
+                    <tr><td>point.slope</td><td>First derivative (dy/dx)</td><td>substrate.derivative(coords)</td></tr>
+                    <tr><td>point.gradient</td><td>Gradient vector</td><td>substrate.gradient(coords)</td></tr>
+                    <tr><td>point.curvature</td><td>Second derivative (d²y/dx²)</td><td>substrate.curvature(coords)</td></tr>
+                    <tr><td>point.tangent</td><td>Tangent vector</td><td>Frenet-Serret frame</td></tr>
+                    <tr><td>point.normal</td><td>Normal vector</td><td>Perpendicular to tangent</td></tr>
+                    <tr><td>point.binormal</td><td>Binormal vector</td><td>tangent × normal</td></tr>
+                    <tr><td>point.torsion</td><td>Rate of twist</td><td>3D curve property</td></tr>
+                    <tr><td>point.distance</td><td>Distance from origin</td><td>√(x² + y² + z²)</td></tr>
+                    <tr><td>point.angle</td><td>Angle from x-axis</td><td>atan2(y, x)</td></tr>
+                    <tr><td>point.quadrant</td><td>Which quadrant (1-4)</td><td>Sign of x, y</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Shapes -->
+        <section id="shapes">
+            <h2>Geometric Shapes <span class="tag tag-const">enum</span></h2>
+            
+            <div class="api-box">
+                <h4>GeometricSubstrate(shape)</h4>
+                <p>Create a geometric substrate with a specific shape. Values are derived from the mathematical form.</p>
+<pre><code>wave = GeometricSubstrate(Shape.SINE)
+point = wave[0.5]
+print(point.value)  <span style="color: #666;"># sin(0.5) ≈ 0.479 (derived, not stored)</span>
+print(point.slope)  <span style="color: #666;"># cos(0.5) ≈ 0.878 (derivative)</span></code></pre>
+            </div>
+            
+            <table>
+                <thead><tr><th>Shape</th><th>Formula</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>Shape.SINE</td><td>y = sin(x)</td><td>Sinusoidal wave</td></tr>
+                    <tr><td>Shape.COSINE</td><td>y = cos(x)</td><td>Cosine wave</td></tr>
+                    <tr><td>Shape.LINE</td><td>y = mx + b</td><td>Linear</td></tr>
+                    <tr><td>Shape.PARABOLA</td><td>y = x²</td><td>Quadratic</td></tr>
+                    <tr><td>Shape.EXPONENTIAL</td><td>y = eˣ</td><td>Exponential growth</td></tr>
+                    <tr><td>Shape.SADDLE</td><td>z = xy</td><td>Hyperbolic paraboloid (2D)</td></tr>
+                    <tr><td>Shape.HELIX</td><td>3D spiral</td><td>Our dimensional helix</td></tr>
+                    <tr><td>Shape.FIBONACCI</td><td>Golden spiral</td><td>Natural growth pattern</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Lens -->
+        <section id="lens">
+            <h2>Lens Interpretations <span class="tag tag-const">enum</span></h2>
+            
+            <p>Same geometry, different interpretation. The lens determines how we read the substrate.</p>
+            
+            <div class="api-box">
+                <h4>point.as_color()</h4>
+                <p>Interpret position as RGB color. Azimuth angle maps to wavelength.</p>
+<pre><code><span style="color: #666;"># 0° = Red (700nm), 120° = Green (510nm), 240° = Blue (450nm)</span>
+rgb = point.as_color()  <span style="color: #666;"># (r, g, b) tuple</span></code></pre>
+            </div>
+            
+            <div class="api-box">
+                <h4>point.as_sound()</h4>
+                <p>Interpret position as sound properties. Magnitude maps to frequency.</p>
+<pre><code>sound = point.as_sound()
+<span style="color: #666;"># {'frequency': Hz, 'amplitude': ..., 'phase': ...}</span></code></pre>
+            </div>
+            
+            <table>
+                <thead><tr><th>Lens</th><th>Maps</th><th>Range</th></tr></thead>
+                <tbody>
+                    <tr><td>Lens.COLOR</td><td>azimuth → wavelength → RGB</td><td>0-360° → visual spectrum</td></tr>
+                    <tr><td>Lens.SOUND</td><td>magnitude → frequency</td><td>20Hz - 20kHz</td></tr>
+                    <tr><td>Lens.LIGHT</td><td>position → wavelength</td><td>380-700nm visible</td></tr>
+                    <tr><td>Lens.VISIBLE</td><td>position → nm</td><td>Visible light spectrum</td></tr>
+                    <tr><td>Lens.AUDIBLE</td><td>position → Hz</td><td>Human hearing range</td></tr>
+                    <tr><td>Lens.THERMAL</td><td>position → temperature</td><td>Kelvin scale</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Levels -->
+        <section id="levels">
+            <h2>The 7 Dimensional Levels <span class="tag tag-const">constants</span></h2>
+            
+            <p>Every object traverses 7 levels on the dimensional spiral. Each level corresponds to a θ angle from 0 to π.</p>
+            
+<pre><code>LEVEL_ANGLES = {
+    0: 0.0,      <span style="color: #666;"># VOID - pure potential (Fib 0)</span>
+    1: π/6,      <span style="color: #666;"># POINT - identity emerges (Fib 1)</span>
+    2: π/3,      <span style="color: #666;"># LINE - relationship/division (Fib 1)</span>
+    3: π/2,      <span style="color: #666;"># WIDTH - plane/multiplication (Fib 2)</span>
+    4: 2π/3,     <span style="color: #666;"># PLANE - surface completeness (Fib 3)</span>
+    5: 5π/6,     <span style="color: #666;"># VOLUME - 3D structure (Fib 5)</span>
+    6: π,        <span style="color: #666;"># WHOLE - complete → becomes POINT in parent (Fib 8)</span>
+}</code></pre>
+            
+            <table>
+                <thead><tr><th>Level</th><th>Name</th><th>θ Angle</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>0</td><td>VOID</td><td>0</td><td>Pure potential, the conical pipeline</td></tr>
+                    <tr><td>1</td><td>POINT</td><td>π/6</td><td>Identity emerges, single value</td></tr>
+                    <tr><td>2</td><td>LINE</td><td>π/3</td><td>Relationship, division of points</td></tr>
+                    <tr><td>3</td><td>WIDTH</td><td>π/2</td><td>Plane, multiplication → first substrate z=xy</td></tr>
+                    <tr><td>4</td><td>PLANE</td><td>2π/3</td><td>Surface completeness</td></tr>
+                    <tr><td>5</td><td>VOLUME</td><td>5π/6</td><td>Depth, 3D structure</td></tr>
+                    <tr><td>6</td><td>WHOLE</td><td>π</td><td>Complete → becomes POINT in parent dimension</td></tr>
+                </tbody>
+            </table>
+            
+            <div class="api-box">
+                <h4>Holy Grail Transition</h4>
+                <p><strong>WHOLE (8) + VOLUME (5) = 13 = POINT of next spiral</strong></p>
+                <ul style="margin: 10px 0 0 20px; color: #b0c0e0;">
+                    <li>Car at Level 6 → becomes a POINT in ParkingLot dimension</li>
+                    <li>ParkingLot at Level 6 → becomes a POINT in City dimension</li>
+                    <li>Fibonacci pattern: 0, 1, 1, 2, 3, 5, 8, 13...</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Footer -->
+        <section style="margin-top: 60px; padding-top: 40px; border-top: 1px solid rgba(100, 150, 255, 0.2);">
+            <p style="text-align: center; color: #666;">
+                ButterflyFX — Dimensional Substrate Computing<br>
+                © 2024-2026 Kenneth Bingham
+            </p>
+        </section>
+    </main>
+</body>
+</html>

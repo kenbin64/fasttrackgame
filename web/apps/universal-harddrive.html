@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Hard Drive | ButterflyFX - Dimensional File Explorer</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Universal Hard Drive - A Windows Explorer-style file browser with dimensional views, universal connectors, and lazy-loaded data sources.">
+    <meta name="keywords" content="ButterflyFX, Universal Hard Drive, file explorer, dimensional computing, data connector">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="product">
+    <meta property="og:url" content="https://butterflyfx.us/apps/universal-harddrive.html">
+    <meta property="og:title" content="Universal Hard Drive | ButterflyFX">
+    <meta property="og:description" content="One interface to browse everything. Files, APIs, databases, cloud storage - all through dimensional coordinates.">
+    
+    <link rel="canonical" href="https://butterflyfx.us/apps/universal-harddrive.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0a0a14;
+            --bg-secondary: #12121f;
+            --bg-tertiary: #1a1a2e;
+            --bg-hover: #252538;
+            --border-color: rgba(100, 150, 255, 0.15);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b8;
+            --text-muted: #6a6a80;
+            --accent-blue: #4080ff;
+            --accent-green: #00d4aa;
+            --accent-orange: #ff9040;
+            --accent-purple: #a060ff;
+            --accent-pink: #ff4080;
+            --panel-bg: rgba(18, 18, 31, 0.95);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Main Layout */
+        .uhd-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        /* Top Header */
+        .uhd-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+        
+        .brand-icon { font-size: 1.4em; }
+        
+        .brand-text {
+            background: linear-gradient(135deg, #4080ff, #00d4aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Toolbar */
+        .uhd-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .toolbar-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+        
+        .toolbar-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border-color: var(--accent-blue);
+        }
+        
+        .toolbar-btn.highlight {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border: none;
+            color: white;
+        }
+        
+        .toolbar-separator {
+            width: 1px;
+            height: 24px;
+            background: var(--border-color);
+            margin: 0 4px;
+        }
+        
+        .address-bar {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 12px;
+            max-width: 600px;
+        }
+        
+        .address-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            padding: 10px 8px;
+            outline: none;
+            font-family: 'JetBrains Mono', monospace, sans-serif;
+            font-size: 0.9em;
+        }
+        
+        .address-icon { color: var(--accent-blue); }
+        
+        /* Main Content Area */
+        .uhd-main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* Left Panel - Navigation */
+        .uhd-left-panel {
+            width: 280px;
+            background: var(--panel-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .panel-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .nav-section {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .nav-section-header {
+            padding: 8px 16px;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .nav-item {
+            padding: 8px 16px 8px 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 0.9em;
+        }
+        
+        .nav-item:hover { background: var(--bg-hover); }
+        
+        .nav-item.active {
+            background: rgba(64, 128, 255, 0.15);
+            border-left: 3px solid var(--accent-blue);
+        }
+        
+        .nav-item .nav-icon { font-size: 1.1em; }
+        
+        .nav-item .nav-count {
+            margin-left: auto;
+            background: var(--bg-tertiary);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            color: var(--text-muted);
+        }
+        
+        /* Connector Grid */
+        .connector-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 12px;
+        }
+        
+        .connector-btn {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.4em;
+            position: relative;
+        }
+        
+        .connector-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+        
+        .connector-btn.connected::after {
+            content: '✓';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            font-size: 0.5em;
+            color: var(--accent-green);
+        }
+        
+        .connector-btn .connector-label {
+            font-size: 0.4em;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            text-align: center;
+        }
+        
+        /* Middle Panel - Content */
+        .uhd-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* View Tabs */
+        .view-tabs {
+            display: flex;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 8px;
+        }
+        
+        .view-tab {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+        }
+        
+        .view-tab:hover { color: var(--text-primary); }
+        
+        .view-tab.active {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+        }
+        
+        /* View Panels */
+        .view-panel {
+            flex: 1;
+            display: none;
+            overflow: auto;
+        }
+        
+        .view-panel.active { display: flex; flex-direction: column; }
+        
+        /* Folder View */
+        .folder-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+        
+        .crumb {
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .crumb:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .crumb.current { color: var(--text-primary); font-weight: 500; }
+        .crumb-sep { color: var(--text-muted); }
+        
+        .folder-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .view-mode-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .view-mode-btn.active {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+        
+        .folder-content {
+            flex: 1;
+            padding: 16px;
+            overflow: auto;
+        }
+        
+        .folder-content.grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 16px;
+            align-content: start;
+        }
+        
+        .folder-content.list-view {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        /* File/Folder Items */
+        .file-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .file-item:hover { background: var(--bg-hover); }
+        
+        .file-item.selected {
+            background: rgba(64, 128, 255, 0.2);
+            outline: 2px solid var(--accent-blue);
+        }
+        
+        .file-icon { font-size: 2.5em; }
+        
+        .file-name {
+            font-size: 0.85em;
+            text-align: center;
+            word-break: break-word;
+            max-width: 100%;
+        }
+        
+        /* List view items */
+        .folder-content.list-view .file-item {
+            flex-direction: row;
+            gap: 12px;
+            padding: 8px 16px;
+        }
+        
+        .folder-content.list-view .file-icon { font-size: 1.2em; }
+        
+        .folder-content.list-view .file-name {
+            flex: 1;
+            text-align: left;
+        }
+        
+        .file-meta {
+            display: none;
+            font-size: 0.8em;
+            color: var(--text-muted);
+            gap: 24px;
+        }
+        
+        .folder-content.list-view .file-meta { display: flex; }
+        
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            min-width: 200px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            display: none;
+            padding: 4px 0;
+        }
+        
+        .context-menu.visible { display: block; }
+        
+        .context-item {
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+            position: relative;
+        }
+        
+        .context-item:hover { background: var(--bg-hover); }
+        
+        .context-separator {
+            height: 1px;
+            background: var(--border-color);
+            margin: 4px 8px;
+        }
+        
+        .context-submenu {
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            min-width: 180px;
+            display: none;
+            padding: 4px 0;
+        }
+        
+        .context-item:hover .context-submenu { display: block; }
+        
+        .submenu-arrow {
+            margin-left: auto;
+            font-size: 0.8em;
+            color: var(--text-muted);
+        }
+        
+        /* Table View */
+        .table-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .table-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        
+        .table-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+        
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            padding: 16px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            user-select: none;
+            position: sticky;
+            top: 0;
+        }
+        
+        .data-table th:hover { color: var(--text-primary); }
+        
+        .data-table tr:hover { background: var(--bg-hover); }
+        
+        .table-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+        
+        /* Dimension View */
+        .dimension-view-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .dimension-helix {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            min-width: 300px;
+        }
+        
+        .dimension-level {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .dimension-level:hover { background: var(--bg-hover); }
+        
+        .dimension-level.active {
+            background: rgba(64, 128, 255, 0.2);
+            border-left: 3px solid var(--accent-blue);
+        }
+        
+        .dim-indicator {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 1.1em;
+        }
+        
+        .dim-indicator.d0 { background: rgba(100, 100, 120, 0.3); }
+        .dim-indicator.d1 { background: rgba(255, 100, 100, 0.3); }
+        .dim-indicator.d2 { background: rgba(255, 180, 100, 0.3); }
+        .dim-indicator.d3 { background: rgba(255, 255, 100, 0.3); }
+        .dim-indicator.d4 { background: rgba(100, 255, 100, 0.3); }
+        .dim-indicator.d5 { background: rgba(100, 200, 255, 0.3); }
+        .dim-indicator.d6 { background: rgba(180, 100, 255, 0.3); }
+        
+        .dim-info { flex: 1; }
+        .dim-name { font-weight: 600; font-size: 0.95em; }
+        .dim-desc { font-size: 0.8em; color: var(--text-muted); }
+        
+        .dim-count {
+            background: var(--bg-primary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+        
+        .dimension-items {
+            flex: 1;
+            padding: 16px;
+            overflow: auto;
+        }
+        
+        /* Reports View */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            padding: 16px;
+        }
+        
+        .report-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .report-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+        
+        .report-icon { font-size: 2em; margin-bottom: 12px; }
+        .report-title { font-weight: 600; margin-bottom: 8px; }
+        .report-desc { font-size: 0.85em; color: var(--text-secondary); margin-bottom: 12px; }
+        
+        .report-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 0.8em;
+            color: var(--text-muted);
+        }
+        
+        .report-create-btn {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border: 2px dashed var(--accent-blue);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            min-height: 160px;
+        }
+        
+        /* Right Panel - Details */
+        .uhd-right-panel {
+            width: 320px;
+            background: var(--panel-bg);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .details-preview {
+            padding: 16px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .preview-icon { font-size: 4em; margin-bottom: 12px; }
+        .preview-name { font-weight: 600; margin-bottom: 8px; }
+        
+        .details-properties {
+            padding: 16px;
+        }
+        
+        .property-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9em;
+        }
+        
+        .property-label { color: var(--text-secondary); }
+        .property-value { color: var(--text-primary); }
+        
+        /* Connection Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+        }
+        
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-header h2 { font-size: 1.2em; }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        
+        .modal-body { padding: 24px; }
+        
+        .form-group { margin-bottom: 16px; }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.95em;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+        }
+        
+        /* Connector Categories */
+        .connector-category {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .category-header {
+            font-size: 0.75em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        
+        /* Status Bar */
+        .uhd-statusbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 16px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            font-size: 0.8em;
+            color: var(--text-muted);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+        }
+        
+        .status-indicator.passive { background: var(--accent-orange); }
+        .status-indicator.offline { background: #666; }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .uhd-right-panel { display: none; }
+        }
+        
+        @media (max-width: 768px) {
+            .uhd-left-panel { 
+                position: absolute;
+                left: -280px;
+                height: 100%;
+                z-index: 1000;
+                transition: left 0.3s;
+            }
+            .uhd-left-panel.open { left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="uhd-container">
+        <!-- Header -->
+        <header class="uhd-header">
+            <div class="brand-logo">
+                <span class="brand-icon">🦋</span>
+                <span class="brand-text">Universal Hard Drive</span>
+            </div>
+            <nav style="display: flex; gap: 16px; margin-left: auto;">
+                <a href="/index.html" style="color: var(--text-secondary); text-decoration: none;">Home</a>
+                <a href="/apps/index.html" style="color: var(--text-secondary); text-decoration: none;">Apps</a>
+                <a href="/docs/api-reference.html" style="color: var(--text-secondary); text-decoration: none;">API</a>
+            </nav>
+        </header>
+        
+        <!-- Toolbar -->
+        <div class="uhd-toolbar">
+            <button class="toolbar-btn" id="btn-back" title="Back">◀</button>
+            <button class="toolbar-btn" id="btn-forward" title="Forward">▶</button>
+            <button class="toolbar-btn" id="btn-up" title="Up">⬆</button>
+            <button class="toolbar-btn" id="btn-refresh" title="Refresh">⟳</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" id="btn-home" title="Home">🏠</button>
+            
+            <div class="address-bar">
+                <span class="address-icon">📍</span>
+                <input type="text" id="address-input" value="substrate://local/" placeholder="substrate://...">
+            </div>
+            
+            <button class="toolbar-btn highlight" id="btn-connect" title="New Connection">
+                <span>🔗</span>
+                <span>Connect</span>
+            </button>
+            <button class="toolbar-btn" id="btn-settings" title="Settings">⚙️</button>
+        </div>
+        
+        <!-- Main Area -->
+        <div class="uhd-main">
+            <!-- Left Panel - Navigation -->
+            <aside class="uhd-left-panel">
+                <div class="panel-header">
+                    <span>🗂️ Navigator</span>
+                </div>
+                
+                <!-- Quick Access -->
+                <div class="nav-section">
+                    <div class="nav-section-header">⚡ Quick Access</div>
+                    <div class="nav-item active" data-path="substrate://local/">
+                        <span class="nav-icon">💾</span>
+                        <span>Local Substrates</span>
+                    </div>
+                    <div class="nav-item" data-path="substrate://recent/">
+                        <span class="nav-icon">🕐</span>
+                        <span>Recent</span>
+                    </div>
+                    <div class="nav-item" data-path="substrate://favorites/">
+                        <span class="nav-icon">⭐</span>
+                        <span>Favorites</span>
+                    </div>
+                </div>
+                
+                <!-- Connected Sources -->
+                <div class="nav-section">
+                    <div class="nav-section-header">🔗 Connected Sources <span id="connection-count">(0)</span></div>
+                    <div id="connected-sources">
+                        <div style="padding: 8px 24px; color: var(--text-muted); font-size: 0.85em;">
+                            No connections yet
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Connectors -->
+                <div class="connector-category">
+                    <div class="category-header">☁️ Cloud Storage</div>
+                    <div class="connector-grid">
+                        <div class="connector-btn" data-connector="google-drive" title="Google Drive">
+                            📁
+                            <span class="connector-label">Drive</span>
+                        </div>
+                        <div class="connector-btn" data-connector="dropbox" title="Dropbox">
+                            📦
+                            <span class="connector-label">Dropbox</span>
+                        </div>
+                        <div class="connector-btn" data-connector="onedrive" title="OneDrive">
+                            ☁️
+                            <span class="connector-label">OneDrive</span>
+                        </div>
+                        <div class="connector-btn" data-connector="s3" title="AWS S3">
+                            🪣
+                            <span class="connector-label">S3</span>
+                        </div>
+                        <div class="connector-btn" data-connector="azure-blob" title="Azure Blob">
+                            🔷
+                            <span class="connector-label">Azure</span>
+                        </div>
+                        <div class="connector-btn" data-connector="gcs" title="Google Cloud Storage">
+                            🌐
+                            <span class="connector-label">GCS</span>
+                        </div>
+                        <div class="connector-btn" data-connector="box" title="Box">
+                            📥
+                            <span class="connector-label">Box</span>
+                        </div>
+                        <div class="connector-btn" data-connector="icloud" title="iCloud">
+                            🍎
+                            <span class="connector-label">iCloud</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="connector-category">
+                    <div class="category-header">🗄️ Databases</div>
+                    <div class="connector-grid">
+                        <div class="connector-btn" data-connector="postgres" title="PostgreSQL">
+                            🐘
+                            <span class="connector-label">Postgres</span>
+                        </div>
+                        <div class="connector-btn" data-connector="mysql" title="MySQL">
+                            🐬
+                            <span class="connector-label">MySQL</span>
+                        </div>
+                        <div class="connector-btn" data-connector="mongodb" title="MongoDB">
+                            🍃
+                            <span class="connector-label">Mongo</span>
+                        </div>
+                        <div class="connector-btn" data-connector="redis" title="Redis">
+                            🔴
+                            <span class="connector-label">Redis</span>
+                        </div>
+                        <div class="connector-btn" data-connector="sqlite" title="SQLite">
+                            📘
+                            <span class="connector-label">SQLite</span>
+                        </div>
+                        <div class="connector-btn" data-connector="supabase" title="Supabase">
+                            ⚡
+                            <span class="connector-label">Supabase</span>
+                        </div>
+                        <div class="connector-btn" data-connector="firebase" title="Firebase">
+                            🔥
+                            <span class="connector-label">Firebase</span>
+                        </div>
+                        <div class="connector-btn" data-connector="airtable" title="Airtable">
+                            📊
+                            <span class="connector-label">Airtable</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="connector-category">
+                    <div class="category-header">📧 Email & Calendar</div>
+                    <div class="connector-grid">
+                        <div class="connector-btn" data-connector="gmail" title="Gmail">
+                            📧
+                            <span class="connector-label">Gmail</span>
+                        </div>
+                        <div class="connector-btn" data-connector="outlook" title="Outlook">
+                            📬
+                            <span class="connector-label">Outlook</span>
+                        </div>
+                        <div class="connector-btn" data-connector="gcal" title="Google Calendar">
+                            📅
+                            <span class="connector-label">Calendar</span>
+                        </div>
+                        <div class="connector-btn" data-connector="imap" title="IMAP">
+                            ✉️
+                            <span class="connector-label">IMAP</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="connector-category">
+                    <div class="category-header">📊 APIs & Feeds</div>
+                    <div class="connector-grid">
+                        <div class="connector-btn" data-connector="rest" title="REST API">
+                            🔌
+                            <span class="connector-label">REST</span>
+                        </div>
+                        <div class="connector-btn" data-connector="graphql" title="GraphQL">
+                            ◇
+                            <span class="connector-label">GraphQL</span>
+                        </div>
+                        <div class="connector-btn" data-connector="rss" title="RSS Feed">
+                            📰
+                            <span class="connector-label">RSS</span>
+                        </div>
+                        <div class="connector-btn" data-connector="websocket" title="WebSocket">
+                            ⚡
+                            <span class="connector-label">WS</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="connector-category">
+                    <div class="category-header">💰 Finance & Data</div>
+                    <div class="connector-grid">
+                        <div class="connector-btn" data-connector="alphavantage" title="Alpha Vantage">
+                            📈
+                            <span class="connector-label">Stocks</span>
+                        </div>
+                        <div class="connector-btn" data-connector="coingecko" title="CoinGecko">
+                            🦎
+                            <span class="connector-label">Crypto</span>
+                        </div>
+                        <div class="connector-btn" data-connector="weather" title="Weather API">
+                            🌤️
+                            <span class="connector-label">Weather</span>
+                        </div>
+                        <div class="connector-btn" data-connector="news" title="News API">
+                            📰
+                            <span class="connector-label">News</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+            
+            <!-- Middle Content -->
+            <main class="uhd-content">
+                <!-- View Tabs -->
+                <div class="view-tabs">
+                    <button class="view-tab active" data-view="folder">
+                        <span>📁</span> Files
+                    </button>
+                    <button class="view-tab" data-view="table">
+                        <span>📊</span> Table
+                    </button>
+                    <button class="view-tab" data-view="dimension">
+                        <span>🌀</span> Dimension
+                    </button>
+                    <button class="view-tab" data-view="reports">
+                        <span>📋</span> Reports
+                    </button>
+                </div>
+                
+                <!-- Folder View -->
+                <div class="view-panel active" id="folder-view">
+                    <div class="folder-toolbar">
+                        <div class="breadcrumb">
+                            <span class="crumb" data-path="/">🏠 Home</span>
+                            <span class="crumb-sep">›</span>
+                            <span class="crumb current" data-path="/local">Local</span>
+                        </div>
+                        <div class="folder-controls">
+                            <select id="sort-by" style="padding: 6px; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px;">
+                                <option>Sort: Name</option>
+                                <option>Sort: Date</option>
+                                <option>Sort: Size</option>
+                                <option>Sort: Type</option>
+                            </select>
+                            <button class="view-mode-btn active" data-mode="grid">⊞</button>
+                            <button class="view-mode-btn" data-mode="list">☰</button>
+                        </div>
+                    </div>
+                    
+                    <div class="folder-content grid-view" id="folder-content">
+                        <!-- Demo items -->
+                        <div class="file-item" data-type="folder" data-name="Documents">
+                            <span class="file-icon">📁</span>
+                            <span class="file-name">Documents</span>
+                        </div>
+                        <div class="file-item" data-type="folder" data-name="Projects">
+                            <span class="file-icon">📂</span>
+                            <span class="file-name">Projects</span>
+                        </div>
+                        <div class="file-item" data-type="folder" data-name="Substrates">
+                            <span class="file-icon">🌀</span>
+                            <span class="file-name">Substrates</span>
+                        </div>
+                        <div class="file-item" data-type="file" data-name="config.json">
+                            <span class="file-icon">📄</span>
+                            <span class="file-name">config.json</span>
+                        </div>
+                        <div class="file-item" data-type="file" data-name="data.helix">
+                            <span class="file-icon">🧬</span>
+                            <span class="file-name">data.helix</span>
+                        </div>
+                        <div class="file-item" data-type="connection" data-name="Stock API (lazy)">
+                            <span class="file-icon">📈</span>
+                            <span class="file-name">Stock API (lazy)</span>
+                        </div>
+                        <div class="file-item" data-type="connection" data-name="Weather Feed">
+                            <span class="file-icon">🌤️</span>
+                            <span class="file-name">Weather Feed</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Table View -->
+                <div class="view-panel" id="table-view">
+                    <div class="table-toolbar">
+                        <button class="table-btn">➕ Add Column</button>
+                        <button class="table-btn">🔍 Filter</button>
+                        <button class="table-btn">⬇ Sort</button>
+                        <button class="table-btn">📊 Group</button>
+                        <div style="flex:1"></div>
+                        <button class="table-btn">📤 Export CSV</button>
+                        <button class="table-btn">📤 Export JSON</button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Source</th>
+                                    <th>Dimension</th>
+                                    <th>Modified</th>
+                                    <th>Size</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <tr>
+                                    <td>📁 Documents</td>
+                                    <td>Folder</td>
+                                    <td>Local</td>
+                                    <td>5 (Volume)</td>
+                                    <td>Feb 15, 2026</td>
+                                    <td>234 items</td>
+                                    <td><span class="status-indicator"></span> Live</td>
+                                </tr>
+                                <tr>
+                                    <td>📈 AAPL Stock</td>
+                                    <td>API Feed</td>
+                                    <td>Alpha Vantage</td>
+                                    <td>4 (Plane)</td>
+                                    <td>5 min ago</td>
+                                    <td>-</td>
+                                    <td><span class="status-indicator passive"></span> Lazy</td>
+                                </tr>
+                                <tr>
+                                    <td>🌤️ Weather NYC</td>
+                                    <td>API Feed</td>
+                                    <td>Open-Meteo</td>
+                                    <td>3 (Width)</td>
+                                    <td>2 hr ago</td>
+                                    <td>-</td>
+                                    <td><span class="status-indicator"></span> Cached</td>
+                                </tr>
+                                <tr>
+                                    <td>🧬 data.helix</td>
+                                    <td>Substrate</td>
+                                    <td>Local</td>
+                                    <td>6 (Whole)</td>
+                                    <td>Feb 14, 2026</td>
+                                    <td>1.2 KB</td>
+                                    <td><span class="status-indicator"></span> Saved</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="table-pagination">
+                        <span>Showing 1-4 of 4 items</span>
+                        <div>
+                            <button class="table-btn">◀</button>
+                            <span style="margin: 0 12px;">Page 1</span>
+                            <button class="table-btn">▶</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dimension View -->
+                <div class="view-panel" id="dimension-view">
+                    <div class="dimension-view-content">
+                        <div class="dimension-helix">
+                            <div class="dimension-level active" data-dim="6">
+                                <div class="dim-indicator d6">◉</div>
+                                <div class="dim-info">
+                                    <div class="dim-name">6. Whole / Rest</div>
+                                    <div class="dim-desc">Complete units, spirals up</div>
+                                </div>
+                                <span class="dim-count">3</span>
+                            </div>
+                            <div class="dimension-level" data-dim="5">
+                                <div class="dim-indicator d5">▣</div>
+                                <div class="dim-info">
+                                    <div class="dim-name">5. Life / Volume</div>
+                                    <div class="dim-desc">Collections, categories</div>
+                                </div>
+                                <span class="dim-count">15</span>
+                            </div>
+                            <div class="dimension-level" data-dim="4">
+                                <div class="dim-indicator d4">▦</div>
+                                <div class="dim-info">
+                                    <div class="dim-name">4. Environment / Plane</div>
+                                    <div class="dim-desc">Full tables, grids</div>
+                                </div>
+                                <span class="dim-count">42</span>
+                            </div>
+                            <div class="dimension-level" data-dim="3">
+                                <div class="dim-indicator d3">▭</div>
+                                <div class="dim-info">
+                                    <div class="dim-name">3. Structure / Width</div>
+                                    <div class="dim-desc">Properties, columns</div>
+                                </div>
+                                <span class="dim-count">186</span>
+                            </div>
+                            <div class="dimension-level" data-dim="2">
+                                <div class="dim-indicator d2">━</div>
+                                <div class="dim-info">
+                                    <div class="dim-name">2. Relationship / Length</div>
+                                    <div class="dim-desc">Sequences, lists</div>
+                                </div>
+                                <span class="dim-count">523</span>
+                            </div>
+                            <div class="dimension-level" data-dim="1">
+                                <div class="dim-indicator d1">•</div>
+                                <div class="dim-info">
+                                    <div class="dim-name">1. Identity / Point</div>
+                                    <div class="dim-desc">Single values</div>
+                                </div>
+                                <span class="dim-count">2,847</span>
+                            </div>
+                            <div class="dimension-level" data-dim="0">
+                                <div class="dim-indicator d0">○</div>
+                                <div class="dim-info">
+                                    <div class="dim-name">0. Potential</div>
+                                    <div class="dim-desc">Unallocated, lazy-loaded</div>
+                                </div>
+                                <span class="dim-count">∞</span>
+                            </div>
+                        </div>
+                        
+                        <div class="dimension-items">
+                            <div style="padding: 20px;">
+                                <h3 style="margin-bottom: 16px;">Dimension 6: Whole / Rest (3 items)</h3>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+                                    <div class="file-item" style="background: var(--bg-secondary); border-radius: 8px;">
+                                        <span class="file-icon">🧬</span>
+                                        <span class="file-name">Complete Dataset</span>
+                                    </div>
+                                    <div class="file-item" style="background: var(--bg-secondary); border-radius: 8px;">
+                                        <span class="file-icon">📊</span>
+                                        <span class="file-name">Annual Report 2025</span>
+                                    </div>
+                                    <div class="file-item" style="background: var(--bg-secondary); border-radius: 8px;">
+                                        <span class="file-icon">🏢</span>
+                                        <span class="file-name">Organization Map</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Reports View -->
+                <div class="view-panel" id="reports-view">
+                    <div class="reports-grid">
+                        <div class="report-card report-create-btn" id="create-report">
+                            <span style="font-size: 2em;">➕</span>
+                            <span>Create New Report</span>
+                        </div>
+                        
+                        <div class="report-card">
+                            <div class="report-icon">📊</div>
+                            <div class="report-title">Daily Stock Summary</div>
+                            <div class="report-desc">Automated daily summary of tracked stocks with price changes and alerts.</div>
+                            <div class="report-meta">
+                                <span>📅 Runs daily</span>
+                                <span>📧 Email delivery</span>
+                            </div>
+                        </div>
+                        
+                        <div class="report-card">
+                            <div class="report-icon">🌤️</div>
+                            <div class="report-title">Weather Weekly</div>
+                            <div class="report-desc">7-day forecast compilation for all saved locations.</div>
+                            <div class="report-meta">
+                                <span>📅 Runs weekly</span>
+                                <span>💾 PDF export</span>
+                            </div>
+                        </div>
+                        
+                        <div class="report-card">
+                            <div class="report-icon">📈</div>
+                            <div class="report-title">Portfolio Performance</div>
+                            <div class="report-desc">Monthly analysis of investment portfolio with dimensional breakdown.</div>
+                            <div class="report-meta">
+                                <span>📅 Runs monthly</span>
+                                <span>📊 Dashboard</span>
+                            </div>
+                        </div>
+                        
+                        <div class="report-card">
+                            <div class="report-icon">🔗</div>
+                            <div class="report-title">Connection Health</div>
+                            <div class="report-desc">Status of all connected data sources, last sync times, and delta changes.</div>
+                            <div class="report-meta">
+                                <span>⚡ Real-time</span>
+                                <span>🌀 Dimensional</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            
+            <!-- Right Panel - Details -->
+            <aside class="uhd-right-panel">
+                <div class="panel-header">
+                    <span>📋 Details</span>
+                </div>
+                
+                <div class="details-preview">
+                    <div class="preview-icon">📁</div>
+                    <div class="preview-name">Documents</div>
+                    <div style="color: var(--text-muted); font-size: 0.9em;">Folder</div>
+                </div>
+                
+                <div class="details-properties">
+                    <div class="property-row">
+                        <span class="property-label">Type</span>
+                        <span class="property-value">Folder</span>
+                    </div>
+                    <div class="property-row">
+                        <span class="property-label">Source</span>
+                        <span class="property-value">Local Substrate</span>
+                    </div>
+                    <div class="property-row">
+                        <span class="property-label">Dimension</span>
+                        <span class="property-value">5 (Volume)</span>
+                    </div>
+                    <div class="property-row">
+                        <span class="property-label">Items</span>
+                        <span class="property-value">234</span>
+                    </div>
+                    <div class="property-row">
+                        <span class="property-label">Modified</span>
+                        <span class="property-value">Feb 15, 2026</span>
+                    </div>
+                    <div class="property-row">
+                        <span class="property-label">Status</span>
+                        <span class="property-value" style="color: var(--accent-green);">● Live</span>
+                    </div>
+                    <div class="property-row">
+                        <span class="property-label">SRL</span>
+                        <span class="property-value" style="font-family: monospace; font-size: 0.8em;">substrate://local/documents</span>
+                    </div>
+                </div>
+                
+                <div style="padding: 16px; border-top: 1px solid var(--border-color);">
+                    <h4 style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 12px;">DATA POLICY</h4>
+                    <div style="font-size: 0.8em; color: var(--text-secondary); line-height: 1.5;">
+                        <p>• <strong>Lazy Loading:</strong> Data remains on remote source until accessed</p>
+                        <p style="margin-top: 8px;">• <strong>Delta Sync:</strong> Only changes fetched on revisit</p>
+                        <p style="margin-top: 8px;">• <strong>SRL Storage:</strong> Only recreation info saved locally (if explicitly saved)</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+        
+        <!-- Status Bar -->
+        <footer class="uhd-statusbar">
+            <div class="status-item">
+                <span class="status-indicator"></span>
+                <span>4 items</span>
+            </div>
+            <div class="status-item">
+                <span>3 connections</span>
+                <span>•</span>
+                <span>2 lazy</span>
+                <span>•</span>
+                <span>1 cached</span>
+            </div>
+            <div class="status-item">
+                <span>Dimension: 5 (Volume)</span>
+            </div>
+        </footer>
+        
+        <!-- Context Menu -->
+        <div class="context-menu" id="context-menu">
+            <div class="context-item" data-action="open">📂 Open</div>
+            <div class="context-item" data-action="preview">👁️ Preview</div>
+            <div class="context-item" data-action="newTab">🗂️ Open in New Tab</div>
+            <div class="context-separator"></div>
+            <div class="context-item" data-action="cut">✂️ Cut</div>
+            <div class="context-item" data-action="copy">📋 Copy</div>
+            <div class="context-item" data-action="paste">📥 Paste</div>
+            <div class="context-separator"></div>
+            <div class="context-item" data-action="sendTo">
+                📤 Send To
+                <span class="submenu-arrow">▶</span>
+                <div class="context-submenu">
+                    <div class="context-item">🖥️ Desktop</div>
+                    <div class="context-item">📦 Compressed</div>
+                    <div class="context-item">✉️ Email</div>
+                </div>
+            </div>
+            <div class="context-separator"></div>
+            <div class="context-item" data-action="dimension">
+                🌀 Dimensional Drill
+                <span class="submenu-arrow">▶</span>
+                <div class="context-submenu">
+                    <div class="context-item">🔽 Drill Down</div>
+                    <div class="context-item">🔼 Drill Up</div>
+                    <div class="context-item">📐 View Level</div>
+                </div>
+            </div>
+            <div class="context-separator"></div>
+            <div class="context-item" data-action="rename">✏️ Rename</div>
+            <div class="context-item" data-action="delete">🗑️ Delete</div>
+            <div class="context-separator"></div>
+            <div class="context-item" data-action="properties">ℹ️ Properties</div>
+        </div>
+        
+        <!-- Connection Modal -->
+        <div class="modal-overlay" id="connection-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🔗 New Connection</h2>
+                    <button class="modal-close" id="close-modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Connection Type</label>
+                        <select id="conn-type">
+                            <option value="">Select type...</option>
+                            <optgroup label="Cloud Storage">
+                                <option value="google-drive">📁 Google Drive</option>
+                                <option value="dropbox">📦 Dropbox</option>
+                                <option value="onedrive">☁️ OneDrive</option>
+                                <option value="s3">🪣 AWS S3</option>
+                                <option value="azure">🔷 Azure Blob</option>
+                            </optgroup>
+                            <optgroup label="Databases">
+                                <option value="postgres">🐘 PostgreSQL</option>
+                                <option value="mysql">🐬 MySQL</option>
+                                <option value="mongodb">🍃 MongoDB</option>
+                                <option value="supabase">⚡ Supabase</option>
+                            </optgroup>
+                            <optgroup label="APIs">
+                                <option value="rest">🔌 REST API</option>
+                                <option value="graphql">◇ GraphQL</option>
+                                <option value="alphavantage">📈 Alpha Vantage (Stocks)</option>
+                                <option value="weather">🌤️ Weather API</option>
+                            </optgroup>
+                            <optgroup label="Email">
+                                <option value="gmail">📧 Gmail</option>
+                                <option value="outlook">📬 Outlook</option>
+                                <option value="imap">✉️ IMAP</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Connection Name</label>
+                        <input type="text" id="conn-name" placeholder="My Connection">
+                    </div>
+                    
+                    <div class="form-group" id="api-key-group" style="display: none;">
+                        <label>API Key</label>
+                        <input type="password" id="conn-apikey" placeholder="Enter API key...">
+                    </div>
+                    
+                    <div class="form-group" id="url-group" style="display: none;">
+                        <label>URL / Endpoint</label>
+                        <input type="url" id="conn-url" placeholder="https://...">
+                    </div>
+                    
+                    <div style="margin-top: 24px; padding: 16px; background: var(--bg-primary); border-radius: 8px;">
+                        <h4 style="font-size: 0.85em; color: var(--accent-blue); margin-bottom: 8px;">🛡️ Data Policy</h4>
+                        <ul style="font-size: 0.8em; color: var(--text-secondary); line-height: 1.6; padding-left: 16px;">
+                            <li><strong>Passive/Lazy:</strong> Data stays on remote source</li>
+                            <li><strong>Invoking:</strong> Loaded into kernel substrate on access</li>
+                            <li><strong>Delta Only:</strong> Only changes checked on revisit</li>
+                            <li><strong>SRL Only:</strong> Only substrate reference link saved (if you choose to save)</li>
+                        </ul>
+                    </div>
+                    
+                    <button class="btn-primary" style="margin-top: 24px;" id="btn-save-connection">
+                        Connect (Lazy Load)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ================================================================
+        // UNIVERSAL HARD DRIVE - Core JavaScript
+        // ================================================================
+        
+        // State
+        const state = {
+            currentPath: 'substrate://local/',
+            selectedItems: [],
+            connections: [],
+            viewMode: 'grid',
+            currentView: 'folder',
+            history: ['substrate://local/'],
+            historyIndex: 0
+        };
+        
+        // ================================================================
+        // PRE-CONFIGURED CONNECTORS
+        // ================================================================
+        const CONNECTORS = {
+            // Cloud Storage
+            'google-drive': { name: 'Google Drive', icon: '📁', authType: 'oauth', signupUrl: 'https://console.developers.google.com/', fields: ['client_id', 'client_secret'] },
+            'dropbox': { name: 'Dropbox', icon: '📦', authType: 'oauth', signupUrl: 'https://www.dropbox.com/developers/apps', fields: ['access_token'] },
+            'onedrive': { name: 'OneDrive', icon: '☁️', authType: 'oauth', signupUrl: 'https://portal.azure.com/', fields: ['client_id', 'client_secret'] },
+            's3': { name: 'AWS S3', icon: '🪣', authType: 'key', signupUrl: 'https://aws.amazon.com/s3/', fields: ['access_key', 'secret_key', 'bucket', 'region'] },
+            'azure-blob': { name: 'Azure Blob', icon: '🔷', authType: 'key', signupUrl: 'https://portal.azure.com/', fields: ['account_name', 'account_key', 'container'] },
+            'gcs': { name: 'Google Cloud Storage', icon: '🌐', authType: 'oauth', signupUrl: 'https://console.cloud.google.com/', fields: ['credentials_json'] },
+            'box': { name: 'Box', icon: '📥', authType: 'oauth', signupUrl: 'https://developer.box.com/', fields: ['client_id', 'client_secret'] },
+            'icloud': { name: 'iCloud', icon: '🍎', authType: 'oauth', fields: ['apple_id', 'app_password'] },
+            
+            // Databases
+            'postgres': { name: 'PostgreSQL', icon: '🐘', authType: 'conn', fields: ['host', 'port', 'database', 'user', 'password'] },
+            'mysql': { name: 'MySQL', icon: '🐬', authType: 'conn', fields: ['host', 'port', 'database', 'user', 'password'] },
+            'mongodb': { name: 'MongoDB', icon: '🍃', authType: 'conn', fields: ['connection_string'] },
+            'redis': { name: 'Redis', icon: '🔴', authType: 'conn', fields: ['host', 'port', 'password'] },
+            'sqlite': { name: 'SQLite', icon: '📘', authType: 'file', fields: ['file_path'] },
+            'supabase': { name: 'Supabase', icon: '⚡', authType: 'key', signupUrl: 'https://supabase.com/', fields: ['project_url', 'anon_key'] },
+            'firebase': { name: 'Firebase', icon: '🔥', authType: 'key', signupUrl: 'https://console.firebase.google.com/', fields: ['project_id', 'api_key'] },
+            'airtable': { name: 'Airtable', icon: '📊', authType: 'key', signupUrl: 'https://airtable.com/developers', fields: ['api_key', 'base_id'] },
+            
+            // Email & Calendar  
+            'gmail': { name: 'Gmail', icon: '📧', authType: 'oauth', signupUrl: 'https://console.developers.google.com/', fields: [] },
+            'outlook': { name: 'Outlook', icon: '📬', authType: 'oauth', signupUrl: 'https://portal.azure.com/', fields: [] },
+            'gcal': { name: 'Google Calendar', icon: '📅', authType: 'oauth', signupUrl: 'https://console.developers.google.com/', fields: [] },
+            'imap': { name: 'IMAP', icon: '✉️', authType: 'conn', fields: ['host', 'port', 'user', 'password'] },
+            
+            // APIs
+            'rest': { name: 'REST API', icon: '🔌', authType: 'custom', fields: ['base_url', 'auth_header'] },
+            'graphql': { name: 'GraphQL', icon: '◇', authType: 'custom', fields: ['endpoint', 'auth_header'] },
+            'rss': { name: 'RSS Feed', icon: '📰', authType: 'none', fields: ['feed_url'] },
+            'websocket': { name: 'WebSocket', icon: '⚡', authType: 'custom', fields: ['ws_url'] },
+            
+            // Finance & Data
+            'alphavantage': { name: 'Alpha Vantage', icon: '📈', authType: 'key', signupUrl: 'https://www.alphavantage.co/support/#api-key', fields: ['api_key'], freeTier: true },
+            'coingecko': { name: 'CoinGecko', icon: '🦎', authType: 'none', noKeyRequired: true, fields: [] },
+            'weather': { name: 'Open-Meteo', icon: '🌤️', authType: 'none', noKeyRequired: true, fields: [] },
+            'news': { name: 'NewsAPI', icon: '📰', authType: 'key', signupUrl: 'https://newsapi.org/', fields: ['api_key'] }
+        };
+        
+        // ================================================================
+        // VIEW SWITCHING
+        // ================================================================
+        document.querySelectorAll('.view-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+                
+                tab.classList.add('active');
+                const viewId = tab.dataset.view + '-view';
+                document.getElementById(viewId).classList.add('active');
+                state.currentView = tab.dataset.view;
+            });
+        });
+        
+        // ================================================================
+        // VIEW MODE (Grid/List)
+        // ================================================================
+        document.querySelectorAll('.view-mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const mode = btn.dataset.mode;
+                const content = document.getElementById('folder-content');
+                content.classList.remove('grid-view', 'list-view');
+                content.classList.add(mode + '-view');
+                state.viewMode = mode;
+            });
+        });
+        
+        // ================================================================
+        // FILE SELECTION & CONTEXT MENU
+        // ================================================================
+        document.querySelectorAll('.file-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (!e.ctrlKey && !e.metaKey) {
+                    document.querySelectorAll('.file-item').forEach(i => i.classList.remove('selected'));
+                }
+                item.classList.toggle('selected');
+                updateDetails(item);
+            });
+            
+            item.addEventListener('dblclick', () => {
+                const type = item.dataset.type;
+                const name = item.dataset.name;
+                if (type === 'folder') {
+                    navigateTo(state.currentPath + name + '/');
+                }
+            });
+            
+            item.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                showContextMenu(e.clientX, e.clientY, item);
+            });
+        });
+        
+        function showContextMenu(x, y, item) {
+            const menu = document.getElementById('context-menu');
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+            menu.classList.add('visible');
+            state.contextTarget = item;
+        }
+        
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.context-menu')) {
+                document.getElementById('context-menu').classList.remove('visible');
+            }
+        });
+        
+        // ================================================================
+        // DETAILS PANEL
+        // ================================================================
+        function updateDetails(item) {
+            const preview = document.querySelector('.preview-name');
+            const icon = document.querySelector('.preview-icon');
+            if (item) {
+                preview.textContent = item.dataset.name;
+                icon.textContent = item.querySelector('.file-icon').textContent;
+            }
+        }
+        
+        // ================================================================
+        // NAVIGATION
+        // ================================================================
+        function navigateTo(path) {
+            state.currentPath = path;
+            state.history.push(path);
+            state.historyIndex = state.history.length - 1;
+            document.getElementById('address-input').value = path;
+            // In real implementation, fetch and render contents
+            console.log('Navigate to:', path);
+        }
+        
+        document.getElementById('btn-back').addEventListener('click', () => {
+            if (state.historyIndex > 0) {
+                state.historyIndex--;
+                const path = state.history[state.historyIndex];
+                state.currentPath = path;
+                document.getElementById('address-input').value = path;
+            }
+        });
+        
+        document.getElementById('btn-forward').addEventListener('click', () => {
+            if (state.historyIndex < state.history.length - 1) {
+                state.historyIndex++;
+                const path = state.history[state.historyIndex];
+                state.currentPath = path;
+                document.getElementById('address-input').value = path;
+            }
+        });
+        
+        // ================================================================
+        // CONNECTION MODAL
+        // ================================================================
+        const modal = document.getElementById('connection-modal');
+        
+        document.getElementById('btn-connect').addEventListener('click', () => {
+            modal.classList.add('visible');
+        });
+        
+        document.getElementById('close-modal').addEventListener('click', () => {
+            modal.classList.remove('visible');
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('visible');
+        });
+        
+        document.getElementById('conn-type').addEventListener('change', (e) => {
+            const type = e.target.value;
+            const connector = CONNECTORS[type];
+            if (connector) {
+                // Show/hide relevant fields based on auth type
+                document.getElementById('api-key-group').style.display = 
+                    connector.authType === 'key' ? 'block' : 'none';
+                document.getElementById('url-group').style.display = 
+                    connector.authType === 'custom' || connector.authType === 'conn' ? 'block' : 'none';
+            }
+        });
+        
+        document.getElementById('btn-save-connection').addEventListener('click', () => {
+            const type = document.getElementById('conn-type').value;
+            const name = document.getElementById('conn-name').value || CONNECTORS[type]?.name || 'New Connection';
+            
+            // Add to connections (lazy - data not fetched yet)
+            state.connections.push({
+                id: Date.now(),
+                type,
+                name,
+                status: 'lazy', // Data stays on remote until accessed
+                lastSync: null,
+                srlOnly: true   // Only SRL stored, not actual data
+            });
+            
+            updateConnectionsList();
+            modal.classList.remove('visible');
+        });
+        
+        function updateConnectionsList() {
+            const sourcesDiv = document.getElementById('connected-sources');
+            const countSpan = document.getElementById('connection-count');
+            
+            countSpan.textContent = `(${state.connections.length})`;
+            
+            if (state.connections.length === 0) {
+                sourcesDiv.innerHTML = `
+                    <div style="padding: 8px 24px; color: var(--text-muted); font-size: 0.85em;">
+                        No connections yet
+                    </div>`;
+                return;
+            }
+            
+            sourcesDiv.innerHTML = state.connections.map(conn => {
+                const connector = CONNECTORS[conn.type] || {};
+                return `
+                    <div class="nav-item" data-conn-id="${conn.id}">
+                        <span class="nav-icon">${connector.icon || '🔗'}</span>
+                        <span>${conn.name}</span>
+                        <span class="nav-count" style="background: ${conn.status === 'lazy' ? 'orange' : 'green'}; color: white;">${conn.status}</span>
+                    </div>`;
+            }).join('');
+        }
+        
+        // ================================================================
+        // CONNECTOR BUTTONS
+        // ================================================================
+        document.querySelectorAll('.connector-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const connType = btn.dataset.connector;
+                document.getElementById('conn-type').value = connType;
+                document.getElementById('conn-type').dispatchEvent(new Event('change'));
+                modal.classList.add('visible');
+            });
+        });
+        
+        // ================================================================
+        // DIMENSION LEVEL SELECTION
+        // ================================================================
+        document.querySelectorAll('.dimension-level').forEach(level => {
+            level.addEventListener('click', () => {
+                document.querySelectorAll('.dimension-level').forEach(l => l.classList.remove('active'));
+                level.classList.add('active');
+                // In real implementation, filter items by dimension level
+            });
+        });
+        
+        // ================================================================
+        // LAZY LOADING / DELTA SYNC CONCEPT
+        // ================================================================
+        /*
+         * DATA POLICY:
+         * 
+         * 1. PASSIVE/LAZY CONNECTIONS:
+         *    - Connection info stored, but data NOT fetched
+         *    - Data remains on remote source until user navigates there
+         *    - Only metadata (schema, counts) may be cached
+         * 
+         * 2. ON-ACCESS INVOCATION:
+         *    - When user navigates to a connected source, data is:
+         *      a) Fetched from remote
+         *      b) Ingested into kernel substrate (dimensional transformation)
+         *      c) Rendered in current view
+         * 
+         * 3. DELTA CHECKING:
+         *    - On revisit, only check for changes (delta)
+         *    - If no changes, use cached substrate
+         *    - If changes detected, fetch only the diff
+         * 
+         * 4. SRL-ONLY STORAGE:
+         *    - By default, actual data is NOT persisted locally
+         *    - Only the Substrate Reference Link (SRL) is stored
+         *    - SRL contains: source type, credentials ref, path, last sync
+         *    - User must explicitly "Save" to persist data locally
+         *    - Even then, preference is to store SRL + delta state
+         */
+        
+        console.log('Universal Hard Drive initialized');
+        console.log('Data Policy: Lazy load, Delta sync, SRL-only storage');
+    </script>
+</body>
+</html>

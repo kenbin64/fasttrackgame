@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Data Compressor | ButterflyFX</title>
+    <style>
+        :root {
+            --bg: #050508;
+            --bg-card: rgba(18, 18, 28, 0.9);
+            --text: #ffffff;
+            --text-dim: #a0a8c0;
+            --neon-green: #00ff88;
+            --neon-cyan: #00d4ff;
+            --border: rgba(0, 255, 136, 0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        header {
+            text-align: center;
+            padding: 40px 0;
+        }
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .tagline { color: var(--text-dim); font-size: 1.2rem; }
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+        }
+        .panel h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            padding: 15px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            resize: none;
+        }
+        textarea:focus { outline: none; border-color: var(--neon-green); }
+        .stats {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--neon-green);
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
+            color: var(--bg);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,255,136,0.3); }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+        .btn-secondary:hover { border-color: var(--neon-green); }
+        .compression-bar {
+            margin-top: 30px;
+            padding: 25px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+        }
+        .bar-container {
+            background: rgba(255,77,139,0.2);
+            border-radius: 10px;
+            height: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            font-weight: 700;
+            color: var(--bg);
+        }
+        .bar-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .original-label { color: #ff4d8b; }
+        .compressed-label { color: var(--neon-green); }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+        }
+        .back-link:hover { color: var(--neon-green); }
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        .drop-zone.dragover {
+            border-color: var(--neon-green);
+            background: rgba(0,255,136,0.1);
+        }
+        .drop-zone p { color: var(--text-dim); }
+        @media (max-width: 768px) {
+            .workspace { grid-template-columns: 1fr; }
+            .stats { flex-wrap: wrap; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/superchargers" class="back-link">← Back to Superchargers</a>
+        
+        <header>
+            <h1>🗜️ Ultimate Data Compressor</h1>
+            <p class="tagline">Compress any data up to 95% smaller — real compression, real results</p>
+        </header>
+        
+        <div class="drop-zone" id="dropZone">
+            <p>📁 Drag & drop a file here, or paste text below</p>
+        </div>
+        
+        <div class="workspace">
+            <div class="panel">
+                <h2>📝 Input Data</h2>
+                <textarea id="inputData" placeholder="Paste your JSON, CSV, text, or any data here..."></textarea>
+            </div>
+            
+            <div class="panel">
+                <h2>📦 Compressed Output</h2>
+                <textarea id="outputData" readonly placeholder="Compressed data will appear here..."></textarea>
+            </div>
+        </div>
+        
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stat">
+                <div class="stat-value" id="originalSize">0</div>
+                <div class="stat-label">Original (bytes)</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="compressedSize">0</div>
+                <div class="stat-label">Compressed (bytes)</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="ratio">0%</div>
+                <div class="stat-label">Compression Ratio</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="saved">0</div>
+                <div class="stat-label">Bytes Saved</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="time">0</div>
+                <div class="stat-label">Time (ms)</div>
+            </div>
+        </div>
+        
+        <div class="compression-bar" id="compressionBar" style="display: none;">
+            <div class="bar-container">
+                <div class="bar-fill" id="barFill" style="width: 100%">100%</div>
+            </div>
+            <div class="bar-labels">
+                <span class="original-label">Original: <span id="origLabel">0 KB</span></span>
+                <span class="compressed-label">Compressed: <span id="compLabel">0 KB</span></span>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-primary" onclick="compress()">🗜️ Compress Now</button>
+            <button class="btn-secondary" onclick="decompress()">📂 Decompress</button>
+            <button class="btn-secondary" onclick="download()">⬇️ Download</button>
+            <button class="btn-secondary" onclick="clear()">🗑️ Clear</button>
+        </div>
+    </div>
+    
+    <script>
+        // LZ-String compression library (minified)
+        var LZString=function(){function o(o,r){if(!t[o]){t[o]={};for(var n=0;n<o.length;n++)t[o][o.charAt(n)]=n}return t[o][r]}var r=String.fromCharCode,n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",e="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",t={},i={compressToBase64:function(o){if(null==o)return"";var r=i._compress(o,6,function(o){return n.charAt(o)});switch(r.length%4){default:case 0:return r;case 1:return r+"===";case 2:return r+"==";case 3:return r+"="}},decompressFromBase64:function(r){return null==r?"":""==r?null:i._decompress(r.length,32,function(e){return o(n,r.charAt(e))})},compressToUTF16:function(o){return null==o?"":i._compress(o,15,function(o){return r(o+32)})+" "},decompressFromUTF16:function(o){return null==o?"":""==o?null:i._decompress(o.length,16384,function(r){return o.charCodeAt(r)-32})},compressToUint8Array:function(o){for(var r=i.compress(o),n=new Uint8Array(2*r.length),e=0,t=r.length;t>e;e++){var s=r.charCodeAt(e);n[2*e]=s>>>8,n[2*e+1]=s%256}return n},decompressFromUint8Array:function(o){if(null===o||void 0===o)return i.decompress(o);for(var n=new Array(o.length/2),e=0,t=n.length;t>e;e++)n[e]=256*o[2*e]+o[2*e+1];var s=[];return n.forEach(function(o){s.push(r(o))}),i.decompress(s.join(""))},compressToEncodedURIComponent:function(o){return null==o?"":i._compress(o,6,function(o){return e.charAt(o)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),i._decompress(r.length,32,function(n){return o(e,r.charAt(n))}))},compress:function(o){return i._compress(o,16,function(o){return r(o)})},_compress:function(o,r,n){if(null==o)return"";var e,t,i,s={},p={},u="",c="",a="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<o.length;i+=1)if(u=o.charAt(i),Object.prototype.hasOwnProperty.call(s,u)||(s[u]=f++,p[u]=!0),c=a+u,Object.prototype.hasOwnProperty.call(s,c))a=c;else{if(Object.prototype.hasOwnProperty.call(p,a)){if(a.charCodeAt(0)<256){for(e=0;h>e;e++)m<<=1,v==r-1?(v=0,d.push(n(m)),m=0):v++;for(t=a.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;h>e;e++)m=m<<1|t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=a.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[a]}else for(t=s[a],e=0;h>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;l--,0==l&&(l=Math.pow(2,h),h++),s[c]=f++,a=String(u)}if(""!==a){if(Object.prototype.hasOwnProperty.call(p,a)){if(a.charCodeAt(0)<256){for(e=0;h>e;e++)m<<=1,v==r-1?(v=0,d.push(n(m)),m=0):v++;for(t=a.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;h>e;e++)m=m<<1|t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=a.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[a]}else for(t=s[a],e=0;h>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;l--,0==l&&(l=Math.pow(2,h),h++)}for(t=2,e=0;h>e;e++)m=m<<1|1&t,v==r-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;for(;;){if(m<<=1,v==r-1){d.push(n(m));break}v++}return d.join("")},decompress:function(o){return null==o?"":""==o?null:i._decompress(o.length,32768,function(r){return o.charCodeAt(r)})},_decompress:function(o,n,e){var t,i,s,p,u,c,a,l,f=[],h=4,d=4,m=3,v="",w=[],A={val:e(0),position:n,index:1};for(i=0;3>i;i+=1)f[i]=i;for(p=0,c=Math.pow(2,2),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;switch(t=p){case 0:for(p=0,c=Math.pow(2,8),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;l=r(p);break;case 1:for(p=0,c=Math.pow(2,16),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;l=r(p);break;case 2:return""}for(f[3]=l,s=l,w.push(l);;){if(A.index>o)return"";for(p=0,c=Math.pow(2,m),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;switch(l=p){case 0:for(p=0,c=Math.pow(2,8),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;f[d++]=r(p),l=d-1,h--;break;case 1:for(p=0,c=Math.pow(2,16),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=e(A.index++)),p|=(u>0?1:0)*a,a<<=1;f[d++]=r(p),l=d-1,h--;break;case 2:return w.join("")}if(0==h&&(h=Math.pow(2,m),m++),f[l])v=f[l];else{if(l!==d)return null;v=s+s.charAt(0)}w.push(v),f[d++]=s+v.charAt(0),h--,s=v,0==h&&(h=Math.pow(2,m),m++)}}};return i}();"function"==typeof define&&define.amd?define(function(){return LZString}):"undefined"!=typeof module&&null!=module&&(module.exports=LZString);
+        
+        const inputData = document.getElementById('inputData');
+        const outputData = document.getElementById('outputData');
+        const dropZone = document.getElementById('dropZone');
+        
+        // Drag and drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    inputData.value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        });
+        
+        function formatBytes(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+        
+        function compress() {
+            const input = inputData.value;
+            if (!input) {
+                alert('Please enter some data to compress');
+                return;
+            }
+            
+            const startTime = performance.now();
+            const compressed = LZString.compressToBase64(input);
+            const endTime = performance.now();
+            
+            outputData.value = compressed;
+            
+            const originalSize = new Blob([input]).size;
+            const compressedSize = new Blob([compressed]).size;
+            const ratio = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+            const saved = originalSize - compressedSize;
+            const time = (endTime - startTime).toFixed(2);
+            
+            // Update stats
+            document.getElementById('stats').style.display = 'flex';
+            document.getElementById('originalSize').textContent = originalSize.toLocaleString();
+            document.getElementById('compressedSize').textContent = compressedSize.toLocaleString();
+            document.getElementById('ratio').textContent = ratio + '%';
+            document.getElementById('saved').textContent = saved.toLocaleString();
+            document.getElementById('time').textContent = time;
+            
+            // Update bar
+            document.getElementById('compressionBar').style.display = 'block';
+            const barWidth = Math.max(5, (compressedSize / originalSize) * 100);
+            document.getElementById('barFill').style.width = barWidth + '%';
+            document.getElementById('barFill').textContent = (100 - parseFloat(ratio)).toFixed(0) + '%';
+            document.getElementById('origLabel').textContent = formatBytes(originalSize);
+            document.getElementById('compLabel').textContent = formatBytes(compressedSize);
+        }
+        
+        function decompress() {
+            const input = inputData.value || outputData.value;
+            if (!input) {
+                alert('Please enter compressed data');
+                return;
+            }
+            
+            try {
+                const startTime = performance.now();
+                const decompressed = LZString.decompressFromBase64(input);
+                const endTime = performance.now();
+                
+                if (decompressed) {
+                    outputData.value = decompressed;
+                    
+                    const compressedSize = new Blob([input]).size;
+                    const originalSize = new Blob([decompressed]).size;
+                    
+                    document.getElementById('stats').style.display = 'flex';
+                    document.getElementById('originalSize').textContent = compressedSize.toLocaleString();
+                    document.getElementById('compressedSize').textContent = originalSize.toLocaleString();
+                    document.getElementById('ratio').textContent = 'Expanded';
+                    document.getElementById('saved').textContent = (originalSize - compressedSize).toLocaleString();
+                    document.getElementById('time').textContent = (endTime - startTime).toFixed(2);
+                } else {
+                    alert('Could not decompress. Is this valid compressed data?');
+                }
+            } catch (e) {
+                alert('Decompression failed: ' + e.message);
+            }
+        }
+        
+        function download() {
+            const data = outputData.value;
+            if (!data) {
+                alert('Nothing to download');
+                return;
+            }
+            
+            const blob = new Blob([data], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'compressed.bfx';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function clear() {
+            inputData.value = '';
+            outputData.value = '';
+            document.getElementById('stats').style.display = 'none';
+            document.getElementById('compressionBar').style.display = 'none';
+        }
+        
+        // Demo data
+        inputData.value = `{
+  "customers": [
+    {"id": 1, "name": "John Smith", "email": "john@example.com", "orders": [101, 102, 103]},
+    {"id": 2, "name": "Jane Doe", "email": "jane@example.com", "orders": [104, 105]},
+    {"id": 3, "name": "Bob Wilson", "email": "bob@example.com", "orders": [106, 107, 108, 109]},
+    {"id": 4, "name": "Alice Brown", "email": "alice@example.com", "orders": [110]},
+    {"id": 5, "name": "Charlie Davis", "email": "charlie@example.com", "orders": [111, 112]}
+  ],
+  "products": [
+    {"sku": "PROD-001", "name": "Widget Pro", "price": 29.99, "category": "Electronics"},
+    {"sku": "PROD-002", "name": "Widget Basic", "price": 19.99, "category": "Electronics"},
+    {"sku": "PROD-003", "name": "Gadget Plus", "price": 49.99, "category": "Electronics"},
+    {"sku": "PROD-004", "name": "Tool Kit", "price": 39.99, "category": "Hardware"},
+    {"sku": "PROD-005", "name": "Cable Set", "price": 14.99, "category": "Accessories"}
+  ],
+  "metadata": {
+    "version": "2.0",
+    "generated": "2024-01-15T10:30:00Z",
+    "compression": "none"
+  }
+}`;
+    </script>
+</body>
+</html>

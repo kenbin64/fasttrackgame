@@ -1,0 +1,177 @@
+* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        #presentation {
+            position: relative;
+            width: 100vw;
+            height: calc(100vh - 80px);
+            overflow: hidden;
+        }
+        
+        #stage {
+            position: absolute;
+            transform-origin: top left;
+        }
+        
+        .element {
+            position: absolute;
+            transition: none;
+        }
+        
+        .element.text {
+            white-space: pre-wrap;
+        }
+        
+        .element.code {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            overflow: auto;
+        }
+        
+        /* Controls */
+        #controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+            padding: 15px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        #timeline {
+            position: relative;
+            height: 24px;
+            background: #333;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        
+        #progress {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 12px;
+            width: 0%;
+            pointer-events: none;
+        }
+        
+        #scrubber {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            cursor: grab;
+        }
+        
+        #scrubber:active {
+            cursor: grabbing;
+        }
+        
+        .marker {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .marker:hover::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            margin-bottom: 8px;
+        }
+        
+        #buttons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        button svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        #time-display {
+            font-size: 14px;
+            color: #888;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        #marker-nav {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+        
+        .marker-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        
+        /* Keyboard hint */
+        #hint {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        #hint kbd {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin: 0 2px;
+        }

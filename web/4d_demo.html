@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX 4D Website Demo</title>
+    <link rel="stylesheet" href="static/css/4d_demo.css">
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div id="header">
+        <div class="logo">ButterflyFX 4D</div>
+        <div class="dimension-indicator">
+            <span class="dim-badge active">X</span>
+            <span class="dim-badge active">Y</span>
+            <span class="dim-badge active">Z</span>
+            <span class="dim-badge active" style="background: linear-gradient(135deg, #ff4080, #ff8040);">W (Time)</span>
+        </div>
+    </div>
+    
+    <div id="helix-levels">
+        <div class="helix-level level-1" title="POINT (0D) - The Origin">1</div>
+        <div class="helix-level level-2" title="LINE (1D) - First Connection">2</div>
+        <div class="helix-level level-3" title="PLANE (2D) - Surface">3</div>
+        <div class="helix-level level-4" title="VOLUME (3D) - Space">4</div>
+        <div class="helix-level level-5 active" title="TIME (4D) - Tesseract">5</div>
+        <div class="helix-level level-6" title="PARALLEL (5D) - Timelines">6</div>
+        <div class="helix-level level-7" title="META (6D) - Full System">7</div>
+    </div>
+    
+    <div id="coordinates">
+        <div><span class="label">X:</span><span class="value" id="coord-x">0.00</span></div>
+        <div><span class="label">Y:</span><span class="value" id="coord-y">0.00</span></div>
+        <div><span class="label">Z:</span><span class="value" id="coord-z">0.00</span></div>
+        <div><span class="label">W:</span><span class="value" id="coord-w">0.00</span></div>
+    </div>
+    
+    <div id="dimensional-ip">
+        <h3>Your Dimensional Position</h3>
+        <div class="ip-row">
+            <span class="ip-label">IP Address</span>
+            <span class="ip-value" id="my-ip">detecting...</span>
+        </div>
+        <div class="ip-row">
+            <span class="ip-label">X (octet 1)</span>
+            <span class="ip-value" id="dim-x">—</span>
+        </div>
+        <div class="ip-row">
+            <span class="ip-label">Y (octet 2)</span>
+            <span class="ip-value" id="dim-y">—</span>
+        </div>
+        <div class="ip-row">
+            <span class="ip-label">Z (octet 3)</span>
+            <span class="ip-value" id="dim-z">—</span>
+        </div>
+        <div class="ip-row">
+            <span class="ip-label">M (octet 4)</span>
+            <span class="ip-value" id="dim-m">—</span>
+        </div>
+        <div class="substrate">
+            <div class="substrate-label">SUBSTRATE NOTATION</div>
+            <div class="substrate-value" id="substrate-r">r=?,?,?,?</div>
+        </div>
+        <div class="manifold-uri" id="manifold-uri">manifold://...</div>
+    </div>
+    
+    <div id="benchmarks-mini">
+        <h4>Dimensional Performance</h4>
+        <div id="bench-content">Loading...</div>
+    </div>
+    
+    <div id="nav-hint">
+        Drag to rotate in 3D • Scroll to zoom • Slider controls 4th dimension (W/Time)
+    </div>
+    
+    <div id="time-control">
+        <span class="time-label">Past</span>
+        <input type="range" id="time-slider" min="-1" max="1" step="0.01" value="0">
+        <span class="time-label">Future</span>
+        <span id="time-value">W: 0.00</span>
+    </div>
+    
+    <script src="static/js/4d_demo.js"></script>
+</body>
+</html>

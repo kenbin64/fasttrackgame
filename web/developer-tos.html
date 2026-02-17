@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX — Developer Terms of Service & Licensing</title>
+    
+    <meta name="description" content="ButterflyFX Developer Terms of Service, licensing information, and marketplace policies.">
+    <meta name="robots" content="index, follow">
+    
+    <link rel="canonical" href="https://butterflyfx.us/developer-tos.html">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #050510, #0a1020);
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        header {
+            background: rgba(5, 5, 16, 0.95);
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+        
+        nav a {
+            color: #8090aa;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+        
+        nav a:hover, nav a.active {
+            color: #60b0ff;
+        }
+        
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 100px 25px 60px;
+        }
+        
+        h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1em;
+            color: #888;
+            margin-bottom: 30px;
+        }
+        
+        .toc {
+            background: rgba(20, 30, 50, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .toc h3 {
+            color: #ff6090;
+            margin-bottom: 15px;
+        }
+        
+        .toc ul {
+            list-style: none;
+            columns: 2;
+        }
+        
+        .toc li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #60b0ff;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        h2 {
+            font-size: 1.4em;
+            color: #ff6090;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 96, 144, 0.3);
+        }
+        
+        h3 {
+            font-size: 1.1em;
+            color: #60b0ff;
+            margin: 25px 0 10px;
+        }
+        
+        p {
+            color: #b0c0e0;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        ul, ol {
+            color: #b0c0e0;
+            margin: 15px 0 15px 25px;
+            line-height: 1.8;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .highlight-box {
+            background: rgba(100, 150, 255, 0.1);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .highlight-box.warning {
+            background: rgba(255, 200, 50, 0.1);
+            border-color: rgba(255, 200, 50, 0.3);
+        }
+        
+        .highlight-box.success {
+            background: rgba(96, 255, 144, 0.1);
+            border-color: rgba(96, 255, 144, 0.3);
+        }
+        
+        .license-card {
+            background: rgba(20, 30, 50, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .license-card h4 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .license-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .badge-free { background: rgba(96, 255, 144, 0.2); color: #60ff90; }
+        .badge-commercial { background: rgba(255, 96, 144, 0.2); color: #ff6090; }
+        .badge-open { background: rgba(100, 150, 255, 0.2); color: #60b0ff; }
+        
+        .fee-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .fee-table th, .fee-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+        }
+        
+        .fee-table th {
+            background: rgba(64, 96, 255, 0.15);
+            color: #60b0ff;
+        }
+        
+        .fee-table td {
+            color: #b0c0e0;
+        }
+        
+        code {
+            background: rgba(100, 150, 255, 0.15);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.9em;
+            color: #80ff80;
+        }
+        
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 4px;
+        }
+        
+        .hamburger span {
+            width: 25px;
+            height: 2px;
+            background: #fff;
+        }
+        
+        @media (max-width: 768px) {
+            nav {
+                display: none;
+            }
+            
+            .hamburger {
+                display: flex;
+            }
+            
+            h1 {
+                font-size: 1.6em;
+            }
+            
+            .toc ul {
+                columns: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">🦋 ButterflyFX</a>
+        <nav id="mainNav">
+            <a href="developer.html">Developer</a>
+            <a href="developer-portal.html">Portal</a>
+            <a href="developer-docs.html">Docs</a>
+            <a href="developer-marketplace.html">Marketplace</a>
+            <a href="developer-tos.html" class="active">TOS</a>
+        </nav>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+    
+    <main>
+        <h1>📜 Developer Terms of Service</h1>
+        <p class="subtitle">Last updated: February 15, 2026 • Version 1.0</p>
+        
+        <div class="toc">
+            <h3>Contents</h3>
+            <ul>
+                <li><a href="#overview">1. Overview</a></li>
+                <li><a href="#acceptance">2. Acceptance of Terms</a></li>
+                <li><a href="#developer-account">3. Developer Account</a></li>
+                <li><a href="#api-usage">4. API Usage</a></li>
+                <li><a href="#licensing">5. Licensing</a></li>
+                <li><a href="#marketplace">6. Marketplace Rules</a></li>
+                <li><a href="#fees">7. Fees & Payments</a></li>
+                <li><a href="#content">8. Content Guidelines</a></li>
+                <li><a href="#ip">9. Intellectual Property</a></li>
+                <li><a href="#termination">10. Termination</a></li>
+            </ul>
+        </div>
+        
+        <!-- Section 1: Overview -->
+        <section id="overview" class="section">
+            <h2>1. Overview</h2>
+            <p>These Developer Terms of Service ("Developer TOS") govern your use of the ButterflyFX Developer Platform, including:</p>
+            <ul>
+                <li>The Helix SDK and related development tools</li>
+                <li>API access and key management</li>
+                <li>The Developer Portal and dashboard</li>
+                <li>The ButterflyFX Marketplace</li>
+                <li>Documentation and code samples</li>
+            </ul>
+            <p>By registering as a developer, you agree to these terms in addition to our general <a href="about.html#terms" style="color: #60b0ff;">Terms of Service</a>.</p>
+        </section>
+        
+        <!-- Section 2: Acceptance -->
+        <section id="acceptance" class="section">
+            <h2>2. Acceptance of Terms</h2>
+            <p>By creating a developer account, generating API keys, or publishing to the marketplace, you confirm that:</p>
+            <ul>
+                <li>You are at least 18 years old or have parental consent</li>
+                <li>You have the legal capacity to enter into binding agreements</li>
+                <li>You will comply with all applicable laws and regulations</li>
+                <li>You accept these Developer TOS as a binding agreement</li>
+            </ul>
+            
+            <div class="highlight-box warning">
+                <strong>⚠️ Important:</strong> If you are accepting on behalf of a company or organization, you represent that you have authority to bind that entity to these terms.
+            </div>
+        </section>
+        
+        <!-- Section 3: Developer Account -->
+        <section id="developer-account" class="section">
+            <h2>3. Developer Account</h2>
+            
+            <h3>3.1 Account Creation</h3>
+            <p>Developer accounts are created through GitHub OAuth. You are responsible for:</p>
+            <ul>
+                <li>Maintaining the security of your GitHub account</li>
+                <li>All activities that occur under your developer account</li>
+                <li>Keeping your contact information up to date</li>
+            </ul>
+            
+            <h3>3.2 Account Tiers</h3>
+            <ul>
+                <li><strong>Free Developer:</strong> 1 API key, open source packages, community support</li>
+                <li><strong>Developer Pro ($29/mo):</strong> 5 API keys, premium packages, priority support, marketplace publishing</li>
+                <li><strong>Enterprise:</strong> Custom pricing, unlimited keys, dedicated support</li>
+            </ul>
+            
+            <h3>3.3 Account Suspension</h3>
+            <p>We may suspend or terminate accounts that:</p>
+            <ul>
+                <li>Violate these terms or our policies</li>
+                <li>Engage in fraudulent or abusive behavior</li>
+                <li>Pose security risks to our platform or users</li>
+                <li>Have prolonged inactivity (12+ months with no API usage)</li>
+            </ul>
+        </section>
+        
+        <!-- Section 4: API Usage -->
+        <section id="api-usage" class="section">
+            <h2>4. API Usage</h2>
+            
+            <h3>4.1 API Keys</h3>
+            <ul>
+                <li>API keys are personal and non-transferable</li>
+                <li>Do not share, sell, or expose your API keys publicly</li>
+                <li>Rotate keys immediately if you suspect compromise</li>
+                <li>Use environment variables or secure vaults for storage</li>
+            </ul>
+            
+            <h3>4.2 Rate Limits</h3>
+            <table class="fee-table">
+                <thead>
+                    <tr>
+                        <th>Tier</th>
+                        <th>Requests/min</th>
+                        <th>Requests/day</th>
+                        <th>Concurrent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Free</td>
+                        <td>60</td>
+                        <td>10,000</td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td>Pro</td>
+                        <td>300</td>
+                        <td>100,000</td>
+                        <td>25</td>
+                    </tr>
+                    <tr>
+                        <td>Enterprise</td>
+                        <td>Custom</td>
+                        <td>Custom</td>
+                        <td>Custom</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>4.3 Prohibited Uses</h3>
+            <p>You may NOT use the API to:</p>
+            <ul>
+                <li>Build competing platforms or API wrappers</li>
+                <li>Scrape, mine, or extract data beyond intended use</li>
+                <li>Circumvent rate limits or security measures</li>
+                <li>Create malware, spam, or abusive applications</li>
+                <li>Violate any laws or third-party rights</li>
+            </ul>
+        </section>
+        
+        <!-- Section 5: Licensing -->
+        <section id="licensing" class="section">
+            <h2>5. Licensing</h2>
+            
+            <div class="license-card">
+                <span class="license-badge badge-open">Open Core</span>
+                <h4>ButterflyFX Helix Kernel</h4>
+                <p>The core mathematical kernel is licensed under <strong>Creative Commons Attribution 4.0 International (CC BY 4.0)</strong>.</p>
+                <ul>
+                    <li>✓ Free for personal and commercial use</li>
+                    <li>✓ Modifications allowed</li>
+                    <li>✓ Distribution allowed</li>
+                    <li>⚠️ Attribution required: "Kenneth Bingham - https://butterflyfx.us"</li>
+                </ul>
+            </div>
+            
+            <div class="license-card">
+                <span class="license-badge badge-free">Free</span>
+                <h4>Open Source SDK Components</h4>
+                <p>Core SDK packages are provided under the same CC BY 4.0 license.</p>
+                <ul>
+                    <li>helix-kernel (Python)</li>
+                    <li>@butterflyfx/helix (JavaScript)</li>
+                    <li>CLI tools</li>
+                    <li>Demo applications</li>
+                </ul>
+            </div>
+            
+            <div class="license-card">
+                <span class="license-badge badge-commercial">Commercial</span>
+                <h4>Premium Components</h4>
+                <p>Pro tier components are licensed per-developer seat.</p>
+                <ul>
+                    <li>Substrate Designer (Visual Tool)</li>
+                    <li>Manifold Server (Production Deployment)</li>
+                    <li>Premium Support</li>
+                    <li>White-label Options</li>
+                </ul>
+                <p style="margin-top: 15px; color: #888;">License fee included in Pro/Enterprise subscription.</p>
+            </div>
+            
+            <div class="highlight-box success">
+                <strong>✓ Your Code is Yours:</strong> Applications you build using the SDK belong to you. We claim no ownership over your work, only attribution to the underlying kernel.
+            </div>
+        </section>
+        
+        <!-- Section 6: Marketplace -->
+        <section id="marketplace" class="section">
+            <h2>6. Marketplace Rules</h2>
+            
+            <h3>6.1 Publishing Requirements</h3>
+            <p>To publish on the ButterflyFX Marketplace:</p>
+            <ul>
+                <li>Developer Pro or Enterprise subscription required</li>
+                <li>Valid payment method on file</li>
+                <li>Completed developer profile</li>
+                <li>Acceptance of Marketplace Publisher Agreement</li>
+            </ul>
+            
+            <h3>6.2 Submission Review</h3>
+            <p>All submissions undergo review for:</p>
+            <ul>
+                <li>Security and malware scanning</li>
+                <li>Policy compliance</li>
+                <li>Functionality verification</li>
+                <li>Content guideline adherence</li>
+            </ul>
+            <p>Review typically takes 2-5 business days.</p>
+            
+            <h3>6.3 Revenue Share</h3>
+            <p>For paid applications, revenue is shared as follows:</p>
+            <ul>
+                <li><strong>You keep: 85%</strong> of net revenue</li>
+                <li><strong>Platform fee: 15%</strong></li>
+                <li><strong>Payment processing: $0.30 + 2.9% per transaction</strong></li>
+            </ul>
+            <p>Free applications have no platform fees.</p>
+        </section>
+        
+        <!-- Section 7: Fees -->
+        <section id="fees" class="section">
+            <h2>7. Fees & Payments</h2>
+            
+            <h3>7.1 Subscription Fees</h3>
+            <table class="fee-table">
+                <thead>
+                    <tr>
+                        <th>Plan</th>
+                        <th>Monthly</th>
+                        <th>Annual (Save 20%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Free</td>
+                        <td>$0</td>
+                        <td>$0</td>
+                    </tr>
+                    <tr>
+                        <td>Developer Pro</td>
+                        <td>$29/mo</td>
+                        <td>$278/yr ($23.17/mo)</td>
+                    </tr>
+                    <tr>
+                        <td>Enterprise</td>
+                        <td colspan="2">Contact us for custom pricing</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>7.2 Marketplace Fees</h3>
+            <p>For paid app sales:</p>
+            <pre style="background: rgba(10, 15, 30, 0.8); padding: 15px; border-radius: 8px; overflow-x: auto; margin: 15px 0;"><code>Your Revenue = Sale Price - (15% Platform Fee) - ($0.30 + 2.9% Processing)</code></pre>
+            
+            <div class="highlight-box">
+                <strong>Example:</strong> For a $10 sale:<br>
+                Processing: $0.30 + $0.29 = $0.59<br>
+                Platform (15%): $1.50<br>
+                <strong>You receive: $7.91 (79.1%)</strong>
+            </div>
+            
+            <h3>7.3 Payouts</h3>
+            <ul>
+                <li>Minimum payout threshold: $50</li>
+                <li>Payout frequency: Monthly (1st of each month)</li>
+                <li>Payment methods: Bank transfer, PayPal</li>
+                <li>Tax forms: W-9 (US) or W-8BEN (International) required</li>
+            </ul>
+        </section>
+        
+        <!-- Section 8: Content -->
+        <section id="content" class="section">
+            <h2>8. Content Guidelines</h2>
+            
+            <h3>8.1 Prohibited Content</h3>
+            <p>Applications and content must not:</p>
+            <ul>
+                <li>Contain malware, spyware, or harmful code</li>
+                <li>Infringe copyrights, trademarks, or other IP rights</li>
+                <li>Contain illegal content or promote illegal activities</li>
+                <li>Include hate speech, harassment, or discriminatory content</li>
+                <li>Contain adult/NSFW content without proper age gating</li>
+                <li>Deceive users or misrepresent functionality</li>
+                <li>Collect data beyond what is disclosed and consented to</li>
+            </ul>
+            
+            <h3>8.2 Required Disclosures</h3>
+            <p>All published applications must include:</p>
+            <ul>
+                <li>Accurate description of functionality</li>
+                <li>Privacy policy if collecting user data</li>
+                <li>Terms of service if applicable</li>
+                <li>Clear pricing information</li>
+                <li>Support contact information</li>
+            </ul>
+        </section>
+        
+        <!-- Section 9: IP -->
+        <section id="ip" class="section">
+            <h2>9. Intellectual Property</h2>
+            
+            <h3>9.1 Your Rights</h3>
+            <p>You retain all rights to:</p>
+            <ul>
+                <li>Applications and code you create</li>
+                <li>Content you publish</li>
+                <li>Trademarks and branding you own</li>
+            </ul>
+            
+            <h3>9.2 License Grant to ButterflyFX</h3>
+            <p>By publishing to the marketplace, you grant ButterflyFX a non-exclusive license to:</p>
+            <ul>
+                <li>Display, distribute, and promote your application</li>
+                <li>Include screenshots/descriptions in marketing materials</li>
+                <li>Cache and serve your application to users</li>
+            </ul>
+            
+            <h3>9.3 Attribution</h3>
+            <p>When using the ButterflyFX SDK, you must include attribution:</p>
+            <pre style="background: rgba(10, 15, 30, 0.8); padding: 15px; border-radius: 8px; margin: 15px 0;"><code>Powered by ButterflyFX Helix Kernel
+© Kenneth Bingham - https://butterflyfx.us</code></pre>
+        </section>
+        
+        <!-- Section 10: Termination -->
+        <section id="termination" class="section">
+            <h2>10. Termination</h2>
+            
+            <h3>10.1 Voluntary Termination</h3>
+            <p>You may close your developer account at any time through the portal settings. Upon closure:</p>
+            <ul>
+                <li>API keys will be revoked immediately</li>
+                <li>Published apps will be removed from marketplace</li>
+                <li>Pending payouts will be processed within 30 days</li>
+                <li>Data will be retained for 90 days then deleted</li>
+            </ul>
+            
+            <h3>10.2 Termination by ButterflyFX</h3>
+            <p>We may terminate accounts for:</p>
+            <ul>
+                <li>Material breach of these terms</li>
+                <li>Repeated policy violations</li>
+                <li>Fraudulent or abusive behavior</li>
+                <li>Extended inactivity</li>
+            </ul>
+            
+            <h3>10.3 Effect of Termination</h3>
+            <p>Upon termination:</p>
+            <ul>
+                <li>All licenses granted to you are revoked</li>
+                <li>You must cease using ButterflyFX APIs and SDKs</li>
+                <li>You must remove any ButterflyFX branding from your applications</li>
+            </ul>
+        </section>
+        
+        <!-- Footer -->
+        <section style="margin-top: 60px; padding-top: 40px; border-top: 1px solid rgba(100, 150, 255, 0.2); text-align: center;">
+            <p style="color: #666; margin-bottom: 20px;">
+                Questions about these terms? Contact us at <a href="mailto:legal@butterflyfx.us" style="color: #60b0ff;">legal@butterflyfx.us</a>
+            </p>
+            <p style="color: #444;">
+                ButterflyFX Developer Terms of Service v1.0<br>
+                © 2024-2026 Kenneth Bingham. All Rights Reserved.
+            </p>
+        </section>
+    </main>
+    
+    <script>
+        // Mobile nav toggle
+        document.getElementById('hamburger').addEventListener('click', () => {
+            const nav = document.getElementById('mainNav');
+            nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+            nav.style.position = 'fixed';
+            nav.style.top = '60px';
+            nav.style.left = '0';
+            nav.style.right = '0';
+            nav.style.background = 'rgba(5, 5, 16, 0.98)';
+            nav.style.flexDirection = 'column';
+            nav.style.padding = '20px';
+            nav.style.gap = '15px';
+        });
+        
+        // Smooth scroll for TOC
+        document.querySelectorAll('.toc a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(link.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
+</body>
+</html>

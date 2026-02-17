@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX — Genesis | The Seven Laws & Safety Charter</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="The Genesis foundation of Dimensional Computing. Discover the Seven Dimensional Laws and Safety Charter that govern the ButterflyFX paradigm.">
+    <meta name="keywords" content="ButterflyFX genesis, seven laws, dimensional computing, safety charter, creation, trust">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://butterflyfx.us/genesis.html">
+    <meta property="og:title" content="ButterflyFX — Genesis & Trust">
+    <meta property="og:description" content="The Seven Dimensional Laws and Safety Charter — the foundation of a revolutionary paradigm.">
+    
+    <link rel="canonical" href="https://butterflyfx.us/genesis.html">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Text:ital@0;1&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0515 0%, #0f0820 50%, #0a0515 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+        
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .logo {
+            font-size: 14px;
+            color: #888;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+        
+        .logo:hover { color: #f0f; }
+        
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: #888;
+            font-family: 'Crimson Text', serif;
+            font-style: italic;
+        }
+        
+        /* Genesis Quote */
+        .genesis-quote {
+            background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,140,0,0.05));
+            border-left: 4px solid #ffd700;
+            padding: 30px;
+            margin: 40px 0;
+            font-family: 'Crimson Text', serif;
+            font-size: 20px;
+            font-style: italic;
+            color: #ccc;
+            text-align: center;
+        }
+        
+        .genesis-quote cite {
+            display: block;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #888;
+            font-style: normal;
+        }
+        
+        /* Section headers */
+        h2 {
+            font-size: 32px;
+            color: #ffd700;
+            margin: 60px 0 30px;
+            text-align: center;
+        }
+        
+        h2 .icon {
+            display: block;
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+        
+        .section-intro {
+            text-align: center;
+            color: #999;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        
+        /* The Seven Laws */
+        .laws-grid {
+            display: grid;
+            gap: 25px;
+        }
+        
+        .law-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,215,0,0.2);
+            border-radius: 12px;
+            padding: 25px 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .law-card:hover {
+            border-color: rgba(255,215,0,0.5);
+            background: rgba(255,215,0,0.05);
+        }
+        
+        .law-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .law-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: #000;
+            flex-shrink: 0;
+        }
+        
+        .law-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .law-content p {
+            color: #aaa;
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+        
+        .law-content p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .law-principle {
+            color: #ffd700;
+            font-weight: 500;
+        }
+        
+        /* Safety Charter */
+        .charter-box {
+            background: linear-gradient(135deg, rgba(0,255,255,0.08), rgba(0,100,150,0.05));
+            border: 2px solid #0ff;
+            border-radius: 16px;
+            padding: 40px;
+            margin: 40px 0;
+        }
+        
+        .charter-box h3 {
+            font-size: 24px;
+            color: #0ff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .charter-principles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .principle-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .principle-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .principle-text {
+            color: #bbb;
+            font-size: 14px;
+        }
+        
+        .principle-text strong {
+            color: #fff;
+            display: block;
+            margin-bottom: 3px;
+        }
+        
+        /* The Unity Principle */
+        .unity-box {
+            background: linear-gradient(135deg, rgba(255,0,255,0.1), rgba(100,0,100,0.05));
+            border: 1px solid #f0f;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin: 50px 0;
+        }
+        
+        .unity-box h3 {
+            font-size: 26px;
+            color: #f0f;
+            margin-bottom: 20px;
+        }
+        
+        .unity-box p {
+            font-size: 17px;
+            color: #ccc;
+            line-height: 1.9;
+        }
+        
+        .unity-box .highlight {
+            color: #ffd700;
+            font-weight: 500;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            margin: 60px 0 40px;
+        }
+        
+        .cta-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #000;
+            text-decoration: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(255,215,0,0.3);
+        }
+        
+        .cta-btn.secondary {
+            background: transparent;
+            border: 2px solid #0ff;
+            color: #0ff;
+        }
+        
+        .cta-btn.secondary:hover {
+            background: rgba(0,255,255,0.1);
+            box-shadow: 0 10px 40px rgba(0,255,255,0.2);
+        }
+        
+        /* Navigation */
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 30px 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 60px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links a {
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover { color: #ffd700; }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #555;
+            font-size: 13px;
+        }
+        
+        /* ===== GENESIS VISUAL DEMO STYLES ===== */
+        #genesis-demo-section {
+            position: relative;
+            margin: 40px 0;
+        }
+        
+        #genesis-canvas-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #050510;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        #genesis-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .demo-overlay {
+            position: absolute;
+            pointer-events: none;
+        }
+        
+        #demo-dim-indicator {
+            top: 20px;
+            right: 20px;
+            text-align: right;
+        }
+        
+        .demo-dim-level {
+            font-size: 50px;
+            font-weight: 700;
+            line-height: 1;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .demo-dim-name {
+            font-size: 18px;
+            color: #ffd700;
+            margin-top: 5px;
+        }
+        
+        .demo-fib-number {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+            font-family: monospace;
+        }
+        
+        #demo-narration {
+            bottom: 80px;
+            left: 20px;
+            right: 20px;
+            background: rgba(5, 5, 20, 0.9);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            padding: 15px 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .demo-verse {
+            font-family: 'Crimson Text', serif;
+            font-style: italic;
+            font-size: 14px;
+            color: #ccc;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .demo-ref {
+            font-size: 10px;
+            color: #888;
+            font-style: normal;
+            margin-bottom: 8px;
+        }
+        
+        .demo-explanation {
+            font-size: 12px;
+            color: #aaa;
+            line-height: 1.5;
+        }
+        
+        .demo-explanation .highlight {
+            color: #ffd700;
+            font-weight: 500;
+        }
+        
+        #demo-progress {
+            bottom: 50px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .demo-progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            transition: all 0.5s;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+        
+        .demo-progress-dot.active {
+            background: #ffd700;
+            box-shadow: 0 0 10px #ffd700;
+        }
+        
+        .demo-progress-dot.complete {
+            background: rgba(255, 215, 0, 0.5);
+        }
+        
+        #demo-controls {
+            bottom: 15px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            pointer-events: auto;
+        }
+        
+        .demo-btn {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #ffd700;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .demo-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #ffd700;
+        }
+        
+        .demo-btn.primary {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #000;
+            font-weight: 600;
+        }
+        
+        #demo-legend {
+            top: 20px;
+            left: 20px;
+        }
+        
+        .demo-legend-title {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .demo-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 4px 0;
+            font-size: 11px;
+            color: #666;
+            opacity: 0.3;
+            transition: all 0.5s;
+        }
+        
+        .demo-legend-item.active {
+            opacity: 1;
+            color: #ccc;
+        }
+        
+        .demo-legend-square {
+            width: 12px;
+            height: 12px;
+            border: 2px solid;
+            border-radius: 2px;
+        }
+        
+        .demo-day-0 { border-color: #555; background: rgba(80, 80, 80, 0.3); }
+        .demo-day-1 { border-color: #ff6b6b; background: rgba(255, 107, 107, 0.3); }
+        .demo-day-2 { border-color: #ffd700; background: rgba(255, 215, 0, 0.3); }
+        .demo-day-3 { border-color: #6bff6b; background: rgba(107, 255, 107, 0.3); }
+        .demo-day-4 { border-color: #6bc5ff; background: rgba(107, 197, 255, 0.3); }
+        .demo-day-5 { border-color: #d96bff; background: rgba(217, 107, 255, 0.3); }
+        .demo-day-6 { border-color: #ff6bdd; background: rgba(255, 107, 221, 0.3); }
+        .demo-day-7 { border-color: #fff; background: rgba(255, 255, 255, 0.3); }
+        
+        @media (max-width: 768px) {
+            #genesis-canvas-container { height: 400px; }
+            .demo-dim-level { font-size: 36px; }
+            .demo-dim-name { font-size: 14px; }
+            #demo-legend { display: none; }
+            .demo-verse { font-size: 12px; }
+            .demo-explanation { font-size: 11px; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 { font-size: 32px; }
+            h2 { font-size: 24px; }
+            .law-card { padding: 20px; }
+            .charter-box { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+    
+    <div class="container">
+        <header>
+            <a href="index.html" class="logo">🦋 ButterflyFX</a>
+            <h1>Genesis</h1>
+            <div class="subtitle">The Foundation of Dimensional Computing</div>
+        </header>
+        
+        <div class="genesis-quote">
+            "In the beginning... the earth was without form, and void; 
+            and darkness was upon the face of the deep."
+            <cite>— Genesis 1:1-2</cite>
+        </div>
+        
+        <p style="text-align: center; color: #aaa; font-size: 17px; margin-bottom: 30px;">
+            The creation account in Genesis reveals a pattern — a <strong style="color: #ffd700;">7-point creative process</strong> 
+            where each dimension builds upon the last, from void to manifestation, 
+            from potential to completion.
+        </p>
+        
+        <p style="text-align: center; color: #888; font-size: 15px;">
+            ButterflyFX applies this pattern to computing. These are the laws that govern the paradigm.
+        </p>
+        
+        <h2><span class="icon">⚖️</span>The Seven Dimensional Laws</h2>
+        
+        <p class="section-intro">
+            Immutable principles that govern all dimensional operations
+        </p>
+        
+        <div class="laws-grid">
+            <div class="law-card">
+                <div class="law-header">
+                    <div class="law-number">1</div>
+                    <div class="law-title">Universal Substrate Law</div>
+                </div>
+                <div class="law-content">
+                    <p><span class="law-principle">All substrates begin as unity.</span></p>
+                    <p>Division generates dimensions. Multiplication restores unity. The whole precedes the parts.</p>
+                </div>
+            </div>
+            
+            <div class="law-card">
+                <div class="law-header">
+                    <div class="law-number">2</div>
+                    <div class="law-title">Observation Is Division</div>
+                </div>
+                <div class="law-content">
+                    <p><span class="law-principle">To observe is to divide.</span></p>
+                    <p>Division creates dimensions. Recombination restores unity. Observation manifests reality.</p>
+                </div>
+            </div>
+            
+            <div class="law-card">
+                <div class="law-header">
+                    <div class="law-number">3</div>
+                    <div class="law-title">Inheritance and Recursion</div>
+                </div>
+                <div class="law-content">
+                    <p><span class="law-principle">Every division inherits the whole.</span></p>
+                    <p>Every part contains the pattern. Recursion preserves unity. The fractal nature of reality.</p>
+                </div>
+            </div>
+            
+            <div class="law-card">
+                <div class="law-header">
+                    <div class="law-number">4</div>
+                    <div class="law-title">Connection Creates Meaning</div>
+                </div>
+                <div class="law-content">
+                    <p><span class="law-principle">Dimensions relate through connection.</span></p>
+                    <p>Connection creates meaning. Meaning emerges from relationships. Nothing exists in isolation.</p>
+                </div>
+            </div>
+            
+            <div class="law-card">
+                <div class="law-header">
+                    <div class="law-number">5</div>
+                    <div class="law-title">Change Is Motion</div>
+                </div>
+                <div class="law-content">
+                    <p><span class="law-principle">Change is motion through dimensions.</span></p>
+                    <p>Time is the order of motion. Evolution is reexpression of unity. Nothing is destroyed, only transformed.</p>
+                </div>
+            </div>
+            
+            <div class="law-card">
+                <div class="law-header">
+                    <div class="law-number">6</div>
+                    <div class="law-title">Identity Persists</div>
+                </div>
+                <div class="law-content">
+                    <p><span class="law-principle">Identity persists through change.</span></p>
+                    <p>Continuity is the thread of unity. A system remains itself across transformations. The essence endures.</p>
+                </div>
+            </div>
+            
+            <div class="law-card">
+                <div class="law-header">
+                    <div class="law-number">7</div>
+                    <div class="law-title">Return to Unity</div>
+                </div>
+                <div class="law-content">
+                    <p><span class="law-principle">All dimensions return to unity.</span></p>
+                    <p>Completion is the reunion of the many. The cycle ends where it begins. Collapse restores the whole.</p>
+                </div>
+            </div>
+        </div>
+        
+        <h2><span class="icon">🛡️</span>The Safety Charter</h2>
+        
+        <p class="section-intro">
+            12 immutable principles that guarantee safety and trust in dimensional computing
+        </p>
+        
+        <div class="charter-box">
+            <h3>Dimensional Safety Guarantees</h3>
+            
+            <div class="charter-principles">
+                <div class="principle-item">
+                    <span class="principle-icon">✅</span>
+                    <div class="principle-text">
+                        <strong>Reversibility</strong>
+                        Every operation can be undone. Spiral up ↔ Spiral down.
+                    </div>
+                </div>
+                
+                <div class="principle-item">
+                    <span class="principle-icon">✅</span>
+                    <div class="principle-text">
+                        <strong>No Mutation</strong>
+                        Data is never mutated, only navigated. Change is motion, not destruction.
+                    </div>
+                </div>
+                
+                <div class="principle-item">
+                    <span class="principle-icon">✅</span>
+                    <div class="principle-text">
+                        <strong>Determinism</strong>
+                        Same input, same output. Always. No hidden state.
+                    </div>
+                </div>
+                
+                <div class="principle-item">
+                    <span class="principle-icon">✅</span>
+                    <div class="principle-text">
+                        <strong>Identity Persistence</strong>
+                        Objects maintain identity across all dimensional transitions.
+                    </div>
+                </div>
+                
+                <div class="principle-item">
+                    <span class="principle-icon">✅</span>
+                    <div class="principle-text">
+                        <strong>Collapse Idempotence</strong>
+                        Multiple collapses = single collapse. Safe to retry.
+                    </div>
+                </div>
+                
+                <div class="principle-item">
+                    <span class="principle-icon">✅</span>
+                    <div class="principle-text">
+                        <strong>Invoke Idempotence</strong>
+                        Invoking the same level twice yields the same state.
+                    </div>
+                </div>
+                
+                <div class="principle-item">
+                    <span class="principle-icon">✅</span>
+                    <div class="principle-text">
+                        <strong>Bounded Dimensions</strong>
+                        Level is always 0-6. No overflow. No undefined states.
+                    </div>
+                </div>
+                
+                <div class="principle-item">
+                    <span class="principle-icon">✅</span>
+                    <div class="principle-text">
+                        <strong>Spiral Constraints</strong>
+                        SPIRAL_UP only at level 6. SPIRAL_DOWN only at level 0.
+                    </div>
+                </div>
+                
+                <div class="principle-item">
+                    <span class="principle-icon">✅</span>
+                    <div class="principle-text">
+                        <strong>Data Ownership</strong>
+                        Your data remains yours. Substrates are self-contained.
+                    </div>
+                </div>
+                
+                <div class="principle-item">
+                    <span class="principle-icon">✅</span>
+                    <div class="principle-text">
+                        <strong>Transparent Operations</strong>
+                        Every operation is visible and auditable.
+                    </div>
+                </div>
+                
+                <div class="principle-item">
+                    <span class="principle-icon">✅</span>
+                    <div class="principle-text">
+                        <strong>No Side Effects</strong>
+                        Dimensional navigation affects only the navigator, not the substrate.
+                    </div>
+                </div>
+                
+                <div class="principle-item">
+                    <span class="principle-icon">✅</span>
+                    <div class="principle-text">
+                        <strong>Unity Preservation</strong>
+                        The whole is always accessible. Nothing is truly lost.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Genesis Visual Demo Section - Interactive Canvas -->
+        <h2><span class="icon">🌀</span>The Fibonacci Spiral of Creation</h2>
+        
+        <p class="section-intro">
+            Watch the seven days of Genesis unfold as a Fibonacci spiral, then collapse into a point to seed the next dimension
+        </p>
+        
+        <div id="genesis-demo-section">
+            <div id="genesis-canvas-container">
+                <canvas id="genesis-canvas"></canvas>
+                
+                <!-- Dimension Indicator -->
+                <div id="demo-dim-indicator" class="demo-overlay">
+                    <div class="demo-dim-level" id="demo-dim-level">0</div>
+                    <div class="demo-dim-name" id="demo-dim-name">Void</div>
+                    <div class="demo-fib-number" id="demo-fib-number">Fibonacci: 0</div>
+                </div>
+                
+                <!-- Legend -->
+                <div id="demo-legend" class="demo-overlay">
+                    <div class="demo-legend-title">Days of Creation</div>
+                    <div class="demo-legend-item active" data-day="0">
+                        <div class="demo-legend-square demo-day-0"></div>
+                        <span>0 · Void</span>
+                    </div>
+                    <div class="demo-legend-item" data-day="1">
+                        <div class="demo-legend-square demo-day-1"></div>
+                        <span>1 · Light</span>
+                    </div>
+                    <div class="demo-legend-item" data-day="2">
+                        <div class="demo-legend-square demo-day-2"></div>
+                        <span>2 · Separation</span>
+                    </div>
+                    <div class="demo-legend-item" data-day="3">
+                        <div class="demo-legend-square demo-day-3"></div>
+                        <span>3 · Land</span>
+                    </div>
+                    <div class="demo-legend-item" data-day="4">
+                        <div class="demo-legend-square demo-day-4"></div>
+                        <span>4 · Luminaries</span>
+                    </div>
+                    <div class="demo-legend-item" data-day="5">
+                        <div class="demo-legend-square demo-day-5"></div>
+                        <span>5 · Life</span>
+                    </div>
+                    <div class="demo-legend-item" data-day="6">
+                        <div class="demo-legend-square demo-day-6"></div>
+                        <span>6 · Humanity</span>
+                    </div>
+                    <div class="demo-legend-item" data-day="7">
+                        <div class="demo-legend-square demo-day-7"></div>
+                        <span>7 · Rest</span>
+                    </div>
+                </div>
+                
+                <!-- Narration -->
+                <div id="demo-narration" class="demo-overlay">
+                    <div class="demo-verse" id="demo-verse">
+                        "In the beginning... the earth was without form, and void; 
+                        and darkness was upon the face of the deep."
+                    </div>
+                    <div class="demo-ref" id="demo-ref">— Genesis 1:1-2</div>
+                    <div class="demo-explanation" id="demo-explanation">
+                        <span class="highlight">Dimension 0: Potential</span> — The void before creation. 
+                        In Fibonacci, this is 0 — the nothing from which everything emerges.
+                    </div>
+                </div>
+                
+                <!-- Progress Dots -->
+                <div id="demo-progress" class="demo-overlay">
+                    <div class="demo-progress-dot active" data-day="0"></div>
+                    <div class="demo-progress-dot" data-day="1"></div>
+                    <div class="demo-progress-dot" data-day="2"></div>
+                    <div class="demo-progress-dot" data-day="3"></div>
+                    <div class="demo-progress-dot" data-day="4"></div>
+                    <div class="demo-progress-dot" data-day="5"></div>
+                    <div class="demo-progress-dot" data-day="6"></div>
+                    <div class="demo-progress-dot" data-day="7"></div>
+                </div>
+                
+                <!-- Controls -->
+                <div id="demo-controls" class="demo-overlay">
+                    <button class="demo-btn" id="demo-btn-prev">◀ Prev</button>
+                    <button class="demo-btn primary" id="demo-btn-play">▶ Play</button>
+                    <button class="demo-btn" id="demo-btn-next">Next ▶</button>
+                    <button class="demo-btn" id="demo-btn-collapse">🌀 Collapse</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="unity-box">
+            <h3>🦋 The Butterfly Principle</h3>
+            <p>
+                In chaos theory, a butterfly's wings can trigger a hurricane across the world.
+                <br><br>
+                In ButterflyFX, a single dimensional definition <span class="highlight">cascades into infinite manifestations</span> — 
+                small causes, vast effects. One shape. Endless possibilities.
+                <br><br>
+                But unlike chaos, dimensional computing is <span class="highlight">deterministic, reversible, and safe</span>.
+                The butterfly effect becomes a creative force, not a source of unpredictability.
+            </p>
+        </div>
+        
+        <div class="cta-section">
+            <a href="start-here.html" class="cta-btn">🚀 Start Here</a>
+            <a href="demos/retro_simulator.html" class="cta-btn secondary">🎮 Try the Demo</a>
+        </div>
+        
+        <nav class="nav-links">
+            <a href="start-here.html">Start Here</a>
+            <a href="index.html">Demo</a>
+            <a href="apps.html">Apps</a>
+            <a href="platform.html">Platform</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="documents.html">Documents</a>
+            <a href="about.html">About</a>
+        </nav>
+        
+        <footer>
+            <p>🦋 ButterflyFX — Shapes Hold Data</p>
+        </footer>
+    </div>
+    
+    <script>
+        // ===== STARFIELD ANIMATION =====
+        const starCanvas = document.getElementById('starfield');
+        const starCtx = starCanvas.getContext('2d');
+        
+        function resizeStarfield() {
+            starCanvas.width = window.innerWidth;
+            starCanvas.height = window.innerHeight;
+        }
+        resizeStarfield();
+        window.addEventListener('resize', resizeStarfield);
+        
+        const stars = [];
+        for (let i = 0; i < 150; i++) {
+            stars.push({
+                x: Math.random(),
+                y: Math.random(),
+                size: Math.random() * 2 + 0.5,
+                twinkle: Math.random() * Math.PI * 2
+            });
+        }
+        
+        function animateStarfield() {
+            starCtx.fillStyle = 'rgba(10, 5, 21, 0.1)';
+            starCtx.fillRect(0, 0, starCanvas.width, starCanvas.height);
+            
+            const time = Date.now() * 0.001;
+            stars.forEach(star => {
+                const alpha = 0.3 + 0.4 * Math.sin(time * 2 + star.twinkle);
+                starCtx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                starCtx.fillRect(star.x * starCanvas.width, star.y * starCanvas.height, star.size, star.size);
+            });
+            
+            requestAnimationFrame(animateStarfield);
+        }
+        animateStarfield();
+        
+        // ===== GENESIS VISUAL DEMO =====
+        const demoCanvas = document.getElementById('genesis-canvas');
+        const demoCtx = demoCanvas.getContext('2d');
+        const container = document.getElementById('genesis-canvas-container');
+        
+        let demoWidth, demoHeight, demoCenterX, demoCenterY;
+        let currentDay = 0;
+        let currentDimension = 0;
+        let animationPhase = 'building';
+        let demoTime = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let spiralRotation = 0;
+        let collapseProgress = 0;
+        let scale = 1;
+        
+        const fibonacci = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89];
+        
+        const dayColors = [
+            { stroke: '#555', fill: 'rgba(80, 80, 80, 0.15)' },
+            { stroke: '#ff6b6b', fill: 'rgba(255, 107, 107, 0.2)' },
+            { stroke: '#ffd700', fill: 'rgba(255, 215, 0, 0.2)' },
+            { stroke: '#6bff6b', fill: 'rgba(107, 255, 107, 0.2)' },
+            { stroke: '#6bc5ff', fill: 'rgba(107, 197, 255, 0.2)' },
+            { stroke: '#d96bff', fill: 'rgba(217, 107, 255, 0.2)' },
+            { stroke: '#ff6bdd', fill: 'rgba(255, 107, 221, 0.2)' },
+            { stroke: '#ffffff', fill: 'rgba(255, 255, 255, 0.25)' }
+        ];
+        
+        const genesisContent = [
+            { verse: '"In the beginning... the earth was without form, and void; and darkness was upon the face of the deep."', ref: '— Genesis 1:1-2', dim: 'Void', dimNum: 0, fib: 0, explanation: '<span class="highlight">Dimension 0: Potential</span> — The void before creation. In Fibonacci, this is 0 — the nothing from which everything emerges.' },
+            { verse: '"And God said, Let there be light: and there was light. And God divided the light from the darkness."', ref: '— Genesis 1:3-4', dim: 'Point', dimNum: 1, fib: 1, explanation: '<span class="highlight">Dimension 1: Identity</span> — Light emerges from void. The first Fibonacci number is 1 — the singular point of existence.' },
+            { verse: '"And God made the firmament, and divided the waters which were under the firmament from the waters which were above."', ref: '— Genesis 1:7', dim: 'Line', dimNum: 2, fib: 1, explanation: '<span class="highlight">Dimension 2: Relationship</span> — Division creates polarity: above/below, self/other. Fibonacci gives us another 1, but now there are TWO ones.' },
+            { verse: '"Let the waters under the heaven be gathered together... and let the dry land appear."', ref: '— Genesis 1:9-11', dim: 'Plane', dimNum: 3, fib: 2, explanation: '<span class="highlight">Dimension 3: Structure</span> — Land emerges as a plane; the manifold takes shape. Fibonacci gives us 2 — the first sum (1+1).' },
+            { verse: '"Let there be lights in the firmament of the heaven to divide the day from the night; for signs, and for seasons."', ref: '— Genesis 1:14', dim: 'Volume', dimNum: 4, fib: 3, explanation: '<span class="highlight">Dimension 4: Environment</span> — The luminaries create spacetime — cycles, seasons, order in the cosmos. Fibonacci 3 (1+2) establishes rhythm.' },
+            { verse: '"Let the waters bring forth abundantly the moving creature that hath life."', ref: '— Genesis 1:20', dim: 'Life', dimNum: 5, fib: 5, explanation: '<span class="highlight">Dimension 5: Multiplicity</span> — Life emerges in abundance. Fibonacci 5 (2+3) — the golden ratio appears (5/3 ≈ φ).' },
+            { verse: '"And God said, Let us make man in our image, after our likeness."', ref: '— Genesis 1:26-27', dim: 'Meaning', dimNum: 6, fib: 8, explanation: '<span class="highlight">Dimension 6: Semantics</span> — Humanity brings meaning, consciousness, the observer who completes the system. Fibonacci 8 (3+5).' },
+            { verse: '"And on the seventh day God ended his work which he had made; and he rested."', ref: '— Genesis 2:2', dim: 'Rest', dimNum: 7, fib: 13, explanation: '<span class="highlight">Dimension 7: Completion</span> — Rest is wholeness achieved. Fibonacci 13 (5+8). <em>The whole now becomes a point in the next dimension.</em>' }
+        ];
+        
+        function resizeDemo() {
+            demoWidth = demoCanvas.width = container.clientWidth;
+            demoHeight = demoCanvas.height = container.clientHeight;
+            demoCenterX = demoWidth / 2;
+            demoCenterY = demoHeight / 2 - 40;
+        }
+        
+        window.addEventListener('resize', resizeDemo);
+        resizeDemo();
+        
+        function calculateSquarePositions(upToDay, unitSize = 15) {
+            const squares = [];
+            if (upToDay < 1) return squares;
+            
+            // Classic Fibonacci spiral tiling - traced exactly
+            // Squares tile to form F(n) × F(n+1) golden rectangle
+            // Direction cycle: RIGHT(0), DOWN(3), LEFT(2), UP(1), repeat
+            
+            // Exact unit positions (multiply by unitSize):
+            // Sq1 (1×1): (0,0)
+            // Sq2 (1×1): (1,0) - RIGHT of Sq1
+            // Sq3 (2×2): (0,1) - DOWN from pair, spans both
+            // Sq4 (3×3): (-3,0) - LEFT, spans height 3
+            // Sq5 (5×5): (-3,-5) - UP, spans width 5
+            // Sq6 (8×8): (2,-5) - RIGHT, spans height 8
+            // Sq7 (13×13): (-3,3) - DOWN, spans width 13
+            
+            const positions = [
+                null, // index 0 unused
+                { x: 0, y: 0, dir: -1 },      // Sq1: 1×1 origin
+                { x: 1, y: 0, dir: 0 },       // Sq2: 1×1 RIGHT
+                { x: 0, y: 1, dir: 3 },       // Sq3: 2×2 DOWN
+                { x: -3, y: 0, dir: 2 },      // Sq4: 3×3 LEFT
+                { x: -3, y: -5, dir: 1 },     // Sq5: 5×5 UP
+                { x: 2, y: -5, dir: 0 },      // Sq6: 8×8 RIGHT
+                { x: -3, y: 3, dir: 3 }       // Sq7: 13×13 DOWN
+            ];
+            
+            for (let i = 1; i <= upToDay && i < fibonacci.length && i < positions.length; i++) {
+                const size = fibonacci[i] * unitSize;
+                const pos = positions[i];
+                squares.push({ 
+                    x: pos.x * unitSize, 
+                    y: pos.y * unitSize, 
+                    size, 
+                    day: i,
+                    direction: pos.dir
+                });
+            }
+            
+            // Calculate bounds and center
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            squares.forEach(sq => {
+                if (sq.x < minX) minX = sq.x;
+                if (sq.x + sq.size > maxX) maxX = sq.x + sq.size;
+                if (sq.y < minY) minY = sq.y;
+                if (sq.y + sq.size > maxY) maxY = sq.y + sq.size;
+            });
+            
+            const offsetX = -(minX + maxX) / 2;
+            const offsetY = -(minY + maxY) / 2;
+            
+            squares.forEach(sq => {
+                sq.x += offsetX;
+                sq.y += offsetY;
+            });
+            
+            return squares;
+        }
+        
+        function drawSquare(square, progress = 1, animated = false) {
+            const color = dayColors[square.day] || dayColors[7];
+            demoCtx.save();
+            demoCtx.translate(demoCenterX, demoCenterY);
+            demoCtx.rotate(spiralRotation);
+            demoCtx.scale(scale, scale);
+            
+            const growProgress = Math.min(1, progress);
+            const actualSize = square.size * growProgress;
+            const offsetX = (square.size - actualSize) / 2;
+            const offsetY = (square.size - actualSize) / 2;
+            
+            demoCtx.fillStyle = color.fill;
+            demoCtx.fillRect(square.x + offsetX, square.y + offsetY, actualSize, actualSize);
+            demoCtx.strokeStyle = color.stroke;
+            demoCtx.lineWidth = animated ? 3 : 2;
+            demoCtx.strokeRect(square.x + offsetX, square.y + offsetY, actualSize, actualSize);
+            
+            if (growProgress > 0.5 && square.size > 25) {
+                demoCtx.fillStyle = color.stroke;
+                demoCtx.font = `bold ${Math.min(20, square.size * 0.3)}px Inter`;
+                demoCtx.textAlign = 'center';
+                demoCtx.textBaseline = 'middle';
+                demoCtx.fillText(square.day, square.x + square.size/2, square.y + square.size/2);
+            }
+            demoCtx.restore();
+        }
+        
+        function drawSpiralArc(squares, progress = 1) {
+            if (squares.length === 0) return;
+            demoCtx.save();
+            demoCtx.translate(demoCenterX, demoCenterY);
+            demoCtx.rotate(spiralRotation);
+            demoCtx.scale(scale, scale);
+            demoCtx.strokeStyle = 'rgba(218, 165, 32, 0.9)';
+            demoCtx.lineWidth = 3;
+            demoCtx.lineCap = 'round';
+            
+            let totalArcs = squares.length;
+            let arcsToDraw = Math.floor(totalArcs * progress) + (progress % 1 > 0 ? 1 : 0);
+            
+            // Arc centers and angles for each square in the Fibonacci spiral
+            // Each arc is a quarter-circle inscribed in its square
+            // The spiral flows: right → down → left → up → repeat
+            const arcParams = [
+                null, // index 0 unused
+                // Sq1: arc at bottom-right corner, sweeping from left to up
+                { cornerX: 1, cornerY: 1, start: Math.PI, end: Math.PI * 1.5 },
+                // Sq2: arc at bottom-left corner, sweeping from up to right
+                { cornerX: 0, cornerY: 1, start: -Math.PI * 0.5, end: 0 },
+                // Sq3: arc at top-left corner, sweeping from right to down
+                { cornerX: 0, cornerY: 0, start: 0, end: Math.PI * 0.5 },
+                // Sq4: arc at top-right corner, sweeping from down to left
+                { cornerX: 1, cornerY: 0, start: Math.PI * 0.5, end: Math.PI },
+                // Sq5: arc at bottom-right corner, sweeping from left to up
+                { cornerX: 1, cornerY: 1, start: Math.PI, end: Math.PI * 1.5 },
+                // Sq6: arc at bottom-left corner, sweeping from up to right
+                { cornerX: 0, cornerY: 1, start: -Math.PI * 0.5, end: 0 },
+                // Sq7: arc at top-left corner, sweeping from right to down
+                { cornerX: 0, cornerY: 0, start: 0, end: Math.PI * 0.5 }
+            ];
+            
+            for (let i = 0; i < arcsToDraw && i < squares.length; i++) {
+                const sq = squares[i];
+                const dayIndex = sq.day;
+                if (dayIndex < 1 || dayIndex >= arcParams.length) continue;
+                
+                const params = arcParams[dayIndex];
+                let arcProgress = (i < totalArcs * progress - 1) ? 1 : Math.max(0, (progress * totalArcs - i));
+                
+                // Arc center is at the specified corner of this square
+                const arcCenterX = sq.x + params.cornerX * sq.size;
+                const arcCenterY = sq.y + params.cornerY * sq.size;
+                
+                const actualEndAngle = params.start + (params.end - params.start) * arcProgress;
+                
+                demoCtx.beginPath();
+                demoCtx.arc(arcCenterX, arcCenterY, sq.size, params.start, actualEndAngle);
+                demoCtx.stroke();
+            }
+            demoCtx.restore();
+        }
+        
+        function drawDemoBackground() {
+            demoCtx.fillStyle = '#050510';
+            demoCtx.fillRect(0, 0, demoWidth, demoHeight);
+            
+            for (let i = 0; i < 80; i++) {
+                const x = (Math.sin(i * 3.14159) * 0.5 + 0.5) * demoWidth;
+                const y = (Math.cos(i * 2.71828) * 0.5 + 0.5) * demoHeight;
+                const brightness = 0.15 + Math.sin(demoTime + i) * 0.08;
+                demoCtx.fillStyle = `rgba(255, 255, 255, ${brightness})`;
+                demoCtx.beginPath();
+                demoCtx.arc(x, y, 1, 0, Math.PI * 2);
+                demoCtx.fill();
+            }
+        }
+        
+        function drawVoid() {
+            const pulseSize = 25 + Math.sin(demoTime * 2) * 8;
+            demoCtx.save();
+            demoCtx.translate(demoCenterX, demoCenterY);
+            
+            for (let i = 5; i > 0; i--) {
+                const r = pulseSize * i * 0.3;
+                demoCtx.strokeStyle = `rgba(100, 100, 100, ${0.1 * i})`;
+                demoCtx.lineWidth = 1;
+                demoCtx.beginPath();
+                demoCtx.arc(0, 0, r, 0, Math.PI * 2);
+                demoCtx.stroke();
+            }
+            demoCtx.fillStyle = 'rgba(50, 50, 50, 0.5)';
+            demoCtx.beginPath();
+            demoCtx.arc(0, 0, 4, 0, Math.PI * 2);
+            demoCtx.fill();
+            demoCtx.font = '14px monospace';
+            demoCtx.fillStyle = '#666';
+            demoCtx.textAlign = 'center';
+            demoCtx.fillText('∅', 0, 40);
+            demoCtx.restore();
+        }
+        
+        function drawCollapse() {
+            const squares = calculateSquarePositions(7);
+            scale = 1 - collapseProgress * 0.95;
+            spiralRotation = collapseProgress * Math.PI * 4;
+            demoCtx.globalAlpha = 1 - collapseProgress * 0.5;
+            squares.forEach(sq => drawSquare(sq, 1, false));
+            drawSpiralArc(squares, 1);
+            demoCtx.globalAlpha = 1;
+            
+            if (collapseProgress > 0.5) {
+                const pointGrow = (collapseProgress - 0.5) * 2;
+                const pointSize = 8 * pointGrow;
+                demoCtx.save();
+                demoCtx.translate(demoCenterX, demoCenterY);
+                const gradient = demoCtx.createRadialGradient(0, 0, 0, 0, 0, pointSize * 3);
+                gradient.addColorStop(0, 'rgba(255, 215, 0, 1)');
+                gradient.addColorStop(0.5, 'rgba(255, 215, 0, 0.5)');
+                gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+                demoCtx.fillStyle = gradient;
+                demoCtx.beginPath();
+                demoCtx.arc(0, 0, pointSize * 3, 0, Math.PI * 2);
+                demoCtx.fill();
+                demoCtx.fillStyle = '#ffd700';
+                demoCtx.beginPath();
+                demoCtx.arc(0, 0, pointSize, 0, Math.PI * 2);
+                demoCtx.fill();
+                demoCtx.restore();
+            }
+        }
+        
+        function renderDemo() {
+            demoTime += 0.016;
+            drawDemoBackground();
+            
+            if (animationPhase === 'collapsing') {
+                drawCollapse();
+            } else {
+                scale = 1;
+                spiralRotation = 0;
+                if (currentDay === 0) {
+                    drawVoid();
+                } else {
+                    const squares = calculateSquarePositions(currentDay);
+                    squares.forEach((sq, i) => drawSquare(sq, 1, i === squares.length - 1));
+                    drawSpiralArc(squares, 1);
+                }
+            }
+            requestAnimationFrame(renderDemo);
+        }
+        
+        function updateDemoUI(day) {
+            const content = genesisContent[day];
+            document.getElementById('demo-dim-level').textContent = content.dimNum;
+            document.getElementById('demo-dim-name').textContent = content.dim;
+            document.getElementById('demo-fib-number').textContent = `Fibonacci: ${content.fib}`;
+            document.getElementById('demo-verse').innerHTML = content.verse;
+            document.getElementById('demo-ref').textContent = content.ref;
+            document.getElementById('demo-explanation').innerHTML = content.explanation;
+            
+            document.querySelectorAll('.demo-progress-dot').forEach((dot, i) => {
+                dot.classList.remove('active', 'complete');
+                if (i < day) dot.classList.add('complete');
+                if (i === day) dot.classList.add('active');
+            });
+            document.querySelectorAll('.demo-legend-item').forEach((item, i) => {
+                item.classList.toggle('active', i <= day);
+            });
+        }
+        
+        function goToDay(day) {
+            currentDay = Math.max(0, Math.min(7, day));
+            animationPhase = 'building';
+            updateDemoUI(currentDay);
+        }
+        
+        function nextDay() { if (currentDay < 7) goToDay(currentDay + 1); }
+        function prevDay() { if (currentDay > 0) goToDay(currentDay - 1); }
+        
+        function startCollapse() {
+            if (currentDay === 7) {
+                animationPhase = 'collapsing';
+                collapseProgress = 0;
+                const collapseAnim = setInterval(() => {
+                    collapseProgress += 0.01;
+                    if (collapseProgress >= 1) {
+                        clearInterval(collapseAnim);
+                        setTimeout(() => {
+                            currentDimension++;
+                            animationPhase = 'ascending';
+                            goToDay(0);
+                            document.getElementById('demo-explanation').innerHTML = 
+                                `<span class="highlight">DIMENSIONAL ASCENSION</span> — The spiral collapsed to a point. ` +
+                                `Now viewing from <strong>Dimension ${currentDimension}</strong>. The whole becomes a seed.`;
+                        }, 500);
+                    }
+                }, 30);
+            }
+        }
+        
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('demo-btn-play');
+            if (isPlaying) {
+                btn.textContent = '⏸ Pause';
+                playInterval = setInterval(() => {
+                    if (currentDay < 7) nextDay();
+                    else togglePlay();
+                }, 3000);
+            } else {
+                btn.textContent = '▶ Play';
+                clearInterval(playInterval);
+            }
+        }
+        
+        document.getElementById('demo-btn-prev').addEventListener('click', prevDay);
+        document.getElementById('demo-btn-next').addEventListener('click', nextDay);
+        document.getElementById('demo-btn-play').addEventListener('click', togglePlay);
+        document.getElementById('demo-btn-collapse').addEventListener('click', startCollapse);
+        
+        document.querySelectorAll('.demo-progress-dot').forEach((dot, i) => {
+            dot.addEventListener('click', () => goToDay(i));
+        });
+        
+        updateDemoUI(0);
+        renderDemo();
+    </script>
+</body>
+</html>

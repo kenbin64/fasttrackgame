@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX — API Documentation</title>
+    
+    <meta name="description" content="Complete API reference for the ButterflyFX Helix SDK. Python and JavaScript documentation.">
+    <meta name="robots" content="index, follow">
+    
+    <link rel="canonical" href="https://butterflyfx.us/developer-docs.html">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #050510, #0a1020);
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        header {
+            background: rgba(5, 5, 16, 0.95);
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        
+        .header-nav {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .header-nav a {
+            color: #8090aa;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+        
+        .header-nav a:hover, .header-nav a.active {
+            color: #60b0ff;
+        }
+        
+        .container {
+            display: flex;
+            margin-top: 60px;
+            min-height: calc(100vh - 60px);
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: rgba(10, 15, 30, 0.95);
+            border-right: 1px solid rgba(100, 150, 255, 0.15);
+            padding: 25px;
+            position: fixed;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+        
+        .sidebar h3 {
+            color: #666;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 25px 0 10px;
+        }
+        
+        .sidebar h3:first-child {
+            margin-top: 0;
+        }
+        
+        .sidebar-link {
+            display: block;
+            padding: 8px 12px;
+            color: #8090aa;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 2px 0;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        
+        .sidebar-link:hover {
+            background: rgba(100, 150, 255, 0.1);
+            color: #fff;
+        }
+        
+        .sidebar-link.active {
+            background: rgba(100, 150, 255, 0.2);
+            color: #60b0ff;
+        }
+        
+        .sidebar-link.nested {
+            padding-left: 24px;
+            font-size: 0.85em;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px 50px;
+            max-width: 900px;
+        }
+        
+        h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .page-subtitle {
+            color: #888;
+            margin-bottom: 30px;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(20, 30, 50, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1em;
+            margin-bottom: 25px;
+        }
+        
+        .search-box::placeholder {
+            color: #666;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        h2 {
+            font-size: 1.5em;
+            color: #ff6090;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 96, 144, 0.3);
+        }
+        
+        h3 {
+            font-size: 1.2em;
+            color: #60b0ff;
+            margin: 30px 0 15px;
+        }
+        
+        h4 {
+            font-size: 1em;
+            color: #fff;
+            margin: 20px 0 10px;
+        }
+        
+        p {
+            color: #b0c0e0;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        pre {
+            background: rgba(10, 15, 30, 0.9);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        code {
+            font-family: 'SF Mono', Monaco, 'Fira Code', monospace;
+            font-size: 0.9em;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+            color: #b0c0e0;
+            line-height: 1.6;
+        }
+        
+        .inline-code {
+            background: rgba(100, 150, 255, 0.15);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #80ff80;
+        }
+        
+        .method-signature {
+            background: rgba(20, 30, 50, 0.9);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 15px 0;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.95em;
+        }
+        
+        .method-name {
+            color: #ff80a0;
+        }
+        
+        .param-name {
+            color: #80c0ff;
+        }
+        
+        .param-type {
+            color: #ffcc80;
+        }
+        
+        .return-type {
+            color: #80ff80;
+        }
+        
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .param-table th, .param-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(100, 150, 255, 0.15);
+        }
+        
+        .param-table th {
+            background: rgba(64, 96, 255, 0.1);
+            color: #60b0ff;
+            font-weight: 600;
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+        
+        .param-table td {
+            color: #b0c0e0;
+            font-size: 0.9em;
+        }
+        
+        .param-table .type {
+            color: #ffcc80;
+            font-family: monospace;
+        }
+        
+        .param-table .default {
+            color: #80ff80;
+            font-family: monospace;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+        
+        .tag-required { background: rgba(255, 80, 80, 0.2); color: #ff8080; }
+        .tag-optional { background: rgba(100, 150, 255, 0.2); color: #80b0ff; }
+        .tag-deprecated { background: rgba(255, 200, 50, 0.2); color: #ffd060; }
+        .tag-new { background: rgba(96, 255, 144, 0.2); color: #60ff90; }
+        
+        .api-section {
+            background: rgba(20, 30, 50, 0.5);
+            border: 1px solid rgba(100, 150, 255, 0.15);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .example-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 0;
+        }
+        
+        .example-tab {
+            padding: 8px 16px;
+            background: rgba(40, 50, 70, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            color: #8090aa;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+        
+        .example-tab.active {
+            background: rgba(10, 15, 30, 0.9);
+            color: #60b0ff;
+        }
+        
+        .example-content {
+            display: none;
+        }
+        
+        .example-content.active {
+            display: block;
+        }
+        
+        ul {
+            color: #b0c0e0;
+            margin: 15px 0 15px 25px;
+            line-height: 1.8;
+        }
+        
+        li {
+            margin: 5px 0;
+        }
+        
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 4px;
+        }
+        
+        .hamburger span {
+            width: 25px;
+            height: 2px;
+            background: #fff;
+        }
+        
+        @media (max-width: 900px) {
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .hamburger {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">🦋 ButterflyFX</a>
+        <nav class="header-nav">
+            <a href="developer.html">Guide</a>
+            <a href="developer-portal.html">Portal</a>
+            <a href="developer-docs.html" class="active">Docs</a>
+            <a href="developer-marketplace.html">Marketplace</a>
+        </nav>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <aside class="sidebar">
+            <input type="text" class="search-box" placeholder="🔍 Search docs..." id="searchBox">
+            
+            <h3>Getting Started</h3>
+            <a href="#overview" class="sidebar-link active">Overview</a>
+            <a href="#installation" class="sidebar-link">Installation</a>
+            <a href="#authentication" class="sidebar-link">Authentication</a>
+            
+            <h3>Core API</h3>
+            <a href="#helix-kernel" class="sidebar-link">HelixKernel</a>
+            <a href="#helix-kernel-constructor" class="sidebar-link nested">Constructor</a>
+            <a href="#helix-kernel-invoke" class="sidebar-link nested">invoke()</a>
+            <a href="#helix-kernel-spiral" class="sidebar-link nested">spiral_up() / spiral_down()</a>
+            <a href="#helix-kernel-collapse" class="sidebar-link nested">collapse()</a>
+            <a href="#helix-kernel-materialize" class="sidebar-link nested">materialize()</a>
+            
+            <h3>Substrate</h3>
+            <a href="#substrate" class="sidebar-link">Substrate</a>
+            <a href="#substrate-add-token" class="sidebar-link nested">add_token()</a>
+            <a href="#substrate-get-tokens" class="sidebar-link nested">get_tokens()</a>
+            
+            <h3>Models</h3>
+            <a href="#helix-state" class="sidebar-link">HelixState</a>
+            <a href="#token" class="sidebar-link">Token</a>
+            <a href="#payload-source" class="sidebar-link">PayloadSource</a>
+            
+            <h3>Constants</h3>
+            <a href="#levels" class="sidebar-link">Dimensional Levels</a>
+            <a href="#operators" class="sidebar-link">Operators</a>
+            
+            <h3>Errors</h3>
+            <a href="#errors" class="sidebar-link">Error Types</a>
+        </aside>
+        
+        <main class="main-content">
+            <h1>📚 API Documentation</h1>
+            <p class="page-subtitle">Complete reference for the ButterflyFX Helix SDK</p>
+            
+            <!-- Simple API Notice -->
+            <div style="background: linear-gradient(135deg, rgba(100, 255, 150, 0.15), rgba(64, 96, 255, 0.1)); border: 2px solid rgba(100, 255, 150, 0.4); border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+                <h3 style="color: #80ff80; margin: 0 0 10px;">🚀 New: Identity-First Simple API</h3>
+                <p style="color: #b0c0e0; margin: 0 0 15px;">
+                    Most developers should start with the <strong>Simple API</strong> — a clean, intuitive interface for dimensional computing.
+                    The kernel documentation below is for <em>advanced users</em> building custom substrates or extending the framework.
+                </p>
+                <a href="developer.html" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #60ff90, #40ff70); color: #000; text-decoration: none; border-radius: 6px; font-weight: 600;">View Simple API Guide →</a>
+            </div>
+            
+            <!-- Overview -->
+            <section id="overview" class="section">
+                <h2>Overview</h2>
+                <p>The ButterflyFX Helix SDK provides a dimensional computing kernel for building applications with geometric data structures. The core concepts are:</p>
+                <ul>
+                    <li><strong>HelixKernel</strong> — State machine for dimensional navigation</li>
+                    <li><strong>Substrate</strong> — Manifold where tokens (entities) exist</li>
+                    <li><strong>Tokens</strong> — Entities with location, signature, and payload</li>
+                    <li><strong>Levels 0-6</strong> — Dimensional layers from potential to whole</li>
+                </ul>
+            </section>
+            
+            <!-- Installation -->
+            <section id="installation" class="section">
+                <h2>Installation</h2>
+                
+                <div class="example-tabs">
+                    <button class="example-tab active" onclick="showTab(this, 'install-py')">Python</button>
+                    <button class="example-tab" onclick="showTab(this, 'install-js')">JavaScript</button>
+                </div>
+                
+                <div id="install-py" class="example-content active">
+<pre><code><span style="color: #888;"># pip</span>
+pip install butterflyfx
+
+<span style="color: #888;"># From source</span>
+git clone https://github.com/butterflyfx/dimensionsos.git
+cd dimensionsos
+pip install -e .</code></pre>
+                </div>
+                
+                <div id="install-js" class="example-content">
+<pre><code><span style="color: #888;">// npm</span>
+npm install @butterflyfx/helix
+
+<span style="color: #888;">// yarn</span>
+yarn add @butterflyfx/helix</code></pre>
+                </div>
+            </section>
+            
+            <!-- Authentication -->
+            <section id="authentication" class="section">
+                <h2>Authentication</h2>
+                <p>API requests require authentication via API key in the header:</p>
+                
+<pre><code><span style="color: #888;"># HTTP Header</span>
+Authorization: Bearer bfx_live_your_api_key_here
+
+<span style="color: #888;"># Python</span>
+<span style="color: #ff80a0;">from</span> butterflyfx <span style="color: #ff80a0;">import</span> HelixClient
+
+client = HelixClient(api_key=<span style="color: #80ff80;">"bfx_live_your_api_key"</span>)
+
+<span style="color: #888;">// JavaScript</span>
+<span style="color: #ff80a0;">import</span> { HelixClient } <span style="color: #ff80a0;">from</span> <span style="color: #80ff80;">'@butterflyfx/helix'</span>;
+
+<span style="color: #ff80a0;">const</span> client = <span style="color: #ff80a0;">new</span> HelixClient({ apiKey: <span style="color: #80ff80;">'bfx_live_your_api_key'</span> });</code></pre>
+                
+                <p>Get your API key from the <a href="developer-portal.html#api-keys" style="color: #60b0ff;">Developer Portal</a>.</p>
+            </section>
+            
+            <!-- HelixKernel -->
+            <section id="helix-kernel" class="section">
+                <h2>HelixKernel</h2>
+                <p>The core state machine for dimensional navigation. Maintains state as <code class="inline-code">(spiral, level)</code> pair.</p>
+                
+                <div class="api-section" id="helix-kernel-constructor">
+                    <h3>Constructor</h3>
+                    
+                    <div class="method-signature">
+                        <span class="method-name">HelixKernel</span>(<span class="param-name">substrate</span>: <span class="param-type">Substrate | None</span> = <span class="default">None</span>)
+                    </div>
+                    
+                    <table class="param-table">
+                        <thead>
+                            <tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>substrate</code></td>
+                                <td class="type">Substrate | None</td>
+                                <td class="default">None</td>
+                                <td>Optional substrate to attach for materialization</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h4>Example</h4>
+<pre><code><span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> HelixKernel, Substrate
+
+<span style="color: #888;"># Without substrate</span>
+kernel = HelixKernel()
+
+<span style="color: #888;"># With substrate</span>
+substrate = Substrate()
+kernel = HelixKernel(substrate=substrate)</code></pre>
+                </div>
+                
+                <div class="api-section" id="helix-kernel-invoke">
+                    <h3>invoke(level)</h3>
+                    <p>Jump to a specific dimensional level within the current spiral.</p>
+                    
+                    <div class="method-signature">
+                        <span class="method-name">invoke</span>(<span class="param-name">level</span>: <span class="param-type">int</span>) → <span class="return-type">HelixState</span>
+                    </div>
+                    
+                    <table class="param-table">
+                        <thead>
+                            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>level</code> <span class="tag tag-required">required</span></td>
+                                <td class="type">int (0-6)</td>
+                                <td>Target dimensional level</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <table class="param-table">
+                        <thead>
+                            <tr><th>Returns</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="type">HelixState</td>
+                                <td>New state after invocation</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <table class="param-table">
+                        <thead>
+                            <tr><th>Raises</th><th>When</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="type">ValueError</td>
+                                <td>Level not in range 0-6</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h4>Example</h4>
+<pre><code>kernel = HelixKernel()
+print(kernel.state)  <span style="color: #888;"># (0, 0:Potential)</span>
+
+kernel.invoke(3)
+print(kernel.state)  <span style="color: #888;"># (0, 3:Width)</span>
+
+kernel.invoke(6)
+print(kernel.state)  <span style="color: #888;"># (0, 6:Whole)</span></code></pre>
+                </div>
+                
+                <div class="api-section" id="helix-kernel-spiral">
+                    <h3>spiral_up() / spiral_down()</h3>
+                    <p>Move to adjacent spirals in the helix.</p>
+                    
+                    <div class="method-signature">
+                        <span class="method-name">spiral_up</span>() → <span class="return-type">HelixState</span>  <span style="color: #888;"># Requires level=6</span><br>
+                        <span class="method-name">spiral_down</span>() → <span class="return-type">HelixState</span>  <span style="color: #888;"># Requires level=0</span>
+                    </div>
+                    
+                    <table class="param-table">
+                        <thead>
+                            <tr><th>Method</th><th>Precondition</th><th>Transition</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>spiral_up()</code></td>
+                                <td>level == 6</td>
+                                <td>(s, 6) → (s+1, 0)</td>
+                            </tr>
+                            <tr>
+                                <td><code>spiral_down()</code></td>
+                                <td>level == 0</td>
+                                <td>(s, 0) → (s-1, 6)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h4>Example</h4>
+<pre><code>kernel = HelixKernel()
+kernel.invoke(6)      <span style="color: #888;"># Must be at level 6</span>
+kernel.spiral_up()
+print(kernel.state)   <span style="color: #888;"># (1, 0:Potential)</span>
+
+kernel.spiral_down()
+print(kernel.state)   <span style="color: #888;"># (0, 6:Whole)</span></code></pre>
+                </div>
+                
+                <div class="api-section" id="helix-kernel-collapse">
+                    <h3>collapse()</h3>
+                    <p>Return to potential (level 0) within current spiral. Idempotent.</p>
+                    
+                    <div class="method-signature">
+                        <span class="method-name">collapse</span>() → <span class="return-type">HelixState</span>
+                    </div>
+                    
+                    <h4>Example</h4>
+<pre><code>kernel.invoke(5)
+kernel.collapse()
+print(kernel.state)   <span style="color: #888;"># (0, 0:Potential)</span>
+
+<span style="color: #888;"># Idempotent - calling again has no effect</span>
+kernel.collapse()
+print(kernel.state)   <span style="color: #888;"># (0, 0:Potential)</span></code></pre>
+                </div>
+                
+                <div class="api-section" id="helix-kernel-materialize">
+                    <h3>materialize()</h3>
+                    <p>Get tokens at current state from attached substrate.</p>
+                    
+                    <div class="method-signature">
+                        <span class="method-name">materialize</span>() → <span class="return-type">Set[Token]</span>
+                    </div>
+                    
+                    <table class="param-table">
+                        <thead>
+                            <tr><th>Returns</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="type">Set[Token]</td>
+                                <td>Tokens materialized at current (spiral, level)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h4>Example</h4>
+<pre><code>substrate = Substrate()
+substrate.add_token(<span style="color: #80ff80;">"entity1"</span>, spiral=0)
+
+kernel = HelixKernel(substrate)
+kernel.invoke(6)
+
+tokens = kernel.materialize()
+print(tokens)  <span style="color: #888;"># {Token(entity1, level=6)}</span></code></pre>
+                </div>
+            </section>
+            
+            <!-- HelixState -->
+            <section id="helix-state" class="section">
+                <h2>HelixState</h2>
+                <p>Immutable state object representing a position in the helix.</p>
+                
+                <div class="api-section">
+                    <div class="method-signature">
+                        <span style="color: #ff80a0;">@dataclass</span>(frozen=True)<br>
+                        <span style="color: #ff80a0;">class</span> <span class="method-name">HelixState</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="param-name">spiral</span>: <span class="param-type">int</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="param-name">level</span>: <span class="param-type">int</span>  <span style="color: #888;"># 0-6</span>
+                    </div>
+                    
+                    <table class="param-table">
+                        <thead>
+                            <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>spiral</code></td>
+                                <td class="type">int</td>
+                                <td>Which turn of the helix (can be negative)</td>
+                            </tr>
+                            <tr>
+                                <td><code>level</code></td>
+                                <td class="type">int</td>
+                                <td>Dimensional level 0-6</td>
+                            </tr>
+                            <tr>
+                                <td><code>level_name</code></td>
+                                <td class="type">str</td>
+                                <td>Human name: "Potential", "Point", etc.</td>
+                            </tr>
+                            <tr>
+                                <td><code>level_icon</code></td>
+                                <td class="type">str</td>
+                                <td>Unicode icon: ○, •, ━, ▭, ▦, ▣, ◉</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Levels -->
+            <section id="levels" class="section">
+                <h2>Dimensional Levels</h2>
+                
+                <table class="param-table">
+                    <thead>
+                        <tr><th>Level</th><th>Name</th><th>Icon</th><th>Meaning</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>0</td><td>Potential</td><td>○</td><td>Void, undifferentiated possibility</td></tr>
+                        <tr><td>1</td><td>Point</td><td>•</td><td>Identity emerges, location without extent</td></tr>
+                        <tr><td>2</td><td>Length</td><td>━</td><td>Properties, single dimension</td></tr>
+                        <tr><td>3</td><td>Width</td><td>▭</td><td>Relations to others, second dimension</td></tr>
+                        <tr><td>4</td><td>Plane</td><td>▦</td><td>Full 2D context, surface</td></tr>
+                        <tr><td>5</td><td>Volume</td><td>▣</td><td>Depth, third dimension, internals</td></tr>
+                        <tr><td>6</td><td>Whole</td><td>◉</td><td>Complete entity, ready for next spiral</td></tr>
+                    </tbody>
+                </table>
+                
+<pre><code><span style="color: #ff80a0;">from</span> helix.kernel <span style="color: #ff80a0;">import</span> LEVEL_NAMES, LEVEL_ICONS
+
+print(LEVEL_NAMES[3])  <span style="color: #888;"># "Width"</span>
+print(LEVEL_ICONS[6])  <span style="color: #888;"># "◉"</span></code></pre>
+            </section>
+            
+            <!-- Errors -->
+            <section id="errors" class="section">
+                <h2>Error Types</h2>
+                
+                <table class="param-table">
+                    <thead>
+                        <tr><th>Exception</th><th>When Raised</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>ValueError</code></td>
+                            <td>Level out of range (not 0-6)</td>
+                        </tr>
+                        <tr>
+                            <td><code>InvalidOperationError</code></td>
+                            <td>spiral_up() when level ≠ 6, or spiral_down() when level ≠ 0</td>
+                        </tr>
+                        <tr>
+                            <td><code>SubstrateNotAttachedError</code></td>
+                            <td>materialize() called without substrate</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            
+            <!-- Footer -->
+            <section style="margin-top: 60px; padding-top: 40px; border-top: 1px solid rgba(100, 150, 255, 0.2);">
+                <p style="color: #666; text-align: center;">
+                    ButterflyFX API Documentation v1.0<br>
+                    <a href="developer.html" style="color: #60b0ff;">Developer Guide</a> • 
+                    <a href="developer-portal.html" style="color: #60b0ff;">Portal</a> • 
+                    <a href="https://github.com/butterflyfx/dimensionsos" style="color: #60b0ff;">GitHub</a>
+                </p>
+            </section>
+        </main>
+    </div>
+    
+    <script>
+        // Tab switching
+        function showTab(btn, contentId) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.example-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Find sibling content elements
+            let sibling = parent.nextElementSibling;
+            while (sibling && sibling.classList.contains('example-content')) {
+                sibling.classList.remove('active');
+                if (sibling.id === contentId) {
+                    sibling.classList.add('active');
+                }
+                sibling = sibling.nextElementSibling;
+            }
+        }
+        
+        // Sidebar navigation
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+        
+        // Search functionality
+        document.getElementById('searchBox').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('.section').forEach(section => {
+                const text = section.textContent.toLowerCase();
+                section.style.display = text.includes(query) ? 'block' : 'none';
+            });
+        });
+        
+        // Mobile nav
+        document.getElementById('hamburger').addEventListener('click', () => {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.style.display = sidebar.style.display === 'block' ? 'none' : 'block';
+            sidebar.style.position = 'fixed';
+            sidebar.style.top = '60px';
+            sidebar.style.left = '0';
+            sidebar.style.zIndex = '100';
+        });
+    </script>
+</body>
+</html>

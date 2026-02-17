@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX — Developer Tools Coming Soon</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="ButterflyFX developer tools and SDK are coming soon. Join the waitlist to be notified when the dimensional computing framework becomes available.">
+    <meta name="keywords" content="ButterflyFX developer, SDK, dimensional computing, programming language, coming soon">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://butterflyfx.us/developer.html">
+    <meta property="og:title" content="ButterflyFX — Developer Tools Coming Soon">
+    <meta property="og:description" content="The ButterflyFX SDK and programming language are in development. Join the waitlist.">
+    
+    <link rel="canonical" href="https://butterflyfx.us/developer.html">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #050510, #0a1020);
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        header {
+            background: rgba(5, 5, 16, 0.95);
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        
+        nav { display: flex; gap: 20px; flex-wrap: wrap; }
+        nav a { color: #8090aa; text-decoration: none; font-size: 0.9em; transition: color 0.2s; }
+        nav a:hover, nav a.active { color: #60b0ff; }
+        
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 120px 25px 60px;
+            text-align: center;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle { font-size: 1.3em; color: #60b0ff; margin-bottom: 40px; }
+        
+        .coming-soon-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(255, 100, 64, 0.3), rgba(255, 64, 128, 0.2));
+            border: 2px solid rgba(255, 100, 64, 0.6);
+            border-radius: 30px;
+            padding: 12px 30px;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #ff8060;
+            margin-bottom: 50px;
+        }
+        
+        .principles-box {
+            background: rgba(20, 30, 50, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 40px 0;
+            text-align: left;
+        }
+        
+        .principles-box h2 {
+            color: #c080ff;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+        
+        .principle-item {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            align-items: flex-start;
+        }
+        
+        .principle-item .icon {
+            font-size: 1.5em;
+            flex-shrink: 0;
+        }
+        
+        .principle-item h3 {
+            color: #60b0ff;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+        
+        .principle-item p {
+            color: #a0b0cc;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .waitlist-box {
+            background: linear-gradient(135deg, rgba(64, 96, 255, 0.15), rgba(255, 64, 128, 0.1));
+            border: 2px solid rgba(100, 150, 255, 0.4);
+            border-radius: 16px;
+            padding: 35px;
+            margin: 40px 0;
+        }
+        
+        .waitlist-box h2 {
+            color: #fff;
+            margin-bottom: 15px;
+        }
+        
+        .waitlist-box p {
+            color: #b0c0e0;
+            margin-bottom: 25px;
+            line-height: 1.7;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 15px 35px;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(100, 100, 255, 0.4);
+        }
+        
+        .explore-section {
+            margin-top: 50px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(100, 150, 255, 0.2);
+        }
+        
+        .explore-section h2 {
+            color: #60b0ff;
+            margin-bottom: 25px;
+        }
+        
+        .explore-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .explore-link {
+            padding: 12px 25px;
+            background: rgba(30, 40, 60, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-radius: 10px;
+            color: #80c0ff;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .explore-link:hover {
+            border-color: rgba(100, 150, 255, 0.7);
+            background: rgba(40, 50, 80, 0.8);
+        }
+        
+        .hamburger { display: none; flex-direction: column; cursor: pointer; gap: 4px; }
+        .hamburger span { width: 25px; height: 2px; background: #fff; }
+        
+        @media (max-width: 768px) {
+            nav {
+                display: none;
+                position: fixed;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background: rgba(5, 5, 16, 0.98);
+                flex-direction: column;
+                padding: 20px;
+                gap: 15px;
+            }
+            nav.active { display: flex; }
+            .hamburger { display: flex; }
+            h1 { font-size: 1.8em; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">🦋 ButterflyFX</a>
+        <nav id="mainNav">
+            <a href="index.html">Home</a>
+            <a href="apps.html">Apps</a>
+            <a href="how-it-works.html">How It Works</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="documents.html">Docs</a>
+            <a href="developer.html" class="active">Developers</a>
+        </nav>
+        <div class="hamburger" id="hamburger">
+            <span></span><span></span><span></span>
+        </div>
+    </header>
+    
+    <main>
+        <h1>💻 Developer Tools</h1>
+        <p class="subtitle">The ButterflyFX SDK & Programming Language</p>
+        
+        <div class="coming-soon-badge">🚧 Coming Soon</div>
+        
+        <p style="color: #b0c0e0; font-size: 1.1em; line-height: 1.7; max-width: 600px; margin: 0 auto 40px;">
+            We're building something different. The developer tools and SDK are in active development. 
+            When released, existing subscribers will get early access.
+        </p>
+        
+        <div class="principles-box">
+            <h2>💡 The Principles (What You'll Build With)</h2>
+            <p style="color: #a0b0cc; margin-bottom: 25px;">The math belongs to no one — it's as old as creation. Here's what dimensional computing is built on:</p>
+            
+            <div class="principle-item">
+                <span class="icon">🆔</span>
+                <div>
+                    <h3>Identity-First</h3>
+                    <p>Objects don't precede identity — identity precedes objects. A car's UUID exists before wheels appear. The object is the shadow.</p>
+                </div>
+            </div>
+            
+            <div class="principle-item">
+                <span class="icon">🌀</span>
+                <div>
+                    <h3>No Iteration</h3>
+                    <p>Why walk through every point when you can jump to the destination? O(7) per spiral, not O(N). The motion is the transition, not the traversal.</p>
+                </div>
+            </div>
+            
+            <div class="principle-item">
+                <span class="icon">∞</span>
+                <div>
+                    <h3>Lazy Existence</h3>
+                    <p>All exists. Nothing manifests until invoked. Infinite potential; only what you need consumes resources.</p>
+                </div>
+            </div>
+            
+            <div class="principle-item">
+                <span class="icon">🔢</span>
+                <div>
+                    <h3>Fibonacci Structure</h3>
+                    <p>7 levels following: 0, 1, 1, 2, 3, 5, 8. Level 6 (Whole) → Level 0 (Potential) of next spiral. The Holy Grail transition.</p>
+                </div>
+            </div>
+            
+            <div class="principle-item">
+                <span class="icon">📐</span>
+                <div>
+                    <h3>Shape IS Data</h3>
+                    <p>The manifold IS the computation. Position determines value. We don't store what geometry gives us inherently — sin, cos, slope, all derived.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="waitlist-box">
+            <h2>🎯 Want Early Access?</h2>
+            <p>Subscribe to any suite and you'll be first in line when developer tools launch. Existing subscribers get priority access and special pricing.</p>
+            <a href="https://butterflyfx.us/pricing.html" class="cta-button">See Pricing & Subscribe</a>
+        </div>
+        
+        <div class="explore-section">
+            <h2>While You Wait...</h2>
+            <div class="explore-links">
+                <a href="how-it-works.html" class="explore-link">◇ How It Works</a>
+                <a href="genesis.html" class="explore-link">🌀 Genesis Document</a>
+                <a href="apps/retro-simulator.html" class="explore-link">🏎️ Racing Demo</a>
+                <a href="documents.html" class="explore-link">📚 All Documents</a>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        document.getElementById('hamburger').addEventListener('click', () => {
+            document.getElementById('mainNav').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

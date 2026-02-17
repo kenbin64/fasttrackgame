@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fibonacci-Dimensional Universe | ButterflyFX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2a 50%, #0a1a2a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 165, 0, 0.1);
+            border-bottom: 2px solid #ff8c00;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff8c00;
+        }
+
+        .logo span {
+            color: #ffd700;
+        }
+
+        .fibonacci-display {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .fib-number {
+            background: rgba(255, 140, 0, 0.2);
+            border: 1px solid #ff8c00;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #ffd700;
+            font-size: 14px;
+        }
+
+        .fib-number.active {
+            background: #ff8c00;
+            color: #000;
+            transform: scale(1.2);
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            height: calc(100vh - 70px);
+        }
+
+        /* Left Panel - Navigation */
+        .nav-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-right: 1px solid rgba(255, 140, 0, 0.3);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .panel-title {
+            color: #ff8c00;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 140, 0, 0.3);
+        }
+
+        .level-indicator {
+            background: linear-gradient(135deg, rgba(255, 140, 0, 0.2), rgba(255, 215, 0, 0.1));
+            border: 1px solid #ff8c00;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .level-name {
+            font-size: 24px;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .level-fib {
+            font-size: 14px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .address {
+            font-family: 'Courier New', monospace;
+            color: #00ff88;
+            font-size: 12px;
+            margin-top: 10px;
+            word-break: break-all;
+        }
+
+        .path-display {
+            margin-bottom: 20px;
+        }
+
+        .path-item {
+            display: inline-block;
+            background: rgba(255, 140, 0, 0.1);
+            border: 1px solid rgba(255, 140, 0, 0.3);
+            border-radius: 4px;
+            padding: 4px 8px;
+            margin: 2px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .path-item:hover {
+            background: rgba(255, 140, 0, 0.3);
+        }
+
+        .inner-points {
+            margin-top: 20px;
+        }
+
+        .inner-point {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .inner-point:hover {
+            background: rgba(0, 255, 136, 0.2);
+            transform: translateX(5px);
+        }
+
+        .inner-point .name {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .inner-point .level {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .inner-point .fib-badge {
+            float: right;
+            background: #ff8c00;
+            color: #000;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Center - 3D View */
+        .view-container {
+            position: relative;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        #canvas-container canvas {
+            display: block;
+        }
+
+        .view-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .view-btn {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #ff8c00;
+            color: #ff8c00;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-btn:hover {
+            background: #ff8c00;
+            color: #000;
+        }
+
+        .view-btn.active {
+            background: #ff8c00;
+            color: #000;
+        }
+
+        /* Right Panel - Info */
+        .info-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 1px solid rgba(255, 140, 0, 0.3);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .manifold-card {
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.2), rgba(75, 0, 130, 0.2));
+            border: 1px solid #8a2be2;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .manifold-title {
+            color: #da70d6;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .equation {
+            font-family: 'Times New Roman', serif;
+            font-size: 32px;
+            color: #fff;
+            text-align: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .dim-transform {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 10px;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        .dim-box {
+            background: rgba(255, 140, 0, 0.1);
+            border: 1px solid #ff8c00;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .dim-box .label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .dim-box .value {
+            font-size: 18px;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .arrow {
+            color: #ff8c00;
+            font-size: 24px;
+        }
+
+        .fibonacci-levels {
+            margin-top: 20px;
+        }
+
+        .fib-level {
+            display: grid;
+            grid-template-columns: 30px 80px 40px 1fr;
+            gap: 10px;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .fib-level .num {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .fib-level .name {
+            color: #ff8c00;
+        }
+
+        .fib-level .fib {
+            background: rgba(255, 140, 0, 0.2);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .fib-level .desc {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .fib-level.current {
+            background: rgba(255, 140, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .invoke-form {
+            margin-top: 20px;
+        }
+
+        .invoke-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 140, 0, 0.5);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 10px;
+        }
+
+        .invoke-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff8c00, #ffd700);
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .invoke-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .concept-box {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .concept-title {
+            color: #00ff88;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .concept-text {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #aaa;
+        }
+
+        /* Loading */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(255, 140, 0, 0.2);
+            border-top-color: #ff8c00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">Butterfly<span>FX</span> Fibonacci Universe</div>
+        <div class="fibonacci-display" id="fib-display">
+            <div class="fib-number" data-level="0">1</div>
+            <div class="fib-number" data-level="1">1</div>
+            <div class="fib-number" data-level="2">2</div>
+            <div class="fib-number" data-level="3">3</div>
+            <div class="fib-number" data-level="4">5</div>
+            <div class="fib-number" data-level="5">8</div>
+            <div class="fib-number" data-level="6">13</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Left Panel -->
+        <div class="nav-panel">
+            <div class="panel-title">Current Location</div>
+            
+            <div class="level-indicator">
+                <div class="level-name" id="current-level">VOLUME</div>
+                <div class="level-fib" id="current-fib">Fibonacci F = 8</div>
+                <div class="address" id="current-address">φ(0,VOLUME,0.000)</div>
+            </div>
+
+            <div class="path-display" id="path-display">
+                <div class="panel-title">Path</div>
+                <!-- Path items injected here -->
+            </div>
+
+            <button class="view-btn" onclick="navigateUp()" style="width: 100%; margin-bottom: 20px;">
+                ↑ Go Up
+            </button>
+
+            <div class="inner-points">
+                <div class="panel-title">Inner Points (Invoked)</div>
+                <div id="inner-points-list">
+                    <!-- Points injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Center - 3D View -->
+        <div class="view-container">
+            <div id="canvas-container">
+                <div class="loading" id="loading">
+                    <div class="loading-spinner"></div>
+                    <p style="margin-top: 15px; color: #ff8c00;">Loading Universe...</p>
+                </div>
+            </div>
+
+            <div class="view-controls">
+                <button class="view-btn active" onclick="setView('universe')">Universe</button>
+                <button class="view-btn" onclick="setView('manifold')">z = xy Manifold</button>
+                <button class="view-btn" onclick="setView('fibonacci')">Fibonacci Spiral</button>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="info-panel">
+            <div class="panel-title">Dimensional Manifold</div>
+
+            <div class="manifold-card">
+                <div class="manifold-title">Hyperbolic Paraboloid</div>
+                <div class="equation">z = xy</div>
+                
+                <div class="dim-transform">
+                    <div class="dim-box">
+                        <div class="label">Intrinsic</div>
+                        <div class="value">2D</div>
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="dim-box">
+                        <div class="label">Embedded</div>
+                        <div class="value">3D</div>
+                    </div>
+                </div>
+
+                <div style="font-size: 12px; color: #888; text-align: center;">
+                    PLANE (F=5) embedded in VOLUME (F=8)
+                </div>
+            </div>
+
+            <div class="panel-title">Fibonacci Levels</div>
+            <div class="fibonacci-levels" id="fib-levels">
+                <!-- Levels injected here -->
+            </div>
+
+            <div class="invoke-form">
+                <div class="panel-title">Invoke from Void</div>
+                <input type="text" class="invoke-input" id="invoke-path" 
+                       placeholder="car.engine.block.piston">
+                <button class="invoke-btn" onclick="invokePath()">
+                    Invoke Path
+                </button>
+            </div>
+
+            <div class="concept-box">
+                <div class="concept-title">Void vs Existence</div>
+                <div class="concept-text">
+                    <strong>Uninvoked</strong> = Potential in the void<br>
+                    <strong>Invoked</strong> = Manifested existence<br><br>
+                    Only observation/invocation creates reality.
+                    The void contains infinite potential.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        const API_BASE = '';
+        let scene, camera, renderer, controls;
+        let currentView = 'universe';
+        let universeGroup, manifoldMesh, fibonacciSpiral;
+        let currentData = null;
+
+        // Fibonacci data
+        const FIBONACCI_LEVELS = [
+            { level: 0, name: 'POINT', fib: 1, desc: 'Existence' },
+            { level: 1, name: 'VALUE', fib: 1, desc: 'Content' },
+            { level: 2, name: 'LENGTH', fib: 2, desc: '1D extent' },
+            { level: 3, name: 'WIDTH', fib: 3, desc: '2D begins' },
+            { level: 4, name: 'PLANE', fib: 5, desc: '2D surface' },
+            { level: 5, name: 'VOLUME', fib: 8, desc: '3D space' },
+            { level: 6, name: 'WHOLE', fib: 13, desc: '→ Next point' }
+        ];
+
+        // Initialize
+        async function init() {
+            setupThree();
+            setupFibonacciLevels();
+            await loadCurrent();
+            await createManifold();
+            createFibonacciSpiral();
+            document.getElementById('loading').style.display = 'none';
+            animate();
+        }
+
+        function setupThree() {
+            const container = document.getElementById('canvas-container');
+            
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a1a);
+
+            camera = new THREE.PerspectiveCamera(
+                60, container.clientWidth / container.clientHeight, 0.1, 1000
+            );
+            camera.position.set(5, 5, 5);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            // Lighting
+            const ambient = new THREE.AmbientLight(0x404040, 0.5);
+            scene.add(ambient);
+
+            const directional = new THREE.DirectionalLight(0xffffff, 0.8);
+            directional.position.set(5, 10, 5);
+            scene.add(directional);
+
+            const point = new THREE.PointLight(0xff8c00, 1, 20);
+            point.position.set(0, 3, 0);
+            scene.add(point);
+
+            // Grid
+            const grid = new THREE.GridHelper(10, 20, 0x333333, 0x222222);
+            scene.add(grid);
+
+            // Axes
+            const axes = new THREE.AxesHelper(3);
+            scene.add(axes);
+
+            // Universe group
+            universeGroup = new THREE.Group();
+            scene.add(universeGroup);
+
+            // Resize handler
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+
+        function setupFibonacciLevels() {
+            const container = document.getElementById('fib-levels');
+            container.innerHTML = FIBONACCI_LEVELS.map(l => `
+                <div class="fib-level" data-level="${l.level}">
+                    <div class="num">${l.level}</div>
+                    <div class="name">${l.name}</div>
+                    <div class="fib">F=${l.fib}</div>
+                    <div class="desc">${l.desc}</div>
+                </div>
+            `).join('');
+        }
+
+        async function loadCurrent() {
+            try {
+                const response = await fetch(`${API_BASE}/api/current`);
+                currentData = await response.json();
+                updateUI(currentData);
+                updateUniverseView(currentData);
+            } catch (e) {
+                console.error('Failed to load current:', e);
+            }
+        }
+
+        function updateUI(data) {
+            const point = data.point;
+            
+            // Update level display
+            document.getElementById('current-level').textContent = point.level_name;
+            document.getElementById('current-fib').textContent = `Fibonacci F = ${point.fibonacci_value}`;
+            document.getElementById('current-address').textContent = point.address;
+
+            // Update Fibonacci display
+            document.querySelectorAll('.fib-number').forEach(el => {
+                el.classList.remove('active');
+                if (parseInt(el.dataset.level) === point.level) {
+                    el.classList.add('active');
+                }
+            });
+
+            // Update level highlight
+            document.querySelectorAll('.fib-level').forEach(el => {
+                el.classList.remove('current');
+                if (parseInt(el.dataset.level) === point.level) {
+                    el.classList.add('current');
+                }
+            });
+
+            // Update path
+            const pathContainer = document.getElementById('path-display');
+            pathContainer.innerHTML = `
+                <div class="panel-title">Path</div>
+                ${data.path.map((p, i) => `
+                    <span class="path-item" onclick="navigateToPath(${i})">${p}</span>
+                `).join(' → ')}
+            `;
+
+            // Update inner points
+            const innerList = document.getElementById('inner-points-list');
+            if (data.inner_points.length === 0) {
+                innerList.innerHTML = '<p style="color: #666; font-size: 12px;">No invoked points. Create or invoke to populate.</p>';
+            } else {
+                innerList.innerHTML = data.inner_points.map(p => `
+                    <div class="inner-point" onclick="navigateDown('${p.id}')">
+                        <span class="fib-badge">${p.fibonacci_value}</span>
+                        <div class="name">${p.name || p.id}</div>
+                        <div class="level">${p.level_name} • ${p.address}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function updateUniverseView(data) {
+            // Clear existing
+            while (universeGroup.children.length > 0) {
+                universeGroup.remove(universeGroup.children[0]);
+            }
+
+            // Create central point
+            const centerGeom = new THREE.SphereGeometry(0.5, 32, 32);
+            const centerMat = new THREE.MeshPhongMaterial({
+                color: 0xff8c00,
+                emissive: 0xff4400,
+                emissiveIntensity: 0.3
+            });
+            const center = new THREE.Mesh(centerGeom, centerMat);
+            universeGroup.add(center);
+
+            // Add inner points as orbiting spheres
+            const innerPoints = data.inner_points;
+            innerPoints.forEach((p, i) => {
+                const angle = (i / innerPoints.length) * Math.PI * 2;
+                const radius = 2 + (p.level * 0.2);
+                
+                const size = 0.1 + (p.fibonacci_value / 20);
+                const geom = new THREE.SphereGeometry(size, 16, 16);
+                
+                // Color based on level
+                const hue = p.level / 7;
+                const color = new THREE.Color().setHSL(hue * 0.3, 0.8, 0.5);
+                
+                const mat = new THREE.MeshPhongMaterial({
+                    color: color,
+                    emissive: color,
+                    emissiveIntensity: 0.2
+                });
+                
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.position.set(
+                    Math.cos(angle) * radius,
+                    p.level * 0.3,
+                    Math.sin(angle) * radius
+                );
+                mesh.userData = { point: p };
+                universeGroup.add(mesh);
+
+                // Connection line
+                const lineGeom = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(0, 0, 0),
+                    mesh.position
+                ]);
+                const lineMat = new THREE.LineBasicMaterial({ 
+                    color: 0x333333, 
+                    transparent: true, 
+                    opacity: 0.5 
+                });
+                const line = new THREE.Line(lineGeom, lineMat);
+                universeGroup.add(line);
+            });
+        }
+
+        async function createManifold() {
+            try {
+                const response = await fetch(`${API_BASE}/api/manifold/saddle/mesh?resolution=40`);
+                const mesh = await response.json();
+
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', 
+                    new THREE.Float32BufferAttribute(mesh.vertices, 3));
+                geometry.setIndex(mesh.indices);
+                geometry.computeVertexNormals();
+
+                // Create gradient material
+                const material = new THREE.MeshPhongMaterial({
+                    color: 0x8a2be2,
+                    emissive: 0x4b0082,
+                    emissiveIntensity: 0.1,
+                    side: THREE.DoubleSide,
+                    wireframe: false,
+                    flatShading: false
+                });
+
+                manifoldMesh = new THREE.Mesh(geometry, material);
+                manifoldMesh.visible = false;
+                scene.add(manifoldMesh);
+
+                // Add wireframe overlay
+                const wireGeom = new THREE.WireframeGeometry(geometry);
+                const wireMat = new THREE.LineBasicMaterial({ 
+                    color: 0xda70d6,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                const wireframe = new THREE.LineSegments(wireGeom, wireMat);
+                manifoldMesh.add(wireframe);
+
+            } catch (e) {
+                console.error('Failed to load manifold:', e);
+            }
+        }
+
+        function createFibonacciSpiral() {
+            fibonacciSpiral = new THREE.Group();
+            
+            // Create Fibonacci spiral
+            const points = [];
+            const fibonacci = [1, 1, 2, 3, 5, 8, 13, 21, 34];
+            let angle = 0;
+            let radius = 0;
+            
+            for (let i = 0; i < 100; i++) {
+                const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+                angle += goldenAngle;
+                radius = 0.1 * Math.sqrt(i);
+                
+                const x = Math.cos(angle) * radius;
+                const y = i * 0.05;
+                const z = Math.sin(angle) * radius;
+                
+                points.push(new THREE.Vector3(x, y, z));
+            }
+
+            const spiralGeom = new THREE.BufferGeometry().setFromPoints(points);
+            const spiralMat = new THREE.LineBasicMaterial({ 
+                color: 0xffd700,
+                linewidth: 2
+            });
+            const spiral = new THREE.Line(spiralGeom, spiralMat);
+            fibonacciSpiral.add(spiral);
+
+            // Add Fibonacci number spheres
+            fibonacci.forEach((fib, i) => {
+                const angle = i * Math.PI * (3 - Math.sqrt(5));
+                const r = fib * 0.2;
+                
+                const geom = new THREE.SphereGeometry(fib * 0.05, 16, 16);
+                const mat = new THREE.MeshPhongMaterial({
+                    color: 0xff8c00,
+                    emissive: 0xff4400,
+                    emissiveIntensity: 0.3
+                });
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.position.set(
+                    Math.cos(angle) * r,
+                    i * 0.5,
+                    Math.sin(angle) * r
+                );
+                fibonacciSpiral.add(mesh);
+            });
+
+            fibonacciSpiral.visible = false;
+            scene.add(fibonacciSpiral);
+        }
+
+        function setView(view) {
+            currentView = view;
+            
+            // Update buttons
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(view === 'manifold' ? 'z' : view.substring(0, 4))) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Toggle visibility
+            universeGroup.visible = view === 'universe';
+            if (manifoldMesh) manifoldMesh.visible = view === 'manifold';
+            if (fibonacciSpiral) fibonacciSpiral.visible = view === 'fibonacci';
+
+            // Adjust camera
+            if (view === 'manifold') {
+                camera.position.set(3, 3, 3);
+            } else if (view === 'fibonacci') {
+                camera.position.set(5, 8, 5);
+            } else {
+                camera.position.set(5, 5, 5);
+            }
+        }
+
+        async function navigateDown(pointId) {
+            try {
+                const response = await fetch(`${API_BASE}/api/down/${pointId}`);
+                const data = await response.json();
+                if (data.success) {
+                    await loadCurrent();
+                }
+            } catch (e) {
+                console.error('Navigation failed:', e);
+            }
+        }
+
+        async function navigateUp() {
+            try {
+                const response = await fetch(`${API_BASE}/api/up`);
+                const data = await response.json();
+                if (data.success) {
+                    await loadCurrent();
+                }
+            } catch (e) {
+                console.error('Navigation failed:', e);
+            }
+        }
+
+        async function invokePath() {
+            const path = document.getElementById('invoke-path').value;
+            if (!path) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/invoke`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path })
+                });
+                const data = await response.json();
+                console.log('Invoked:', data);
+                
+                // Show result
+                alert(`Invoked ${data.depth} points in ${data.time_ns}ns\nComplexity: ${data.complexity}`);
+                
+                await loadCurrent();
+            } catch (e) {
+                console.error('Invoke failed:', e);
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+
+            // Rotate universe group slowly
+            if (universeGroup.visible) {
+                universeGroup.rotation.y += 0.002;
+            }
+
+            // Rotate manifold
+            if (manifoldMesh && manifoldMesh.visible) {
+                manifoldMesh.rotation.y += 0.003;
+            }
+
+            // Rotate spiral
+            if (fibonacciSpiral && fibonacciSpiral.visible) {
+                fibonacciSpiral.rotation.y += 0.005;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX Helix Kernel Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            background: linear-gradient(90deg, #00d4ff, #ff6b35, #00d4ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .panel {
+            background: rgba(20, 20, 40, 0.9);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .panel h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .helix-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .state-value {
+            font-size: 3em;
+            font-family: monospace;
+            color: #00d4ff;
+        }
+        
+        .state-label {
+            font-size: 0.9em;
+            color: #888;
+        }
+        
+        .level-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .level-icon {
+            font-size: 2.5em;
+            color: #ff6b35;
+        }
+        
+        /* Level bar */
+        .level-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #111;
+            border-radius: 20px;
+            padding: 10px;
+            margin: 20px 0;
+        }
+        
+        .level-pip {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .level-pip:hover {
+            transform: scale(1.2);
+            background: #444;
+        }
+        
+        .level-pip.active {
+            background: linear-gradient(135deg, #00d4ff, #0088aa);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+        
+        .level-pip.accessible {
+            border: 2px solid #00d4ff;
+        }
+        
+        /* Operations */
+        .operations {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .op-btn {
+            background: linear-gradient(180deg, #2a2a4a, #1a1a3a);
+            border: 1px solid #444;
+            color: #fff;
+            padding: 15px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+        
+        .op-btn:hover {
+            background: linear-gradient(180deg, #3a3a5a, #2a2a4a);
+            transform: translateY(-2px);
+        }
+        
+        .op-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .op-btn.invoke { border-color: #00d4ff; }
+        .op-btn.spiral { border-color: #ff6b35; }
+        .op-btn.collapse { border-color: #ff3535; }
+        
+        /* Tokens */
+        .token-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .token {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid #555;
+            padding: 10px;
+            margin-bottom: 5px;
+            font-family: monospace;
+            font-size: 0.85em;
+            border-radius: 0 5px 5px 0;
+            transition: all 0.3s;
+        }
+        
+        .token.visible {
+            border-left-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+        
+        .token.hidden {
+            opacity: 0.4;
+        }
+        
+        .token-path {
+            color: #00d4ff;
+        }
+        
+        .token-sig {
+            color: #888;
+            font-size: 0.8em;
+        }
+        
+        .token-value {
+            color: #ff6b35;
+            margin-top: 3px;
+        }
+        
+        /* Event log */
+        .event-log {
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.85em;
+            background: #0a0a0a;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .event {
+            padding: 5px 0;
+            border-bottom: 1px solid #222;
+        }
+        
+        .event-type { color: #ff6b35; }
+        .event-from { color: #888; }
+        .event-to { color: #00ff88; }
+        
+        /* Metrics */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .metric {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2em;
+            color: #00d4ff;
+        }
+        
+        .metric-label {
+            font-size: 0.8em;
+            color: #888;
+        }
+        
+        /* Full width panels */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        /* Car selector */
+        select {
+            background: #1a1a3a;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        /* Materialized view */
+        .materialized-view {
+            background: #0a0a0a;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+    <h1>🦋 ButterflyFX Helix Kernel</h1>
+    <p class="subtitle">Formal Dimensional Programming Implementation | H = {(s, ℓ) | s ∈ Z, ℓ ∈ {0..6}}</p>
+    
+    <div class="container">
+        <!-- Helix State Panel -->
+        <div class="panel">
+            <h2>Helix State</h2>
+            
+            <div class="helix-state">
+                <div class="level-indicator">
+                    <span class="state-label">Spiral</span>
+                    <span class="state-value" id="spiral-value">0</span>
+                </div>
+                <div class="level-indicator">
+                    <span class="state-label">Level</span>
+                    <span class="state-value" id="level-value">0</span>
+                </div>
+                <div class="level-indicator">
+                    <span class="state-label">State</span>
+                    <span class="level-icon" id="level-icon">○</span>
+                    <span id="level-name">Potential</span>
+                </div>
+            </div>
+            
+            <div class="level-bar">
+                <div class="level-pip active" data-level="0" title="Level 0: Potential">○</div>
+                <div class="level-pip" data-level="1" title="Level 1: Point">•</div>
+                <div class="level-pip" data-level="2" title="Level 2: Length">━</div>
+                <div class="level-pip" data-level="3" title="Level 3: Width">▭</div>
+                <div class="level-pip" data-level="4" title="Level 4: Plane">▦</div>
+                <div class="level-pip" data-level="5" title="Level 5: Volume">▣</div>
+                <div class="level-pip" data-level="6" title="Level 6: Whole">◉</div>
+            </div>
+            
+            <div class="operations">
+                <button class="op-btn invoke" onclick="doInvoke(1)">INVOKE(1)<br>Point</button>
+                <button class="op-btn invoke" onclick="doInvoke(3)">INVOKE(3)<br>Width</button>
+                <button class="op-btn invoke" onclick="doInvoke(6)">INVOKE(6)<br>Whole</button>
+                <button class="op-btn collapse" onclick="doCollapse()">COLLAPSE<br>→ Potential</button>
+                <button class="op-btn spiral" onclick="doSpiralUp()" id="btn-spiral-up">SPIRAL_UP<br>(s,6)→(s+1,0)</button>
+                <button class="op-btn spiral" onclick="doSpiralDown()" id="btn-spiral-down">SPIRAL_DOWN<br>(s,0)→(s-1,6)</button>
+            </div>
+            
+            <h3 style="margin: 15px 0 10px;">Select Entity</h3>
+            <select id="car-selector" onchange="selectCar()">
+                <option value="camry">2024 Toyota Camry XSE V6</option>
+                <option value="mustang">2024 Ford Mustang GT</option>
+                <option value="corvette">2024 Chevrolet Corvette Stingray</option>
+                <option value="tesla">2024 Tesla Model 3 Performance</option>
+            </select>
+        </div>
+        
+        <!-- Tokens Panel -->
+        <div class="panel">
+            <h2>Substrate Tokens (τ = path, σ, payload)</h2>
+            <div class="token-list" id="token-list"></div>
+        </div>
+        
+        <!-- Event Log -->
+        <div class="panel">
+            <h2>Kernel Event Log</h2>
+            <div class="event-log" id="event-log">
+                <div class="event">Waiting for operations...</div>
+            </div>
+        </div>
+        
+        <!-- Materialized View -->
+        <div class="panel">
+            <h2>Materialized View μ(H)</h2>
+            <div class="materialized-view" id="materialized-view">
+μ: H → P(T)
+
+No tokens materialized at Level 0 (Potential)
+INVOKE to a higher level to materialize tokens.
+            </div>
+        </div>
+        
+        <!-- Metrics -->
+        <div class="panel full-width">
+            <h2>Dimensional Metrics</h2>
+            <div class="metrics">
+                <div class="metric">
+                    <div class="metric-value" id="metric-tokens">0</div>
+                    <div class="metric-label">Total Tokens</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="metric-visible">0</div>
+                    <div class="metric-label">Visible at Level</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="metric-efficiency">0%</div>
+                    <div class="metric-label">Materialization Efficiency</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="metric-invokes">0</div>
+                    <div class="metric-label">INVOKE Operations</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="metric-spirals">0</div>
+                    <div class="metric-label">SPIRAL Operations</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="metric-access">0</div>
+                    <div class="metric-label">Token Accesses</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="dimensional_entity.js"></script>
+    <script>
+        // Car database
+        const CAR_DATABASE = {
+            camry: {
+                make: 'Toyota', model: 'Camry XSE', year: 2024,
+                engine: { cylinders: 6, displacement_L: 3.5, horsepower: 301, torque_lb_ft: 267, compression_ratio: 11.8 },
+                transmission: { type: 'automatic', speeds: 8 },
+                chassis: { weight_lbs: 3572, wheelbase_in: 111.2 },
+                drivetrain: { type: 'FWD' },
+                performance: { top_speed_mph: 135, zero_to_sixty_s: 5.8 },
+                fuel: { capacity_gal: 15.8, mpg_combined: 26 }
+            },
+            mustang: {
+                make: 'Ford', model: 'Mustang GT', year: 2024,
+                engine: { cylinders: 8, displacement_L: 5.0, horsepower: 480, torque_lb_ft: 415, compression_ratio: 12.0 },
+                transmission: { type: 'manual', speeds: 6 },
+                chassis: { weight_lbs: 3832, wheelbase_in: 107.1 },
+                drivetrain: { type: 'RWD' },
+                performance: { top_speed_mph: 168, zero_to_sixty_s: 4.3 },
+                fuel: { capacity_gal: 16.0, mpg_combined: 19 }
+            },
+            corvette: {
+                make: 'Chevrolet', model: 'Corvette Stingray', year: 2024,
+                engine: { cylinders: 8, displacement_L: 6.2, horsepower: 490, torque_lb_ft: 465, compression_ratio: 11.5 },
+                transmission: { type: 'automatic', speeds: 8 },
+                chassis: { weight_lbs: 3647, wheelbase_in: 107.2 },
+                drivetrain: { type: 'RWD' },
+                performance: { top_speed_mph: 194, zero_to_sixty_s: 2.9 },
+                fuel: { capacity_gal: 18.5, mpg_combined: 19 }
+            },
+            tesla: {
+                make: 'Tesla', model: 'Model 3 Performance', year: 2024,
+                engine: { cylinders: 0, displacement_L: 0, horsepower: 510, torque_lb_ft: 546, compression_ratio: 0 },
+                transmission: { type: 'single-speed', speeds: 1 },
+                chassis: { weight_lbs: 4065, wheelbase_in: 113.2 },
+                drivetrain: { type: 'AWD' },
+                performance: { top_speed_mph: 162, zero_to_sixty_s: 3.1 },
+                fuel: { capacity_gal: 0, mpg_combined: 113 }
+            }
+        };
+        
+        let currentEntity = null;
+        
+        function selectCar() {
+            const key = document.getElementById('car-selector').value;
+            const data = CAR_DATABASE[key];
+            currentEntity = new ButterflyFX.DimensionalCarV2(data);
+            updateUI();
+            logEvent('ENTITY_CREATED', `Created ${data.make} ${data.model}`);
+        }
+        
+        function doInvoke(level) {
+            if (!currentEntity) return;
+            try {
+                currentEntity.invoke(level);
+                updateUI();
+            } catch (e) {
+                logEvent('ERROR', e.message);
+            }
+        }
+        
+        function doSpiralUp() {
+            if (!currentEntity) return;
+            try {
+                currentEntity.spiralUp();
+                updateUI();
+            } catch (e) {
+                logEvent('ERROR', e.message);
+            }
+        }
+        
+        function doSpiralDown() {
+            if (!currentEntity) return;
+            try {
+                currentEntity.spiralDown();
+                updateUI();
+            } catch (e) {
+                logEvent('ERROR', e.message);
+            }
+        }
+        
+        function doCollapse() {
+            if (!currentEntity) return;
+            try {
+                currentEntity.collapse();
+                updateUI();
+            } catch (e) {
+                logEvent('ERROR', e.message);
+            }
+        }
+        
+        function updateUI() {
+            if (!currentEntity) return;
+            
+            const state = currentEntity.state;
+            
+            // Update state display
+            document.getElementById('spiral-value').textContent = state.spiral;
+            document.getElementById('level-value').textContent = state.level;
+            document.getElementById('level-icon').textContent = state.levelIcon;
+            document.getElementById('level-name').textContent = state.levelName;
+            
+            // Update level bar
+            document.querySelectorAll('.level-pip').forEach((pip, i) => {
+                pip.classList.remove('active');
+                if (i === state.level) {
+                    pip.classList.add('active');
+                }
+            });
+            
+            // Update operation buttons
+            document.getElementById('btn-spiral-up').disabled = state.level !== 6;
+            document.getElementById('btn-spiral-down').disabled = state.level !== 0;
+            
+            // Update tokens
+            updateTokenList();
+            
+            // Update materialized view
+            updateMaterializedView();
+            
+            // Update metrics
+            updateMetrics();
+            
+            // Update events
+            updateEventLog();
+        }
+        
+        function updateTokenList() {
+            const container = document.getElementById('token-list');
+            const level = currentEntity.state.level;
+            
+            let html = '';
+            for (const [path, token] of currentEntity._substrate) {
+                const visible = token.canMaterializeAt(level);
+                html += `
+                    <div class="token ${visible ? 'visible' : 'hidden'}">
+                        <span class="token-path">${path}</span>
+                        <span class="token-sig">σ: [${token.signature.join(',')}]</span>
+                        ${visible ? `<div class="token-value">${JSON.stringify(token.payload)}</div>` : ''}
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+        
+        function updateMaterializedView() {
+            const container = document.getElementById('materialized-view');
+            const level = currentEntity.state.level;
+            
+            if (level === 0) {
+                container.textContent = `μ: H → P(T)\n\nLevel 0 (Potential): No materialization\nAll tokens exist but none are visible.\n\nINVOKE to a higher level to begin materialization.`;
+                return;
+            }
+            
+            // Get materialized tokens
+            const materialized = {};
+            for (const [path, token] of currentEntity._substrate) {
+                if (token.canMaterializeAt(level)) {
+                    materialized[path] = token.payload;
+                }
+            }
+            
+            container.textContent = `μ(${currentEntity.state.toString()}) → P(T)\n\nMaterialized ${Object.keys(materialized).length} tokens at Level ${level} (${currentEntity.state.levelName}):\n\n${JSON.stringify(materialized, null, 2)}`;
+        }
+        
+        function updateMetrics() {
+            const metrics = currentEntity.getMetrics();
+            const level = currentEntity.state.level;
+            
+            // Count visible tokens
+            let visible = 0;
+            for (const [, token] of currentEntity._substrate) {
+                if (token.canMaterializeAt(level)) visible++;
+            }
+            
+            document.getElementById('metric-tokens').textContent = metrics.totalTokens;
+            document.getElementById('metric-visible').textContent = visible;
+            document.getElementById('metric-efficiency').textContent = 
+                metrics.totalTokens > 0 ? Math.round((visible / metrics.totalTokens) * 100) + '%' : '0%';
+            document.getElementById('metric-invokes').textContent = metrics.invokeCount;
+            document.getElementById('metric-spirals').textContent = metrics.spiralRange;
+            document.getElementById('metric-access').textContent = metrics.materialized;
+        }
+        
+        function updateEventLog() {
+            const container = document.getElementById('event-log');
+            const events = currentEntity.events.slice(-20).reverse();
+            
+            if (events.length === 0) {
+                container.innerHTML = '<div class="event">No kernel operations yet.</div>';
+                return;
+            }
+            
+            let html = '';
+            for (const event of events) {
+                html += `
+                    <div class="event">
+                        <span class="event-type">${event.type}</span>
+                        <span class="event-from">${event.from || ''}</span>
+                        ${event.to ? `<span>→</span><span class="event-to">${event.to}</span>` : ''}
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+        
+        function logEvent(type, message) {
+            const container = document.getElementById('event-log');
+            const div = document.createElement('div');
+            div.className = 'event';
+            div.innerHTML = `<span class="event-type">${type}</span> ${message}`;
+            container.prepend(div);
+        }
+        
+        // Level pip click handlers
+        document.querySelectorAll('.level-pip').forEach(pip => {
+            pip.addEventListener('click', () => {
+                const level = parseInt(pip.dataset.level);
+                doInvoke(level);
+            });
+        });
+        
+        // Initialize
+        selectCar();
+    </script>
+</body>
+</html>

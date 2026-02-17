@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas Test</title>
+    <style>
+        body { margin: 0; background: #000; }
+        canvas { display: block; }
+        #status { position: fixed; top: 10px; left: 10px; color: #0f0; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div id="status">Testing...</div>
+    <canvas id="c"></canvas>
+    <script>
+        var status = document.getElementById('status');
+        status.textContent = 'Script running...';
+        
+        var c = document.getElementById('c');
+        c.width = 400;
+        c.height = 300;
+        
+        var ctx = c.getContext('2d');
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(0, 0, 400, 300);
+        
+        ctx.fillStyle = '#4060ff';
+        ctx.font = '24px sans-serif';
+        ctx.fillText('Canvas Works!', 100, 150);
+        
+        ctx.strokeStyle = '#ff4080';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(200, 150, 80, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        status.textContent = 'Canvas test complete!';
+    </script>
+</body>
+</html>

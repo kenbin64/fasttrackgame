@@ -1,0 +1,331 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a12;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        /* Main canvas */
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+        
+        /* Time dimension control */
+        #time-control {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(20, 20, 40, 0.9);
+            padding: 15px 30px;
+            border-radius: 50px;
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        #time-slider {
+            width: 300px;
+            height: 6px;
+            -webkit-appearance: none;
+            background: linear-gradient(90deg, #4060ff, #ff4080);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        #time-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(100, 150, 255, 0.8);
+        }
+        
+        .time-label {
+            font-size: 0.9em;
+            color: #8090ff;
+            min-width: 80px;
+        }
+        
+        #time-value {
+            font-family: monospace;
+            font-size: 1.2em;
+            color: #fff;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        /* Header */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(10, 10, 20, 0.9);
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            font-size: 1.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .dimension-indicator {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .dim-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .dim-badge.active {
+            background: linear-gradient(135deg, #4060ff, #6040ff);
+            color: #fff;
+        }
+        
+        .dim-badge:not(.active) {
+            background: rgba(100, 150, 255, 0.1);
+            color: #6080aa;
+        }
+        
+        /* Content panels that exist in 4D space */
+        .content-panel {
+            position: fixed;
+            background: rgba(15, 15, 30, 0.95);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 50;
+            pointer-events: auto;
+        }
+        
+        .content-panel h2 {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .content-panel p {
+            color: #aab;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+        
+        /* Coordinate display */
+        #coordinates {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(15, 15, 30, 0.95);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85em;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        #coordinates .label {
+            color: #6080aa;
+            margin-right: 10px;
+        }
+        
+        #coordinates .value {
+            color: #4080ff;
+        }
+        
+        /* Dimensional IP Panel */
+        #dimensional-ip {
+            position: fixed;
+            top: 80px;
+            left: 80px;
+            background: rgba(15, 15, 30, 0.95);
+            border: 1px solid rgba(255, 64, 128, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.8em;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            max-width: 280px;
+        }
+        
+        #dimensional-ip h3 {
+            margin: 0 0 15px 0;
+            font-size: 0.75em;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #ff4080;
+            border-bottom: 1px solid rgba(255, 64, 128, 0.2);
+            padding-bottom: 8px;
+        }
+        
+        #dimensional-ip .ip-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 5px 0;
+        }
+        
+        #dimensional-ip .ip-label {
+            color: #6080aa;
+        }
+        
+        #dimensional-ip .ip-value {
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        #dimensional-ip .substrate {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(255, 64, 128, 0.1);
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        #dimensional-ip .substrate-label {
+            font-size: 0.7em;
+            color: #ff4080;
+            margin-bottom: 5px;
+        }
+        
+        #dimensional-ip .substrate-value {
+            font-size: 1.4em;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+        
+        #dimensional-ip .manifold-uri {
+            margin-top: 10px;
+            font-size: 0.75em;
+            color: #4080ff;
+            word-break: break-all;
+        }
+        
+        /* Benchmark mini display */
+        #benchmarks-mini {
+            position: fixed;
+            bottom: 120px;
+            right: 20px;
+            background: rgba(15, 15, 30, 0.95);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.7em;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        #benchmarks-mini h4 {
+            margin: 0 0 10px 0;
+            font-size: 0.75em;
+            color: #6080aa;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        
+        .bench-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 4px 0;
+            color: #8090cc;
+        }
+        
+        .bench-value {
+            color: #40ff80;
+            font-weight: 600;
+        }
+        
+        /* 4D Navigation hint */
+        #nav-hint {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #6080aa;
+            font-size: 0.85em;
+            z-index: 100;
+        }
+        
+        /* Tesseract labels */
+        .vertex-label {
+            position: absolute;
+            font-family: monospace;
+            font-size: 11px;
+            color: rgba(100, 150, 255, 0.7);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        
+        /* Helix level indicators */
+        #helix-levels {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 100;
+        }
+        
+        .helix-level {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .helix-level:hover {
+            transform: scale(1.2);
+        }
+        
+        .helix-level.level-1 { background: rgba(255, 100, 100, 0.2); border-color: #ff6464; color: #ff6464; }
+        .helix-level.level-2 { background: rgba(255, 180, 100, 0.2); border-color: #ffb464; color: #ffb464; }
+        .helix-level.level-3 { background: rgba(255, 255, 100, 0.2); border-color: #ffff64; color: #ffff64; }
+        .helix-level.level-4 { background: rgba(100, 255, 100, 0.2); border-color: #64ff64; color: #64ff64; }
+        .helix-level.level-4.active { background: rgba(100, 255, 100, 0.5); box-shadow: 0 0 20px rgba(100, 255, 100, 0.5); }
+        .helix-level.level-5 { background: rgba(100, 200, 255, 0.2); border-color: #64c8ff; color: #64c8ff; }
+        .helix-level.level-6 { background: rgba(150, 100, 255, 0.2); border-color: #9664ff; color: #9664ff; }
+        .helix-level.level-7 { background: rgba(255, 100, 200, 0.2); border-color: #ff64c8; color: #ff64c8; }

@@ -34,17 +34,43 @@ Where:
 - $s$: spiral index (…−1, 0, 1, 2, …)
 - $\ell$: level within a spiral
 
-**Level Definitions:**
+**Level Definitions (Geometric + Semantic):**
 
-| $\ell$ | Name | Description |
-|--------|------|-------------|
-| 0 | Potential | Pure possibility, nothing instantiated |
-| 1 | Point | Single instantiation, moment of existence |
-| 2 | Length | Extension in one dimension |
-| 3 | Width | Extension in two dimensions |
-| 4 | Plane | Surface, 2D completeness |
-| 5 | Volume | Full 3D existence |
-| 6 | Whole | Complete entity, ready for next spiral |
+Each level has both a **geometric meaning** (shape) and a **semantic meaning** (purpose):
+
+| $\ell$ | Geometric | Semantic | Description |
+|--------|-----------|----------|-------------|
+| 0 | Potential | **Void** | Pure possibility, nothing instantiated |
+| 1 | Point | **Identity** | UUID, name, anchor — NOT the object |
+| 2 | Length | **Relationship** | Attributes, references, links |
+| 3 | Width | **Structure** | Schema, blueprint, geometry |
+| 4 | Plane | **Manifestation** | Object APPEARS — first visible form |
+| 5 | Volume | **Multiplicity** | Systems, behavior, interaction |
+| 6 | Whole | **Meaning** | Interpretation — transcends form |
+
+**The Identity-First Principle:**
+
+> *"Manifestation does NOT begin with the object — it begins with identity."*
+
+The object at $\ell = 4$ is a **collapsed projection** of the identity at $\ell = 1$:
+
+$$\text{Identity}(\ell=1) \xrightarrow{\text{collapse}} \text{Object}(\ell=4) \xrightarrow{\text{transcend}} \text{Meaning}(\ell=6)$$
+
+**The Universal Pattern:**
+
+The 7-level structure is not arbitrary — it maps to established systems:
+
+| $\ell$ | Fibonacci | Semantic | OSI Layer | Genesis |
+|--------|-----------|----------|-----------|---------|
+| 0 | 0 | Void | *(Pre-network)* | "Formless and void" |
+| 1 | 1 | Identity | Physical | "Let there be light" |
+| 2 | 1 | Relationship | Data Link | Separation of waters |
+| 3 | 2 | Structure | Network | Land/vegetation |
+| 4 | 3 | Manifestation | Transport | Sun/moon/stars |
+| 5 | 5 | Multiplicity | Session | Fish/birds |
+| 6 | 8 | Meaning | Presentation | Humans |
+
+The spiral transition follows: $F_6 + F_5 = 8 + 5 = 13 = F_7$, encoding renewal.
 
 ### 1.2 Transition Operators
 

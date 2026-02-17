@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX — Dimensional Computing</title>
+    <link rel="stylesheet" href="static/css/index_new.css">
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <header id="header">
+        <div class="logo">ButterflyFX</div>
+        <div class="header-subtitle">Dimensional Computing Platform</div>
+    </header>
+    
+    <main id="main-content">
+        
+        <!-- HERO -->
+        <div class="hero">
+            <h1>Computing Without <span>Storage</span></h1>
+            <p class="subtitle">
+                What if you never had to store data? What if values could be <em>derived</em> from 
+                geometry — calculated instantly, never saved? 
+            </p>
+            <p class="hook">"Every value exists as a point on a curve. Find the point, know the value."</p>
+        </div>
+        
+        <!-- SECTION 1: The Problem -->
+        <section id="problem">
+            <h2><span class="num">1</span> The Problem With Computing Today</h2>
+            <h3>We're drowning in data because we forgot how to think mathematically</h3>
+            
+            <p>
+                Modern computing is obsessed with <span class="highlight">storage</span>. We save everything: 
+                billions of rows in databases, petabytes in data centers, endless copies of the same information.
+            </p>
+            
+            <p>
+                But here's the thing: <span class="concept">mathematics doesn't need storage</span>. 
+                The value of sin(45°) isn't stored anywhere — it's <em>derived</em> from the equation.
+                You can calculate it anytime, anywhere, and always get the same answer.
+            </p>
+
+            <div class="two-col">
+                <div class="col old">
+                    <h4>Traditional Computing</h4>
+                    <ul>
+                        <li>Store every value</li>
+                        <li>Copy data between systems</li>
+                        <li>Query to find values</li>
+                        <li>Sync to keep copies updated</li>
+                        <li>Backup to prevent loss</li>
+                    </ul>
+                </div>
+                <div class="col new">
+                    <h4>Dimensional Computing</h4>
+                    <ul>
+                        <li>Store only the equation</li>
+                        <li>Derive values on demand</li>
+                        <li>Calculate to find values</li>
+                        <li>Nothing to sync — math is universal</li>
+                        <li>Nothing to lose — geometry is eternal</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="insight">
+                <strong>The Core Insight:</strong> If you know the equation of a curve, you know 
+                <em>every point on that curve</em>. Share the equation, not the samples.
+            </div>
+        </section>
+        
+        <!-- SECTION 2: What Is Dimensional Computing -->
+        <section id="what-is">
+            <h2><span class="num">2</span> What Is Dimensional Computing?</h2>
+            <h3>A new paradigm where geometry IS the data</h3>
+            
+            <p>
+                In <span class="concept">dimensional computing</span>, we don't store values — we store 
+                <em>geometric structures</em> (curves, surfaces, manifolds) and derive any value we need 
+                by calculating properties at specific points.
+            </p>
+            
+            <p>
+                Think of it like this: instead of storing a million pixels of an image, you store the 
+                <em>equation that generates that image</em>. Want pixel (324, 512)? Calculate it. Want 
+                to zoom in? Just increase the resolution of your calculation.
+            </p>
+            
+            <div class="code-block">
+<span class="comment"># Traditional approach: Store 1 million values</span>
+data = [0.707, 0.866, 0.5, 0.342, ...]  <span class="comment"># storage: ~8MB</span>
+
+<span class="comment"># Dimensional approach: Store the equation</span>
+<span class="keyword">def</span> <span class="function">derive</span>(angle):
+    <span class="keyword">return</span> math.sin(angle)  <span class="comment"># storage: ~50 bytes</span>
+
+<span class="comment"># Same values, infinite resolution, no storage</span>
+            </div>
+            
+            <p>
+                This extends to everything: databases become geometric structures, network packets 
+                become coordinates, even IP addresses become 4D positions on a manifold.
+            </p>
+        </section>
+        
+        <!-- SECTION 3: The Dimensional Helix -->
+        <section id="helix">
+            <h2><span class="num">3</span> The Dimensional Helix</h2>
+            <h3>Not a hierarchy — a recursive view of the same structure</h3>
+            
+            <p>
+                The <span class="concept">dimensional helix</span> shows how the same data looks at 
+                different "resolutions" or dimensional views. Every object IS a dimension containing points.
+                Each point is itself a dimension containing its own points. Turtles all the way down.
+            </p>
+            
+            <div id="helix-demo">
+                <p style="color: #8090bb; margin-bottom: 15px;">Click a level to explore what it means:</p>
+                
+                <div class="helix-levels">
+                    <div class="level-card active" data-level="0">
+                        <div class="symbol">∅</div>
+                        <div class="name">Void</div>
+                        <div class="desc">Level 0</div>
+                    </div>
+                    <div class="level-card" data-level="1">
+                        <div class="symbol">•</div>
+                        <div class="name">Point</div>
+                        <div class="desc">Level 1</div>
+                    </div>
+                    <div class="level-card" data-level="2">
+                        <div class="symbol">―</div>
+                        <div class="name">Line</div>
+                        <div class="desc">Level 2</div>
+                    </div>
+                    <div class="level-card" data-level="3">
+                        <div class="symbol">□</div>
+                        <div class="name">Plane</div>
+                        <div class="desc">Level 3</div>
+                    </div>
+                    <div class="level-card" data-level="4">
+                        <div class="symbol">◇</div>
+                        <div class="name">Volume</div>
+                        <div class="desc">Level 4</div>
+                    </div>
+                    <div class="level-card" data-level="5">
+                        <div class="symbol">⬡</div>
+                        <div class="name">Network</div>
+                        <div class="desc">Level 5</div>
+                    </div>
+                    <div class="level-card" data-level="6">
+                        <div class="symbol">◎</div>
+                        <div class="name">Internet</div>
+                        <div class="desc">Level 6</div>
+                    </div>
+                </div>
+                
+                <div id="level-explanation">
+                    <h4 id="level-title" style="color: #888;">Level 0: The Void</h4>
+                    <p id="level-text">
+                        <strong>Pure potential.</strong> Before any structure exists, there is possibility. 
+                        The void is not "nothing" — it's the space where dimensions can emerge. In computing terms: 
+                        this is the unallocated memory, the blank canvas, the clean slate before initialization.
+                        Even the void is a dimension — the dimension of potential.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="insight">
+                <strong>Key Understanding:</strong> You're not moving "up" or "down" levels. You're viewing 
+                the <em>same structure</em> at different resolutions. A table isn't "above" its rows — 
+                its rows ARE the table, viewed as points within that dimension.
+            </div>
+        </section>
+        
+        <!-- SECTION 4: The Substrate -->
+        <section id="substrate">
+            <h2><span class="num">4</span> The Substrate</h2>
+            <h3>Where geometry becomes computable</h3>
+            
+            <p>
+                The <span class="concept">substrate</span> is the geometric surface that holds all 
+                computable values. Every point on a curve has properties: angle, slope, curvature, 
+                distance. These properties ARE the data.
+            </p>
+            
+            <div class="code-block">
+<span class="comment"># The substrate derives values from geometry</span>
+point = substrate.at(spiral=<span class="number">0</span>, angle=<span class="number">1.57</span>)
+
+<span class="comment"># Every geometric property is extractable:</span>
+sin_value = point.sin         <span class="comment"># from the angle</span>
+cos_value = point.cos         <span class="comment"># from the angle</span>
+slope = point.tangent.slope   <span class="comment"># from 1st derivative</span>
+curve = point.curvature       <span class="comment"># from 2nd derivative</span>
+radius = point.distance       <span class="comment"># from origin</span>
+
+<span class="comment"># Nothing is stored — everything is calculated</span>
+            </div>
+            
+            <p>
+                An IP address like <code>192.168.1.1</code> becomes coordinates: <code>D(192, 168, 1, 1)</code>. 
+                These four numbers define a point in 4D space. The properties at that point (curvature, 
+                density, connections) describe the network topology.
+            </p>
+        </section>
+        
+        <!-- SECTION 5: Performance -->
+        <section id="performance">
+            <h2><span class="num">5</span> Proven Performance</h2>
+            <h3>Real benchmarks from the running system</h3>
+            
+            <p>
+                Dimensional computing isn't just theoretical — it's running right now on this server.
+                Here are measured benchmarks:
+            </p>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="value" id="bench-encode">2.3 μs</div>
+                    <div class="label">Dimensional IP Encode</div>
+                </div>
+                <div class="metric-card">
+                    <div class="value">O(1)</div>
+                    <div class="label">Substrate Lookup</div>
+                </div>
+                <div class="metric-card">
+                    <div class="value" id="bench-derive">0.8 μs</div>
+                    <div class="label">Value Derivation</div>
+                </div>
+                <div class="metric-card">
+                    <div class="value">~180 ns</div>
+                    <div class="label">Manifold Lookup</div>
+                </div>
+                <div class="metric-card">
+                    <div class="value">27 bytes</div>
+                    <div class="label">4D Packet Size</div>
+                </div>
+                <div class="metric-card">
+                    <div class="value">0 bytes</div>
+                    <div class="label">Storage Required*</div>
+                </div>
+            </div>
+            
+            <p style="text-align: center; font-size: 0.85em; color: #6080aa; margin-top: 20px;">
+                *For derived values. Only equations are stored, not computed values. 
+                <br>Run <code>/api/dimensional/benchmark</code> to verify.
+            </p>
+        </section>
+        
+        <!-- SECTION 6: Your Position -->
+        <section id="your-position">
+            <h2><span class="num">6</span> Your Dimensional Position</h2>
+            <h3>Everything has coordinates, including you</h3>
+            
+            <p>
+                Your IP address places you at a specific point in 4D space. Here's where you are 
+                on the dimensional manifold:
+            </p>
+            
+            <div class="position-display">
+                <div class="position-item">
+                    <div class="label">Your IP Address</div>
+                    <div class="value" id="your-ip">detecting...</div>
+                </div>
+                <div class="position-item">
+                    <div class="label">→</div>
+                    <div class="value" style="color: #6080aa;">maps to</div>
+                </div>
+                <div class="position-item">
+                    <div class="label">4D Coordinates</div>
+                    <div class="value coords" id="your-coords">(?, ?, ?, ?)</div>
+                </div>
+            </div>
+            
+            <p style="text-align: center; color: #8090bb;">
+                Every device on the internet has a unique position in this 4D manifold. 
+                Network topology becomes geometry. Routing becomes navigation.
+            </p>
+        </section>
+        
+        <!-- SECTION 7: Applications -->
+        <section id="applications">
+            <h2><span class="num">7</span> What Can You Build?</h2>
+            <h3>Dimensional computing enables new kinds of applications</h3>
+            
+            <div class="two-col">
+                <div class="col">
+                    <h4 style="color: #60b0ff;">Zero-Storage Databases</h4>
+                    <p style="font-size: 0.9em; color: #a0b0d0;">
+                        Store equations, not rows. A substrate can derive any cell value 
+                        from geometric properties. Queries become point calculations.
+                    </p>
+                </div>
+                <div class="col">
+                    <h4 style="color: #60b0ff;">Geometric Networking</h4>
+                    <p style="font-size: 0.9em; color: #a0b0d0;">
+                        IP addresses as 4D coordinates. Routing as manifold navigation. 
+                        Network topology embedded in geometry.
+                    </p>
+                </div>
+                <div class="col">
+                    <h4 style="color: #60b0ff;">Infinite Resolution Media</h4>
+                    <p style="font-size: 0.9em; color: #a0b0d0;">
+                        Images/audio/video as equations. Zoom infinitely. No compression 
+                        artifacts. Resolution is computation, not storage.
+                    </p>
+                </div>
+                <div class="col">
+                    <h4 style="color: #60b0ff;">Fractal Data Structures</h4>
+                    <p style="font-size: 0.9em; color: #a0b0d0;">
+                        Every object is a dimension containing objects. Self-similar 
+                        structures at every scale. Natural recursion patterns.
+                    </p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- CTA -->
+        <section id="cta">
+            <h2>Start Building</h2>
+            <h3>Explore the dimensional computing platform</h3>
+            
+            <p>
+                ButterflyFX is open source and running on this server. Explore the API, 
+                read the documentation, or dive into the code.
+            </p>
+            
+            <div class="cta-buttons">
+                <a href="/api/status" class="cta-btn primary">View API Status</a>
+                <a href="/api/dimensional/benchmark" class="cta-btn secondary">Run Benchmarks</a>
+            </div>
+        </section>
+        
+    </main>
+    
+    <footer>
+        <p>ButterflyFX Dimensional Computing Platform</p>
+        <p style="margin-top: 10px;">
+            <a href="https://github.com/kenbin64/butterflyfxpython">GitHub</a> · 
+            Every point is a dimension. Every dimension contains points.
+        </p>
+    </footer>
+    
+    <script src="static/js/index_new.js"></script>
+</body>
+</html>

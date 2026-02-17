@@ -1,0 +1,49 @@
+# ButterflyFX Deploy License
+
+## Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+**Copyright (c) 2024-2026 Kenneth Bingham**
+
+This work is licensed under the Creative Commons Attribution 4.0 International License.
+
+### You are free to:
+
+- **Share** — copy and redistribute the material in any medium or format for any purpose, even commercially.
+- **Adapt** — remix, transform, and build upon the material for any purpose, even commercially.
+
+### Under the following terms:
+
+- **Attribution** — You must give appropriate credit to **Kenneth Bingham** as the original creator.
+
+---
+
+## What This License Covers
+
+This license applies to all deployment tools in the `/deploy/` directory:
+
+- `deploy.sh` - Ubuntu/Debian deployment script
+- All supporting configuration and scripts
+
+---
+
+## Attribution
+
+When using these deployment tools, please include:
+
+```
+ButterflyFX Deployment Tools
+Copyright (c) 2024-2026 Kenneth Bingham
+Licensed under CC BY 4.0
+https://butterflyfx.us
+```
+
+---
+
+## Full License Text
+
+https://creativecommons.org/licenses/by/4.0/legalcode
+
+---
+
+**Original Creator:** Kenneth Bingham  
+**Website:** https://butterflyfx.us

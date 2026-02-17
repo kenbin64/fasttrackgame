@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX — The Dimensional Helix</title>
+    <link rel="stylesheet" href="static/css/butterflyfx.css">
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div id="header">
+        <div class="logo">ButterflyFX</div>
+        <div class="tagline">"Every point is a dimension. Every dimension contains points."</div>
+    </div>
+    
+    <div id="dimension-selector">
+        <div class="dim-btn" data-dim="0" title="The Void — Pure potential">∅</div>
+        <div class="dim-btn" data-dim="1" title="The Point — A dimension emerges">•</div>
+        <div class="dim-btn" data-dim="2" title="The Line — Points form sequence">―</div>
+        <div class="dim-btn" data-dim="3" title="The Plane — Lines form surface">□</div>
+        <div class="dim-btn active" data-dim="4" title="The Volume — Surfaces form space">◇</div>
+        <div class="dim-btn" data-dim="5" title="The Network — Systems connect">⬡</div>
+        <div class="dim-btn" data-dim="6" title="The Internet — Networks unify">◎</div>
+    </div>
+    
+    <!-- PANEL 0: The Philosophy -->
+    <div class="info-panel" id="panel-philosophy" style="top: 70px; right: 20px;">
+        <h3 style="color: #ff4080;">The Dimensional Helix</h3>
+        <h4>Every Object IS a Dimension</h4>
+        <p>This is not a hierarchy. There is no "up" or "down". Every object is a <span class="highlight">dimension</span> that contains points. Each point is itself a dimension containing its own points.</p>
+        <div class="insight">
+            <strong>The Core Insight:</strong> A "table" is a 2D dimension. Its "rows" are 1D dimensions within it. Each "cell" is a 0D dimension — a point that IS the value.
+        </div>
+        <p>The helix spirals through dimensional views of the <em>same underlying structure</em>. Navigate the helix to see data at different resolutions.</p>
+    </div>
+    
+    <!-- PANEL 1: Substrate -->
+    <div class="info-panel" id="panel-substrate" style="top: 180px; left: 80px;">
+        <h3 style="color: #44aaff;">The Substrate</h3>
+        <h4>Geometry Holds Information</h4>
+        <p>The manifold surface IS the data. We don't <em>store</em> values — we <span class="highlight">derive</span> them from geometric properties.</p>
+        <div class="code-block">
+# A point on the helix
+point = manifold.at(spiral=0, level=3)
+
+# Extract ANY value from geometry
+sin_val = point.sin      # from angle
+slope = point.slope      # from tangent
+curve = point.curvature  # from 2nd derivative
+        </div>
+        <div class="metric">
+            <span class="metric-label">Storage Required</span>
+            <span class="metric-value">0 bytes</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Values Derivable</span>
+            <span class="metric-value">∞ (infinite)</span>
+        </div>
+        <div class="insight">
+            Math is the universal language. Send the equation, not the samples.
+        </div>
+    </div>
+    
+    <!-- PANEL 2: Benchmarks -->
+    <div class="info-panel" id="panel-benchmarks" style="bottom: 120px; right: 20px;">
+        <h3 style="color: #44ff88;">Verified Benchmarks</h3>
+        <h4>Proven Performance</h4>
+        <div class="metric">
+            <span class="metric-label">Dimensional IP Encode</span>
+            <span class="metric-value" id="bench-encode">2.3 μs/op</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Substrate Ingest</span>
+            <span class="metric-value" id="bench-ingest">O(1)</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Substrate Extract</span>
+            <span class="metric-value" id="bench-extract">O(1)</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Geometric Derivation</span>
+            <span class="metric-value" id="bench-derive">0.8 μs</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Manifold Lookup</span>
+            <span class="metric-value">~180 ns</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">4D Packet Size</span>
+            <span class="metric-value">27 bytes</span>
+        </div>
+        <p style="margin-top: 12px; font-size: 0.75em; color: #6080aa;">
+            Benchmarks from Python 3.11 on Linux. Run <code>/api/dimensional/benchmark</code> to verify.
+        </p>
+    </div>
+    
+    <!-- PANEL 3: Dimensional Content (changes with level) -->
+    <div class="info-panel" id="panel-dimension" style="top: 70px; left: 80px; display: none;">
+        <h3 id="dim-panel-title" style="color: #ff6464;">Dimension 0</h3>
+        <h4 id="dim-panel-subtitle">The Void</h4>
+        <div id="dim-panel-content">
+            <!-- Content injected by JS based on current dimension -->
+        </div>
+    </div>
+    
+    <!-- PANEL 4: Your Position -->
+    <div class="info-panel" id="panel-position" style="bottom: 120px; left: 80px;">
+        <h3 style="color: #aa66ff;">Your Dimensional Position</h3>
+        <div class="metric">
+            <span class="metric-label">IP Address</span>
+            <span class="metric-value" id="your-ip">detecting...</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">As Coordinates</span>
+            <span class="metric-value" id="your-coords">(?, ?, ?, ?)</span>
+        </div>
+        <div class="code-block" style="text-align: center; font-size: 1.1em;">
+            <span id="substrate-notation">r = ?,?,?,?</span>
+        </div>
+        <p>Your IP address maps to a unique point in 4D space. Every device has a dimensional position on the manifold.</p>
+    </div>
+    
+    <div id="hint">
+        Drag to rotate • Scroll to zoom • Drag panels to rearrange • Click dimension buttons to explore
+    </div>
+    
+    <div id="time-control">
+        <span class="time-label">◀</span>
+        <input type="range" id="time-slider" min="0" max="1" step="0.01" value="0.5">
+        <span class="time-label">▶</span>
+        <span id="time-value">t=0.50</span>
+    </div>
+    
+    <script src="static/js/butterflyfx.js"></script>
+</body>
+</html>

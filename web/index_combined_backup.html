@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ButterflyFX — Dimensional Computing | Shapes Hold Data</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="ButterflyFX introduces Dimensional Computing — a revolutionary paradigm where geometric shapes inherently contain data. Objects exist with all their properties the moment they're defined.">
+    <meta name="keywords" content="dimensional computing, ButterflyFX, data structures, programming paradigm, geometric computing, DimensionOS, substrate computing">
+    <meta name="author" content="ButterflyFX">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://butterflyfx.us/">
+    <meta property="og:title" content="ButterflyFX — Dimensional Computing">
+    <meta property="og:description" content="A revolutionary paradigm where geometric shapes inherently contain data. Objects exist with all their properties the moment they're defined.">
+    <meta property="og:image" content="https://butterflyfx.us/static/og-image.png">
+    
+    <style>
+        :root {
+            --bg: #050508;
+            --bg-card: rgba(18, 18, 28, 0.85);
+            --neon-purple: #8855ff;
+            --neon-pink: #ff55aa;
+            --neon-cyan: #40ffff;
+            --neon-green: #60ff90;
+            --neon-orange: #ff8844;
+            --text: #ffffff;
+            --text-dim: #a0a8c0;
+            --border: rgba(136, 85, 255, 0.3);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        /* ===== HYPERSPACE STARFIELD ===== */
+        #hyperspace {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* ===== 3D SADDLE SURFACE ===== */
+        #surface3d {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60vmin;
+            height: 60vmin;
+            z-index: 1;
+            cursor: grab;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+            pointer-events: auto;
+        }
+        
+        #surface3d:hover, #surface3d.active {
+            opacity: 1;
+            cursor: grabbing;
+        }
+        
+        body.show-splash #surface3d {
+            opacity: 0.5;
+        }
+        
+        /* ===== 4-DIRECTIONAL CAROUSEL ===== */
+        #carousel-4d {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            z-index: 15;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        body:not(.show-splash) #carousel-4d {
+            opacity: 1;
+        }
+        
+        .carousel-panel-4d {
+            position: absolute;
+            width: 320px;
+            padding: 25px;
+            background: rgba(12, 12, 25, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(136, 85, 255, 0.3);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(136, 85, 255, 0.2);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: auto;
+        }
+        
+        /* Panel positions */
+        .carousel-panel-4d.left {
+            top: 50%;
+            left: 30px;
+            transform: translateY(-50%);
+        }
+        
+        .carousel-panel-4d.right {
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+        }
+        
+        .carousel-panel-4d.top {
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .carousel-panel-4d.bottom {
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        /* Panel hiding */
+        .carousel-panel-4d.hidden-left {
+            transform: translateX(-150%) translateY(-50%);
+            opacity: 0;
+        }
+        
+        .carousel-panel-4d.hidden-right {
+            transform: translateX(150%) translateY(-50%);
+            opacity: 0;
+        }
+        
+        .carousel-panel-4d.hidden-top {
+            transform: translateX(-50%) translateY(-150%);
+            opacity: 0;
+        }
+        
+        .carousel-panel-4d.hidden-bottom {
+            transform: translateX(-50%) translateY(150%);
+            opacity: 0;
+        }
+        
+        .carousel-panel-4d h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .carousel-panel-4d h3 .icon {
+            font-size: 1.4em;
+        }
+        
+        .carousel-panel-4d .subtitle {
+            font-size: 0.85em;
+            color: var(--neon-cyan);
+            margin-bottom: 12px;
+        }
+        
+        .carousel-panel-4d p {
+            font-size: 0.9em;
+            color: var(--text-dim);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .carousel-panel-4d .panel-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            border-radius: 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .carousel-panel-4d .panel-link:hover {
+            box-shadow: 0 0 25px var(--neon-purple);
+            transform: translateY(-2px);
+        }
+        
+        /* Accent colors per panel */
+        .carousel-panel-4d.top { border-color: var(--neon-cyan); }
+        .carousel-panel-4d.top h3 { color: var(--neon-cyan); }
+        
+        .carousel-panel-4d.bottom { border-color: var(--neon-green); }
+        .carousel-panel-4d.bottom h3 { color: var(--neon-green); }
+        
+        .carousel-panel-4d.left { border-color: var(--neon-purple); }
+        .carousel-panel-4d.left h3 { color: var(--neon-purple); }
+        
+        .carousel-panel-4d.right { border-color: var(--neon-pink); }
+        .carousel-panel-4d.right h3 { color: var(--neon-pink); }
+        
+        /* Direction Arrows */
+        .direction-arrows {
+            position: fixed;
+            z-index: 20;
+            pointer-events: auto;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        body:not(.show-splash) .direction-arrows {
+            opacity: 1;
+        }
+        
+        .direction-arrow {
+            width: 50px;
+            height: 50px;
+            background: rgba(20, 20, 35, 0.8);
+            border: 2px solid var(--neon-purple);
+            border-radius: 50%;
+            color: var(--neon-purple);
+            font-size: 1.5em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(136, 85, 255, 0.3);
+        }
+        
+        .direction-arrow:hover {
+            background: var(--neon-purple);
+            color: white;
+            box-shadow: 0 0 30px var(--neon-purple);
+        }
+        
+        .direction-arrow.active {
+            background: var(--neon-purple);
+            color: white;
+        }
+        
+        #arrow-up, #arrow-down {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        #arrow-up { top: 20px; }
+        #arrow-down { bottom: 120px; }
+        
+        #arrow-left, #arrow-right {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        #arrow-left { left: 15px; }
+        #arrow-right { right: 15px; }
+        
+        /* Responsive adjustments for carousel */
+        @media (max-width: 768px) {
+            .carousel-panel-4d {
+                width: 260px;
+                padding: 20px;
+            }
+            .carousel-panel-4d.left, .carousel-panel-4d.right {
+                width: 220px;
+            }
+            .direction-arrow {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2em;
+            }
+        }
+        }
+        
+        /* ===== FLOATING PRODUCT NAMES ===== */
+        .floating-names {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        body.show-splash .floating-names {
+            opacity: 0.5;
+        }
+        
+        .float-name {
+            position: absolute;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            white-space: nowrap;
+        }
+        
+        .float-name.depth-1 {
+            font-size: 0.7em;
+            opacity: 0.1;
+            filter: blur(2px);
+            animation: floatDrift1 60s linear infinite;
+        }
+        
+        .float-name.depth-2 {
+            font-size: 0.9em;
+            opacity: 0.15;
+            filter: blur(1px);
+            animation: floatDrift2 45s linear infinite;
+        }
+        
+        .float-name.depth-3 {
+            font-size: 1.1em;
+            opacity: 0.2;
+            filter: blur(0.5px);
+            animation: floatDrift3 35s linear infinite;
+        }
+        
+        .float-name.depth-4 {
+            font-size: 1.3em;
+            opacity: 0.25;
+            animation: floatDrift4 25s linear infinite;
+        }
+        
+        @keyframes floatDrift1 {
+            0% { transform: translate(0, 0) rotate(-2deg); }
+            25% { transform: translate(30px, -20px) rotate(1deg); }
+            50% { transform: translate(60px, 10px) rotate(-1deg); }
+            75% { transform: translate(30px, 30px) rotate(2deg); }
+            100% { transform: translate(0, 0) rotate(-2deg); }
+        }
+        
+        @keyframes floatDrift2 {
+            0% { transform: translate(0, 0) rotate(1deg); }
+            25% { transform: translate(-25px, 25px) rotate(-2deg); }
+            50% { transform: translate(-50px, -15px) rotate(1deg); }
+            75% { transform: translate(-20px, -30px) rotate(-1deg); }
+            100% { transform: translate(0, 0) rotate(1deg); }
+        }
+        
+        @keyframes floatDrift3 {
+            0% { transform: translate(0, 0) rotate(-1deg); }
+            33% { transform: translate(40px, 35px) rotate(2deg); }
+            66% { transform: translate(-30px, 20px) rotate(-2deg); }
+            100% { transform: translate(0, 0) rotate(-1deg); }
+        }
+        
+        @keyframes floatDrift4 {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-45px, -25px) rotate(3deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        
+        /* ===== INTRO SPLASH ===== */
+        #intro-splash {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at center, rgba(10, 5, 20, 0.7) 0%, rgba(5, 5, 8, 0.75) 100%);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        #intro-splash.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.1);
+        }
+        
+        #intro-content {
+            text-align: center;
+            max-width: 700px;
+            padding: 30px;
+        }
+        
+        /* Dimensional Rings Animation */
+        #intro-graphic {
+            margin-bottom: 30px;
+        }
+        
+        .dim-rings {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+        }
+        
+        .ring {
+            position: absolute;
+            top: 50%; left: 50%;
+            border: 2px solid;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: ringPulse 3s ease-in-out infinite;
+        }
+        
+        .ring-1 {
+            width: 180px; height: 180px;
+            border-color: var(--neon-purple);
+            animation-delay: 0s;
+            box-shadow: 0 0 30px var(--neon-purple), inset 0 0 20px rgba(136, 85, 255, 0.2);
+        }
+        
+        .ring-2 {
+            width: 120px; height: 120px;
+            border-color: var(--neon-pink);
+            animation-delay: 0.5s;
+            box-shadow: 0 0 25px var(--neon-pink), inset 0 0 15px rgba(255, 85, 170, 0.2);
+        }
+        
+        .ring-3 {
+            width: 60px; height: 60px;
+            border-color: var(--neon-cyan);
+            animation-delay: 1s;
+            box-shadow: 0 0 20px var(--neon-cyan), inset 0 0 10px rgba(64, 255, 255, 0.2);
+        }
+        
+        .center-icon {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5em;
+            z-index: 10;
+            filter: drop-shadow(0 0 15px var(--neon-pink));
+        }
+        
+        @keyframes ringPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+        }
+        
+        #intro-content h1 {
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink), var(--neon-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 0 40px rgba(136, 85, 255, 0.5);
+        }
+        
+        #intro-content h2 {
+            font-size: 1.3em;
+            color: var(--neon-cyan);
+            font-weight: 400;
+            margin-bottom: 25px;
+        }
+        
+        #intro-content p {
+            font-size: 1.05em;
+            line-height: 1.7;
+            color: var(--text-dim);
+            margin-bottom: 15px;
+        }
+        
+        #intro-content p strong {
+            color: var(--neon-pink);
+        }
+        
+        #butterfly-statement {
+            background: rgba(136, 85, 255, 0.1);
+            border-left: 3px solid var(--neon-purple);
+            padding: 15px 20px;
+            border-radius: 0 10px 10px 0;
+            margin: 25px 0;
+        }
+        
+        #butterfly-statement p {
+            font-style: italic;
+            font-size: 0.95em !important;
+            color: var(--text) !important;
+            margin: 0 !important;
+        }
+        
+        #intro-demo-btn {
+            padding: 18px 50px;
+            font-size: 1.1em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            border: none;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: all 0.3s;
+            box-shadow: 0 0 40px rgba(136, 85, 255, 0.4);
+        }
+        
+        #intro-demo-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 50px rgba(136, 85, 255, 0.6);
+        }
+        
+        #intro-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 35px;
+        }
+        
+        #intro-nav a {
+            padding: 8px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+        
+        #intro-nav a:hover {
+            background: rgba(136, 85, 255, 0.2);
+            border-color: var(--neon-purple);
+            color: var(--text);
+        }
+        
+        #intro-nav a:first-child {
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            border: none;
+            color: white;
+            font-weight: 600;
+        }
+        
+        /* ===== MAIN HEADER ===== */
+        #header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 60px;
+            background: rgba(10, 10, 18, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 50;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        
+        body:not(.show-splash) #header {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .logo-icon { font-size: 1.6em; }
+        
+        .logo-text {
+            font-size: 1.3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        nav {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+        
+        nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+        
+        nav a:hover { color: var(--text); }
+        
+        .nav-cta {
+            padding: 10px 25px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            border-radius: 25px;
+            color: white !important;
+            font-weight: 600;
+        }
+        
+        .nav-cta:hover {
+            box-shadow: 0 0 25px rgba(136, 85, 255, 0.5);
+        }
+        
+        /* ===== MAIN CONTENT AREA ===== */
+        #main-content {
+            position: fixed;
+            top: 60px;
+            left: 0; right: 0; bottom: 0;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        body:not(.show-splash) #main-content {
+            opacity: 1;
+        }
+        
+        /* ===== PRODUCT CARDS ===== */
+        .products-section {
+            width: 100%;
+            max-width: 1200px;
+            margin-top: auto;
+            margin-bottom: 20px;
+        }
+        
+        .products-section h2 {
+            text-align: center;
+            font-size: 1.6em;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-green));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .product-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--card-accent, var(--neon-purple)), var(--neon-pink));
+            box-shadow: 0 0 15px var(--card-accent, var(--neon-purple));
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--card-accent, var(--neon-purple));
+            box-shadow: 0 15px 40px rgba(136, 85, 255, 0.2);
+        }
+        
+        .product-icon {
+            font-size: 2.5em;
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        .product-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+        
+        .product-card .tagline {
+            font-size: 0.85em;
+            color: var(--card-accent, var(--neon-cyan));
+            margin-bottom: 12px;
+        }
+        
+        .product-card p {
+            font-size: 0.9em;
+            line-height: 1.5;
+            color: var(--text-dim);
+        }
+        
+        .product-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .product-features span {
+            padding: 4px 10px;
+            background: rgba(136, 85, 255, 0.15);
+            border-radius: 12px;
+            font-size: 0.75em;
+            color: var(--neon-cyan);
+        }
+        
+        .product-cta {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--card-accent, var(--neon-purple)), var(--neon-pink));
+            border-radius: 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .product-cta:hover {
+            box-shadow: 0 0 20px var(--card-accent, var(--neon-purple));
+        }
+        
+        /* ===== DIMENSION CONTROL BAR ===== */
+        #dimension-control {
+            position: fixed;
+            bottom: 0;
+            left: 0; right: 0;
+            background: rgba(10, 10, 18, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            padding: 15px 30px;
+            z-index: 40;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        
+        body:not(.show-splash) #dimension-control {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .dim-markers {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .dim-marker {
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            font-size: 0.8em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        
+        .dim-marker:hover {
+            background: rgba(136, 85, 255, 0.2);
+            border-color: var(--neon-purple);
+        }
+        
+        .dim-marker.active {
+            background: var(--neon-purple);
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 15px var(--neon-purple);
+        }
+        
+        .dim-marker .symbol {
+            font-size: 1.1em;
+        }
+        
+        #slider-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .dim-label {
+            font-size: 0.7em;
+            color: var(--text-dim);
+            text-align: center;
+            line-height: 1.3;
+        }
+        
+        #dimension-slider {
+            width: 60%;
+            max-width: 500px;
+            height: 6px;
+            background: rgba(136, 85, 255, 0.2);
+            border-radius: 3px;
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        #dimension-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--neon-purple);
+            cursor: pointer;
+        }
+        
+        /* ===== INSTRUCTIONS TOOLTIP ===== */
+        #instructions {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 18, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 0.8em;
+            color: var(--text-dim);
+            z-index: 30;
+            opacity: 0;
+            transition: opacity 0.5s 0.5s;
+            pointer-events: none;
+        }
+        
+        body:not(.show-splash) #instructions {
+            opacity: 1;
+        }
+        
+        /* ===== DIMENSIONAL NAVIGATION ARROWS ===== */
+        .dim-nav-arrows {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 60;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        body:not(.show-splash) .dim-nav-arrows {
+            opacity: 1;
+        }
+        
+        .dim-arrow {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            background: rgba(10, 10, 18, 0.9);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: var(--text-dim);
+            transition: all 0.3s;
+        }
+        
+        .dim-arrow:hover {
+            border-color: var(--neon-purple);
+            color: var(--neon-purple);
+            box-shadow: 0 0 20px rgba(136, 85, 255, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .dim-arrow.active {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            box-shadow: 0 0 25px rgba(64, 255, 255, 0.5);
+        }
+        
+        .dim-arrow-label {
+            font-size: 0.6em;
+            margin-top: 2px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* ===== DIMENSION FACE INDICATOR ===== */
+        .face-indicator {
+            position: fixed;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 60;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        body:not(.show-splash) .face-indicator {
+            opacity: 1;
+        }
+        
+        .face-cube {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            perspective: 200px;
+        }
+        
+        .face-cube-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+        }
+        
+        .face-cube-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--border);
+            background: rgba(10, 10, 18, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            backface-visibility: hidden;
+        }
+        
+        .face-cube-face.front { transform: translateZ(30px); border-color: var(--neon-purple); }
+        .face-cube-face.back { transform: rotateY(180deg) translateZ(30px); }
+        .face-cube-face.top { transform: rotateX(90deg) translateZ(30px); border-color: var(--neon-cyan); }
+        .face-cube-face.bottom { transform: rotateX(-90deg) translateZ(30px); border-color: var(--neon-green); }
+        .face-cube-face.left { transform: rotateY(-90deg) translateZ(30px); }
+        .face-cube-face.right { transform: rotateY(90deg) translateZ(30px); }
+        
+        .current-face-label {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 0.75em;
+            color: var(--text-dim);
+        }
+        
+        /* ===== DIMENSIONAL PANELS (Top/Bottom) ===== */
+        .dim-panel {
+            position: fixed;
+            left: 0; right: 0;
+            background: rgba(10, 10, 18, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 45;
+            padding: 40px;
+            transform: translateY(0);
+            transition: transform 0.6s ease, opacity 0.4s;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .dim-panel.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        #panel-top {
+            top: 60px;
+            bottom: 0;
+            border-bottom: 2px solid var(--neon-cyan);
+            transform: translateY(-100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #panel-top.active {
+            transform: translateY(0);
+        }
+        
+        #panel-bottom {
+            top: 60px;
+            bottom: 0;
+            border-top: 2px solid var(--neon-green);
+            transform: translateY(100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #panel-bottom.active {
+            transform: translateY(0);
+        }
+        
+        .dim-panel h2 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .dim-panel .subtitle {
+            font-size: 1.2em;
+            color: var(--text-dim);
+            margin-bottom: 40px;
+        }
+        
+        .dim-panel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        .dim-panel-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dim-panel-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--card-glow, var(--neon-purple)), var(--neon-pink));
+        }
+        
+        .dim-panel-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--card-glow, var(--neon-purple));
+            box-shadow: 0 15px 40px rgba(136, 85, 255, 0.3);
+        }
+        
+        .dim-panel-card .icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .dim-panel-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+        
+        .dim-panel-card p {
+            font-size: 0.9em;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+        
+        .dim-panel-card .link-hint {
+            margin-top: 15px;
+            color: var(--neon-cyan);
+            font-size: 0.85em;
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            #intro-content h1 { font-size: 2em; }
+            #intro-content h2 { font-size: 1.1em; }
+            nav { display: none; }
+            .products-grid { grid-template-columns: 1fr; }
+            .dim-markers { flex-wrap: wrap; }
+            .dim-marker .name { display: none; }
+            .dim-nav-arrows { right: 15px; }
+            .dim-arrow { width: 40px; height: 40px; font-size: 1.2em; }
+            .face-indicator { display: none; }
+            .dim-panel { padding: 20px; }
+            .dim-panel h2 { font-size: 1.8em; }
+            .dim-panel-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="show-splash">
+    <!-- Hyperspace Starfield -->
+    <canvas id="hyperspace"></canvas>
+    
+    <!-- 3D Saddle Surface -->
+    <canvas id="surface3d"></canvas>
+    
+    <!-- Floating Product Names -->
+    <div class="floating-names">
+        <span class="float-name depth-1" style="top: 8%; left: 5%; color: var(--neon-purple);">Universal Connector</span>
+        <span class="float-name depth-2" style="top: 15%; right: 8%; color: var(--neon-pink);">Helix Framework</span>
+        <span class="float-name depth-3" style="top: 35%; left: 3%; color: var(--neon-cyan);">DimensionOS</span>
+        <span class="float-name depth-1" style="top: 45%; right: 5%; color: var(--neon-green);">AI Amplifier</span>
+        <span class="float-name depth-4" style="top: 60%; left: 8%; color: var(--neon-pink);">Substrate</span>
+        <span class="float-name depth-2" style="top: 70%; right: 12%; color: var(--neon-purple);">Universal Hard Drive</span>
+        <span class="float-name depth-3" style="top: 82%; left: 15%; color: var(--neon-cyan);">Kernel</span>
+        <span class="float-name depth-1" style="top: 25%; left: 75%; color: var(--neon-orange);">Data Alchemist</span>
+        <span class="float-name depth-2" style="top: 55%; left: 70%; color: var(--neon-green);">Trend Predictor</span>
+        <span class="float-name depth-4" style="top: 88%; right: 20%; color: var(--neon-pink);">O(1) Access</span>
+    </div>
+    
+    <!-- Intro Splash -->
+    <div id="intro-splash">
+        <div id="intro-content">
+            <div id="intro-graphic">
+                <div class="dim-rings">
+                    <div class="ring ring-1"></div>
+                    <div class="ring ring-2"></div>
+                    <div class="ring ring-3"></div>
+                    <span class="center-icon">🦋</span>
+                </div>
+            </div>
+            <h1>ButterflyFX</h1>
+            <h2>🌐 Dimensional Computing</h2>
+            <p><strong>The Principle:</strong> Once an object exists, <em>all its parts, properties, and behaviors also exist</em> — 
+            just like in real life. A car has an engine, wheels, and seats the moment it's a car. 
+            We don't build them — we <strong>invoke</strong> them to manifest their dimensions.</p>
+            <div id="butterfly-statement">
+                <p>🦋 <em>"In chaos theory, a butterfly's wings can trigger a hurricane across the world. 
+                In ButterflyFX, a single dimensional definition cascades into infinite manifestations — 
+                small causes, vast effects. One shape. Endless possibilities."</em></p>
+            </div>
+            <button type="button" id="intro-demo-btn" onclick="dismissSplash()">✨ Enter the Dimension ✨</button>
+            <div id="intro-nav">
+                <a href="start-here.html">🚀 Start Here</a>
+                <a href="genesis.html">⚖️ Genesis</a>
+                <a href="apps.html">📦 Apps</a>
+                <a href="platform.html">🧬 Platform</a>
+                <a href="pricing.html">💎 Pricing</a>
+                <a href="benchmarks.html">📊 Benchmarks</a>
+                <a href="documents.html">📚 Documents</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Header (appears after splash) -->
+    <header id="header">
+        <a href="index.html" class="logo">
+            <span class="logo-icon">🦋</span>
+            <span class="logo-text">ButterflyFX</span>
+        </a>
+        <nav>
+            <a href="apps.html">Apps</a>
+            <a href="platform.html">Platform</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="developer.html">Developers</a>
+            <a href="login.html">Log In</a>
+            <a href="register.html" class="nav-cta">Get Started</a>
+        </nav>
+    </header>
+    
+    <!-- 4-Directional Carousel -->
+    <div id="carousel-4d">
+        <!-- TOP Panel: Dimensional Substrate -->
+        <div class="carousel-panel-4d top hidden-top" id="panel-top">
+            <h3><span class="icon">🌊</span> Substrate</h3>
+            <div class="subtitle">The Mathematical Foundation</div>
+            <p>Before objects exist, there is the <strong>substrate</strong> — the pure mathematical geometry (z = xy) that contains all possible values. Objects are not created — they are <em>ingested</em> from the substrate.</p>
+            <a href="substrate.html" class="panel-link">Explore Substrate →</a>
+        </div>
+        
+        <!-- BOTTOM Panel: Shape Manifold -->
+        <div class="carousel-panel-4d bottom hidden-bottom" id="panel-bottom">
+            <h3><span class="icon">◇</span> Manifold</h3>
+            <div class="subtitle">Shape-Based Computing</div>
+            <p>The <strong>manifold</strong> is where shapes become data structures. Every geometric form — points, lines, surfaces, volumes — maps directly to computational patterns with O(1) access.</p>
+            <a href="manifold.html" class="panel-link">Explore Manifold →</a>
+        </div>
+        
+        <!-- LEFT Panel: Products -->
+        <div class="carousel-panel-4d left" id="panel-left">
+            <h3><span class="icon">💾</span> Products</h3>
+            <div class="subtitle">Built on Dimensional Computing</div>
+            <p>Universal Hard Drive, Universal Connector, Data & AI Suite — commercial applications that demonstrate the power of substrate-based architecture.</p>
+            <a href="apps.html" class="panel-link">View Products →</a>
+        </div>
+        
+        <!-- RIGHT Panel: Developers -->
+        <div class="carousel-panel-4d right" id="panel-right">
+            <h3><span class="icon">🧬</span> Platform</h3>
+            <div class="subtitle">Core → Community → Commercial</div>
+            <p>The open foundation for dimensional computing. Build with the Helix framework, contribute to the ecosystem, or create commercial products.</p>
+            <a href="platform.html" class="panel-link">View Platform →</a>
+        </div>
+    </div>
+    
+    <!-- Direction Arrows -->
+    <div class="direction-arrows" id="arrow-up" onclick="togglePanel('top')">↑</div>
+    <div class="direction-arrows" id="arrow-down" onclick="togglePanel('bottom')">↓</div>
+    <div class="direction-arrows" id="arrow-left" onclick="togglePanel('left')">←</div>
+    <div class="direction-arrows" id="arrow-right" onclick="togglePanel('right')">→</div>
+    
+    <!-- Main Content (appears after splash) -->
+    <div id="main-content">
+        <section class="products-section">
+            <h2>The Product Suite</h2>
+            <div class="products-grid">
+                <!-- Universal Hard Drive -->
+                <div class="product-card" style="--card-accent: #4285F4;" onclick="location.href='products/universal-hdd.html'">
+                    <span class="product-icon">💾</span>
+                    <h3>Universal Hard Drive</h3>
+                    <div class="tagline">Every file. Every cloud. One place.</div>
+                    <p>Connect Google Drive, Dropbox, OneDrive, local files, databases, and APIs — browse them all in one unified explorer.</p>
+                    <div class="product-features">
+                        <span>🔗 100+ Connectors</span>
+                        <span>🔍 Instant Search</span>
+                        <span>📊 Smart Organization</span>
+                    </div>
+                    <a href="products/universal-hdd.html" class="product-cta">Learn More →</a>
+                </div>
+                
+                <!-- Universal Connector -->
+                <div class="product-card" style="--card-accent: #60ff90;" onclick="location.href='products/universal-connector.html'">
+                    <span class="product-icon">🔌</span>
+                    <h3>Universal Connector</h3>
+                    <div class="tagline">Connect to anything. Literally.</div>
+                    <p>102+ service integrations — from Google to Spotify to PostgreSQL. Weather, stocks, Wikipedia, movies — all connected.</p>
+                    <div class="product-features">
+                        <span>☁️ Cloud Storage</span>
+                        <span>🤖 AI Services</span>
+                        <span>📊 Finance APIs</span>
+                    </div>
+                    <a href="products/universal-connector.html" class="product-cta">Learn More →</a>
+                </div>
+                
+                <!-- Data & AI Suite -->
+                <div class="product-card" style="--card-accent: #ff55aa;" onclick="location.href='products/data-ai-suite.html'">
+                    <span class="product-icon">🧠</span>
+                    <h3>Data & AI Suite</h3>
+                    <div class="tagline">Amplify your AI. Analyze anything.</div>
+                    <p>Feed any data into Claude, GPT, or local models. Generate reports, predict trends, transform messy data into insights.</p>
+                    <div class="product-features">
+                        <span>🤖 AI Amplifier</span>
+                        <span>📈 Trend Predictor</span>
+                        <span>🔮 Data Alchemist</span>
+                    </div>
+                    <a href="products/data-ai-suite.html" class="product-cta">Learn More →</a>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Instructions -->
+    <div id="instructions">
+        Drag the 3D surface to rotate • Explore the dimensional substrate
+    </div>
+    
+    <!-- Dimensional Navigation Arrows -->
+    <div class="dim-nav-arrows">
+        <button class="dim-arrow" id="nav-up" title="Substrate & Manifold">
+            <span>↑</span>
+        </button>
+        <button class="dim-arrow active" id="nav-center" title="Products (Current)">
+            <span>●</span>
+        </button>
+        <button class="dim-arrow" id="nav-down" title="Shape Foundation">
+            <span>↓</span>
+        </button>
+    </div>
+    
+    <!-- Face Indicator (3D cube showing current view) -->
+    <div class="face-indicator">
+        <div class="face-cube">
+            <div class="face-cube-inner" id="face-cube-inner">
+                <div class="face-cube-face front">Front</div>
+                <div class="face-cube-face back">Back</div>
+                <div class="face-cube-face top">Top</div>
+                <div class="face-cube-face bottom">Btm</div>
+                <div class="face-cube-face left">Left</div>
+                <div class="face-cube-face right">Right</div>
+            </div>
+        </div>
+        <div class="current-face-label" id="current-face-label">Products</div>
+    </div>
+    
+    <!-- Top Panel: Substrate & Manifold -->
+    <div class="dim-panel" id="panel-top">
+        <h2>🧬 Substrate & Manifold</h2>
+        <p class="subtitle">The mathematical foundation where data lives in geometry</p>
+        <div class="dim-panel-grid">
+            <a href="platform.html" class="dim-panel-card" style="--card-glow: var(--neon-cyan);">
+                <span class="icon">🌐</span>
+                <h3>Platform Architecture</h3>
+                <p>Explore the DimensionOS platform — how substrates, manifolds, and kernels work together to create dimensional computing.</p>
+                <div class="link-hint">Explore Platform →</div>
+            </a>
+            <a href="docs/api-reference.html" class="dim-panel-card" style="--card-glow: var(--neon-pink);">
+                <span class="icon">📖</span>
+                <h3>Substrate API Reference</h3>
+                <p>Complete API documentation for Substrate2D, Substrate3D, manifolds, and geometric transformations.</p>
+                <div class="link-hint">View API Docs →</div>
+            </a>
+            <a href="developer.html" class="dim-panel-card" style="--card-glow: var(--neon-green);">
+                <span class="icon">⚡</span>
+                <h3>Developer Portal</h3>
+                <p>Build with the Helix framework. Create dimensional apps, custom substrates, and integrate with AI.</p>
+                <div class="link-hint">Start Building →</div>
+            </a>
+            <a href="benchmarks.html" class="dim-panel-card" style="--card-glow: var(--neon-orange);">
+                <span class="icon">📊</span>
+                <h3>Performance Benchmarks</h3>
+                <p>See why dimensional computing is 10x-1000x faster. O(1) access, no iteration, pure geometry.</p>
+                <div class="link-hint">View Benchmarks →</div>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Bottom Panel: Shape Foundation -->
+    <div class="dim-panel" id="panel-bottom">
+        <h2>◇ Shape Foundation</h2>
+        <p class="subtitle">Where it all begins — shapes hold data, dimensions hold meaning</p>
+        <div class="dim-panel-grid">
+            <a href="genesis.html" class="dim-panel-card" style="--card-glow: var(--neon-green);">
+                <span class="icon">⚖️</span>
+                <h3>Genesis</h3>
+                <p>The philosophy and origin of dimensional computing. Why shapes inherently contain all their properties.</p>
+                <div class="link-hint">Read Genesis →</div>
+            </a>
+            <a href="start-here.html" class="dim-panel-card" style="--card-glow: var(--neon-purple);">
+                <span class="icon">🚀</span>
+                <h3>Start Here</h3>
+                <p>New to ButterflyFX? This is your entry point. Learn the core concepts in 5 minutes.</p>
+                <div class="link-hint">Get Started →</div>
+            </a>
+            <a href="documents.html" class="dim-panel-card" style="--card-glow: var(--neon-pink);">
+                <span class="icon">📚</span>
+                <h3>Documentation</h3>
+                <p>Comprehensive guides, tutorials, and reference materials for dimensional programming.</p>
+                <div class="link-hint">Browse Docs →</div>
+            </a>
+            <a href="about.html" class="dim-panel-card" style="--card-glow: var(--neon-cyan);">
+                <span class="icon">🦋</span>
+                <h3>About ButterflyFX</h3>
+                <p>The team, the vision, and the butterfly effect that inspired it all.</p>
+                <div class="link-hint">Learn More →</div>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Dimension Control -->
+    <div id="dimension-control">
+        <div class="dim-markers">
+            <div class="dim-marker active" data-dim="0"><span class="symbol">∅</span><span class="name">Void</span></div>
+            <div class="dim-marker" data-dim="1"><span class="symbol">•</span><span class="name">Point</span></div>
+            <div class="dim-marker" data-dim="2"><span class="symbol">―</span><span class="name">Line</span></div>
+            <div class="dim-marker" data-dim="3"><span class="symbol">⌓</span><span class="name">Saddle</span></div>
+            <div class="dim-marker" data-dim="4"><span class="symbol">◇</span><span class="name">Volume</span></div>
+            <div class="dim-marker" data-dim="5"><span class="symbol">⬡</span><span class="name">Network</span></div>
+            <div class="dim-marker" data-dim="6"><span class="symbol">◎</span><span class="name">Whole</span></div>
+        </div>
+        <div id="slider-container">
+            <div class="dim-label">0D<br>Potential</div>
+            <input type="range" id="dimension-slider" min="0" max="6" value="0" step="0.01">
+            <div class="dim-label">6D<br>Whole</div>
+        </div>
+    </div>
+    
+    <script>
+    // Dismiss splash screen
+    function dismissSplash() {
+        document.body.classList.remove('show-splash');
+        document.getElementById('intro-splash').classList.add('hidden');
+    }
+    
+    // ============================================
+    // 4-DIRECTIONAL CAROUSEL TOGGLE
+    // ============================================
+    const panelStates = { top: false, bottom: false, left: true, right: true };
+    
+    function togglePanel(direction) {
+        const panel = document.getElementById(`panel-${direction}`);
+        const arrow = document.getElementById(`arrow-${direction}`);
+        
+        if (panelStates[direction]) {
+            // Hide panel
+            panel.classList.add(`hidden-${direction}`);
+            arrow.classList.remove('active');
+        } else {
+            // Show panel
+            panel.classList.remove(`hidden-${direction}`);
+            arrow.classList.add('active');
+        }
+        panelStates[direction] = !panelStates[direction];
+    }
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (document.body.classList.contains('show-splash')) return;
+        
+        switch(e.key) {
+            case 'ArrowUp': togglePanel('top'); break;
+            case 'ArrowDown': togglePanel('bottom'); break;
+            case 'ArrowLeft': togglePanel('left'); break;
+            case 'ArrowRight': togglePanel('right'); break;
+        }
+    });
+    
+    // ============================================
+    // HYPERSPACE STARFIELD
+    // ============================================
+    (function() {
+        const canvas = document.getElementById('hyperspace');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars = [];
+        const STAR_COUNT = 400;
+        const SPEED = 10;
+        const TRAIL_LENGTH = 0.85;
+        
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        
+        function createStar() {
+            return {
+                x: Math.random() * width - width / 2,
+                y: Math.random() * height - height / 2,
+                z: Math.random() * 1000 + 500,
+                px: 0, py: 0,
+                color: `hsl(${Math.random() * 80 + 220}, 100%, ${Math.random() * 30 + 60}%)`
+            };
+        }
+        
+        function init() {
+            resize();
+            stars = [];
+            for (let i = 0; i < STAR_COUNT; i++) {
+                stars.push(createStar());
+            }
+        }
+        
+        function draw() {
+            ctx.fillStyle = `rgba(5, 5, 8, ${1 - TRAIL_LENGTH})`;
+            ctx.fillRect(0, 0, width, height);
+            
+            const cx = width / 2;
+            const cy = height / 2;
+            
+            for (let star of stars) {
+                star.z -= SPEED;
+                
+                if (star.z <= 0) {
+                    Object.assign(star, createStar());
+                    star.z = 1000;
+                }
+                
+                const scale = 300 / star.z;
+                const x = star.x * scale + cx;
+                const y = star.y * scale + cy;
+                
+                if (star.px && star.py) {
+                    const gradient = ctx.createLinearGradient(star.px, star.py, x, y);
+                    gradient.addColorStop(0, 'transparent');
+                    gradient.addColorStop(1, star.color);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(star.px, star.py);
+                    ctx.lineTo(x, y);
+                    ctx.strokeStyle = gradient;
+                    ctx.lineWidth = Math.max(1, 3 - star.z / 400);
+                    ctx.stroke();
+                }
+                
+                const size = Math.max(0.5, 3 - star.z / 400);
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fillStyle = star.color;
+                ctx.fill();
+                
+                star.px = x;
+                star.py = y;
+            }
+            
+            requestAnimationFrame(draw);
+        }
+        
+        window.addEventListener('resize', resize);
+        init();
+        draw();
+    })();
+    
+    // ============================================
+    // 3D SADDLE SURFACE (z = x*y)
+    // ============================================
+    (function() {
+        const canvas = document.getElementById('surface3d');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let rotX = 0.5, rotY = 0.3;
+        let targetRotX = 0.5, targetRotY = 0.3;
+        let isDragging = false;
+        let lastX, lastY;
+        let autoRotate = true;
+        
+        const GRID_SIZE = 25;
+        const SCALE = 70;
+        
+        function resize() {
+            const rect = canvas.getBoundingClientRect();
+            width = canvas.width = rect.width * window.devicePixelRatio;
+            height = canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        
+        function generateSurface() {
+            const points = [];
+            const range = 2;
+            const step = range * 2 / GRID_SIZE;
+            
+            for (let i = 0; i <= GRID_SIZE; i++) {
+                for (let j = 0; j <= GRID_SIZE; j++) {
+                    const x = -range + i * step;
+                    const y = -range + j * step;
+                    const z = x * y;
+                    points.push({ x, y, z, i, j });
+                }
+            }
+            return points;
+        }
+        
+        function rotate3D(x, y, z, rx, ry) {
+            let y1 = y * Math.cos(rx) - z * Math.sin(rx);
+            let z1 = y * Math.sin(rx) + z * Math.cos(rx);
+            let x1 = x * Math.cos(ry) + z1 * Math.sin(ry);
+            let z2 = -x * Math.sin(ry) + z1 * Math.cos(ry);
+            return { x: x1, y: y1, z: z2 };
+        }
+        
+        function project(p) {
+            const fov = 400;
+            const distance = 5;
+            const scale = fov / (distance + p.z);
+            return {
+                x: p.x * scale * SCALE + width / (2 * window.devicePixelRatio),
+                y: p.y * scale * SCALE + height / (2 * window.devicePixelRatio),
+                z: p.z,
+                scale: scale
+            };
+        }
+        
+        function getColor(z, alpha = 1) {
+            const t = (z + 4) / 8;
+            const r = Math.floor(136 + (255 - 136) * t);
+            const g = Math.floor(85 + (85 - 85) * t);
+            const b = Math.floor(255 + (170 - 255) * t);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+        
+        const surfacePoints = generateSurface();
+        
+        function draw() {
+            ctx.clearRect(0, 0, width / window.devicePixelRatio, height / window.devicePixelRatio);
+            
+            if (autoRotate && !isDragging) {
+                targetRotY += 0.003;
+            }
+            
+            rotX += (targetRotX - rotX) * 0.08;
+            rotY += (targetRotY - rotY) * 0.08;
+            
+            const transformed = surfacePoints.map(p => {
+                const rotated = rotate3D(p.x, p.y, p.z, rotX, rotY);
+                const projected = project(rotated);
+                return { ...projected, i: p.i, j: p.j, originalZ: p.z };
+            });
+            
+            // Draw grid lines
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i <= GRID_SIZE; i++) {
+                ctx.beginPath();
+                for (let j = 0; j <= GRID_SIZE; j++) {
+                    const idx = i * (GRID_SIZE + 1) + j;
+                    const p = transformed[idx];
+                    if (j === 0) ctx.moveTo(p.x, p.y);
+                    else ctx.lineTo(p.x, p.y);
+                }
+                ctx.strokeStyle = getColor(transformed[i * (GRID_SIZE + 1)].originalZ, 0.3);
+                ctx.stroke();
+            }
+            
+            for (let j = 0; j <= GRID_SIZE; j++) {
+                ctx.beginPath();
+                for (let i = 0; i <= GRID_SIZE; i++) {
+                    const idx = i * (GRID_SIZE + 1) + j;
+                    const p = transformed[idx];
+                    if (i === 0) ctx.moveTo(p.x, p.y);
+                    else ctx.lineTo(p.x, p.y);
+                }
+                ctx.strokeStyle = getColor(transformed[j].originalZ, 0.3);
+                ctx.stroke();
+            }
+            
+            // Highlight edges with neon glow
+            ctx.lineWidth = 2.5;
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#8855ff';
+            
+            ctx.beginPath();
+            for (let j = 0; j <= GRID_SIZE; j++) {
+                const p = transformed[j];
+                if (j === 0) ctx.moveTo(p.x, p.y);
+                else ctx.lineTo(p.x, p.y);
+            }
+            ctx.strokeStyle = '#ff55aa';
+            ctx.stroke();
+            
+            ctx.beginPath();
+            for (let j = 0; j <= GRID_SIZE; j++) {
+                const idx = GRID_SIZE * (GRID_SIZE + 1) + j;
+                const p = transformed[idx];
+                if (j === 0) ctx.moveTo(p.x, p.y);
+                else ctx.lineTo(p.x, p.y);
+            }
+            ctx.strokeStyle = '#40ffff';
+            ctx.stroke();
+            
+            ctx.shadowBlur = 0;
+            requestAnimationFrame(draw);
+        }
+        
+        // Mouse/touch interaction
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            lastX = e.clientX;
+            lastY = e.clientY;
+            canvas.classList.add('active');
+            autoRotate = false;
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            targetRotY += (e.clientX - lastX) * 0.01;
+            targetRotX += (e.clientY - lastY) * 0.01;
+            lastX = e.clientX;
+            lastY = e.clientY;
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            isDragging = false;
+            canvas.classList.remove('active');
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
+            isDragging = false;
+            canvas.classList.remove('active');
+        });
+        
+        canvas.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            lastX = e.touches[0].clientX;
+            lastY = e.touches[0].clientY;
+            autoRotate = false;
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            targetRotY += (e.touches[0].clientX - lastX) * 0.01;
+            targetRotX += (e.touches[0].clientY - lastY) * 0.01;
+            lastX = e.touches[0].clientX;
+            lastY = e.touches[0].clientY;
+        });
+        
+        canvas.addEventListener('touchend', () => { isDragging = false; });
+        
+        window.addEventListener('resize', resize);
+        resize();
+        draw();
+    })();
+    
+    // ============================================
+    // DIMENSION SLIDER & MARKERS
+    // ============================================
+    (function() {
+        const slider = document.getElementById('dimension-slider');
+        const markers = document.querySelectorAll('.dim-marker');
+        
+        function updateDimension(value) {
+            const dim = Math.round(value);
+            markers.forEach(m => {
+                m.classList.toggle('active', parseInt(m.dataset.dim) === dim);
+            });
+        }
+        
+        slider.addEventListener('input', (e) => {
+            updateDimension(parseFloat(e.target.value));
+        });
+        
+        markers.forEach(marker => {
+            marker.addEventListener('click', () => {
+                const dim = parseInt(marker.dataset.dim);
+                slider.value = dim;
+                updateDimension(dim);
+            });
+        });
+    })();
+    </script>
+</body>
+</html>

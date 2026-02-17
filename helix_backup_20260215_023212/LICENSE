@@ -1,0 +1,91 @@
+# ButterflyFX Helix License
+
+## Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+**Copyright (c) 2024-2026 Kenneth Bingham**
+
+This work is licensed under the Creative Commons Attribution 4.0 International License.
+
+### You are free to:
+
+- **Share** — copy and redistribute the material in any medium or format for any purpose, even commercially.
+- **Adapt** — remix, transform, and build upon the material for any purpose, even commercially.
+
+### Under the following terms:
+
+- **Attribution** — You must give appropriate credit to **Kenneth Bingham** as the original creator, provide a link to the license, and indicate if changes were made.
+
+---
+
+## Licensing Philosophy
+
+**Infrastructure = Free & Open Source (CC BY 4.0)**  
+**Applications = Proprietary**
+
+---
+
+## Open Source Infrastructure (CC BY 4.0)
+
+### Mathematical Kernel
+| File | Description |
+|------|-------------|
+| `kernel.py` | HelixKernel state machine |
+| `manifold.py` | GenerativeManifold mathematical surfaces |
+| `substrate.py` | ManifoldSubstrate token model |
+| `primitives.py` | Fundamental dimensional types |
+| `graphics3d.py` | Pure 3D mathematics |
+
+### Networking Layer
+| File | Description |
+|------|-------------|
+| `transport.py` | Helix network transport (maps to OSI 7 layers) |
+| `audio_transport.py` | Real-time audio for music collaboration |
+| `manifold_server.py` | Math transmission server protocol |
+
+### Foundation & Utilities
+| File | Description |
+|------|-------------|
+| `foundation.py` | HelixDB, HelixFS, HelixStore, HelixGraph |
+| `utilities.py` | HelixPath, HelixQuery, HelixCache, HelixSerializer |
+
+---
+
+## Proprietary Applications (NOT covered by CC BY 4.0)
+
+| File | Description |
+|------|-------------|
+| `presentation.py` | Presentation engine |
+| `dimensional_presentation.py` | Navigation engine |
+| `assembler.py` | File reconstruction |
+| `apps.py` | Example applications |
+
+---
+
+## Prior Art Declaration
+
+This repository establishes **prior art** for the following concepts:
+
+### Mathematical Kernel
+1. **7-Level Helix State Machine** - State space H = {(s, l) | s ∈ Z, l ∈ {0,1,2,3,4,5,6}}
+2. **Generative Manifold** - Mathematical surface that produces data types from geometry
+3. **Token Materialization** - Lazy evaluation of values from geometric properties
+4. **Dimensional Coordinates** - (spiral, level, position) addressing system
+
+### Networking
+5. **Helix Transport Protocol** - 7-level transport mapping to OSI model
+6. **Manifold Server Protocol** - Transmitting math functions instead of raw data
+7. **Audio Spiral Channels** - Per-musician dimensional audio channels
+
+These concepts are hereby placed in the public record to prevent patent claims.
+
+---
+
+## Full License Text
+
+https://creativecommons.org/licenses/by/4.0/legalcode
+
+---
+
+**Original Creator:** Kenneth Bingham  
+**Website:** https://butterflyfx.us  
+**Year of Creation:** 2024  

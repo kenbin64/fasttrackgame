@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX — SRL Connection Guide</title>
+    <meta name="description" content="Complete guide to Substrate Resource Locators (SRLs) - the universal addressing system for connecting to any data source.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #050510, #0a1020);
+            color: #fff;
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+        
+        header {
+            background: rgba(5, 5, 16, 0.95);
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        
+        nav { display: flex; gap: 20px; }
+        nav a { color: #8090aa; text-decoration: none; font-size: 0.9em; }
+        nav a:hover, nav a.active { color: #60b0ff; }
+        
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 100px 25px 60px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle { font-size: 1.1em; color: #60b0ff; margin-bottom: 40px; }
+        
+        h2 {
+            font-size: 1.6em;
+            color: #ff6090;
+            margin: 50px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 96, 144, 0.3);
+        }
+        
+        h3 { color: #60b0ff; margin: 30px 0 15px; font-size: 1.3em; }
+        h4 { color: #80ff80; margin: 20px 0 10px; font-size: 1.1em; }
+        
+        p { color: #b0c0e0; margin-bottom: 15px; }
+        
+        code {
+            background: rgba(100, 150, 255, 0.15);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.9em;
+            color: #80ff80;
+        }
+        
+        pre {
+            background: rgba(10, 15, 30, 0.9);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        pre code { background: none; padding: 0; font-size: 0.85em; line-height: 1.6; }
+        
+        .info-box {
+            background: rgba(100, 150, 255, 0.15);
+            border-left: 4px solid #60b0ff;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+            color: #80c0ff;
+        }
+        
+        .warning-box {
+            background: rgba(255, 100, 100, 0.15);
+            border-left: 4px solid #ff8080;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+            color: #ff8080;
+        }
+        
+        .success-box {
+            background: rgba(80, 200, 120, 0.15);
+            border-left: 4px solid #80ff80;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+            color: #80ff80;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+        }
+        
+        th { background: rgba(64, 96, 255, 0.2); color: #60b0ff; }
+        td { color: #b0c0e0; }
+        
+        ul, ol { margin: 15px 0 15px 25px; color: #b0c0e0; }
+        li { margin: 10px 0; }
+        
+        .toc {
+            background: rgba(20, 30, 50, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px 25px;
+            margin: 30px 0;
+        }
+        
+        .toc h3 { margin-top: 0; color: #ff6090; }
+        .toc ul { list-style: none; margin: 15px 0 0 0; }
+        .toc li { margin: 8px 0; }
+        .toc a { color: #60b0ff; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="../index.html" class="logo">🦋 ButterflyFX</a>
+        <nav>
+            <a href="../developer.html">Developer</a>
+            <a href="index.html">Docs</a>
+            <a href="../apps.html">Apps</a>
+        </nav>
+    </header>
+    
+    <main>
+        <h1>🔗 SRL Connection Guide</h1>
+        <p class="subtitle">Substrate Resource Locators — The Universal Addressing System</p>
+        
+        <div class="toc">
+            <h3>📑 Contents</h3>
+            <ul>
+                <li><a href="#what">What is an SRL?</a></li>
+                <li><a href="#format">Address Format</a></li>
+                <li><a href="#registry">The SRL Registry</a></li>
+                <li><a href="#creating">Creating Connections</a></li>
+                <li><a href="#database">Database Connections</a></li>
+                <li><a href="#api">REST API Connections</a></li>
+                <li><a href="#file">File System Connections</a></li>
+                <li><a href="#custom">Custom Sources</a></li>
+                <li><a href="#security">Security Best Practices</a></li>
+            </ul>
+        </div>
+        
+        <!-- What is an SRL -->
+        <section id="what">
+            <h2>What is an SRL?</h2>
+            
+            <p>An <strong>SRL (Substrate Resource Locator)</strong> is the universal addressing system for dimensional computing. Think of it as a "library card catalog" that provides <strong>O(1) lookup</strong> for any resource in your system.</p>
+            
+            <div class="info-box">
+                <strong>Key Insight:</strong> SRLs abstract away connection details. Your code never sees URLs, credentials, or connection strings — only clean addresses.
+            </div>
+            
+            <h3>Why SRLs Instead of URLs?</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Traditional</th>
+                        <th>SRL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>https://api.example.com/v1/users?id=42</code></td>
+                        <td><code>srl://api.users/find/42</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>postgres://user:pass@host:5432/db</code></td>
+                        <td><code>srl://database.users/profile</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>/var/data/files/report.csv</code></td>
+                        <td><code>srl://files.reports/2024/sales</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Address Format -->
+        <section id="format">
+            <h2>Address Format</h2>
+            
+            <p>Every SRL follows this structure:</p>
+            
+<pre><code>srl://&lt;domain&gt;/&lt;substrate&gt;/&lt;resource&gt;[/&lt;path&gt;...]
+
+<span style="color: #666;">Examples:</span>
+srl://graphics.color/palette/sunset
+srl://vehicle.fleet/cars/tesla_001
+srl://database.postgres/users/profile
+srl://api.weather/forecast/today</code></pre>
+            
+            <h3>Components</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Part</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>domain</code></td>
+                        <td>Category of the resource</td>
+                        <td><code>database.postgres</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>substrate</code></td>
+                        <td>Specific substrate name</td>
+                        <td><code>users</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>resource</code></td>
+                        <td>Primitive, operation, or token</td>
+                        <td><code>profile</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>path</code></td>
+                        <td>Optional deeper navigation</td>
+                        <td><code>email</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- The SRL Registry -->
+        <section id="registry">
+            <h2>The SRL Registry</h2>
+            
+            <p>The <code>SecureResourceLocator</code> is a singleton registry that stores all SRL mappings:</p>
+            
+<pre><code><span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> SecureResourceLocator, srl, invoke
+
+<span style="color: #666;"># Get the global registry</span>
+SRL = SecureResourceLocator()
+
+<span style="color: #666;"># Register a substrate</span>
+address = SRL.register(my_substrate)
+<span style="color: #ff80a0;">print</span>(address)  <span style="color: #666;"># → "srl://domain/substrate"</span>
+
+<span style="color: #666;"># O(1) lookup</span>
+value = srl(<span style="color: #80ff80;">"srl://domain/substrate/primitive"</span>)
+
+<span style="color: #666;"># O(1) invoke operation</span>
+result = invoke(<span style="color: #80ff80;">"srl://domain/substrate/operation"</span>, arg1, arg2)
+
+<span style="color: #666;"># Find all matching addresses</span>
+matches = SRL.find(<span style="color: #80ff80;">"user"</span>)  <span style="color: #666;"># Regex search</span>
+
+<span style="color: #666;"># List all substrates</span>
+SRL.list_substrates()</code></pre>
+        </section>
+        
+        <!-- Creating Connections -->
+        <section id="creating">
+            <h2>Creating SRL Connections</h2>
+            
+            <p>To create an SRL connection, you implement a <code>Substrate</code> that wraps your data source:</p>
+            
+<pre><code><span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> Substrate, SecureResourceLocator
+
+<span style="color: #ff80a0;">class</span> <span style="color: #ffd700;">MyDataSubstrate</span>(Substrate):
+    <span style="color: #80ff80;">"""Template for any data source connection"""</span>
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">__init__</span>(self, name: str, connection_config: dict):
+        super().__init__(name)
+        self._config = connection_config  <span style="color: #666;"># Hidden from consumers</span>
+        
+        <span style="color: #666;"># Register primitives (data)</span>
+        self.register_primitive(<span style="color: #80ff80;">"status"</span>, <span style="color: #80ff80;">"connected"</span>)
+        
+        <span style="color: #666;"># Register operations (actions)</span>
+        self.register_operation(<span style="color: #80ff80;">"fetch"</span>, self._fetch)
+        self.register_operation(<span style="color: #80ff80;">"create"</span>, self._create)
+        self.register_operation(<span style="color: #80ff80;">"update"</span>, self._update)
+        self.register_operation(<span style="color: #80ff80;">"delete"</span>, self._delete)
+    
+    @property
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">domain</span>(self) -> str:
+        <span style="color: #ff80a0;">return</span> <span style="color: #80ff80;">"mydata.source"</span>
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_fetch</span>(self, resource_id):
+        <span style="color: #666;"># Actual data fetching happens here</span>
+        <span style="color: #ff80a0;">pass</span>
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_create</span>(self, data):
+        <span style="color: #ff80a0;">pass</span>
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_update</span>(self, resource_id, data):
+        <span style="color: #ff80a0;">pass</span>
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_delete</span>(self, resource_id):
+        <span style="color: #ff80a0;">pass</span>
+
+<span style="color: #666;"># Register with global SRL</span>
+SRL = SecureResourceLocator()
+source = MyDataSubstrate(<span style="color: #80ff80;">"items"</span>, {<span style="color: #80ff80;">"host"</span>: <span style="color: #80ff80;">"..."</span>})
+SRL.register(source)
+
+<span style="color: #666;"># Now accessible via SRL</span>
+item = invoke(<span style="color: #80ff80;">"srl://mydata.source/items/fetch"</span>, 42)</code></pre>
+        </section>
+        
+        <!-- Database Connections -->
+        <section id="database">
+            <h2>Database Connections</h2>
+            
+            <h3>PostgreSQL Example</h3>
+<pre><code><span style="color: #ff80a0;">import</span> psycopg2
+<span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> Substrate, SecureResourceLocator
+
+<span style="color: #ff80a0;">class</span> <span style="color: #ffd700;">PostgresSubstrate</span>(Substrate):
+    <span style="color: #80ff80;">"""PostgreSQL database connection via SRL"""</span>
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">__init__</span>(self, name: str, host: str, database: str, 
+                 user: str, password: str, port: int = 5432):
+        super().__init__(name)
+        
+        <span style="color: #666;"># Connection details hidden from consumers</span>
+        self._conn_params = {
+            <span style="color: #80ff80;">"host"</span>: host,
+            <span style="color: #80ff80;">"database"</span>: database,
+            <span style="color: #80ff80;">"user"</span>: user,
+            <span style="color: #80ff80;">"password"</span>: password,
+            <span style="color: #80ff80;">"port"</span>: port
+        }
+        self._conn = <span style="color: #ff80a0;">None</span>
+        
+        <span style="color: #666;"># Register operations</span>
+        self.register_operation(<span style="color: #80ff80;">"query"</span>, self._query)
+        self.register_operation(<span style="color: #80ff80;">"execute"</span>, self._execute)
+        self.register_operation(<span style="color: #80ff80;">"find"</span>, self._find_by_id)
+        self.register_operation(<span style="color: #80ff80;">"insert"</span>, self._insert)
+    
+    @property
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">domain</span>(self) -> str:
+        <span style="color: #ff80a0;">return</span> <span style="color: #80ff80;">"database.postgres"</span>
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_get_conn</span>(self):
+        <span style="color: #ff80a0;">if not</span> self._conn:
+            self._conn = psycopg2.connect(**self._conn_params)
+        <span style="color: #ff80a0;">return</span> self._conn
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_query</span>(self, sql: str, params: tuple = ()):
+        cursor = self._get_conn().cursor()
+        cursor.execute(sql, params)
+        <span style="color: #ff80a0;">return</span> cursor.fetchall()
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_execute</span>(self, sql: str, params: tuple = ()):
+        cursor = self._get_conn().cursor()
+        cursor.execute(sql, params)
+        self._conn.commit()
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_find_by_id</span>(self, table: str, id: int):
+        <span style="color: #ff80a0;">return</span> self._query(f<span style="color: #80ff80;">"SELECT * FROM {table} WHERE id = %s"</span>, (id,))
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_insert</span>(self, table: str, data: dict):
+        cols = <span style="color: #80ff80;">", "</span>.join(data.keys())
+        vals = <span style="color: #80ff80;">", "</span>.join([<span style="color: #80ff80;">"%s"</span>] * len(data))
+        self._execute(
+            f<span style="color: #80ff80;">"INSERT INTO {table} ({cols}) VALUES ({vals})"</span>,
+            tuple(data.values())
+        )
+
+<span style="color: #666;"># Setup (typically in app initialization)</span>
+users_db = PostgresSubstrate(
+    <span style="color: #80ff80;">"users"</span>,
+    host=<span style="color: #80ff80;">"localhost"</span>,
+    database=<span style="color: #80ff80;">"myapp"</span>,
+    user=os.environ[<span style="color: #80ff80;">"DB_USER"</span>],      <span style="color: #666;"># Credentials from env</span>
+    password=os.environ[<span style="color: #80ff80;">"DB_PASS"</span>]
+)
+SecureResourceLocator().register(users_db)
+
+<span style="color: #666;"># Consumer code — no credentials visible!</span>
+user = invoke(<span style="color: #80ff80;">"srl://database.postgres/users/find"</span>, <span style="color: #80ff80;">"profiles"</span>, 42)
+invoke(<span style="color: #80ff80;">"srl://database.postgres/users/insert"</span>, <span style="color: #80ff80;">"profiles"</span>, {
+    <span style="color: #80ff80;">"name"</span>: <span style="color: #80ff80;">"Alice"</span>,
+    <span style="color: #80ff80;">"email"</span>: <span style="color: #80ff80;">"alice@example.com"</span>
+})</code></pre>
+
+            <h3>SQLite Example</h3>
+<pre><code><span style="color: #ff80a0;">import</span> sqlite3
+<span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> Substrate
+
+<span style="color: #ff80a0;">class</span> <span style="color: #ffd700;">SQLiteSubstrate</span>(Substrate):
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">__init__</span>(self, name: str, db_path: str):
+        super().__init__(name)
+        self._db_path = db_path
+        self.register_operation(<span style="color: #80ff80;">"query"</span>, self._query)
+        self.register_operation(<span style="color: #80ff80;">"execute"</span>, self._execute)
+    
+    @property
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">domain</span>(self) -> str:
+        <span style="color: #ff80a0;">return</span> <span style="color: #80ff80;">"database.sqlite"</span>
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_query</span>(self, sql: str):
+        <span style="color: #ff80a0;">with</span> sqlite3.connect(self._db_path) <span style="color: #ff80a0;">as</span> conn:
+            <span style="color: #ff80a0;">return</span> conn.execute(sql).fetchall()
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_execute</span>(self, sql: str):
+        <span style="color: #ff80a0;">with</span> sqlite3.connect(self._db_path) <span style="color: #ff80a0;">as</span> conn:
+            conn.execute(sql)
+            conn.commit()</code></pre>
+        </section>
+        
+        <!-- REST API Connections -->
+        <section id="api">
+            <h2>REST API Connections</h2>
+            
+<pre><code><span style="color: #ff80a0;">import</span> requests
+<span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> Substrate, SecureResourceLocator
+
+<span style="color: #ff80a0;">class</span> <span style="color: #ffd700;">RestAPISubstrate</span>(Substrate):
+    <span style="color: #80ff80;">"""REST API connection via SRL"""</span>
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">__init__</span>(self, name: str, base_url: str, 
+                 api_key: str = <span style="color: #ff80a0;">None</span>, headers: dict = <span style="color: #ff80a0;">None</span>):
+        super().__init__(name)
+        self._base_url = base_url.rstrip(<span style="color: #80ff80;">"/"</span>)
+        self._headers = headers <span style="color: #ff80a0;">or</span> {}
+        
+        <span style="color: #ff80a0;">if</span> api_key:
+            self._headers[<span style="color: #80ff80;">"Authorization"</span>] = f<span style="color: #80ff80;">"Bearer {api_key}"</span>
+        
+        <span style="color: #666;"># Register CRUD operations</span>
+        self.register_operation(<span style="color: #80ff80;">"get"</span>, self._get)
+        self.register_operation(<span style="color: #80ff80;">"post"</span>, self._post)
+        self.register_operation(<span style="color: #80ff80;">"put"</span>, self._put)
+        self.register_operation(<span style="color: #80ff80;">"delete"</span>, self._delete)
+    
+    @property
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">domain</span>(self) -> str:
+        <span style="color: #ff80a0;">return</span> <span style="color: #80ff80;">"api.rest"</span>
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_get</span>(self, endpoint: str, params: dict = <span style="color: #ff80a0;">None</span>):
+        resp = requests.get(
+            f<span style="color: #80ff80;">"{self._base_url}/{endpoint}"</span>,
+            headers=self._headers,
+            params=params
+        )
+        resp.raise_for_status()
+        <span style="color: #ff80a0;">return</span> resp.json()
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_post</span>(self, endpoint: str, data: dict):
+        resp = requests.post(
+            f<span style="color: #80ff80;">"{self._base_url}/{endpoint}"</span>,
+            headers=self._headers,
+            json=data
+        )
+        resp.raise_for_status()
+        <span style="color: #ff80a0;">return</span> resp.json()
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_put</span>(self, endpoint: str, data: dict):
+        resp = requests.put(
+            f<span style="color: #80ff80;">"{self._base_url}/{endpoint}"</span>,
+            headers=self._headers,
+            json=data
+        )
+        resp.raise_for_status()
+        <span style="color: #ff80a0;">return</span> resp.json()
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_delete</span>(self, endpoint: str):
+        resp = requests.delete(
+            f<span style="color: #80ff80;">"{self._base_url}/{endpoint}"</span>,
+            headers=self._headers
+        )
+        resp.raise_for_status()
+
+<span style="color: #666;"># Setup</span>
+weather_api = RestAPISubstrate(
+    <span style="color: #80ff80;">"weather"</span>,
+    base_url=<span style="color: #80ff80;">"https://api.weather.service/v1"</span>,
+    api_key=os.environ[<span style="color: #80ff80;">"WEATHER_API_KEY"</span>]
+)
+SecureResourceLocator().register(weather_api)
+
+<span style="color: #666;"># Consumer code — clean and simple</span>
+forecast = invoke(<span style="color: #80ff80;">"srl://api.rest/weather/get"</span>, <span style="color: #80ff80;">"forecast/today"</span>)
+cities = invoke(<span style="color: #80ff80;">"srl://api.rest/weather/get"</span>, <span style="color: #80ff80;">"cities"</span>, {<span style="color: #80ff80;">"country"</span>: <span style="color: #80ff80;">"US"</span>})</code></pre>
+
+            <div class="success-box">
+                <strong>✓ Benefit:</strong> API keys and URLs are never in application code. Change providers without touching business logic.
+            </div>
+        </section>
+        
+        <!-- File System Connections -->
+        <section id="file">
+            <h2>File System Connections</h2>
+            
+<pre><code><span style="color: #ff80a0;">import</span> os
+<span style="color: #ff80a0;">import</span> json
+<span style="color: #ff80a0;">from</span> pathlib <span style="color: #ff80a0;">import</span> Path
+<span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> Substrate
+
+<span style="color: #ff80a0;">class</span> <span style="color: #ffd700;">FileSystemSubstrate</span>(Substrate):
+    <span style="color: #80ff80;">"""File system access via SRL"""</span>
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">__init__</span>(self, name: str, root_path: str):
+        super().__init__(name)
+        self._root = Path(root_path)
+        
+        self.register_operation(<span style="color: #80ff80;">"read"</span>, self._read)
+        self.register_operation(<span style="color: #80ff80;">"write"</span>, self._write)
+        self.register_operation(<span style="color: #80ff80;">"list"</span>, self._list)
+        self.register_operation(<span style="color: #80ff80;">"exists"</span>, self._exists)
+        self.register_operation(<span style="color: #80ff80;">"read_json"</span>, self._read_json)
+        self.register_operation(<span style="color: #80ff80;">"write_json"</span>, self._write_json)
+    
+    @property
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">domain</span>(self) -> str:
+        <span style="color: #ff80a0;">return</span> <span style="color: #80ff80;">"files.local"</span>
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_safe_path</span>(self, relative: str) -> Path:
+        <span style="color: #666;">"""Prevent path traversal attacks"""</span>
+        path = (self._root / relative).resolve()
+        <span style="color: #ff80a0;">if not</span> str(path).startswith(str(self._root.resolve())):
+            <span style="color: #ff80a0;">raise</span> ValueError(<span style="color: #80ff80;">"Path traversal not allowed"</span>)
+        <span style="color: #ff80a0;">return</span> path
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_read</span>(self, path: str) -> str:
+        <span style="color: #ff80a0;">return</span> self._safe_path(path).read_text()
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_write</span>(self, path: str, content: str):
+        self._safe_path(path).write_text(content)
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_list</span>(self, path: str = <span style="color: #80ff80;">""</span>) -> list:
+        <span style="color: #ff80a0;">return</span> [f.name <span style="color: #ff80a0;">for</span> f <span style="color: #ff80a0;">in</span> self._safe_path(path).iterdir()]
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_exists</span>(self, path: str) -> bool:
+        <span style="color: #ff80a0;">return</span> self._safe_path(path).exists()
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_read_json</span>(self, path: str) -> dict:
+        <span style="color: #ff80a0;">return</span> json.loads(self._read(path))
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_write_json</span>(self, path: str, data: dict):
+        self._write(path, json.dumps(data, indent=2))
+
+<span style="color: #666;"># Setup</span>
+data_files = FileSystemSubstrate(<span style="color: #80ff80;">"data"</span>, <span style="color: #80ff80;">"/var/app/data"</span>)
+SecureResourceLocator().register(data_files)
+
+<span style="color: #666;"># Usage</span>
+config = invoke(<span style="color: #80ff80;">"srl://files.local/data/read_json"</span>, <span style="color: #80ff80;">"config.json"</span>)
+files = invoke(<span style="color: #80ff80;">"srl://files.local/data/list"</span>, <span style="color: #80ff80;">"reports/2024"</span>)</code></pre>
+        </section>
+        
+        <!-- Custom Sources -->
+        <section id="custom">
+            <h2>Custom Source Connections</h2>
+            
+            <p>Connect to any data source — cloud services, message queues, IoT devices:</p>
+            
+            <h3>AWS S3 Example</h3>
+<pre><code><span style="color: #ff80a0;">import</span> boto3
+<span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> Substrate
+
+<span style="color: #ff80a0;">class</span> <span style="color: #ffd700;">S3Substrate</span>(Substrate):
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">__init__</span>(self, name: str, bucket: str):
+        super().__init__(name)
+        self._bucket = bucket
+        self._s3 = boto3.client(<span style="color: #80ff80;">"s3"</span>)
+        
+        self.register_operation(<span style="color: #80ff80;">"get"</span>, self._get)
+        self.register_operation(<span style="color: #80ff80;">"put"</span>, self._put)
+        self.register_operation(<span style="color: #80ff80;">"list"</span>, self._list)
+    
+    @property
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">domain</span>(self) -> str:
+        <span style="color: #ff80a0;">return</span> <span style="color: #80ff80;">"cloud.s3"</span>
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_get</span>(self, key: str) -> bytes:
+        resp = self._s3.get_object(Bucket=self._bucket, Key=key)
+        <span style="color: #ff80a0;">return</span> resp[<span style="color: #80ff80;">"Body"</span>].read()
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_put</span>(self, key: str, data: bytes):
+        self._s3.put_object(Bucket=self._bucket, Key=key, Body=data)
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_list</span>(self, prefix: str = <span style="color: #80ff80;">""</span>) -> list:
+        resp = self._s3.list_objects_v2(Bucket=self._bucket, Prefix=prefix)
+        <span style="color: #ff80a0;">return</span> [obj[<span style="color: #80ff80;">"Key"</span>] <span style="color: #ff80a0;">for</span> obj <span style="color: #ff80a0;">in</span> resp.get(<span style="color: #80ff80;">"Contents"</span>, [])]</code></pre>
+
+            <h3>Redis Example</h3>
+<pre><code><span style="color: #ff80a0;">import</span> redis
+<span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> Substrate
+
+<span style="color: #ff80a0;">class</span> <span style="color: #ffd700;">RedisSubstrate</span>(Substrate):
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">__init__</span>(self, name: str, host: str, port: int = 6379):
+        super().__init__(name)
+        self._redis = redis.Redis(host=host, port=port)
+        
+        self.register_operation(<span style="color: #80ff80;">"get"</span>, self._redis.get)
+        self.register_operation(<span style="color: #80ff80;">"set"</span>, self._redis.set)
+        self.register_operation(<span style="color: #80ff80;">"delete"</span>, self._redis.delete)
+        self.register_operation(<span style="color: #80ff80;">"keys"</span>, self._redis.keys)
+    
+    @property
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">domain</span>(self) -> str:
+        <span style="color: #ff80a0;">return</span> <span style="color: #80ff80;">"cache.redis"</span></code></pre>
+        </section>
+        
+        <!-- Security Best Practices -->
+        <section id="security">
+            <h2>Security Best Practices</h2>
+            
+            <div class="warning-box">
+                <strong>⚠️ Never hardcode credentials</strong><br>
+                Always use environment variables or secure vaults for sensitive data.
+            </div>
+            
+            <h3>1. Environment Variables</h3>
+<pre><code><span style="color: #ff80a0;">import</span> os
+
+db = PostgresSubstrate(
+    <span style="color: #80ff80;">"users"</span>,
+    host=os.environ[<span style="color: #80ff80;">"DB_HOST"</span>],
+    database=os.environ[<span style="color: #80ff80;">"DB_NAME"</span>],
+    user=os.environ[<span style="color: #80ff80;">"DB_USER"</span>],
+    password=os.environ[<span style="color: #80ff80;">"DB_PASSWORD"</span>]
+)</code></pre>
+
+            <h3>2. Secrets Manager Integration</h3>
+<pre><code><span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> Substrate
+<span style="color: #ff80a0;">import</span> boto3
+
+<span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">get_secret</span>(name: str) -> dict:
+    client = boto3.client(<span style="color: #80ff80;">"secretsmanager"</span>)
+    resp = client.get_secret_value(SecretId=name)
+    <span style="color: #ff80a0;">return</span> json.loads(resp[<span style="color: #80ff80;">"SecretString"</span>])
+
+<span style="color: #666;"># Credentials loaded at runtime, not stored</span>
+secrets = get_secret(<span style="color: #80ff80;">"prod/database"</span>)
+db = PostgresSubstrate(<span style="color: #80ff80;">"users"</span>, **secrets)</code></pre>
+
+            <h3>3. Path Validation</h3>
+<pre><code><span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_safe_path</span>(self, relative: str) -> Path:
+    <span style="color: #80ff80;">"""Prevent directory traversal attacks"""</span>
+    path = (self._root / relative).resolve()
+    <span style="color: #ff80a0;">if not</span> str(path).startswith(str(self._root.resolve())):
+        <span style="color: #ff80a0;">raise</span> ValueError(<span style="color: #80ff80;">"Path traversal not allowed"</span>)
+    <span style="color: #ff80a0;">return</span> path</code></pre>
+
+            <h3>4. Access Control</h3>
+<pre><code><span style="color: #ff80a0;">class</span> <span style="color: #ffd700;">SecureSubstrate</span>(Substrate):
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">__init__</span>(self, name: str, allowed_roles: list):
+        super().__init__(name)
+        self._allowed_roles = allowed_roles
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">authorize</span>(self, user_role: str):
+        <span style="color: #ff80a0;">if</span> user_role <span style="color: #ff80a0;">not in</span> self._allowed_roles:
+            <span style="color: #ff80a0;">raise</span> PermissionError(<span style="color: #80ff80;">"Access denied"</span>)</code></pre>
+        </section>
+        
+        <!-- Footer -->
+        <section style="margin-top: 60px; padding-top: 40px; border-top: 1px solid rgba(100, 150, 255, 0.2);">
+            <p style="text-align: center; color: #666;">
+                <a href="index.html" style="color: #60b0ff;">← Back to Full Docs</a> |
+                <a href="../developer.html" style="color: #60b0ff;">Developer Guide</a>
+            </p>
+        </section>
+    </main>
+</body>
+</html>

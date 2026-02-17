@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart | ButterflyFX</title>
+    
+    <meta name="description" content="Your ButterflyFX shopping cart - review and manage your selected products before checkout.">
+    <link rel="canonical" href="https://butterflyfx.us/cart.html">
+    
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --border-color: #2a2a3a;
+            --text-primary: #fff;
+            --text-secondary: #a0a0b0;
+            --accent-purple: #8855ff;
+            --accent-blue: #4285F4;
+            --accent-pink: #ff55aa;
+            --accent-green: #50fa7b;
+            --accent-red: #ff5555;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(136, 85, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 85, 170, 0.1) 0%, transparent 50%);
+        }
+        
+        header {
+            background: rgba(10, 10, 15, 0.95);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 1.3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+        
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+        
+        nav a:hover { color: var(--accent-purple); }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .cart-count {
+            background: var(--accent-purple);
+            font-size: 0.5em;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+        
+        .cart-layout {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+        
+        @media (max-width: 800px) {
+            .cart-layout { grid-template-columns: 1fr; }
+        }
+        
+        /* Cart Items */
+        .cart-items {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .cart-header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 20px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 20px;
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 600px) {
+            .cart-header { display: none; }
+        }
+        
+        .cart-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 20px;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+        
+        @media (max-width: 600px) {
+            .cart-item {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+        
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .item-icon {
+            font-size: 2.5em;
+            width: 60px;
+            height: 60px;
+            background: rgba(136, 85, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .item-details h3 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .item-details .meta {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+        
+        .item-price {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .item-price.free {
+            color: var(--accent-green);
+        }
+        
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--border-color);
+            background: none;
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+        
+        .quantity-btn:hover {
+            background: var(--border-color);
+        }
+        
+        .quantity-value {
+            width: 30px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .btn-remove {
+            background: none;
+            border: none;
+            color: var(--accent-red);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 1.2em;
+        }
+        
+        .btn-remove:hover {
+            background: rgba(255, 85, 85, 0.1);
+        }
+        
+        /* Empty Cart */
+        .cart-empty {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .cart-empty-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .cart-empty h3 {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        
+        .cart-empty a {
+            color: var(--accent-purple);
+            text-decoration: none;
+        }
+        
+        /* Order Summary */
+        .order-summary {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            height: fit-content;
+            position: sticky;
+            top: 90px;
+        }
+        
+        .order-summary h2 {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 0.95em;
+        }
+        
+        .summary-row.total {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .summary-label {
+            color: var(--text-secondary);
+        }
+        
+        .promo-input {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .promo-input input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
+        
+        .promo-input button {
+            padding: 10px 20px;
+            background: var(--border-color);
+            border: none;
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .promo-input button:hover {
+            background: var(--accent-purple);
+        }
+        
+        .btn-checkout {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+        }
+        
+        .btn-checkout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(136, 85, 255, 0.4);
+        }
+        
+        .secure-badge {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.8em;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        /* Recommended */
+        .recommended {
+            margin-top: 40px;
+        }
+        
+        .recommended h3 {
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+        }
+        
+        .recommended-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .recommended-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        
+        .recommended-item:hover {
+            border-color: var(--accent-purple);
+        }
+        
+        .recommended-item .rec-icon {
+            font-size: 1.8em;
+        }
+        
+        .recommended-item .rec-info h4 {
+            font-size: 0.95em;
+            margin-bottom: 3px;
+        }
+        
+        .recommended-item .rec-info p {
+            color: var(--text-secondary);
+            font-size: 0.8em;
+        }
+        
+        .recommended-item .rec-price {
+            margin-left: auto;
+            font-weight: 600;
+            color: var(--accent-green);
+        }
+        
+        .btn-add-small {
+            margin-left: auto;
+            padding: 6px 12px;
+            background: var(--accent-purple);
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            border-top: 1px solid var(--border-color);
+            margin-top: 60px;
+        }
+        
+        footer a {
+            color: var(--accent-purple);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">🦋 ButterflyFX</a>
+        <nav>
+            <a href="apps.html">Apps</a>
+            <a href="developer.html">Developer</a>
+            <a href="download.html">Download</a>
+            <a href="cart.html" style="color: var(--accent-purple);">🛒 Cart (2)</a>
+        </nav>
+    </header>
+    
+    <div class="container">
+        <h1>
+            🛒 Shopping Cart
+            <span class="cart-count" id="cart-count">2 items</span>
+        </h1>
+        <p class="subtitle">Review your selections before checkout</p>
+        
+        <div class="cart-layout">
+            <!-- Cart Items -->
+            <div class="cart-items">
+                <div class="cart-header">
+                    <span>Product</span>
+                    <span>Price</span>
+                    <span>Qty</span>
+                    <span></span>
+                </div>
+                
+                <div class="cart-item" data-id="pro-license">
+                    <div class="item-info">
+                        <div class="item-icon">🔑</div>
+                        <div class="item-details">
+                            <h3>ButterflyFX Pro License</h3>
+                            <div class="meta">Annual subscription · All features</div>
+                        </div>
+                    </div>
+                    <div class="item-price">$29/mo</div>
+                    <div class="quantity-control">
+                        <button class="quantity-btn" onclick="updateQty('pro-license', -1)">−</button>
+                        <span class="quantity-value">1</span>
+                        <button class="quantity-btn" onclick="updateQty('pro-license', 1)">+</button>
+                    </div>
+                    <button class="btn-remove" onclick="removeItem('pro-license')">🗑️</button>
+                </div>
+                
+                <div class="cart-item" data-id="hd-connector">
+                    <div class="item-info">
+                        <div class="item-icon">🔗</div>
+                        <div class="item-details">
+                            <h3>Universal HD Connector Pro</h3>
+                            <div class="meta">All 40+ data sources · Priority support</div>
+                        </div>
+                    </div>
+                    <div class="item-price">$49/mo</div>
+                    <div class="quantity-control">
+                        <button class="quantity-btn" onclick="updateQty('hd-connector', -1)">−</button>
+                        <span class="quantity-value">1</span>
+                        <button class="quantity-btn" onclick="updateQty('hd-connector', 1)">+</button>
+                    </div>
+                    <button class="btn-remove" onclick="removeItem('hd-connector')">🗑️</button>
+                </div>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="order-summary">
+                <h2>Order Summary</h2>
+                
+                <div class="summary-row">
+                    <span class="summary-label">Subtotal</span>
+                    <span>$78.00</span>
+                </div>
+                
+                <div class="summary-row">
+                    <span class="summary-label">Discount</span>
+                    <span style="color: var(--accent-green);">-$0.00</span>
+                </div>
+                
+                <div class="summary-row">
+                    <span class="summary-label">Tax</span>
+                    <span>$0.00</span>
+                </div>
+                
+                <div class="promo-input">
+                    <input type="text" placeholder="Promo code">
+                    <button onclick="applyPromo()">Apply</button>
+                </div>
+                
+                <div class="summary-row total">
+                    <span>Total (Monthly)</span>
+                    <span>$78.00</span>
+                </div>
+                
+                <button class="btn-checkout" onclick="proceedToCheckout()">
+                    Proceed to Checkout →
+                </button>
+                
+                <div class="secure-badge">
+                    🔒 Secure checkout powered by Stripe
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recommended Products -->
+        <div class="recommended">
+            <h3>You might also like</h3>
+            <div class="recommended-grid">
+                <div class="recommended-item" onclick="addToCart('dimensiondb')">
+                    <span class="rec-icon">📊</span>
+                    <div class="rec-info">
+                        <h4>DimensionDB</h4>
+                        <p>O(1) database</p>
+                    </div>
+                    <span class="rec-price">Coming Soon</span>
+                </div>
+                
+                <div class="recommended-item" onclick="addToCart('team-license')">
+                    <span class="rec-icon">👥</span>
+                    <div class="rec-info">
+                        <h4>Team License</h4>
+                        <p>Up to 10 developers</p>
+                    </div>
+                    <button class="btn-add-small">+ Add</button>
+                </div>
+                
+                <div class="recommended-item" onclick="addToCart('support')">
+                    <span class="rec-icon">🎧</span>
+                    <div class="rec-info">
+                        <h4>Priority Support</h4>
+                        <p>24/7 assistance</p>
+                    </div>
+                    <button class="btn-add-small">+ Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>
+            <a href="index.html">Home</a> · 
+            <a href="apps.html">Apps</a> · 
+            <a href="developer.html">Developer</a> · 
+            <a href="about.html">About</a>
+        </p>
+        <p style="margin-top: 10px;">© 2026 ButterflyFX. All rights reserved.</p>
+    </footer>
+    
+    <script>
+        // Mock cart data
+        let cart = [
+            { id: 'pro-license', name: 'ButterflyFX Pro License', price: 29, qty: 1 },
+            { id: 'hd-connector', name: 'Universal HD Connector Pro', price: 49, qty: 1 }
+        ];
+        
+        function updateQty(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.qty = Math.max(1, item.qty + delta);
+                const row = document.querySelector(`[data-id="${id}"]`);
+                row.querySelector('.quantity-value').textContent = item.qty;
+                updateSummary();
+            }
+        }
+        
+        function removeItem(id) {
+            cart = cart.filter(i => i.id !== id);
+            const row = document.querySelector(`[data-id="${id}"]`);
+            row.style.opacity = '0';
+            setTimeout(() => {
+                row.remove();
+                updateSummary();
+                if (cart.length === 0) {
+                    showEmptyCart();
+                }
+            }, 300);
+        }
+        
+        function updateSummary() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            document.querySelector('.summary-row:first-of-type span:last-child').textContent = `$${subtotal.toFixed(2)}`;
+            document.querySelector('.summary-row.total span:last-child').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('cart-count').textContent = `${cart.length} item${cart.length !== 1 ? 's' : ''}`;
+        }
+        
+        function showEmptyCart() {
+            document.querySelector('.cart-items').innerHTML = `
+                <div class="cart-empty">
+                    <div class="cart-empty-icon">🛒</div>
+                    <h3>Your cart is empty</h3>
+                    <p>Browse our <a href="apps.html">apps</a> to get started</p>
+                </div>
+            `;
+        }
+        
+        function applyPromo() {
+            alert('Promo code functionality coming soon!');
+        }
+        
+        function addToCart(productId) {
+            alert(`Added ${productId} to cart! (Demo)`);
+        }
+        
+        function proceedToCheckout() {
+            window.location.href = 'checkout.html';
+        }
+    </script>
+</body>
+</html>

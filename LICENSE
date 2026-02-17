@@ -1,0 +1,111 @@
+# ButterflyFX License
+
+**Copyright (c) 2024-2026 Kenneth Bingham. All Rights Reserved.**
+
+---
+
+## Licensing Philosophy
+
+**Infrastructure = Free & Open Source (CC BY 4.0)**  
+**Applications = Proprietary (Freeware or Commercial)**
+
+---
+
+## Open Source Infrastructure (CC BY 4.0)
+
+All infrastructure components are licensed under **Creative Commons Attribution 4.0 International (CC BY 4.0)**.
+
+- ✅ Free for anyone to use, modify, and distribute
+- ✅ Commercial use permitted
+- ✅ Attribution to Kenneth Bingham required
+
+### Mathematical Kernel
+**Repository:** https://github.com/kenbin64/butterfly.git
+
+| File | Description |
+|------|-------------|
+| `helix/kernel.py` | HelixKernel state machine |
+| `helix/manifold.py` | GenerativeManifold mathematical surfaces |
+| `helix/substrate.py` | ManifoldSubstrate token model |
+| `helix/primitives.py` | Fundamental dimensional types |
+| `helix/graphics3d.py` | Pure 3D mathematics |
+
+### Networking Layer
+**Repository:** https://github.com/kenbin64/dimensionsos.git
+
+| File | Description |
+|------|-------------|
+| `helix/transport.py` | Helix network transport protocol |
+| `helix/audio_transport.py` | Real-time audio transport |
+| `helix/manifold_server.py` | Math transmission server |
+
+### Server Infrastructure
+
+| File | Description |
+|------|-------------|
+| `server/` | Complete server implementation |
+
+### Foundation & Utilities
+
+| File | Description |
+|------|-------------|
+| `helix/foundation.py` | HelixDB, HelixFS, HelixStore, HelixGraph |
+| `helix/utilities.py` | HelixPath, HelixQuery, HelixCache, HelixSerializer |
+
+### Deployment Tools
+
+| File | Description |
+|------|-------------|
+| `deploy/` | Deployment scripts and configuration |
+
+---
+
+## Proprietary Applications
+
+**Website:** https://butterflyfx.us
+
+The following applications are proprietary software (freeware or commercial licensing):
+
+| File | Description | License Type |
+|------|-------------|--------------|
+| `helix/presentation.py` | Presentation engine | Proprietary |
+| `helix/dimensional_presentation.py` | Navigation engine | Proprietary |
+| `helix/assembler.py` | File reconstruction | Proprietary |
+| `helix/apps.py` | Example applications | Proprietary |
+| `/apps/` | Application directory | Proprietary |
+| `/web/` | Web interfaces | Proprietary |
+| `/landing/` | Landing pages | Proprietary |
+
+---
+
+## Proprietary License Terms
+
+For proprietary applications:
+
+1. **Freeware** — Some applications may be distributed as freeware for personal use.
+
+2. **Commercial** — Commercial applications require a license. Contact the author for terms.
+
+3. **No Redistribution** — You may not redistribute proprietary applications without permission.
+
+4. **No Warranty** — This software is provided "as is" without warranty of any kind.
+
+---
+
+## Summary
+
+| Category | Components | License |
+|----------|------------|---------|
+| **Infrastructure** | Kernel, Networking, Server, Foundation, Utilities, Deploy | CC BY 4.0 (Open Source) |
+| **Applications** | Presentation, Apps, Web UI | Proprietary |
+
+---
+
+## Contact
+
+- **Website:** https://butterflyfx.us
+- **Author:** Kenneth Bingham
+
+---
+
+*Infrastructure is free. Build anything on it. Applications are where we make our living.*

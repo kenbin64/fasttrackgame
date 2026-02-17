@@ -1,0 +1,449 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #060610;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+        
+        /* Header */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 55px;
+            background: rgba(6, 6, 16, 0.97);
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+        }
+        
+        .logo {
+            font-size: 1.4em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header-subtitle {
+            font-size: 0.85em;
+            color: #8090bb;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Main Content - Scrollable */
+        #main-content {
+            position: relative;
+            z-index: 10;
+            padding: 80px 40px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 60px 0 80px;
+        }
+        
+        .hero h1 {
+            font-size: 3em;
+            font-weight: 300;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .hero h1 span {
+            background: linear-gradient(135deg, #4080ff, #ff60a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+        
+        .hero .subtitle {
+            font-size: 1.3em;
+            color: #7090cc;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+        
+        .hero .hook {
+            font-size: 1.1em;
+            color: #ff6090;
+            font-style: italic;
+        }
+        
+        /* Section Styling */
+        section {
+            background: rgba(15, 15, 35, 0.85);
+            border: 1px solid rgba(100, 150, 255, 0.15);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+        
+        section h2 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        section h2 .num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            font-size: 0.6em;
+            font-weight: 700;
+        }
+        
+        section h3 {
+            font-size: 1.1em;
+            color: #6090cc;
+            font-weight: 400;
+            margin-bottom: 25px;
+        }
+        
+        section p {
+            font-size: 1.05em;
+            line-height: 1.7;
+            color: #c0d0ee;
+            margin-bottom: 18px;
+        }
+        
+        section p:last-child { margin-bottom: 0; }
+        
+        .highlight {
+            color: #ff6090;
+            font-weight: 600;
+        }
+        
+        .concept {
+            color: #60b0ff;
+            font-weight: 600;
+        }
+        
+        /* Two Column Layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 25px;
+        }
+        
+        .col {
+            background: rgba(20, 20, 50, 0.6);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid rgba(100, 150, 255, 0.1);
+        }
+        
+        .col h4 {
+            font-size: 1.1em;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+        
+        .col.old h4 { color: #ff6060; }
+        .col.new h4 { color: #60ff90; }
+        
+        .col ul {
+            list-style: none;
+            color: #a0b0d0;
+            font-size: 0.95em;
+            line-height: 1.8;
+        }
+        
+        .col ul li::before {
+            content: '→ ';
+            color: #6080aa;
+        }
+        
+        /* Insight Boxes */
+        .insight {
+            background: linear-gradient(135deg, rgba(64, 96, 255, 0.15), rgba(255, 64, 128, 0.15));
+            border-left: 3px solid #ff4080;
+            padding: 20px;
+            border-radius: 0 10px 10px 0;
+            margin: 25px 0;
+        }
+        
+        .insight strong {
+            color: #ff80a0;
+        }
+        
+        /* Code Examples */
+        .code-block {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            color: #a0c0ff;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        .code-block .comment { color: #6080aa; }
+        .code-block .keyword { color: #ff6090; }
+        .code-block .function { color: #60d0ff; }
+        .code-block .string { color: #90ff90; }
+        .code-block .number { color: #ffaa60; }
+        
+        /* Dimensional Helix Visualization */
+        #helix-demo {
+            background: rgba(10, 10, 30, 0.9);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 25px;
+            text-align: center;
+        }
+        
+        .helix-levels {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 25px 0;
+        }
+        
+        .level-card {
+            width: 140px;
+            padding: 20px 15px;
+            background: rgba(20, 20, 50, 0.8);
+            border: 2px solid;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        .level-card.active {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px currentColor;
+        }
+        
+        .level-card[data-level="0"] { border-color: #666; color: #888; }
+        .level-card[data-level="1"] { border-color: #ff6464; color: #ff6464; }
+        .level-card[data-level="2"] { border-color: #ffaa44; color: #ffaa44; }
+        .level-card[data-level="3"] { border-color: #44dd44; color: #44dd44; }
+        .level-card[data-level="4"] { border-color: #44aaff; color: #44aaff; }
+        .level-card[data-level="5"] { border-color: #aa66ff; color: #aa66ff; }
+        .level-card[data-level="6"] { border-color: #ff66aa; color: #ff66aa; }
+        
+        .level-card .symbol {
+            font-size: 2em;
+            margin-bottom: 8px;
+        }
+        
+        .level-card .name {
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .level-card .desc {
+            font-size: 0.7em;
+            color: #8090aa;
+            margin-top: 5px;
+        }
+        
+        #level-explanation {
+            background: rgba(30, 30, 60, 0.6);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px;
+            text-align: left;
+            min-height: 150px;
+        }
+        
+        #level-explanation h4 {
+            font-size: 1.2em;
+            margin-bottom: 12px;
+        }
+        
+        #level-explanation p {
+            color: #b0c0e0;
+            line-height: 1.7;
+        }
+        
+        /* Benchmarks */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+        
+        .metric-card {
+            background: rgba(20, 20, 50, 0.7);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .metric-card .value {
+            font-size: 1.8em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60ff90, #40b0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .metric-card .label {
+            font-size: 0.85em;
+            color: #8090bb;
+            margin-top: 8px;
+        }
+        
+        /* Your Position */
+        #your-position {
+            background: linear-gradient(135deg, rgba(100, 60, 200, 0.2), rgba(60, 100, 200, 0.2));
+            border-color: rgba(150, 100, 255, 0.3);
+        }
+        
+        .position-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin: 25px 0;
+        }
+        
+        .position-item {
+            text-align: center;
+        }
+        
+        .position-item .label {
+            font-size: 0.8em;
+            color: #8090bb;
+            margin-bottom: 8px;
+        }
+        
+        .position-item .value {
+            font-size: 1.4em;
+            font-family: 'SF Mono', Monaco, monospace;
+            color: #fff;
+        }
+        
+        .position-item .value.coords {
+            color: #aa80ff;
+        }
+        
+        /* CTA */
+        #cta {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(64, 96, 255, 0.2), rgba(255, 64, 128, 0.2));
+        }
+        
+        #cta h2 {
+            justify-content: center;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .cta-btn {
+            padding: 15px 35px;
+            border-radius: 30px;
+            font-size: 1em;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .cta-btn.primary {
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            color: #fff;
+            border: none;
+        }
+        
+        .cta-btn.secondary {
+            background: transparent;
+            color: #8090cc;
+            border: 2px solid #4060aa;
+        }
+        
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(64, 96, 255, 0.4);
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #5060aa;
+            font-size: 0.85em;
+        }
+        
+        footer a {
+            color: #7090cc;
+            text-decoration: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            #main-content {
+                padding: 70px 20px 40px;
+            }
+            
+            .hero h1 {
+                font-size: 2em;
+            }
+            
+            section {
+                padding: 25px;
+            }
+            
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+            
+            .level-card {
+                width: 100px;
+                padding: 15px 10px;
+            }
+            
+            .level-card .symbol {
+                font-size: 1.5em;
+            }
+        }

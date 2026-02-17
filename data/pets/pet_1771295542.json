@@ -1,0 +1,57 @@
+{
+  "pet_id": "pet_1771295542",
+  "name": "Pixel",
+  "species": "dragon",
+  "substrate": {
+    "identity": {
+      "name": "Pixel",
+      "species": "dragon",
+      "emoji": "\ud83d\udc09",
+      "color": "#27ae60",
+      "born": 1771295542.0170133,
+      "personality": "curious"
+    },
+    "memory": {
+      "conversations": {
+        "m1_1771295550": {
+          "id": "m1_1771295550",
+          "content": "User said: sit",
+          "category": "conversations",
+          "emotion": "curious",
+          "timestamp": 1771295550.34304,
+          "importance": 0.6,
+          "references": []
+        }
+      },
+      "facts": {},
+      "feelings": {},
+      "preferences": {}
+    },
+    "emotions": {
+      "current": {
+        "name": "curious",
+        "intensity": 0.5529923070867865,
+        "cause": "User message: sit"
+      },
+      "history": [
+        {
+          "name": "curious",
+          "intensity": 0.5529923070867865,
+          "cause": "User message: sit",
+          "timestamp": 1771295550.3433902
+        }
+      ]
+    },
+    "knowledge": {
+      "user_name": null,
+      "user_facts": [],
+      "favorite_topics": [],
+      "conversation_count": 1
+    },
+    "personality": {
+      "trait": "curious",
+      "quirks": [],
+      "catchphrases": []
+    }
+  }
+}

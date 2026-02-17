@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX — The Future of Computing is Dimensional</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="ButterflyFX: Revolutionary software where shapes hold data. Universal Hard Drive, Universal Connector, and AI-powered apps that work 10x faster.">
+    <meta name="keywords" content="ButterflyFX, dimensional computing, Universal Hard Drive, data management, AI, software">
+    <meta name="author" content="ButterflyFX">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://butterflyfx.us/">
+    <meta property="og:title" content="ButterflyFX — The Future of Computing">
+    <meta property="og:description" content="Revolutionary software where shapes hold data. 10x faster, infinitely more powerful.">
+    <meta property="og:image" content="https://butterflyfx.us/static/og-image.png">
+    
+    <style>
+        :root {
+            --bg: #050508;
+            --bg-card: rgba(18, 18, 28, 0.85);
+            --bg-glow: rgba(136, 85, 255, 0.1);
+            --neon-purple: #8855ff;
+            --neon-pink: #ff55aa;
+            --neon-cyan: #40ffff;
+            --neon-green: #60ff90;
+            --neon-orange: #ff8844;
+            --text: #ffffff;
+            --text-dim: #a0a8c0;
+            --border: rgba(136, 85, 255, 0.3);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        /* Hyperspace Starfield */
+        #hyperspace {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* 3D Surface Canvas */
+        #surface3d {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70vmin;
+            height: 70vmin;
+            z-index: 1;
+            cursor: grab;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+            pointer-events: auto;
+        }
+        
+        #surface3d:hover, #surface3d.active {
+            opacity: 0.9;
+            cursor: grabbing;
+        }
+        
+        /* Floating Product Names */
+        .floating-names {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .float-name {
+            position: absolute;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            opacity: 0;
+            animation: floatIn 1s ease-out forwards;
+            white-space: nowrap;
+        }
+        
+        .float-name.depth-1 {
+            font-size: 0.7em;
+            opacity: 0.08;
+            filter: blur(2px);
+            animation: floatDrift1 60s linear infinite;
+        }
+        
+        .float-name.depth-2 {
+            font-size: 0.9em;
+            opacity: 0.12;
+            filter: blur(1px);
+            animation: floatDrift2 45s linear infinite;
+        }
+        
+        .float-name.depth-3 {
+            font-size: 1.1em;
+            opacity: 0.15;
+            filter: blur(0.5px);
+            animation: floatDrift3 35s linear infinite;
+        }
+        
+        .float-name.depth-4 {
+            font-size: 1.3em;
+            opacity: 0.18;
+            animation: floatDrift4 25s linear infinite;
+        }
+        
+        @keyframes floatDrift1 {
+            0% { transform: translate(0, 0) rotate(-2deg); }
+            25% { transform: translate(30px, -20px) rotate(1deg); }
+            50% { transform: translate(60px, 10px) rotate(-1deg); }
+            75% { transform: translate(30px, 30px) rotate(2deg); }
+            100% { transform: translate(0, 0) rotate(-2deg); }
+        }
+        
+        @keyframes floatDrift2 {
+            0% { transform: translate(0, 0) rotate(1deg); }
+            25% { transform: translate(-25px, 25px) rotate(-2deg); }
+            50% { transform: translate(-50px, -15px) rotate(1deg); }
+            75% { transform: translate(-20px, -30px) rotate(-1deg); }
+            100% { transform: translate(0, 0) rotate(1deg); }
+        }
+        
+        @keyframes floatDrift3 {
+            0% { transform: translate(0, 0) rotate(-1deg); }
+            33% { transform: translate(40px, 35px) rotate(2deg); }
+            66% { transform: translate(-30px, 20px) rotate(-2deg); }
+            100% { transform: translate(0, 0) rotate(-1deg); }
+        }
+        
+        @keyframes floatDrift4 {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-45px, -25px) rotate(3deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        
+        /* Glass Panel Effect for Cards */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            box-shadow: 
+                0 0 30px rgba(136, 85, 255, 0.1),
+                inset 0 0 60px rgba(136, 85, 255, 0.03);
+        }
+        
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink), var(--neon-cyan));
+            box-shadow: 0 0 15px var(--neon-purple);
+        }
+            animation: bgFloat 20s ease-in-out infinite;
+        }
+        
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-2%, -2%) rotate(5deg); }
+        }
+        
+        /* Header */
+        header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 18, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .logo-icon {
+            font-size: 1.8em;
+        }
+        
+        .logo-text {
+            font-size: 1.4em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        nav {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.95em;
+            transition: color 0.2s;
+        }
+        
+        nav a:hover { color: var(--text); }
+        
+        .nav-cta {
+            padding: 10px 25px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            border-radius: 25px;
+            font-weight: 600;
+            color: white !important;
+        }
+        
+        .nav-cta:hover {
+            box-shadow: 0 0 30px rgba(136, 85, 255, 0.5);
+        }
+        
+        .nav-login {
+            color: var(--neon-cyan) !important;
+            border: 1px solid var(--neon-cyan);
+            padding: 8px 20px;
+            border-radius: 20px;
+        }
+        
+        .nav-login:hover {
+            background: rgba(64, 255, 255, 0.1);
+        }
+        
+        /* Hero Section - Splash */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 120px 20px 80px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        main {
+            position: relative;
+            z-index: 10;
+        }
+        
+        footer {
+            position: relative;
+            z-index: 10;
+        }
+        
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(136, 85, 255, 0.2);
+            border: 1px solid var(--neon-purple);
+            border-radius: 25px;
+            font-size: 0.85em;
+            color: var(--neon-purple);
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 25px;
+            max-width: 900px;
+        }
+        
+        .hero h1 .gradient-text {
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink), var(--neon-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-sub {
+            font-size: 1.4em;
+            color: var(--text-dim);
+            max-width: 700px;
+            margin-bottom: 50px;
+            line-height: 1.6;
+        }
+        
+        .hero-sub strong {
+            color: var(--neon-cyan);
+        }
+        
+        .hero-cta-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 60px;
+        }
+        
+        .btn-primary {
+            padding: 18px 45px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(136, 85, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            padding: 18px 45px;
+            background: transparent;
+            border: 2px solid var(--border);
+            border-radius: 30px;
+            color: var(--text);
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+        
+        /* One-liner "How it Works" teaser */
+        .how-teaser {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-dim);
+            font-size: 1.1em;
+        }
+        
+        .how-teaser a {
+            color: var(--neon-pink);
+            text-decoration: none;
+        }
+        
+        .how-teaser a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Product Showcase Section */
+        .products-intro {
+            padding: 100px 40px 60px;
+            text-align: center;
+        }
+        
+        .products-intro h2 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        .products-intro p {
+            font-size: 1.2em;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Product Cards */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .product-card {
+            background: rgba(18, 18, 28, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(136, 85, 255, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow: 
+                0 0 25px rgba(136, 85, 255, 0.08),
+                inset 0 0 40px rgba(136, 85, 255, 0.02);
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-purple);
+            box-shadow: 
+                0 0 40px rgba(136, 85, 255, 0.25),
+                0 20px 60px rgba(136, 85, 255, 0.2),
+                inset 0 0 60px rgba(136, 85, 255, 0.05);
+        }
+        
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--card-accent, var(--neon-purple)), var(--neon-pink), transparent);
+            box-shadow: 0 0 20px var(--card-accent, var(--neon-purple));
+        }
+        
+        .product-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        
+        .product-card h3 {
+            font-size: 1.6em;
+            margin-bottom: 15px;
+        }
+        
+        .product-card .tagline {
+            color: var(--card-accent, var(--neon-purple));
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .product-card p {
+            color: var(--text-dim);
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+        
+        .product-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+        
+        .product-features span {
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            font-size: 0.85em;
+            color: var(--text-dim);
+        }
+        
+        .product-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--card-accent, var(--neon-purple));
+            text-decoration: none;
+            font-weight: 600;
+            transition: gap 0.2s;
+        }
+        
+        .product-cta:hover {
+            gap: 12px;
+        }
+        
+        /* Featured Product (larger) */
+        .product-card.featured {
+            grid-column: span 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        
+        .product-card.featured .product-content { }
+        
+        .product-card.featured .product-demo {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+        }
+        
+        @media (max-width: 800px) {
+            .product-card.featured {
+                grid-column: span 1;
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Metrics Bar */
+        .metrics-bar {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            padding: 60px 40px;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        
+        .metric {
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-green));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .metric-label {
+            color: var(--text-dim);
+            font-size: 1em;
+            margin-top: 5px;
+        }
+        
+        /* How It Works Section (simplified) */
+        .how-section {
+            padding: 100px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .how-section h2 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        
+        .how-section .subtitle {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 1.2em;
+            max-width: 700px;
+            margin: 0 auto 60px;
+        }
+        
+        .how-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+        
+        @media (max-width: 900px) {
+            .how-grid { grid-template-columns: 1fr; }
+        }
+        
+        .how-item {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .how-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, rgba(136, 85, 255, 0.2), rgba(255, 85, 170, 0.1));
+            border: 2px solid var(--neon-purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            margin: 0 auto 25px;
+        }
+        
+        .how-item h3 {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+        }
+        
+        .how-item p {
+            color: var(--text-dim);
+            line-height: 1.7;
+        }
+        
+        /* Pricing Preview */
+        .pricing-preview {
+            padding: 100px 40px;
+            background: linear-gradient(180deg, var(--bg) 0%, var(--bg-card) 100%);
+            text-align: center;
+        }
+        
+        .pricing-preview h2 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        .pricing-preview .subtitle {
+            color: var(--text-dim);
+            font-size: 1.2em;
+            margin-bottom: 50px;
+        }
+        
+        .pricing-cards {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .pricing-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            min-width: 300px;
+            flex: 1;
+            max-width: 350px;
+            text-align: left;
+        }
+        
+        .pricing-card.popular {
+            border-color: var(--neon-purple);
+            position: relative;
+        }
+        
+        .pricing-card.popular::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            color: white;
+            padding: 6px 20px;
+            border-radius: 15px;
+            font-size: 0.75em;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .pricing-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+        
+        .pricing-amount {
+            font-size: 3em;
+            font-weight: 800;
+            margin: 20px 0;
+        }
+        
+        .pricing-amount span {
+            font-size: 0.4em;
+            color: var(--text-dim);
+            font-weight: 400;
+        }
+        
+        .pricing-card ul {
+            list-style: none;
+            margin: 25px 0;
+        }
+        
+        .pricing-card li {
+            padding: 10px 0;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .pricing-card li::before {
+            content: '✓';
+            color: var(--neon-green);
+        }
+        
+        .pricing-card .btn-primary {
+            width: 100%;
+            text-align: center;
+        }
+        
+        /* Footer */
+        footer {
+            padding: 60px 40px 30px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto 40px;
+        }
+        
+        @media (max-width: 800px) {
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+        
+        .footer-brand .logo-text {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        
+        .footer-brand p {
+            color: var(--text-dim);
+            line-height: 1.6;
+            max-width: 300px;
+        }
+        
+        .footer-col h4 {
+            color: var(--text);
+            margin-bottom: 20px;
+        }
+        
+        .footer-col a {
+            display: block;
+            color: var(--text-dim);
+            text-decoration: none;
+            padding: 8px 0;
+            transition: color 0.2s;
+        }
+        
+        .footer-col a:hover {
+            color: var(--neon-purple);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.9em;
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+        }
+        
+        /* Mobile nav toggle */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .hamburger span {
+            width: 25px;
+            height: 2px;
+            background: var(--text);
+        }
+        
+        @media (max-width: 900px) {
+            nav { display: none; }
+            .hamburger { display: flex; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hyperspace Starfield -->
+    <canvas id="hyperspace"></canvas>
+    
+    <!-- 3D z=xy Surface -->
+    <canvas id="surface3d" tabindex="0"></canvas>
+    
+    <!-- Floating Product Names -->
+    <div class="floating-names">
+        <span class="float-name depth-1" style="top: 8%; left: 5%; color: var(--neon-purple);">Universal Connector</span>
+        <span class="float-name depth-2" style="top: 15%; right: 8%; color: var(--neon-pink);">Helix Framework</span>
+        <span class="float-name depth-3" style="top: 35%; left: 3%; color: var(--neon-cyan);">DimensionOS</span>
+        <span class="float-name depth-1" style="top: 45%; right: 5%; color: var(--neon-green);">AI Amplifier</span>
+        <span class="float-name depth-4" style="top: 60%; left: 8%; color: var(--neon-pink);">Substrate</span>
+        <span class="float-name depth-2" style="top: 70%; right: 12%; color: var(--neon-purple);">Universal Hard Drive</span>
+        <span class="float-name depth-3" style="top: 82%; left: 15%; color: var(--neon-cyan);">Kernel</span>
+        <span class="float-name depth-1" style="top: 25%; left: 75%; color: var(--neon-orange);">Data Alchemist</span>
+        <span class="float-name depth-2" style="top: 55%; left: 70%; color: var(--neon-green);">Trend Predictor</span>
+        <span class="float-name depth-4" style="top: 88%; right: 20%; color: var(--neon-pink);">O(1) Access</span>
+    </div>
+    
+    <!-- Header -->
+    <header>
+        <a href="index.html" class="logo">
+            <span class="logo-icon">🦋</span>
+            <span class="logo-text">ButterflyFX</span>
+        </a>
+        <nav>
+            <a href="#products">Products</a>
+            <a href="apps.html">App Suites</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="developer.html">Developers</a>
+            <a href="login.html" class="nav-login">Log In</a>
+            <a href="register.html" class="nav-cta">Get Started</a>
+        </nav>
+        <div class="hamburger">
+            <span></span><span></span><span></span>
+        </div>
+    </header>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-badge">🚀 The New Dimension</div>
+        <h1>Welcome to <span class="gradient-text">Dimensional Computing</span></h1>
+        <p class="hero-sub">
+            Where <strong>data lives in geometry</strong>, not bits and bytes.
+            Shapes hold structure, relationships, and meaning — 
+            making everything <strong>10x faster</strong> by design.
+        </p>
+        <div class="hero-cta-group">
+            <a href="register.html" class="btn-primary">Enter the Dimension →</a>
+            <a href="#products" class="btn-secondary">Explore Products</a>
+        </div>
+        <div class="how-teaser">
+            ⚡ Data as geometry, not storage — 
+            <a href="#how-it-works">See how it works →</a>
+        </div>
+    </section>
+    
+    <!-- Products Section -->
+    <section id="products" class="products-intro">
+        <h2>The Product Suite</h2>
+        <p>Three powerful applications that change how you work with data forever.</p>
+    </section>
+    
+    <section class="products-grid">
+        <!-- Universal Hard Drive - Featured -->
+        <div class="product-card featured" style="--card-accent: #4285F4;">
+            <div class="product-content">
+                <span class="product-icon">💾</span>
+                <h3>Universal Hard Drive</h3>
+                <p class="tagline">Every file. Every cloud. One place.</p>
+                <p>
+                    Connect Google Drive, Dropbox, OneDrive, local files, databases, APIs — 
+                    and browse them all in one unified explorer. Search across everything instantly. 
+                    No more switching between 10 apps.
+                </p>
+                <div class="product-features">
+                    <span>🔗 100+ Connectors</span>
+                    <span>🔍 Instant Search</span>
+                    <span>📊 Smart Organization</span>
+                    <span>🔐 Secure Vault</span>
+                </div>
+                <a href="products/universal-hdd.html" class="product-cta">
+                    Learn More <span>→</span>
+                </a>
+            </div>
+            <div class="product-demo">
+                <img src="static/img/uhd-preview.png" alt="Universal Hard Drive" style="max-width: 100%; border-radius: 8px;" onerror="this.style.display='none'">
+                <span style="font-size: 4em;">📁</span>
+            </div>
+        </div>
+        
+        <!-- Universal Connector -->
+        <div class="product-card" style="--card-accent: #60ff90;">
+            <span class="product-icon">🔌</span>
+            <h3>Universal Connector</h3>
+            <p class="tagline">Connect to anything. Literally.</p>
+            <p>
+                102+ service integrations — from Google to Spotify to your local PostgreSQL.
+                Weather APIs, stock data, Wikipedia, movie databases. All connected. All searchable.
+            </p>
+            <div class="product-features">
+                <span>☁️ Cloud Storage</span>
+                <span>🤖 AI Services</span>
+                <span>📊 Finance APIs</span>
+                <span>🎵 Media</span>
+            </div>
+            <a href="products/universal-connector.html" class="product-cta">
+                Learn More <span>→</span>
+            </a>
+        </div>
+        
+        <!-- Data & AI Suite -->
+        <div class="product-card" style="--card-accent: #ff55aa;">
+            <span class="product-icon">🧠</span>
+            <h3>Data & AI Suite</h3>
+            <p class="tagline">Amplify your AI. Analyze anything.</p>
+            <p>
+                Feed any data into Claude, GPT, or local models. Generate reports automatically.
+                Predict trends. Transform messy data into structured insights.
+            </p>
+            <div class="product-features">
+                <span>🤖 AI Amplifier</span>
+                <span>📈 Trend Predictor</span>
+                <span>📄 Report Generator</span>
+                <span>🔮 Data Alchemist</span>
+            </div>
+            <a href="products/data-ai-suite.html" class="product-cta">
+                Learn More <span>→</span>
+            </a>
+        </div>
+        
+        <!-- DimensionOS / Platform -->
+        <div class="product-card" style="--card-accent: #40ffff;">
+            <span class="product-icon">🧬</span>
+            <h3>DimensionOS Platform</h3>
+            <p class="tagline">Build dimensional apps.</p>
+            <p>
+                The development platform behind it all. Build apps where objects exist complete
+                the moment you define them. 10-100x performance gains.
+            </p>
+            <div class="product-features">
+                <span>🔧 Helix Framework</span>
+                <span>📦 Substrate API</span>
+                <span>🎨 UI Components</span>
+                <span>📚 Full Docs</span>
+            </div>
+            <a href="platform.html" class="product-cta">
+                Learn More <span>→</span>
+            </a>
+        </div>
+    </section>
+    
+    <!-- Metrics -->
+    <section class="metrics-bar">
+        <div class="metric">
+            <div class="metric-value">102+</div>
+            <div class="metric-label">Service Integrations</div>
+        </div>
+        <div class="metric">
+            <div class="metric-value">10x</div>
+            <div class="metric-label">Faster Performance</div>
+        </div>
+        <div class="metric">
+            <div class="metric-value">O(1)</div>
+            <div class="metric-label">Access Time</div>
+        </div>
+        <div class="metric">
+            <div class="metric-value">$8</div>
+            <div class="metric-label">Per Suite/Month</div>
+        </div>
+    </section>
+    
+    <!-- How It Works (Simplified) -->
+    <section id="how-it-works" class="how-section">
+        <h2>The Dimensional Difference</h2>
+        <p class="subtitle">
+            Traditional software builds data piece by piece. 
+            ButterflyFX software invokes complete shapes — everything exists the moment you need it.
+        </p>
+        
+        <div class="how-grid">
+            <div class="how-item">
+                <div class="how-icon">🔷</div>
+                <h3>Shapes Hold Data</h3>
+                <p>
+                    A shape isn't just geometry — it's a complete data structure. 
+                    A "Car" shape already has engine, wheels, seats. You don't build them, 
+                    you invoke them to appear.
+                </p>
+            </div>
+            <div class="how-item">
+                <div class="how-icon">⚡</div>
+                <h3>Instant Access</h3>
+                <p>
+                    O(1) retrieval. No matter how much data you have — 
+                    thousands of files, millions of records — access is always instant.
+                    Math guarantees it.
+                </p>
+            </div>
+            <div class="how-item">
+                <div class="how-icon">🔗</div>
+                <h3>Everything Connected</h3>
+                <p>
+                    All your data lives in one dimensional space. 
+                    Search across cloud storage, databases, APIs, local files — 
+                    all at once, all instantly.
+                </p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 50px;">
+            <a href="genesis.html" class="btn-secondary">
+                📚 Deep Dive: The Full Theory →
+            </a>
+        </div>
+    </section>
+    
+    <!-- Pricing Preview -->
+    <section class="pricing-preview">
+        <h2>Simple, Transparent Pricing</h2>
+        <p class="subtitle">No hidden fees. No per-seat charges. Just power.</p>
+        
+        <div class="pricing-cards">
+            <div class="pricing-card">
+                <h3>Single Suite</h3>
+                <div class="pricing-amount">$8<span>/month</span></div>
+                <ul>
+                    <li>Choose any app suite</li>
+                    <li>All apps in the suite</li>
+                    <li>Standard support</li>
+                    <li>Regular updates</li>
+                </ul>
+                <a href="pricing.html" class="btn-primary">View Suites</a>
+            </div>
+            
+            <div class="pricing-card popular">
+                <h3>Data Power Bundle</h3>
+                <div class="pricing-amount">$20<span>/month</span></div>
+                <ul>
+                    <li>Universal Connector Suite</li>
+                    <li>Database Suite</li>
+                    <li>Data & AI Suite</li>
+                    <li>13 apps total</li>
+                    <li>Priority support</li>
+                </ul>
+                <a href="pricing.html" class="btn-primary">Get Bundle</a>
+            </div>
+            
+            <div class="pricing-card">
+                <h3>All Access</h3>
+                <div class="pricing-amount">$40<span>/month</span></div>
+                <ul>
+                    <li>Every app suite</li>
+                    <li>Developer API access</li>
+                    <li>Premium support</li>
+                    <li>Early access features</li>
+                </ul>
+                <a href="pricing.html" class="btn-primary">Go All Access</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="logo-text">🦋 ButterflyFX</div>
+                <p>The future of computing is dimensional. 
+                Where shapes hold data and software thinks in structures.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Products</h4>
+                <a href="products/universal-hdd.html">Universal Hard Drive</a>
+                <a href="products/universal-connector.html">Universal Connector</a>
+                <a href="products/data-ai-suite.html">Data & AI Suite</a>
+                <a href="platform.html">DimensionOS</a>
+            </div>
+            <div class="footer-col">
+                <h4>Resources</h4>
+                <a href="documents.html">Documentation</a>
+                <a href="developer.html">Developer Portal</a>
+                <a href="benchmarks.html">Benchmarks</a>
+                <a href="genesis.html">Genesis (Theory)</a>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <a href="about.html">About</a>
+                <a href="pricing.html">Pricing</a>
+                <a href="login.html">Log In</a>
+                <a href="register.html">Sign Up</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2026 ButterflyFX. All rights reserved. 
+            <a href="#" style="color: var(--text-dim);">Privacy</a> · 
+            <a href="#" style="color: var(--text-dim);">Terms</a>
+        </div>
+    </footer>
+    
+    <script>
+    // ============================================
+    // HYPERSPACE STARFIELD
+    // ============================================
+    (function() {
+        const canvas = document.getElementById('hyperspace');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars = [];
+        const STAR_COUNT = 350;
+        const SPEED = 12;
+        const TRAIL_LENGTH = 0.88;
+        
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        
+        function createStar() {
+            return {
+                x: Math.random() * width - width / 2,
+                y: Math.random() * height - height / 2,
+                z: Math.random() * 1000 + 500,
+                px: 0, py: 0,
+                color: `hsl(${Math.random() * 60 + 240}, 100%, ${Math.random() * 30 + 60}%)`
+            };
+        }
+        
+        function init() {
+            resize();
+            stars = [];
+            for (let i = 0; i < STAR_COUNT; i++) {
+                stars.push(createStar());
+            }
+        }
+        
+        function draw() {
+            ctx.fillStyle = `rgba(5, 5, 8, ${1 - TRAIL_LENGTH})`;
+            ctx.fillRect(0, 0, width, height);
+            
+            const cx = width / 2;
+            const cy = height / 2;
+            
+            for (let star of stars) {
+                star.z -= SPEED;
+                
+                if (star.z <= 0) {
+                    Object.assign(star, createStar());
+                    star.z = 1000;
+                }
+                
+                const scale = 300 / star.z;
+                const x = star.x * scale + cx;
+                const y = star.y * scale + cy;
+                
+                if (star.px && star.py) {
+                    const gradient = ctx.createLinearGradient(star.px, star.py, x, y);
+                    gradient.addColorStop(0, 'transparent');
+                    gradient.addColorStop(1, star.color);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(star.px, star.py);
+                    ctx.lineTo(x, y);
+                    ctx.strokeStyle = gradient;
+                    ctx.lineWidth = Math.max(1, 3 - star.z / 400);
+                    ctx.stroke();
+                }
+                
+                const size = Math.max(0.5, 3 - star.z / 400);
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fillStyle = star.color;
+                ctx.fill();
+                
+                star.px = x;
+                star.py = y;
+            }
+            
+            requestAnimationFrame(draw);
+        }
+        
+        window.addEventListener('resize', resize);
+        init();
+        draw();
+    })();
+    
+    // ============================================
+    // 3D z=xy SADDLE SURFACE
+    // ============================================
+    (function() {
+        const canvas = document.getElementById('surface3d');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let rotX = 0.5, rotY = 0.3;
+        let targetRotX = 0.5, targetRotY = 0.3;
+        let isDragging = false;
+        let lastX, lastY;
+        let autoRotate = true;
+        
+        const GRID_SIZE = 25;
+        const SCALE = 70;
+        
+        function resize() {
+            const rect = canvas.getBoundingClientRect();
+            width = canvas.width = rect.width * window.devicePixelRatio;
+            height = canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        
+        function generateSurface() {
+            const points = [];
+            const range = 2;
+            const step = range * 2 / GRID_SIZE;
+            
+            for (let i = 0; i <= GRID_SIZE; i++) {
+                for (let j = 0; j <= GRID_SIZE; j++) {
+                    const x = -range + i * step;
+                    const y = -range + j * step;
+                    const z = x * y;
+                    points.push({ x, y, z, i, j });
+                }
+            }
+            return points;
+        }
+        
+        function rotate3D(x, y, z, rx, ry) {
+            let y1 = y * Math.cos(rx) - z * Math.sin(rx);
+            let z1 = y * Math.sin(rx) + z * Math.cos(rx);
+            let x1 = x * Math.cos(ry) + z1 * Math.sin(ry);
+            let z2 = -x * Math.sin(ry) + z1 * Math.cos(ry);
+            return { x: x1, y: y1, z: z2 };
+        }
+        
+        function project(p) {
+            const fov = 400;
+            const distance = 5;
+            const scale = fov / (distance + p.z);
+            return {
+                x: p.x * scale * SCALE + width / (2 * window.devicePixelRatio),
+                y: p.y * scale * SCALE + height / (2 * window.devicePixelRatio),
+                z: p.z,
+                scale: scale
+            };
+        }
+        
+        function getColor(z, alpha = 1) {
+            const t = (z + 4) / 8;
+            const r = Math.floor(136 + (255 - 136) * t);
+            const g = Math.floor(85 + (85 - 85) * t);
+            const b = Math.floor(255 + (170 - 255) * t);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+        
+        const surfacePoints = generateSurface();
+        
+        function draw() {
+            ctx.clearRect(0, 0, width / window.devicePixelRatio, height / window.devicePixelRatio);
+            
+            if (autoRotate && !isDragging) {
+                targetRotY += 0.002;
+            }
+            
+            rotX += (targetRotX - rotX) * 0.08;
+            rotY += (targetRotY - rotY) * 0.08;
+            
+            const transformed = surfacePoints.map(p => {
+                const rotated = rotate3D(p.x, p.y, p.z, rotX, rotY);
+                const projected = project(rotated);
+                return { ...projected, i: p.i, j: p.j, originalZ: p.z };
+            });
+            
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i <= GRID_SIZE; i++) {
+                ctx.beginPath();
+                for (let j = 0; j <= GRID_SIZE; j++) {
+                    const idx = i * (GRID_SIZE + 1) + j;
+                    const p = transformed[idx];
+                    if (j === 0) ctx.moveTo(p.x, p.y);
+                    else ctx.lineTo(p.x, p.y);
+                }
+                ctx.strokeStyle = getColor(transformed[i * (GRID_SIZE + 1)].originalZ, 0.4);
+                ctx.stroke();
+            }
+            
+            for (let j = 0; j <= GRID_SIZE; j++) {
+                ctx.beginPath();
+                for (let i = 0; i <= GRID_SIZE; i++) {
+                    const idx = i * (GRID_SIZE + 1) + j;
+                    const p = transformed[idx];
+                    if (i === 0) ctx.moveTo(p.x, p.y);
+                    else ctx.lineTo(p.x, p.y);
+                }
+                ctx.strokeStyle = getColor(transformed[j].originalZ, 0.4);
+                ctx.stroke();
+            }
+            
+            ctx.lineWidth = 2;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#8855ff';
+            
+            ctx.beginPath();
+            for (let j = 0; j <= GRID_SIZE; j++) {
+                const p = transformed[j];
+                if (j === 0) ctx.moveTo(p.x, p.y);
+                else ctx.lineTo(p.x, p.y);
+            }
+            ctx.strokeStyle = '#ff55aa';
+            ctx.stroke();
+            
+            ctx.beginPath();
+            for (let j = 0; j <= GRID_SIZE; j++) {
+                const idx = GRID_SIZE * (GRID_SIZE + 1) + j;
+                const p = transformed[idx];
+                if (j === 0) ctx.moveTo(p.x, p.y);
+                else ctx.lineTo(p.x, p.y);
+            }
+            ctx.strokeStyle = '#40ffff';
+            ctx.stroke();
+            
+            ctx.shadowBlur = 0;
+            requestAnimationFrame(draw);
+        }
+        
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            lastX = e.clientX;
+            lastY = e.clientY;
+            canvas.classList.add('active');
+            autoRotate = false;
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            targetRotY += (e.clientX - lastX) * 0.01;
+            targetRotX += (e.clientY - lastY) * 0.01;
+            lastX = e.clientX;
+            lastY = e.clientY;
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            isDragging = false;
+            canvas.classList.remove('active');
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
+            isDragging = false;
+            canvas.classList.remove('active');
+        });
+        
+        canvas.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            lastX = e.touches[0].clientX;
+            lastY = e.touches[0].clientY;
+            autoRotate = false;
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            targetRotY += (e.touches[0].clientX - lastX) * 0.01;
+            targetRotX += (e.touches[0].clientY - lastY) * 0.01;
+            lastX = e.touches[0].clientX;
+            lastY = e.touches[0].clientY;
+        });
+        
+        canvas.addEventListener('touchend', () => { isDragging = false; });
+        
+        window.addEventListener('resize', resize);
+        resize();
+        draw();
+    })();
+    
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+    </script>
+</body>
+</html>

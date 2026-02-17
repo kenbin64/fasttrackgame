@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal HD Connector | ButterflyFX - One Connection, Infinite Sources</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Universal HD Connector - Connect to 40+ data sources with a single interface. Stock feeds, weather, news, databases - all accessible through dimensional coordinates.">
+    <meta name="keywords" content="ButterflyFX, Universal HD Connector, API connector, data integration, dimensional computing">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="product">
+    <meta property="og:url" content="https://butterflyfx.us/apps/universal-hd-connector.html">
+    <meta property="og:title" content="Universal HD Connector | ButterflyFX">
+    <meta property="og:description" content="One connection to rule them all. 40+ data sources, zero API juggling.">
+    
+    <link rel="canonical" href="https://butterflyfx.us/apps/universal-hd-connector.html">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #050510;
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        header {
+            background: rgba(5, 5, 16, 0.95);
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+        
+        nav a {
+            color: #8090aa;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+        
+        nav a:hover, nav a.active {
+            color: #60b0ff;
+        }
+        
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+        
+        .hamburger span {
+            width: 25px;
+            height: 2px;
+            background: #60b0ff;
+        }
+        
+        @media (max-width: 768px) {
+            nav { display: none; }
+            .hamburger { display: flex; }
+        }
+        
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 100px 25px 60px;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 60px 0;
+        }
+        
+        .product-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #4060ff, #00d4aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .tagline {
+            font-size: 1.4em;
+            color: #60b0ff;
+            margin-bottom: 30px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #f90, #f60);
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 40px;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .cta-btn {
+            padding: 15px 35px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .cta-btn.primary {
+            background: linear-gradient(135deg, #4060ff, #60b0ff);
+            color: #fff;
+        }
+        
+        .cta-btn.secondary {
+            background: rgba(100, 150, 255, 0.15);
+            color: #60b0ff;
+            border: 1px solid rgba(100, 150, 255, 0.3);
+        }
+        
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(64, 96, 255, 0.3);
+        }
+        
+        .section {
+            margin: 60px 0;
+        }
+        
+        .section h2 {
+            font-size: 1.8em;
+            color: #fff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .section p {
+            color: #a0b0cc;
+            line-height: 1.8;
+            font-size: 1.1em;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            text-align: center;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .feature-card {
+            background: rgba(20, 25, 45, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.15);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        
+        .feature-card h3 {
+            color: #60b0ff;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .feature-card p {
+            color: #8090aa;
+            text-align: left;
+            font-size: 0.95em;
+        }
+        
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+        
+        .data-sources {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .source-tag {
+            background: rgba(100, 150, 255, 0.1);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #8090aa;
+        }
+        
+        .code-demo {
+            background: rgba(10, 12, 25, 0.9);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            overflow-x: auto;
+            margin: 30px 0;
+        }
+        
+        .code-demo pre {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            color: #a0c0ff;
+        }
+        
+        .code-demo .comment { color: #6a7a9a; }
+        .code-demo .keyword { color: #ff79c6; }
+        .code-demo .string { color: #50fa7b; }
+        .code-demo .function { color: #8be9fd; }
+        
+        .pricing-section {
+            background: rgba(20, 25, 45, 0.6);
+            border: 1px solid rgba(100, 150, 255, 0.15);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .price-card {
+            background: rgba(10, 12, 25, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 15px;
+            padding: 30px 20px;
+        }
+        
+        .price-card.featured {
+            border-color: #4060ff;
+            box-shadow: 0 0 30px rgba(64, 96, 255, 0.2);
+        }
+        
+        .price-name {
+            font-size: 1.3em;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .price-value {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #60b0ff;
+        }
+        
+        .price-period {
+            color: #6080aa;
+            font-size: 0.9em;
+        }
+        
+        .price-features {
+            list-style: none;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .price-features li {
+            color: #8090aa;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(100, 150, 255, 0.1);
+            font-size: 0.9em;
+        }
+        
+        .price-features li:before {
+            content: "✓ ";
+            color: #50fa7b;
+        }
+        
+        .waitlist-form {
+            max-width: 500px;
+            margin: 40px auto 0;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .waitlist-form input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-radius: 30px;
+            background: rgba(10, 12, 25, 0.8);
+            color: #fff;
+            font-size: 1em;
+        }
+        
+        .waitlist-form input::placeholder {
+            color: #6080aa;
+        }
+        
+        .waitlist-form button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #4060ff, #60b0ff);
+            border: none;
+            border-radius: 30px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .waitlist-form button:hover {
+            transform: scale(1.05);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #6080aa;
+            border-top: 1px solid rgba(100, 150, 255, 0.1);
+            margin-top: 60px;
+        }
+        
+        footer a {
+            color: #60b0ff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+    
+    <header>
+        <a href="../index.html" class="logo">🦋 ButterflyFX</a>
+        <nav>
+            <a href="../start-here.html">Start Here</a>
+            <a href="../genesis.html">Genesis</a>
+            <a href="../apps.html" class="active">Apps</a>
+            <a href="../platform.html">Platform</a>
+            <a href="../developer.html">Developer</a>
+            <a href="../documents.html">Documents</a>
+            <a href="../about.html">About</a>
+        </nav>
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+    
+    <main>
+        <section class="hero">
+            <span class="product-icon">🔗</span>
+            <h1>Universal HD Connector</h1>
+            <p class="tagline">One Connection. Infinite Sources. Zero Friction.</p>
+            <span class="status-badge">🚀 Coming Soon</span>
+            
+            <div class="cta-buttons">
+                <a href="#waitlist" class="cta-btn primary">Join Waitlist</a>
+                <a href="../documents.html" class="cta-btn secondary">View Docs</a>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>The Problem</h2>
+            <p>
+                Modern applications need data from everywhere — stock feeds, weather APIs, news sources, 
+                databases, IoT sensors. Each requires a different SDK, authentication flow, and data format. 
+                You spend more time integrating than innovating.
+            </p>
+        </section>
+        
+        <section class="section">
+            <h2>The Solution</h2>
+            <p>
+                Universal HD Connector treats all data sources as <strong>dimensional substrates</strong>. 
+                Every piece of data exists at a coordinate. No matter where it comes from, you access it 
+                the same way — through dimensional invocation.
+            </p>
+            
+            <div class="code-demo">
+                <pre><span class="comment"># Traditional: Different API for each source</span>
+stock_data = yfinance.Ticker("AAPL").history()
+weather = requests.get(WEATHER_API_URL, params={...})
+news = newsapi.get_everything(q="tech")
+
+<span class="comment"># ButterflyFX: One interface, any source</span>
+<span class="keyword">from</span> butterflyfx <span class="keyword">import</span> connector
+
+<span class="comment"># All sources accessed the same way</span>
+aapl_price = connector.<span class="function">invoke</span>(<span class="string">"stocks:AAPL:price"</span>)
+sf_weather = connector.<span class="function">invoke</span>(<span class="string">"weather:san-francisco:temp"</span>)
+tech_news = connector.<span class="function">invoke</span>(<span class="string">"news:tech:headlines"</span>)
+
+<span class="comment"># Dimensional drilling - go deeper</span>
+ceo_name = connector.<span class="function">invoke</span>(<span class="string">"stocks:AAPL:company:ceo:name"</span>)</pre>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>Key Features</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">⚡</span>
+                    <h3>Single Interface</h3>
+                    <p>Learn one API, access everything. No more SDK juggling or documentation diving for each new source.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🔄</span>
+                    <h3>Real-Time Streaming</h3>
+                    <p>Subscribe to dimensional coordinates for live updates. Stock prices, weather changes, breaking news — all streamed.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🎯</span>
+                    <h3>Zero Transformation</h3>
+                    <p>Data arrives in native dimensional format. No parsing JSON, no mapping fields, no transformation loss.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🔐</span>
+                    <h3>Unified Auth</h3>
+                    <p>One authentication token manages all sources. Credentials stored securely, rotated automatically.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">📊</span>
+                    <h3>Built-in Caching</h3>
+                    <p>Dimensional substrates cache intelligently. Repeated invocations are instant, rate limits respected.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🌐</span>
+                    <h3>40+ Sources</h3>
+                    <p>Stocks, crypto, weather, news, social, databases, IoT, and growing. Community connectors welcome.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>Supported Data Sources</h2>
+            <p>Connect to a growing ecosystem of data providers</p>
+            
+            <div class="data-sources">
+                <span class="source-tag">📈 Yahoo Finance</span>
+                <span class="source-tag">📈 Alpha Vantage</span>
+                <span class="source-tag">₿ CoinGecko</span>
+                <span class="source-tag">🌤️ OpenWeather</span>
+                <span class="source-tag">🌤️ WeatherAPI</span>
+                <span class="source-tag">📰 NewsAPI</span>
+                <span class="source-tag">📰 Reddit</span>
+                <span class="source-tag">🐦 Twitter/X</span>
+                <span class="source-tag">🗄️ PostgreSQL</span>
+                <span class="source-tag">🗄️ MongoDB</span>
+                <span class="source-tag">🗄️ Redis</span>
+                <span class="source-tag">☁️ AWS S3</span>
+                <span class="source-tag">☁️ Google Cloud</span>
+                <span class="source-tag">📊 Elasticsearch</span>
+                <span class="source-tag">📡 MQTT</span>
+                <span class="source-tag">🔌 REST APIs</span>
+                <span class="source-tag">🔗 GraphQL</span>
+                <span class="source-tag">...</span>
+            </div>
+        </section>
+        
+        <section class="section pricing-section" id="pricing">
+            <h2>Pricing</h2>
+            <p>Simple, transparent pricing. Scale as you grow.</p>
+            
+            <div class="pricing-grid">
+                <div class="price-card">
+                    <div class="price-name">Starter</div>
+                    <div class="price-value">Free</div>
+                    <div class="price-period">Forever</div>
+                    <ul class="price-features">
+                        <li>5 data sources</li>
+                        <li>1,000 requests/day</li>
+                        <li>Community support</li>
+                    </ul>
+                </div>
+                
+                <div class="price-card featured">
+                    <div class="price-name">Pro</div>
+                    <div class="price-value">$49</div>
+                    <div class="price-period">/month</div>
+                    <ul class="price-features">
+                        <li>All 40+ sources</li>
+                        <li>100,000 requests/day</li>
+                        <li>Real-time streaming</li>
+                        <li>Priority support</li>
+                    </ul>
+                </div>
+                
+                <div class="price-card">
+                    <div class="price-name">Enterprise</div>
+                    <div class="price-value">Custom</div>
+                    <div class="price-period">Contact us</div>
+                    <ul class="price-features">
+                        <li>Unlimited sources</li>
+                        <li>Unlimited requests</li>
+                        <li>Dedicated support</li>
+                        <li>Custom connectors</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section" id="waitlist">
+            <h2>Join the Waitlist</h2>
+            <p>Be the first to know when Universal HD Connector launches. Early access for waitlist members.</p>
+            
+            <form class="waitlist-form" onsubmit="handleWaitlist(event)">
+                <input type="email" placeholder="your@email.com" required>
+                <button type="submit">Join Waitlist</button>
+            </form>
+        </section>
+    </main>
+    
+    <footer>
+        <p>🦋 <a href="../index.html">ButterflyFX</a> — Dimensional Computing</p>
+        <p style="margin-top: 10px;">
+            <a href="../apps.html">All Apps</a> · 
+            <a href="../developer.html">Developers</a> · 
+            <a href="../about.html">About</a>
+        </p>
+    </footer>
+    
+    <script>
+        // Starfield background
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        const stars = Array.from({length: 150}, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 1.5 + 0.5,
+            speed: Math.random() * 0.3 + 0.1
+        }));
+        
+        function animateStars() {
+            ctx.fillStyle = '#050510';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            stars.forEach(star => {
+                ctx.fillStyle = `rgba(100, 150, 255, ${Math.random() * 0.3 + 0.4})`;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                star.y += star.speed;
+                if (star.y > canvas.height) {
+                    star.y = 0;
+                    star.x = Math.random() * canvas.width;
+                }
+            });
+            
+            requestAnimationFrame(animateStars);
+        }
+        
+        animateStars();
+        
+        // Waitlist handler
+        function handleWaitlist(e) {
+            e.preventDefault();
+            const email = e.target.querySelector('input').value;
+            alert('Thanks for joining! We\'ll notify you at ' + email + ' when Universal HD Connector launches.');
+            e.target.reset();
+        }
+    </script>
+</body>
+</html>

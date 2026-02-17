@@ -1,0 +1,2478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX Dimensional Car Simulator</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-green: #2ecc71;
+            --accent-red: #e74c3c;
+            --accent-orange: #f39c12;
+            --accent-purple: #9B59B6;
+            --accent-cyan: #00bcd4;
+            --accent-pink: #e91e63;
+            --accent-yellow: #f1c40f;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            user-select: none;
+        }
+        
+        .simulator {
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            grid-template-rows: 1fr 160px;
+        }
+        
+        /* Road View */
+        .road-view {
+            position: relative;
+            background: #1a2a1a;
+            overflow: hidden;
+        }
+        
+        .road-canvas { width: 100%; height: 100%; }
+        
+        .overlay-top {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 100;
+        }
+        
+        .info-box {
+            background: rgba(0, 0, 0, 0.85);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        
+        .info-box h4 { color: var(--accent-blue); margin-bottom: 5px; font-size: 11px; }
+        .info-box p { color: var(--text-secondary); font-size: 10px; margin: 2px 0; }
+        
+        .car-selector {
+            background: #1a1a1a;
+            color: var(--text-primary);
+            border: 1px solid var(--accent-purple);
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-family: inherit;
+            margin-bottom: 8px;
+            width: 100%;
+        }
+        
+        .car-name { color: var(--accent-purple); font-weight: bold; font-size: 12px; }
+        .car-specs { font-size: 10px; color: var(--text-secondary); }
+        
+        /* Dashboard */
+        .dashboard {
+            background: var(--bg-secondary);
+            border-top: 2px solid #333;
+            display: grid;
+            grid-template-columns: 140px 1fr 140px;
+            padding: 10px 20px;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .gauge-circle {
+            width: 120px;
+            height: 120px;
+            border: 3px solid #333;
+            border-radius: 50%;
+            background: radial-gradient(circle, #1a1a1a 0%, #0d0d0d 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .gauge-value { font-size: 32px; font-weight: bold; }
+        .gauge-value.green { color: var(--accent-green); }
+        .gauge-value.blue { color: var(--accent-blue); }
+        .gauge-label { font-size: 10px; color: var(--text-secondary); }
+        
+        .center-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        
+        .metric {
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .metric-label { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; }
+        .metric-value { font-size: 16px; font-weight: bold; margin-top: 2px; }
+        .metric-value.cyan { color: var(--accent-cyan); }
+        .metric-value.orange { color: var(--accent-orange); }
+        .metric-value.green { color: var(--accent-green); }
+        .metric-value.purple { color: var(--accent-purple); }
+        
+        /* Telemetry Panel */
+        .telemetry-panel {
+            grid-row: 1 / 3;
+            grid-column: 2;
+            background: var(--bg-secondary);
+            border-left: 2px solid #333;
+            overflow-y: auto;
+            padding: 10px;
+            font-size: 10px;
+        }
+        
+        .telemetry-section {
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+        }
+        
+        .telemetry-header {
+            color: var(--accent-blue);
+            font-weight: bold;
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+        }
+        
+        /* DIMENSIONAL PATH DISPLAY */
+        .dimensional-path {
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            color: var(--accent-yellow);
+            background: #0a0a0a;
+            padding: 2px 4px;
+            border-radius: 3px;
+            margin-bottom: 2px;
+            word-break: break-all;
+        }
+        
+        .measurement-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 3px 0;
+            border-bottom: 1px solid #222;
+            flex-direction: column;
+        }
+        
+        .measurement-row:last-child { border-bottom: none; }
+        
+        .measurement-value {
+            color: var(--accent-green);
+            font-weight: bold;
+            font-size: 11px;
+            margin-top: 2px;
+        }
+        
+        /* Cylinder Bank */
+        .cylinder-bank {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            margin-top: 6px;
+        }
+        
+        .cylinder {
+            background: #1a1a1a;
+            border-radius: 4px;
+            padding: 4px;
+            text-align: center;
+        }
+        
+        .cylinder-num { font-size: 8px; color: var(--text-secondary); }
+        
+        .piston-bar {
+            height: 18px;
+            background: #333;
+            border-radius: 2px;
+            margin-top: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .piston-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--accent-orange);
+            transition: height 0.03s;
+        }
+        
+        .spark-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #333;
+            margin: 2px auto 0;
+        }
+        
+        .spark-indicator.firing {
+            background: var(--accent-yellow);
+            box-shadow: 0 0 4px var(--accent-yellow);
+        }
+        
+        /* Tire Grid */
+        .tire-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
+        
+        .tire {
+            background: #1a1a1a;
+            border-radius: 4px;
+            padding: 4px;
+            text-align: center;
+        }
+        
+        .tire-label { font-size: 8px; color: var(--text-secondary); }
+        .tire-rpm { font-size: 11px; font-weight: bold; color: var(--accent-cyan); }
+        
+        /* Spec Query */
+        .spec-query {
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 8px;
+        }
+        
+        .spec-query-header {
+            color: var(--accent-purple);
+            font-weight: bold;
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        
+        .spec-input-wrapper { display: flex; gap: 4px; }
+        
+        .spec-input {
+            flex: 1;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 6px 8px;
+            color: var(--text-primary);
+            font-size: 10px;
+            font-family: inherit;
+        }
+        
+        .spec-input:focus { outline: none; border-color: var(--accent-purple); }
+        
+        .spec-btn {
+            background: var(--accent-purple);
+            border: none;
+            border-radius: 4px;
+            padding: 6px 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 9px;
+        }
+        
+        .spec-result {
+            margin-top: 8px;
+            padding: 8px;
+            background: #0a0a0a;
+            border-radius: 4px;
+            font-size: 9px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        /* Access Log */
+        .access-log {
+            background: #0a0a0a;
+            border: 1px solid #222;
+            border-radius: 4px;
+            padding: 6px;
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 8px;
+        }
+        
+        .log-entry {
+            color: var(--text-secondary);
+            padding: 1px 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        
+        .log-entry .path { color: var(--accent-yellow); }
+        .log-entry .value { color: var(--accent-green); }
+        .log-entry .time { color: var(--accent-blue); }
+    </style>
+</head>
+<body>
+    <div class="simulator">
+        <!-- Road View -->
+        <div class="road-view">
+            <canvas id="roadCanvas" class="road-canvas"></canvas>
+            
+            <div class="overlay-top">
+                <div class="info-box">
+                    <h4>🦋 DIMENSIONAL CAR SUBSTRATE</h4>
+                    <p>⌨️ <strong>W / Right Click</strong>: Accelerate</p>
+                    <p>⌨️ <strong>S / Left Click</strong>: Brake</p>
+                    <p>⌨️ <strong>A/D / Mouse X</strong>: Steer</p>
+                    <p>⌨️ <strong>P/R/D</strong>: Park/Reverse/Drive</p>
+                </div>
+                
+                <div class="info-box">
+                    <select class="car-selector" id="carSelector">
+                        <option value="camry">Toyota Camry 2024</option>
+                        <option value="mustang">Ford Mustang GT 2024</option>
+                        <option value="corvette">Chevrolet Corvette 2024</option>
+                        <option value="model3">Tesla Model 3 2024</option>
+                        <option value="civic">Honda Civic 2024</option>
+                        <option value="m3">BMW M3 2024</option>
+                        <option value="911">Porsche 911 2024</option>
+                        <option value="hellcat">Dodge Challenger Hellcat</option>
+                    </select>
+                    <div style="margin-top: 8px; display: flex; gap: 8px;">
+                        <select class="car-selector" id="weatherSelector" style="flex: 1;">
+                            <option value="clear">☀️ Clear</option>
+                            <option value="rain">🌧️ Rain</option>
+                            <option value="fog">🌫️ Fog</option>
+                        </select>
+                        <select class="car-selector" id="timeSelector" style="flex: 1;">
+                            <option value="day">🌞 Day</option>
+                            <option value="dusk">🌅 Dusk</option>
+                            <option value="night">🌙 Night</option>
+                        </select>
+                    </div>
+                    <div class="car-name" id="carName">Loading from API...</div>
+                    <div class="car-specs" id="carSpecs"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard -->
+        <div class="dashboard">
+            <div class="gauge-circle">
+                <div class="gauge-value green" id="speedValue">0</div>
+                <div class="gauge-label">MPH</div>
+            </div>
+            
+            <div class="center-metrics">
+                <div class="metric">
+                    <div class="metric-label">Odometer</div>
+                    <div class="metric-value cyan" id="odometer">0.0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Trip</div>
+                    <div class="metric-value green" id="tripMiles">0.00</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Fuel</div>
+                    <div class="metric-value orange" id="fuelGallons">0.0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">MPG</div>
+                    <div class="metric-value green" id="mpgValue">--</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Range</div>
+                    <div class="metric-value cyan" id="rangeValue">--</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Gear</div>
+                    <div class="metric-value orange" id="gearDisplay">P</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">State</div>
+                    <div class="metric-value purple" id="driveState">PARKED</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Throttle</div>
+                    <div class="metric-value green" id="throttleDisplay">0%</div>
+                </div>
+            </div>
+            
+            <div class="gauge-circle">
+                <div class="gauge-value blue" id="rpmValue">0</div>
+                <div class="gauge-label">RPM</div>
+            </div>
+        </div>
+        
+        <!-- Telemetry Panel -->
+        <div class="telemetry-panel">
+            <div class="telemetry-section">
+                <div class="telemetry-header">📊 SUBSTRATE ACCESS LOG</div>
+                <div class="access-log" id="accessLog">
+                    <div class="log-entry" style="color: var(--accent-purple);">Awaiting car instantiation...</div>
+                </div>
+            </div>
+            
+            <div class="telemetry-section">
+                <div class="telemetry-header">🔧 ENGINE MEASUREMENTS</div>
+                <div id="engineMetrics"></div>
+            </div>
+            
+            <div class="telemetry-section">
+                <div class="telemetry-header">🔥 CYLINDERS &amp; SPARK PLUGS</div>
+                <div class="cylinder-bank" id="cylinderBank"></div>
+            </div>
+            
+            <div class="telemetry-section">
+                <div class="telemetry-header">⚙️ DRIVETRAIN</div>
+                <div id="drivetrainMetrics"></div>
+            </div>
+            
+            <div class="telemetry-section">
+                <div class="telemetry-header">🛞 TIRE ROTATION</div>
+                <div class="tire-grid" id="tireGrid">
+                    <div class="tire"><div class="tire-label">FL</div><div class="tire-rpm" id="tireFLRpm">0</div></div>
+                    <div class="tire"><div class="tire-label">FR</div><div class="tire-rpm" id="tireFRRpm">0</div></div>
+                    <div class="tire"><div class="tire-label">RL</div><div class="tire-rpm" id="tireRLRpm">0</div></div>
+                    <div class="tire"><div class="tire-label">RR</div><div class="tire-rpm" id="tireRRRpm">0</div></div>
+                </div>
+            </div>
+            
+            <div class="telemetry-section">
+                <div class="telemetry-header">⛽ FUEL SYSTEM</div>
+                <div id="fuelMetrics"></div>
+            </div>
+            
+            <div class="spec-query">
+                <div class="spec-query-header">🔍 QUERY SUBSTRATE</div>
+                <div class="spec-input-wrapper">
+                    <input type="text" class="spec-input" id="specInput" placeholder="car.engine.horsepower">
+                    <button class="spec-btn" id="specBtn">Measure</button>
+                </div>
+                <div class="spec-result" id="specResult">
+                <div style="color: var(--text-secondary);">Enter dimensional path to measure...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Load Formal Helix Kernel -->
+<script src="dimensional_entity.js"></script>
+
+<script>
+// =============================================================================
+// BUTTERFLYFX DIMENSIONAL CAR SIMULATOR
+// =============================================================================
+// 
+// PARADIGM: Dimensional Programming
+// 
+// The car exists as a complete object the instant it is created.
+// All attributes are LATENT COORDINATES on the dimensional manifold.
+// Attributes only MATERIALIZE when MEASURED (accessed).
+// Each measurement is logged showing the substrate path traversed.
+//
+// This is NOT object-oriented simulation - this is dimensional substrate access.
+// =============================================================================
+
+// Simulated API response (would come from NHTSA in production)
+const CAR_API_DATABASE = {
+    camry: {
+        make: "Toyota", model: "Camry", year: 2024,
+        engine: { cylinders: 4, displacement_L: 2.5, horsepower: 203, torque_lb_ft: 184, compression_ratio: "13.0:1", firing_order: [1,3,4,2] },
+        transmission: { type: "automatic", speeds: 8, ratios: [4.69, 3.31, 2.31, 1.69, 1.31, 1.00, 0.78, 0.63] },
+        drivetrain: { type: "FWD", differential_ratio: 3.52 },
+        fuel: { capacity_gal: 15.8, mpg_combined: 32 },
+        chassis: { weight_lbs: 3310, wheelbase_in: 111.2 },
+        wheels: { tire_diameter_in: 27.7, tire_width_mm: 235 },
+        performance: { top_speed_mph: 135, zero_to_sixty_s: 7.6 }
+    },
+    mustang: {
+        make: "Ford", model: "Mustang GT", year: 2024,
+        engine: { cylinders: 8, displacement_L: 5.0, horsepower: 480, torque_lb_ft: 415, compression_ratio: "12.0:1", firing_order: [1,5,4,2,6,3,7,8] },
+        transmission: { type: "manual", speeds: 6, ratios: [4.23, 2.52, 1.66, 1.25, 1.00, 0.83] },
+        drivetrain: { type: "RWD", differential_ratio: 3.55 },
+        fuel: { capacity_gal: 16.0, mpg_combined: 19 },
+        chassis: { weight_lbs: 3832, wheelbase_in: 107.1 },
+        wheels: { tire_diameter_in: 28.2, tire_width_mm: 275 },
+        performance: { top_speed_mph: 164, zero_to_sixty_s: 4.3 }
+    },
+    corvette: {
+        make: "Chevrolet", model: "Corvette Stingray", year: 2024,
+        engine: { cylinders: 8, displacement_L: 6.2, horsepower: 490, torque_lb_ft: 465, compression_ratio: "11.5:1", firing_order: [1,8,7,2,6,5,4,3] },
+        transmission: { type: "DCT", speeds: 8, ratios: [5.56, 3.57, 2.45, 1.86, 1.50, 1.15, 0.85, 0.65] },
+        drivetrain: { type: "RWD", differential_ratio: 5.17 },
+        fuel: { capacity_gal: 18.5, mpg_combined: 19 },
+        chassis: { weight_lbs: 3647, wheelbase_in: 107.2 },
+        wheels: { tire_diameter_in: 29.5, tire_width_mm: 305 },
+        performance: { top_speed_mph: 194, zero_to_sixty_s: 2.9 }
+    },
+    model3: {
+        make: "Tesla", model: "Model 3", year: 2024,
+        engine: { cylinders: 0, displacement_L: 0, horsepower: 283, torque_lb_ft: 330, compression_ratio: "N/A", firing_order: [], motor_type: "AC_INDUCTION" },
+        transmission: { type: "direct", speeds: 1, ratios: [9.0] },
+        drivetrain: { type: "RWD", differential_ratio: 9.0 },
+        fuel: { capacity_gal: 0, mpg_combined: 132, battery_kWh: 82 },
+        chassis: { weight_lbs: 3862, wheelbase_in: 113.2 },
+        wheels: { tire_diameter_in: 27.2, tire_width_mm: 235 },
+        performance: { top_speed_mph: 140, zero_to_sixty_s: 5.8 }
+    },
+    civic: {
+        make: "Honda", model: "Civic", year: 2024,
+        engine: { cylinders: 4, displacement_L: 1.5, horsepower: 180, torque_lb_ft: 177, compression_ratio: "10.6:1", firing_order: [1,3,4,2] },
+        transmission: { type: "CVT", speeds: 0, ratios: [] },
+        drivetrain: { type: "FWD", differential_ratio: 4.10 },
+        fuel: { capacity_gal: 12.4, mpg_combined: 36 },
+        chassis: { weight_lbs: 2906, wheelbase_in: 107.7 },
+        wheels: { tire_diameter_in: 26.5, tire_width_mm: 215 },
+        performance: { top_speed_mph: 137, zero_to_sixty_s: 7.3 }
+    },
+    m3: {
+        make: "BMW", model: "M3 Competition", year: 2024,
+        engine: { cylinders: 6, displacement_L: 3.0, horsepower: 503, torque_lb_ft: 479, compression_ratio: "9.3:1", firing_order: [1,5,3,6,2,4], turbo: true },
+        transmission: { type: "automatic", speeds: 8, ratios: [5.00, 3.20, 2.14, 1.72, 1.31, 1.00, 0.82, 0.64] },
+        drivetrain: { type: "RWD", differential_ratio: 3.15 },
+        fuel: { capacity_gal: 15.6, mpg_combined: 19 },
+        chassis: { weight_lbs: 3840, wheelbase_in: 112.5 },
+        wheels: { tire_diameter_in: 28.0, tire_width_mm: 275 },
+        performance: { top_speed_mph: 180, zero_to_sixty_s: 3.8 }
+    },
+    "911": {
+        make: "Porsche", model: "911 Carrera", year: 2024,
+        engine: { cylinders: 6, displacement_L: 3.0, horsepower: 379, torque_lb_ft: 331, compression_ratio: "10.2:1", firing_order: [1,6,2,4,3,5], turbo: true },
+        transmission: { type: "PDK", speeds: 8, ratios: [3.91, 2.29, 1.58, 1.19, 0.97, 0.83, 0.69, 0.57] },
+        drivetrain: { type: "RWD", differential_ratio: 3.44 },
+        fuel: { capacity_gal: 16.9, mpg_combined: 22 },
+        chassis: { weight_lbs: 3354, wheelbase_in: 96.5 },
+        wheels: { tire_diameter_in: 27.8, tire_width_mm: 295 },
+        performance: { top_speed_mph: 182, zero_to_sixty_s: 4.0 }
+    },
+    hellcat: {
+        make: "Dodge", model: "Challenger Hellcat", year: 2024,
+        engine: { cylinders: 8, displacement_L: 6.2, horsepower: 717, torque_lb_ft: 656, compression_ratio: "9.5:1", firing_order: [1,8,4,3,6,5,7,2], supercharged: true },
+        transmission: { type: "automatic", speeds: 8, ratios: [4.71, 3.14, 2.10, 1.67, 1.29, 1.00, 0.84, 0.67] },
+        drivetrain: { type: "RWD", differential_ratio: 2.62 },
+        fuel: { capacity_gal: 18.5, mpg_combined: 15 },
+        chassis: { weight_lbs: 4448, wheelbase_in: 116.2 },
+        wheels: { tire_diameter_in: 30.0, tire_width_mm: 305 },
+        performance: { top_speed_mph: 199, zero_to_sixty_s: 3.6 }
+    }
+};
+
+// =============================================================================
+// DIMENSIONAL CAR CLASS - Substrate Token on Manifold
+// =============================================================================
+
+class DimensionalCar {
+    constructor(apiData) {
+        // The car EXISTS completely the moment we have API data
+        // All attributes are LATENT - they exist but are not yet measured
+        this._substrate = this._createSubstrate(apiData);
+        this._tokenSignatures = this._buildTokenSignatures(); // Level visibility
+        this._accessLog = [];
+        this._measurementCount = 0;
+        this._kernelEvents = []; // Event sourcing
+        
+        // === FORMAL HELIX STATE ===
+        // H = {(s, ℓ) | s ∈ Z, ℓ ∈ {0..6}}
+        this._helixState = {
+            spiral: 0,
+            level: 6  // Start at Whole (operational)
+        };
+        
+        // Dynamic state (evolves on manifold)
+        this._state = {
+            position: { distance_ft: 0, lane_offset: 0, heading_rad: 0 },
+            velocity: { speed_mph: 0, angular_rad_s: 0 },
+            controls: { throttle: 0, brake: 0, steering: 0, gear: 0 },
+            fuel: { current_gal: apiData.fuel.capacity_gal, consumed_gal: 0 },
+            trip: { distance_ft: 0 },
+            engine: { rpm: 0, temp_f: 180, oil_psi: 45 },
+            cylinders: this._initCylinders(apiData.engine.cylinders),
+            timer060: { start: null, complete: null }
+        };
+    }
+    
+    // =========================================================================
+    // TOKEN SIGNATURES - Which levels can see each token
+    // τ = (path, σ, payload) where σ ⊆ {0..6}
+    // =========================================================================
+    
+    _buildTokenSignatures() {
+        return {
+            // Level 1 (Point) - Identity only
+            'make': [1,2,3,4,5,6],
+            'model': [1,2,3,4,5,6],
+            'year': [1,2,3,4,5,6],
+            
+            // Level 2 (Length) - 1D measurements
+            'engine.displacement_L': [2,3,4,5,6],
+            'engine.horsepower': [2,3,4,5,6],
+            'engine.torque_lb_ft': [2,3,4,5,6],
+            'chassis.weight_lbs': [2,3,4,5,6],
+            'chassis.wheelbase_in': [2,3,4,5,6],
+            
+            // Level 3 (Width) - 2D measurements
+            'chassis.dimensions': [3,4,5,6],
+            
+            // Level 4 (Plane) - Surface properties  
+            'exterior.body_style': [4,5,6],
+            'exterior.paint': [4,5,6],
+            
+            // Level 5 (Volume) - 3D mechanical systems
+            'engine.cylinders': [5,6],
+            'engine.cylinder_count': [5,6],
+            'engine.compression_ratio': [5,6],
+            'transmission.type': [5,6],
+            'transmission.speeds': [5,6],
+            'drivetrain.type': [5,6],
+            
+            // Level 6 (Whole) - Operational/performance
+            'performance.top_speed_mph': [6],
+            'performance.zero_to_sixty_s': [6],
+            'dynamics.speed_mph': [6],
+            'dynamics.speed_kmh': [6],
+            'fuel_system.tank.current_gal': [6],
+            'fuel_system.consumption.rate_gph': [6],
+            'operational.ready': [6]
+        };
+    }
+    
+    _getTokenSignature(path) {
+        // Check for exact match first
+        if (this._tokenSignatures[path]) {
+            return this._tokenSignatures[path];
+        }
+        // Check prefix matches for nested paths
+        const parts = path.split('.');
+        for (let i = parts.length; i > 0; i--) {
+            const prefix = parts.slice(0, i).join('.');
+            if (this._tokenSignatures[prefix]) {
+                return this._tokenSignatures[prefix];
+            }
+        }
+        // Default: visible at all levels except Potential (0)
+        return [1,2,3,4,5,6];
+    }
+    
+    // =========================================================================
+    // KERNEL OPERATIONS - Formal Helix transitions
+    // =========================================================================
+    
+    invoke(level) {
+        /**
+         * INVOKE(k): (s, ℓ) → (s, k)
+         * Jump directly to level k within current spiral
+         */
+        if (level < 0 || level > 6) {
+            throw new Error(`Invalid level: ${level}. Must be 0-6.`);
+        }
+        const prevState = { ...this._helixState };
+        this._helixState.level = level;
+        
+        this._kernelEvents.push({
+            type: 'INVOKE',
+            from: `(${prevState.spiral}, ${prevState.level})`,
+            to: `(${this._helixState.spiral}, ${this._helixState.level})`,
+            timestamp: performance.now()
+        });
+        
+        return this._helixState;
+    }
+    
+    spiralUp() {
+        /**
+         * SPIRAL_UP: (s, 6) → (s+1, 0)
+         * Move from Whole to Potential of next spiral
+         */
+        if (this._helixState.level !== 6) {
+            throw new Error(`SPIRAL_UP requires level 6 (Whole), current: ${this._helixState.level}`);
+        }
+        const prevState = { ...this._helixState };
+        this._helixState.spiral += 1;
+        this._helixState.level = 0;
+        
+        this._kernelEvents.push({
+            type: 'SPIRAL_UP',
+            from: `(${prevState.spiral}, ${prevState.level})`,
+            to: `(${this._helixState.spiral}, ${this._helixState.level})`,
+            timestamp: performance.now()
+        });
+        
+        return this._helixState;
+    }
+    
+    spiralDown() {
+        /**
+         * SPIRAL_DOWN: (s, 0) → (s-1, 6)
+         * Move from Potential to Whole of previous spiral
+         */
+        if (this._helixState.level !== 0) {
+            throw new Error(`SPIRAL_DOWN requires level 0 (Potential), current: ${this._helixState.level}`);
+        }
+        const prevState = { ...this._helixState };
+        this._helixState.spiral -= 1;
+        this._helixState.level = 6;
+        
+        this._kernelEvents.push({
+            type: 'SPIRAL_DOWN',
+            from: `(${prevState.spiral}, ${prevState.level})`,
+            to: `(${this._helixState.spiral}, ${this._helixState.level})`,
+            timestamp: performance.now()
+        });
+        
+        return this._helixState;
+    }
+    
+    collapse() {
+        /**
+         * COLLAPSE: (s, ℓ) → (s, 0)
+         * Return all to Potential
+         */
+        const prevState = { ...this._helixState };
+        this._helixState.level = 0;
+        
+        this._kernelEvents.push({
+            type: 'COLLAPSE',
+            from: `(${prevState.spiral}, ${prevState.level})`,
+            to: `(${this._helixState.spiral}, ${this._helixState.level})`,
+            timestamp: performance.now()
+        });
+        
+        return this._helixState;
+    }
+    
+    get helixState() {
+        return { ...this._helixState };
+    }
+    
+    get levelName() {
+        const names = ['Potential', 'Point', 'Length', 'Width', 'Plane', 'Volume', 'Whole'];
+        return names[this._helixState.level];
+    }
+    
+    get levelIcon() {
+        const icons = ['○', '•', '━', '▭', '▦', '▣', '◉'];
+        return icons[this._helixState.level];
+    }
+    
+    _createSubstrate(api) {
+        // Build the complete dimensional substrate from API data
+        // Every possible attribute exists here - latent until measured
+        const cylinders = [];
+        for (let i = 0; i < api.engine.cylinders; i++) {
+            cylinders.push({
+                number: i + 1,
+                piston: {
+                    position: 0.5,  // 0=BDC, 1=TDC
+                    stroke_in: (api.engine.displacement_L * 61.024) / api.engine.cylinders / (Math.PI * 1.5 * 1.5),
+                    bore_in: 3.0 + (api.engine.displacement_L / api.engine.cylinders) * 0.5
+                },
+                spark_plug: {
+                    gap_mm: 0.8,
+                    firing: false,
+                    voltage_kV: 0,
+                    timing_deg: 0
+                },
+                connecting_rod: {
+                    length_in: 6.0
+                },
+                valve: {
+                    intake_open: false,
+                    exhaust_open: false
+                }
+            });
+        }
+        
+        const tires = {
+            front_left: this._createTire('FL', api),
+            front_right: this._createTire('FR', api),
+            rear_left: this._createTire('RL', api),
+            rear_right: this._createTire('RR', api)
+        };
+        
+        return {
+            make: api.make,
+            model: api.model,
+            year: api.year,
+            engine: {
+                type: api.engine.cylinders > 0 ? 'ICE' : 'ELECTRIC',
+                cylinders: cylinders,
+                cylinder_count: api.engine.cylinders,
+                displacement_L: api.engine.displacement_L,
+                horsepower: api.engine.horsepower,
+                torque_lb_ft: api.engine.torque_lb_ft,
+                compression_ratio: api.engine.compression_ratio,
+                firing_order: api.engine.firing_order,
+                turbo: api.engine.turbo || false,
+                supercharged: api.engine.supercharged || false,
+                rpm: { current: 0, idle: 800, redline: 7000 },
+                temperature: { current_f: 180, operating_f: 195 },
+                oil: { pressure_psi: 45, type: '5W-30' },
+                fuel_injector: { pulse_width_ms: 2.5, pressure_psi: 58 },
+                throttle_body: { opening_percent: 0, diameter_mm: 75 },
+                air_fuel_ratio: 14.7,
+                spark_advance_deg: 10,
+                power_output_kW: 0
+            },
+            transmission: {
+                type: api.transmission.type,
+                speeds: api.transmission.speeds,
+                gear_ratios: api.transmission.ratios,
+                current_gear: 0,
+                current_ratio: 0,
+                shift_points_mph: this._calcShiftPoints(api)
+            },
+            drivetrain: {
+                type: api.drivetrain.type,
+                differential: {
+                    ratio: api.drivetrain.differential_ratio,
+                    type: 'limited_slip'
+                },
+                axles: {
+                    front: { rpm: 0, torque_lb_ft: 0 },
+                    rear: { rpm: 0, torque_lb_ft: 0 }
+                }
+            },
+            fuel_system: {
+                tank: {
+                    capacity_gal: api.fuel.capacity_gal,
+                    current_gal: api.fuel.capacity_gal,
+                    level_percent: 100
+                },
+                consumption: {
+                    rate_gph: 0,
+                    instant_mpg: 0,
+                    average_mpg: api.fuel.mpg_combined
+                },
+                carburetor: {
+                    air_fuel_ratio: 14.7,
+                    mixture: 'stoichiometric'
+                },
+                pump: {
+                    pressure_psi: 58,
+                    flow_rate_lph: 0
+                }
+            },
+            chassis: {
+                weight_lbs: api.chassis.weight_lbs,
+                weight_kg: api.chassis.weight_lbs * 0.453592,
+                wheelbase_in: api.chassis.wheelbase_in
+            },
+            wheels: {
+                tires: tires,
+                tire_diameter_in: api.wheels.tire_diameter_in,
+                tire_circumference_ft: (Math.PI * api.wheels.tire_diameter_in) / 12
+            },
+            performance: {
+                top_speed_mph: api.performance.top_speed_mph,
+                zero_to_sixty_s: api.performance.zero_to_sixty_s,
+                power_to_weight: api.engine.horsepower / (api.chassis.weight_lbs / 1000)
+            },
+            dynamics: {
+                speed_mph: 0,
+                speed_kmh: 0,
+                acceleration_mph_s: 0,
+                g_force: 0,
+                distance_traveled_ft: 0,
+                distance_traveled_mi: 0
+            },
+            // ENVIRONMENT SUBSTRATE - Exists at instantiation, materializes when measured
+            environment: {
+                weather: {
+                    type: 'clear',  // clear, rain, fog, snow
+                    intensity: 0,   // 0-1
+                    precipitation: {
+                        rate_mm_hr: 0,
+                        visibility_mi: 10
+                    },
+                    sky: {
+                        cloud_cover: 0.1,  // 0-1
+                        time_of_day: 'day' // day, dusk, night
+                    },
+                    wind: {
+                        speed_mph: 5,
+                        direction_deg: 0
+                    },
+                    temperature_f: 72
+                },
+                road: {
+                    surface: 'asphalt',  // asphalt, concrete, gravel
+                    condition: 'dry',     // dry, wet, icy
+                    grip_multiplier: 1.0,
+                    segments: this._generateRoadSegments(),
+                    current_segment_index: 0
+                },
+                terrain: {
+                    type: 'suburban',  // urban, suburban, rural, highway
+                    features: this._generateTerrainFeatures(),
+                    elevation_ft: 0,
+                    grade_percent: 0
+                },
+                traffic: {
+                    density: 0.3,  // 0-1
+                    intersections: this._generateIntersections(),
+                    current_intersection: null
+                }
+            }
+        };
+    }
+    
+    _generateRoadSegments() {
+        // Create dimensional road with curves and hills
+        const segments = [];
+        for (let i = 0; i < 100; i++) {
+            const seed = Math.sin(i * 0.3) * Math.cos(i * 0.17);
+            segments.push({
+                index: i,
+                distance_start_ft: i * 500,
+                distance_end_ft: (i + 1) * 500,
+                curve: {
+                    direction: Math.sin(i * 0.2) > 0.3 ? 'right' : Math.sin(i * 0.2) < -0.3 ? 'left' : 'straight',
+                    radius_ft: 500 + Math.abs(seed) * 2000,
+                    banking_deg: Math.sin(i * 0.2) * 5
+                },
+                hill: {
+                    type: Math.cos(i * 0.4) > 0.5 ? 'uphill' : Math.cos(i * 0.4) < -0.5 ? 'downhill' : 'flat',
+                    grade_percent: Math.sin(i * 0.15) * 8,
+                    elevation_change_ft: Math.sin(i * 0.15) * 50
+                },
+                intersection: i % 12 === 0 ? {
+                    type: i % 24 === 0 ? 'traffic_light' : 'stop_sign',
+                    distance_ft: i * 500 + 250,
+                    state: 'green',
+                    cross_traffic: Math.random() > 0.7
+                } : null
+            });
+        }
+        return segments;
+    }
+    
+    _generateTerrainFeatures() {
+        // Roadside features that exist in the substrate
+        const features = [];
+        for (let i = 0; i < 200; i++) {
+            const side = i % 2 === 0 ? 'left' : 'right';
+            features.push({
+                index: i,
+                distance_ft: i * 150 + Math.random() * 50,
+                side: side,
+                type: ['tree', 'tree', 'tree', 'building', 'sign', 'lamppost', 'tree'][i % 7],
+                height_ft: [30, 25, 35, 40, 12, 25, 28][i % 7],
+                color: ['#2d5a27', '#3a6b34', '#234d1e', '#8a8a8a', '#cc6600', '#555', '#2d5a27'][i % 7]
+            });
+        }
+        return features;
+    }
+    
+    _generateIntersections() {
+        const intersections = [];
+        for (let i = 0; i < 20; i++) {
+            intersections.push({
+                index: i,
+                distance_ft: (i + 1) * 2500,
+                type: i % 3 === 0 ? 'traffic_light' : 'stop_sign',
+                state: 'green',
+                timer_s: 0,
+                cross_street: `${['Oak', 'Main', 'Elm', 'Pine', 'Maple'][i % 5]} ${i % 2 === 0 ? 'Street' : 'Avenue'}`
+            });
+        }
+        return intersections;
+    }
+    
+    _createTire(position, api) {
+        return {
+            position: position,
+            diameter_in: api.wheels.tire_diameter_in,
+            width_mm: api.wheels.tire_width_mm,
+            rpm: 0,
+            temperature_f: 70,
+            pressure_psi: 35,
+            wear_percent: 0,
+            grip_coefficient: 1.0
+        };
+    }
+    
+    _initCylinders(count) {
+        const cyls = [];
+        for (let i = 0; i < count; i++) {
+            cyls.push({
+                phase_deg: i * (720 / Math.max(count, 1)),
+                piston_pos: 0.5,
+                firing: false
+            });
+        }
+        return cyls;
+    }
+    
+    _calcShiftPoints(api) {
+        // Calculate optimal shift points based on gear ratios
+        const points = [];
+        for (let i = 0; i < api.transmission.ratios.length - 1; i++) {
+            points.push(15 + i * 15);  // Simplified
+        }
+        return points;
+    }
+    
+    // =========================================================================
+    // DIMENSIONAL MEASUREMENT - The core of the paradigm
+    // =========================================================================
+    
+    measure(path) {
+        // Traverse the substrate and MATERIALIZE the value
+        // This is the ONLY way to access car attributes
+        // 
+        // LEVEL CHECK: Token must be visible at current helix level
+        // τ = (path, σ, payload) where current level ∈ σ
+        
+        // Check if token is visible at current level
+        const signature = this._getTokenSignature(path);
+        const currentLevel = this._helixState.level;
+        
+        if (!signature.includes(currentLevel)) {
+            this._measurementCount++;
+            return {
+                path: path,
+                value: undefined,
+                error: `Token requires levels [${signature.join(',')}], current level: ${currentLevel} (${this.levelName})`,
+                level: currentLevel,
+                signature: signature
+            };
+        }
+        
+        const parts = path.split('.');
+        let current = this._substrate;
+        let fullPath = 'car';
+        
+        for (const part of parts) {
+            if (part === 'car') continue;
+            
+            // Handle array notation: cylinders[0]
+            const arrayMatch = part.match(/^(\w+)\[(\d+)\]$/);
+            if (arrayMatch) {
+                const propName = arrayMatch[1];
+                const index = parseInt(arrayMatch[2]);
+                if (current[propName] && Array.isArray(current[propName])) {
+                    current = current[propName][index];
+                    fullPath += `.${propName}[${index}]`;
+                } else {
+                    return { path: fullPath, value: undefined, error: `Array ${propName} not found` };
+                }
+            } else {
+                if (current && current.hasOwnProperty(part)) {
+                    current = current[part];
+                    fullPath += `.${part}`;
+                } else {
+                    return { path: fullPath, value: undefined, error: `Property ${part} not found` };
+                }
+            }
+        }
+        
+        // Log the measurement
+        this._measurementCount++;
+        const measurement = {
+            timestamp: performance.now(),
+            path: fullPath,
+            value: current,
+            count: this._measurementCount,
+            helixState: `(${this._helixState.spiral}, ${this._helixState.level})`,
+            level: currentLevel,
+            signature: signature
+        };
+        this._accessLog.push(measurement);
+        
+        // Keep log bounded
+        if (this._accessLog.length > 100) {
+            this._accessLog.shift();
+        }
+        
+        return measurement;
+    }
+    
+    // Convenience method with auto-update for dynamic values
+    measureDynamic(path) {
+        // First sync substrate with current state
+        this._syncSubstrate();
+        return this.measure(path);
+    }
+    
+    _syncSubstrate() {
+        // Sync dynamic values from state to substrate
+        const s = this._state;
+        const sub = this._substrate;
+        
+        sub.dynamics.speed_mph = Math.abs(s.velocity.speed_mph);
+        sub.dynamics.speed_kmh = Math.abs(s.velocity.speed_mph) * 1.60934;
+        sub.dynamics.distance_traveled_ft = s.position.distance_ft;
+        sub.dynamics.distance_traveled_mi = s.position.distance_ft / 5280;
+        
+        sub.engine.rpm.current = s.engine.rpm;
+        sub.engine.temperature.current_f = s.engine.temp_f;
+        sub.engine.oil.pressure_psi = s.engine.oil_psi;
+        sub.engine.throttle_body.opening_percent = s.controls.throttle * 100;
+        
+        sub.fuel_system.tank.current_gal = s.fuel.current_gal;
+        sub.fuel_system.tank.level_percent = (s.fuel.current_gal / sub.fuel_system.tank.capacity_gal) * 100;
+        
+        sub.transmission.current_gear = s.controls.gear;
+        sub.transmission.current_ratio = s.controls.gear > 0 ? sub.transmission.gear_ratios[s.controls.gear - 1] || 1 : 0;
+        
+        // Sync cylinder states
+        for (let i = 0; i < s.cylinders.length; i++) {
+            if (sub.engine.cylinders[i]) {
+                sub.engine.cylinders[i].piston.position = s.cylinders[i].piston_pos;
+                sub.engine.cylinders[i].spark_plug.firing = s.cylinders[i].firing;
+            }
+        }
+    }
+    
+    getAccessLog() {
+        return this._accessLog.slice(-20);  // Last 20 measurements
+    }
+    
+    // =========================================================================
+    // SUBSTRATE TRANSFORMATION (Physics)
+    // =========================================================================
+    
+    transform(dt, controls) {
+        const s = this._state;
+        const sub = this._substrate;
+        
+        // Apply controls
+        s.controls.throttle = controls.throttle;
+        s.controls.brake = controls.brake;
+        s.controls.steering = controls.steering;
+        
+        // Skip if parked
+        if (s.controls.gear === 0) {
+            s.velocity.speed_mph = 0;
+            s.engine.rpm = 0;
+            return;
+        }
+        
+        // Physics constants from substrate
+        const mass_kg = sub.chassis.weight_kg;
+        const hp = sub.engine.horsepower;
+        const top_speed = sub.performance.top_speed_mph;
+        
+        // Compute forces
+        const speed_mps = s.velocity.speed_mph * 0.44704;
+        const power_watts = hp * 745.7;
+        const max_engine_force = speed_mps > 0.1 ? Math.min(power_watts / speed_mps, 5000) : 5000;
+        const engine_force = s.controls.throttle * max_engine_force;
+        const brake_force = s.controls.brake * mass_kg * 10;
+        const drag = 0.5 * 1.225 * 0.30 * 2.2 * speed_mps * speed_mps;
+        const rolling = speed_mps > 0.1 ? 0.01 * mass_kg * 9.81 : 0;
+        
+        // Net force and acceleration
+        const net_force = engine_force - brake_force - drag - rolling;
+        const accel_mps2 = net_force / mass_kg;
+        const accel_mph_s = accel_mps2 * 2.23694;
+        
+        // Update dynamics
+        sub.dynamics.acceleration_mph_s = accel_mph_s;
+        sub.dynamics.g_force = accel_mps2 / 9.81;
+        
+        // Velocity update
+        s.velocity.speed_mph += accel_mph_s * dt;
+        
+        // Clamp based on gear
+        if (s.controls.gear === -1) {
+            s.velocity.speed_mph = Math.max(-10, Math.min(0, s.velocity.speed_mph));
+        } else {
+            s.velocity.speed_mph = Math.max(0, Math.min(top_speed, s.velocity.speed_mph));
+        }
+        
+        // Position update
+        const speed_fps = Math.abs(s.velocity.speed_mph) * 1.46667;
+        const dist_ft = speed_fps * dt;
+        s.position.distance_ft += dist_ft;
+        s.trip.distance_ft += dist_ft;
+        
+        // Steering
+        s.position.lane_offset += s.controls.steering * 0.5 * dt;
+        s.position.lane_offset = Math.max(-1, Math.min(1, s.position.lane_offset));
+        
+        // RPM calculation
+        if (Math.abs(s.velocity.speed_mph) < 1) {
+            s.engine.rpm = s.controls.gear !== 0 ? 800 : 0;
+        } else {
+            const gear = Math.max(1, Math.min(sub.transmission.speeds, Math.abs(s.controls.gear)));
+            const ratio = (sub.transmission.gear_ratios[gear - 1] || 1) * sub.drivetrain.differential.ratio;
+            const speed_mps2 = Math.abs(s.velocity.speed_mph) * 0.44704;
+            const tire_radius_m = (sub.wheels.tire_diameter_in * 0.0254) / 2;
+            s.engine.rpm = Math.min(7000, Math.max(800, (speed_mps2 * ratio * 60) / (2 * Math.PI * tire_radius_m)));
+        }
+        
+        // Auto-shift
+        if (s.controls.gear > 0 && sub.transmission.shift_points_mph) {
+            const shift_up = sub.transmission.shift_points_mph;
+            if (s.controls.gear < sub.transmission.speeds && s.velocity.speed_mph > shift_up[s.controls.gear - 1]) {
+                s.controls.gear++;
+            } else if (s.controls.gear > 1 && s.velocity.speed_mph < (shift_up[s.controls.gear - 2] || 0) - 5) {
+                s.controls.gear--;
+            }
+        }
+        
+        // Engine metrics
+        s.engine.temp_f = 185 + s.controls.throttle * 25 + (s.engine.rpm / 7000) * 15;
+        s.engine.oil_psi = 25 + (s.engine.rpm / 7000) * 40;
+        
+        sub.engine.air_fuel_ratio = 14.7 - s.controls.throttle * 2;
+        sub.engine.spark_advance_deg = 10 + (s.engine.rpm / 1000) * 3 - s.controls.throttle * 5;
+        sub.engine.fuel_injector.pulse_width_ms = 1.5 + s.controls.throttle * 2 + (s.engine.rpm / 7000) * 1.5;
+        sub.engine.power_output_kW = (hp * 0.7457 * s.controls.throttle * (s.engine.rpm / 7000));
+        
+        // Fuel consumption
+        let fuel_rate_gph = 0;
+        if (Math.abs(s.velocity.speed_mph) < 5) {
+            fuel_rate_gph = s.controls.gear !== 0 ? 0.3 + s.controls.throttle * 0.5 : 0;
+        } else {
+            fuel_rate_gph = Math.abs(s.velocity.speed_mph) / sub.fuel_system.consumption.average_mpg * (0.5 + s.controls.throttle * 0.5);
+        }
+        sub.fuel_system.consumption.rate_gph = fuel_rate_gph;
+        
+        if (fuel_rate_gph > 0.01 && Math.abs(s.velocity.speed_mph) > 1) {
+            sub.fuel_system.consumption.instant_mpg = Math.abs(s.velocity.speed_mph) / fuel_rate_gph;
+        }
+        
+        const fuel_used = fuel_rate_gph * dt / 3600;
+        s.fuel.current_gal = Math.max(0, s.fuel.current_gal - fuel_used);
+        s.fuel.consumed_gal += fuel_used;
+        
+        // Cylinder simulation
+        if (sub.engine.cylinder_count > 0 && s.engine.rpm > 100) {
+            const degreesPerSec = s.engine.rpm * 6;
+            const firingOrder = sub.engine.firing_order;
+            
+            for (let i = 0; i < s.cylinders.length; i++) {
+                const cyl = s.cylinders[i];
+                cyl.phase_deg = (cyl.phase_deg + degreesPerSec * dt) % 720;
+                cyl.piston_pos = 0.5 + 0.5 * Math.cos((cyl.phase_deg % 360) * Math.PI / 180);
+                cyl.firing = (cyl.phase_deg < 30 || cyl.phase_deg > 690) && s.controls.throttle > 0;
+            }
+        }
+        
+        // Tire RPM
+        const tire_rpm = (Math.abs(s.velocity.speed_mph) * 5280 / 60) / sub.wheels.tire_circumference_ft;
+        const steer_factor = Math.abs(s.controls.steering) * 0.1;
+        const left_factor = s.controls.steering > 0 ? (1 - steer_factor) : 1;
+        const right_factor = s.controls.steering < 0 ? (1 - steer_factor) : 1;
+        
+        sub.wheels.tires.front_left.rpm = tire_rpm * left_factor;
+        sub.wheels.tires.front_right.rpm = tire_rpm * right_factor;
+        sub.wheels.tires.rear_left.rpm = tire_rpm * left_factor;
+        sub.wheels.tires.rear_right.rpm = tire_rpm * right_factor;
+        
+        // 0-60 timer
+        if (s.controls.throttle > 0 && !s.timer060.start && Math.abs(s.velocity.speed_mph) < 2) {
+            s.timer060.start = performance.now();
+            s.timer060.complete = null;
+        }
+        if (s.timer060.start && !s.timer060.complete && Math.abs(s.velocity.speed_mph) >= 60) {
+            s.timer060.complete = (performance.now() - s.timer060.start) / 1000;
+        }
+        if (Math.abs(s.velocity.speed_mph) < 1 && s.controls.gear === 0) {
+            s.timer060.start = null;
+            s.timer060.complete = null;
+        }
+        
+        // Sync for measurements
+        this._syncSubstrate();
+    }
+    
+    setGear(g) { this._state.controls.gear = g; }
+    getState() { return this._state; }
+    getSubstrate() { return this._substrate; }
+}
+
+// =============================================================================
+// SIMULATOR
+// =============================================================================
+
+let car = null;
+let lastTime = performance.now();
+let isAccelerating = false;
+let isBraking = false;
+let mouseX = 0.5;
+
+const canvas = document.getElementById('roadCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// Fetch car from "API" and instantiate dimensional object
+function instantiateCar(carKey) {
+    const apiData = CAR_API_DATABASE[carKey];
+    if (!apiData) return;
+    
+    // THIS IS THE MOMENT OF CREATION
+    // The car now EXISTS on the dimensional manifold
+    car = new DimensionalCar(apiData);
+    
+    // Log instantiation
+    logAccess(`car = new DimensionalCar("${carKey}")`, 'INSTANTIATED');
+    
+    // Update UI with first measurements
+    const make = car.measure('car.make');
+    const model = car.measure('car.model');
+    const year = car.measure('car.year');
+    const hp = car.measure('car.engine.horsepower');
+    
+    document.getElementById('carName').textContent = `${year.value} ${make.value} ${model.value}`;
+    document.getElementById('carSpecs').textContent = `${hp.value}hp`;
+    
+    // Initialize cylinder bank
+    initCylinderBank();
+}
+
+function initCylinderBank() {
+    const bank = document.getElementById('cylinderBank');
+    const cylCount = car.measure('car.engine.cylinder_count');
+    
+    bank.innerHTML = '';
+    
+    if (cylCount.value === 0) {
+        bank.innerHTML = `<div style="grid-column: span 4; text-align: center; color: var(--accent-cyan);">⚡ Electric Motor</div>`;
+        return;
+    }
+    
+    for (let i = 0; i < cylCount.value; i++) {
+        bank.innerHTML += `
+            <div class="cylinder">
+                <div class="cylinder-num">#${i + 1}</div>
+                <div class="piston-bar"><div class="piston-fill" id="piston${i}" style="height: 50%"></div></div>
+                <div class="spark-indicator" id="spark${i}"></div>
+            </div>
+        `;
+    }
+}
+
+function logAccess(path, value) {
+    const log = document.getElementById('accessLog');
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = `<span class="time">[${new Date().toISOString().substr(11, 8)}]</span> <span class="path">${path}</span> → <span class="value">${typeof value === 'object' ? JSON.stringify(value).substr(0, 30) : value}</span>`;
+    log.insertBefore(entry, log.firstChild);
+    
+    // Keep bounded
+    while (log.children.length > 50) {
+        log.removeChild(log.lastChild);
+    }
+}
+
+function updateTelemetry() {
+    // ENGINE METRICS - Each is a MEASUREMENT
+    const engineMetrics = document.getElementById('engineMetrics');
+    
+    const measurements = [
+        car.measureDynamic('car.engine.rpm.current'),
+        car.measureDynamic('car.engine.horsepower'),
+        car.measureDynamic('car.engine.torque_lb_ft'),
+        car.measureDynamic('car.engine.power_output_kW'),
+        car.measureDynamic('car.engine.temperature.current_f'),
+        car.measureDynamic('car.engine.oil.pressure_psi'),
+        car.measureDynamic('car.engine.throttle_body.opening_percent'),
+        car.measureDynamic('car.engine.air_fuel_ratio'),
+        car.measureDynamic('car.engine.spark_advance_deg'),
+        car.measureDynamic('car.engine.fuel_injector.pulse_width_ms')
+    ];
+    
+    engineMetrics.innerHTML = measurements.map(m => `
+        <div class="measurement-row">
+            <div class="dimensional-path">${m.path}</div>
+            <div class="measurement-value">${typeof m.value === 'number' ? m.value.toFixed(1) : m.value}</div>
+        </div>
+    `).join('');
+    
+    // DRIVETRAIN METRICS
+    const drivetrainMetrics = document.getElementById('drivetrainMetrics');
+    const driveM = [
+        car.measureDynamic('car.transmission.current_gear'),
+        car.measureDynamic('car.transmission.current_ratio'),
+        car.measureDynamic('car.drivetrain.type'),
+        car.measureDynamic('car.drivetrain.differential.ratio'),
+        car.measureDynamic('car.dynamics.acceleration_mph_s'),
+        car.measureDynamic('car.dynamics.g_force')
+    ];
+    
+    drivetrainMetrics.innerHTML = driveM.map(m => `
+        <div class="measurement-row">
+            <div class="dimensional-path">${m.path}</div>
+            <div class="measurement-value">${typeof m.value === 'number' ? m.value.toFixed(2) : m.value}</div>
+        </div>
+    `).join('');
+    
+    // FUEL METRICS
+    const fuelMetrics = document.getElementById('fuelMetrics');
+    const fuelM = [
+        car.measureDynamic('car.fuel_system.tank.current_gal'),
+        car.measureDynamic('car.fuel_system.tank.level_percent'),
+        car.measureDynamic('car.fuel_system.consumption.rate_gph'),
+        car.measureDynamic('car.fuel_system.consumption.instant_mpg'),
+        car.measureDynamic('car.fuel_system.carburetor.air_fuel_ratio'),
+        car.measureDynamic('car.fuel_system.pump.pressure_psi')
+    ];
+    
+    fuelMetrics.innerHTML = fuelM.map(m => `
+        <div class="measurement-row">
+            <div class="dimensional-path">${m.path}</div>
+            <div class="measurement-value">${typeof m.value === 'number' ? m.value.toFixed(2) : m.value}</div>
+        </div>
+    `).join('');
+    
+    // CYLINDERS
+    const cylCount = car.getSubstrate().engine.cylinder_count;
+    for (let i = 0; i < cylCount; i++) {
+        const piston = car.measureDynamic(`car.engine.cylinders[${i}].piston.position`);
+        const spark = car.measureDynamic(`car.engine.cylinders[${i}].spark_plug.firing`);
+        
+        const pistonEl = document.getElementById('piston' + i);
+        const sparkEl = document.getElementById('spark' + i);
+        
+        if (pistonEl) pistonEl.style.height = (piston.value * 100) + '%';
+        if (sparkEl) {
+            if (spark.value) sparkEl.classList.add('firing');
+            else sparkEl.classList.remove('firing');
+        }
+    }
+    
+    // TIRES
+    const flRpm = car.measureDynamic('car.wheels.tires.front_left.rpm');
+    const frRpm = car.measureDynamic('car.wheels.tires.front_right.rpm');
+    const rlRpm = car.measureDynamic('car.wheels.tires.rear_left.rpm');
+    const rrRpm = car.measureDynamic('car.wheels.tires.rear_right.rpm');
+    
+    document.getElementById('tireFLRpm').textContent = Math.round(flRpm.value);
+    document.getElementById('tireFRRpm').textContent = Math.round(frRpm.value);
+    document.getElementById('tireRLRpm').textContent = Math.round(rlRpm.value);
+    document.getElementById('tireRRRpm').textContent = Math.round(rrRpm.value);
+}
+
+function updateDashboard() {
+    const s = car.getState();
+    const speed = Math.abs(s.velocity.speed_mph);
+    
+    document.getElementById('speedValue').textContent = Math.round(speed);
+    document.getElementById('rpmValue').textContent = Math.round(s.engine.rpm);
+    
+    let gearText = 'P';
+    if (s.controls.gear === -1) gearText = 'R';
+    else if (s.controls.gear > 0) gearText = s.controls.gear.toString();
+    document.getElementById('gearDisplay').textContent = gearText;
+    
+    document.getElementById('odometer').textContent = (s.position.distance_ft / 5280).toFixed(1);
+    document.getElementById('tripMiles').textContent = (s.trip.distance_ft / 5280).toFixed(2);
+    document.getElementById('fuelGallons').textContent = s.fuel.current_gal.toFixed(1);
+    
+    const tripMiles = s.trip.distance_ft / 5280;
+    const mpg = s.fuel.consumed_gal > 0.001 ? tripMiles / s.fuel.consumed_gal : car.getSubstrate().fuel_system.consumption.average_mpg;
+    document.getElementById('mpgValue').textContent = mpg.toFixed(1);
+    
+    const range = s.fuel.current_gal * car.getSubstrate().fuel_system.consumption.average_mpg;
+    document.getElementById('rangeValue').textContent = Math.round(range);
+    
+    let state = 'PARKED';
+    if (s.controls.gear === 0) state = 'PARKED';
+    else if (speed < 1) state = 'IDLE';
+    else if (s.controls.brake > 0.1) state = 'BRAKING';
+    else if (s.controls.throttle > 0.3) state = 'ACCEL';
+    else if (s.controls.throttle > 0) state = 'CRUISE';
+    else state = 'COAST';
+    document.getElementById('driveState').textContent = state;
+    
+    document.getElementById('throttleDisplay').textContent = Math.round(s.controls.throttle * 100) + '%';
+}
+
+// TILED RENDERING ENGINE
+let frameTime = 0;
+const rainDrops = [];
+const clouds = [];
+
+// Pre-generate cloud tiles
+for (let i = 0; i < 12; i++) {
+    clouds.push({ 
+        x: Math.random(), 
+        y: 0.08 + Math.random() * 0.12, 
+        size: 0.04 + Math.random() * 0.08, 
+        speed: 0.00005 + Math.random() * 0.0001,
+        puffs: 3 + Math.floor(Math.random() * 4)
+    });
+}
+
+// TILE DEFINITIONS - Pre-computed scenery tiles
+const TILE_LENGTH_FT = 200;  // Each tile represents 200 feet of road
+const VISIBLE_TILES = 20;    // Number of tiles visible ahead
+
+// Scenery tile types
+const SCENERY_TILES = {
+    forest: [
+        { type: 'tree', side: 'left', offset: 0.1, variant: 0 },
+        { type: 'tree', side: 'left', offset: 0.4, variant: 1 },
+        { type: 'tree', side: 'right', offset: 0.2, variant: 2 },
+        { type: 'tree', side: 'right', offset: 0.7, variant: 0 }
+    ],
+    suburban: [
+        { type: 'tree', side: 'left', offset: 0.3, variant: 1 },
+        { type: 'house', side: 'right', offset: 0.5, variant: 0 },
+        { type: 'lamppost', side: 'left', offset: 0.8, variant: 0 }
+    ],
+    urban: [
+        { type: 'building', side: 'left', offset: 0.2, variant: 0 },
+        { type: 'building', side: 'right', offset: 0.3, variant: 1 },
+        { type: 'lamppost', side: 'left', offset: 0.6, variant: 0 },
+        { type: 'lamppost', side: 'right', offset: 0.9, variant: 0 }
+    ],
+    highway: [
+        { type: 'sign', side: 'right', offset: 0.5, variant: 0 },
+        { type: 'tree', side: 'left', offset: 0.2, variant: 2 },
+        { type: 'tree', side: 'left', offset: 0.8, variant: 1 }
+    ]
+};
+
+// Road segment types
+const ROAD_SEGMENTS = [
+    { curve: 0, hill: 0 },           // Straight flat
+    { curve: 0.3, hill: 0 },         // Gentle right
+    { curve: -0.3, hill: 0 },        // Gentle left
+    { curve: 0, hill: 0.03 },        // Uphill
+    { curve: 0, hill: -0.02 },       // Downhill
+    { curve: 0.5, hill: 0.02 },      // Right curve uphill
+    { curve: -0.4, hill: -0.01 }     // Left curve downhill
+];
+
+function drawRoad() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const s = car.getState();
+    const sub = car.getSubstrate();
+    
+    // Get environment substrate
+    const envMeasurement = car.measure('environment');
+    const env = envMeasurement && envMeasurement.value ? envMeasurement.value : (sub ? sub.environment : null);
+    
+    if (!env) {
+        drawRoadFallback();
+        return;
+    }
+    
+    frameTime += 0.016;
+    
+    const distanceFt = s.position.distance_ft;
+    const speed = s.dynamics.speed_mph;
+    
+    // Calculate current tile and position within tile
+    const currentTile = Math.floor(distanceFt / TILE_LENGTH_FT);
+    const tileProgress = (distanceFt % TILE_LENGTH_FT) / TILE_LENGTH_FT;
+    
+    // Get road segment for current position
+    const segmentIndex = currentTile % ROAD_SEGMENTS.length;
+    const segment = ROAD_SEGMENTS[segmentIndex];
+    const nextSeg = ROAD_SEGMENTS[(segmentIndex + 1) % ROAD_SEGMENTS.length];
+    
+    // Interpolate between segments
+    const curveAmount = segment.curve + (nextSeg.curve - segment.curve) * tileProgress;
+    const hillAmount = segment.hill + (nextSeg.hill - segment.hill) * tileProgress;
+    
+    // Dynamic horizon based on hill grade
+    const baseHorizon = h * 0.38;
+    const horizonShift = hillAmount * h * 2;
+    const horizon = Math.max(h * 0.2, Math.min(h * 0.5, baseHorizon - horizonShift));
+    
+    // Get time of day from environment
+    const timeOfDay = env.weather?.sky?.time_of_day || 'day';
+    const weatherType = env.weather?.type || 'clear';
+    
+    // ==================== SKY ====================
+    const skyColors = {
+        day: ['#1e90ff', '#87ceeb', '#b0e0e6'],
+        dusk: ['#2d1b4e', '#ff6b35', '#ffd93d'],
+        night: ['#0a0a1a', '#151528', '#1a1a2e']
+    };
+    const colors = skyColors[timeOfDay] || skyColors.day;
+    
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, horizon);
+    skyGrad.addColorStop(0, colors[0]);
+    skyGrad.addColorStop(0.5, colors[1]);
+    skyGrad.addColorStop(1, colors[2]);
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, w, horizon);
+    
+    // Sun/Moon
+    if (timeOfDay === 'day') {
+        const sunX = w * 0.78;
+        const sunY = horizon * 0.25;
+        const sunGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 50);
+        sunGrad.addColorStop(0, '#fffde0');
+        sunGrad.addColorStop(0.4, '#ffe066');
+        sunGrad.addColorStop(0.8, 'rgba(255, 200, 50, 0.2)');
+        sunGrad.addColorStop(1, 'rgba(255, 200, 50, 0)');
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(sunX, sunY, 50, 0, Math.PI * 2);
+        ctx.fill();
+    } else if (timeOfDay === 'night') {
+        // Moon
+        const moonX = w * 0.8;
+        const moonY = horizon * 0.3;
+        ctx.fillStyle = '#e8e8e8';
+        ctx.beginPath();
+        ctx.arc(moonX, moonY, 25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = colors[0];
+        ctx.beginPath();
+        ctx.arc(moonX + 8, moonY - 5, 22, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Stars
+        ctx.fillStyle = '#fff';
+        for (let i = 0; i < 50; i++) {
+            const sx = (i * 137.5) % w;
+            const sy = (i * 73.1) % (horizon * 0.8);
+            const size = 1 + (i % 3);
+            ctx.beginPath();
+            ctx.arc(sx, sy, size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+    
+    // ==================== CLOUDS (Tiled) ====================
+    for (const cloud of clouds) {
+        cloud.x = (cloud.x + cloud.speed) % 1.3;
+        if (cloud.x < 0) cloud.x += 1.3;
+        
+        const cx = (cloud.x - 0.15) * w;
+        const cy = cloud.y * horizon;
+        const size = cloud.size * w;
+        
+        ctx.fillStyle = timeOfDay === 'night' ? 'rgba(60, 60, 80, 0.5)' : 'rgba(255, 255, 255, 0.9)';
+        for (let p = 0; p < cloud.puffs; p++) {
+            const px = cx + (p - cloud.puffs/2) * size * 0.35;
+            const py = cy + Math.sin(p * 1.2) * size * 0.15;
+            const pr = size * (0.35 + Math.cos(p) * 0.1);
+            ctx.beginPath();
+            ctx.arc(px, py, pr, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+    
+    // ==================== MOUNTAINS (Parallax Tiles) ====================
+    // Far mountains
+    ctx.fillStyle = timeOfDay === 'night' ? '#1a2030' : '#5a7050';
+    ctx.beginPath();
+    ctx.moveTo(0, horizon);
+    const mountainScroll = distanceFt * 0.001;
+    for (let x = 0; x <= w; x += 15) {
+        const mh = Math.sin((x + mountainScroll * 50) * 0.008) * 40 + 
+                   Math.sin((x + mountainScroll * 30) * 0.015) * 25 +
+                   Math.cos((x + mountainScroll * 20) * 0.005) * 30;
+        ctx.lineTo(x, horizon - Math.abs(mh) - 20);
+    }
+    ctx.lineTo(w, horizon);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Near hills
+    ctx.fillStyle = timeOfDay === 'night' ? '#152015' : '#4a6a40';
+    ctx.beginPath();
+    ctx.moveTo(0, horizon);
+    for (let x = 0; x <= w; x += 10) {
+        const hh = Math.sin((x + mountainScroll * 100) * 0.012) * 20 +
+                   Math.sin((x + mountainScroll * 80) * 0.025) * 15;
+        ctx.lineTo(x, horizon - Math.abs(hh) - 5);
+    }
+    ctx.lineTo(w, horizon);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Treeline
+    ctx.fillStyle = timeOfDay === 'night' ? '#0a150a' : '#2d4a28';
+    ctx.beginPath();
+    ctx.moveTo(0, horizon);
+    for (let x = 0; x <= w; x += 6) {
+        const th = Math.sin((x + distanceFt * 0.05) * 0.08) * 8 + 10;
+        ctx.lineTo(x, horizon - th);
+    }
+    ctx.lineTo(w, horizon);
+    ctx.closePath();
+    ctx.fill();
+    
+    // ==================== GROUND ====================
+    const groundGrad = ctx.createLinearGradient(0, horizon, 0, h);
+    if (timeOfDay === 'night') {
+        groundGrad.addColorStop(0, '#1a2a1a');
+        groundGrad.addColorStop(0.4, '#152015');
+        groundGrad.addColorStop(1, '#0a150a');
+    } else {
+        groundGrad.addColorStop(0, '#5a8a4a');
+        groundGrad.addColorStop(0.3, '#4a7a3a');
+        groundGrad.addColorStop(1, '#3a6a2a');
+    }
+    ctx.fillStyle = groundGrad;
+    ctx.fillRect(0, horizon, w, h - horizon);
+    
+    // ==================== ROAD (Tiled segments) ====================
+    const roadWidth = 380;
+    const laneOffset = s.position.lane_offset * -180;
+    const curveIntensity = curveAmount * 120;
+    
+    // Road shoulder
+    ctx.fillStyle = '#1a1a1a';
+    ctx.beginPath();
+    ctx.moveTo(w/2 - roadWidth - 50 + laneOffset, h);
+    ctx.quadraticCurveTo(w/2 + curveIntensity * 0.6, h * 0.55, w/2 - 18 + curveIntensity, horizon);
+    ctx.lineTo(w/2 + 18 + curveIntensity, horizon);
+    ctx.quadraticCurveTo(w/2 + curveIntensity * 0.6, h * 0.55, w/2 + roadWidth + 50 + laneOffset, h);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Main road surface with asphalt texture
+    const roadGrad = ctx.createLinearGradient(0, horizon, 0, h);
+    roadGrad.addColorStop(0, '#4a4a4a');
+    roadGrad.addColorStop(0.3, '#3a3a3a');
+    roadGrad.addColorStop(0.7, '#2d2d2d');
+    roadGrad.addColorStop(1, '#252525');
+    ctx.fillStyle = roadGrad;
+    ctx.beginPath();
+    ctx.moveTo(w/2 - roadWidth + laneOffset, h);
+    ctx.quadraticCurveTo(w/2 + curveIntensity * 0.6, h * 0.55, w/2 - 15 + curveIntensity, horizon);
+    ctx.lineTo(w/2 + 15 + curveIntensity, horizon);
+    ctx.quadraticCurveTo(w/2 + curveIntensity * 0.6, h * 0.55, w/2 + roadWidth + laneOffset, h);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Road edge lines (white)
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(w/2 - roadWidth + 12 + laneOffset, h);
+    ctx.quadraticCurveTo(w/2 + curveIntensity * 0.6, h * 0.55, w/2 - 13 + curveIntensity, horizon);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(w/2 + roadWidth - 12 + laneOffset, h);
+    ctx.quadraticCurveTo(w/2 + curveIntensity * 0.6, h * 0.55, w/2 + 13 + curveIntensity, horizon);
+    ctx.stroke();
+    
+    // Center dashed lines (tiled)
+    ctx.strokeStyle = '#ffee00';
+    const lineScroll = (distanceFt % 40) / 40;
+    for (let i = 0; i < 30; i++) {
+        const t = (i / 30 + lineScroll * 0.033) % 1;
+        if (t < 0.015) continue;
+        
+        const perspective = Math.pow(t, 1.7);
+        const y1 = horizon + (h - horizon) * perspective;
+        const y2 = horizon + (h - horizon) * Math.pow(Math.min(1, t + 0.012), 1.7);
+        const xOff = curveIntensity * (1 - perspective);
+        const laneOff = laneOffset * perspective;
+        
+        if (i % 2 === 0 && y1 < h - 8) {
+            ctx.lineWidth = 2 + perspective * 5;
+            ctx.beginPath();
+            ctx.moveTo(w/2 + xOff + laneOff, y1);
+            ctx.lineTo(w/2 + xOff * 0.97 + laneOffset * Math.pow(Math.min(1, t + 0.012), 1.7), y2);
+            ctx.stroke();
+        }
+    }
+    
+    // ==================== SCENERY TILES ====================
+    const terrainType = (currentTile % 4 === 0) ? 'urban' : 
+                        (currentTile % 3 === 0) ? 'suburban' : 
+                        (currentTile % 2 === 0) ? 'highway' : 'forest';
+    
+    // Render scenery tiles
+    for (let tileNum = 0; tileNum < VISIBLE_TILES; tileNum++) {
+        const tileIndex = currentTile + tileNum;
+        const tileDistStart = (tileIndex * TILE_LENGTH_FT) - distanceFt;
+        
+        if (tileDistStart < -50 || tileDistStart > TILE_LENGTH_FT * VISIBLE_TILES) continue;
+        
+        // Get tile terrain type
+        const tileTerrain = (tileIndex % 4 === 0) ? 'urban' : 
+                            (tileIndex % 3 === 0) ? 'suburban' : 
+                            (tileIndex % 2 === 0) ? 'highway' : 'forest';
+        const tileScenery = SCENERY_TILES[tileTerrain] || SCENERY_TILES.forest;
+        
+        for (const item of tileScenery) {
+            const itemDist = tileDistStart + item.offset * TILE_LENGTH_FT;
+            if (itemDist < 20 || itemDist > 2500) continue;
+            
+            const t = 1 - (itemDist / 2500);
+            const perspective = Math.pow(t, 1.6);
+            const y = horizon + (h - horizon) * perspective * 0.85;
+            const scale = 0.15 + perspective * 0.85;
+            
+            const sideDir = item.side === 'left' ? -1 : 1;
+            const sideOffset = (roadWidth + 100 + item.variant * 30) * scale * sideDir;
+            const x = w/2 + sideOffset + curveIntensity * (1 - perspective) + laneOffset * perspective;
+            
+            drawSceneryItem(item.type, x, y, scale, item.variant, timeOfDay);
+        }
+    }
+    
+    // ==================== TRAFFIC LIGHTS (Tiled) ====================
+    for (let i = 0; i < 5; i++) {
+        const lightTile = Math.floor(currentTile / 8) * 8 + i * 8;
+        const lightDist = (lightTile * TILE_LENGTH_FT + TILE_LENGTH_FT / 2) - distanceFt;
+        
+        if (lightDist > 100 && lightDist < 600) {
+            const t = 1 - (lightDist / 600);
+            const perspective = Math.pow(t, 1.4);
+            const y = horizon + (h - horizon) * perspective * 0.75;
+            const scale = 0.25 + perspective * 0.75;
+            const x = w/2 + (roadWidth * 0.4) * scale + curveIntensity * (1 - perspective);
+            
+            // Traffic light state based on time
+            const lightPhase = Math.floor((frameTime + lightTile * 3) / 8) % 3;
+            const lightState = lightPhase === 0 ? 'green' : lightPhase === 1 ? 'yellow' : 'red';
+            
+            drawTrafficLight(x, y, scale, lightState, lightTile);
+        }
+    }
+    
+    // ==================== WEATHER EFFECTS ====================
+    if (weatherType === 'rain') {
+        while (rainDrops.length < 250) {
+            rainDrops.push({ 
+                x: Math.random() * w, 
+                y: Math.random() * h * 1.5 - h * 0.5,
+                speed: 12 + Math.random() * 8,
+                length: 12 + Math.random() * 18
+            });
+        }
+        
+        ctx.strokeStyle = 'rgba(180, 200, 230, 0.4)';
+        ctx.lineWidth = 1;
+        for (const drop of rainDrops) {
+            drop.y += drop.speed + speed * 0.1;
+            drop.x -= 2 + speed * 0.02;
+            if (drop.y > h || drop.x < -20) {
+                drop.y = -30;
+                drop.x = Math.random() * (w + 100);
+            }
+            ctx.beginPath();
+            ctx.moveTo(drop.x, drop.y);
+            ctx.lineTo(drop.x + 2, drop.y + drop.length);
+            ctx.stroke();
+        }
+        
+        // Wet road reflection
+        ctx.fillStyle = 'rgba(100, 120, 150, 0.15)';
+        ctx.beginPath();
+        ctx.moveTo(w/2 - roadWidth + laneOffset, h);
+        ctx.quadraticCurveTo(w/2 + curveIntensity * 0.6, h * 0.6, w/2 + curveIntensity, horizon);
+        ctx.quadraticCurveTo(w/2 + curveIntensity * 0.6, h * 0.6, w/2 + roadWidth + laneOffset, h);
+        ctx.fill();
+    }
+    
+    if (weatherType === 'fog') {
+        const fogGrad = ctx.createLinearGradient(0, horizon, 0, h);
+        fogGrad.addColorStop(0, 'rgba(180, 180, 190, 0.6)');
+        fogGrad.addColorStop(0.5, 'rgba(180, 180, 190, 0.3)');
+        fogGrad.addColorStop(1, 'rgba(180, 180, 190, 0.1)');
+        ctx.fillStyle = fogGrad;
+        ctx.fillRect(0, 0, w, h);
+    }
+    
+    // ==================== CAR ====================
+    drawCar(w, h, s, sub);
+    
+    // ==================== HUD ====================
+    drawHUD(w, h, s);
+}
+
+function drawSceneryItem(type, x, y, scale, variant, timeOfDay) {
+    if (scale < 0.1 || x < -100 || x > canvas.width + 100) return;
+    
+    switch (type) {
+        case 'tree':
+            const treeH = (25 + variant * 8) * scale;
+            const trunkW = 6 * scale;
+            // Trunk
+            ctx.fillStyle = '#5a4030';
+            ctx.fillRect(x - trunkW/2, y - treeH * 0.35, trunkW, treeH * 0.35);
+            // Foliage
+            const foliageColors = ['#1a4015', '#2a5a22', '#3a6a30'];
+            for (let layer = 0; layer < 3; layer++) {
+                ctx.fillStyle = timeOfDay === 'night' ? '#0a1a0a' : foliageColors[layer];
+                ctx.beginPath();
+                ctx.moveTo(x, y - treeH);
+                ctx.lineTo(x - treeH * (0.35 - layer * 0.06), y - treeH * (0.25 + layer * 0.12));
+                ctx.lineTo(x + treeH * (0.35 - layer * 0.06), y - treeH * (0.25 + layer * 0.12));
+                ctx.closePath();
+                ctx.fill();
+            }
+            break;
+            
+        case 'building':
+            const bldgH = (50 + variant * 15) * scale;
+            const bldgW = 35 * scale;
+            // Building body
+            ctx.fillStyle = timeOfDay === 'night' ? '#2a2a2a' : '#707070';
+            ctx.fillRect(x - bldgW/2, y - bldgH, bldgW, bldgH);
+            // Windows
+            const windowLit = timeOfDay === 'night';
+            const windowRows = 5;
+            const windowCols = 3;
+            for (let row = 0; row < windowRows; row++) {
+                for (let col = 0; col < windowCols; col++) {
+                    const lit = windowLit && Math.random() > 0.3;
+                    ctx.fillStyle = lit ? '#ffee88' : (windowLit ? '#222' : '#8ac');
+                    const wx = x - bldgW/2 + bldgW * 0.12 + col * (bldgW * 0.28);
+                    const wy = y - bldgH + bldgH * 0.08 + row * (bldgH * 0.18);
+                    ctx.fillRect(wx, wy, bldgW * 0.2, bldgH * 0.1);
+                }
+            }
+            break;
+            
+        case 'house':
+            const houseH = 30 * scale;
+            const houseW = 40 * scale;
+            // House body
+            ctx.fillStyle = timeOfDay === 'night' ? '#3a3030' : '#c9b896';
+            ctx.fillRect(x - houseW/2, y - houseH * 0.6, houseW, houseH * 0.6);
+            // Roof
+            ctx.fillStyle = timeOfDay === 'night' ? '#2a2020' : '#8b4513';
+            ctx.beginPath();
+            ctx.moveTo(x - houseW/2 - 5 * scale, y - houseH * 0.6);
+            ctx.lineTo(x, y - houseH);
+            ctx.lineTo(x + houseW/2 + 5 * scale, y - houseH * 0.6);
+            ctx.closePath();
+            ctx.fill();
+            // Window
+            ctx.fillStyle = timeOfDay === 'night' ? '#ffe066' : '#88aacc';
+            ctx.fillRect(x - houseW * 0.15, y - houseH * 0.45, houseW * 0.3, houseH * 0.2);
+            break;
+            
+        case 'lamppost':
+            const postH = 28 * scale;
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 2 * scale;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y - postH);
+            ctx.stroke();
+            // Light
+            ctx.fillStyle = timeOfDay === 'night' ? '#ffee88' : '#666';
+            ctx.beginPath();
+            ctx.arc(x, y - postH, 4 * scale, 0, Math.PI * 2);
+            ctx.fill();
+            if (timeOfDay === 'night') {
+                // Light glow
+                ctx.fillStyle = 'rgba(255, 238, 136, 0.2)';
+                ctx.beginPath();
+                ctx.arc(x, y - postH, 15 * scale, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            break;
+            
+        case 'sign':
+            const signH = 20 * scale;
+            ctx.fillStyle = '#333';
+            ctx.fillRect(x - 2 * scale, y - signH, 4 * scale, signH);
+            ctx.fillStyle = '#006400';
+            ctx.fillRect(x - 20 * scale, y - signH - 10 * scale, 40 * scale, 10 * scale);
+            ctx.fillStyle = '#fff';
+            ctx.font = `${6 * scale}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.fillText('EXIT 42', x, y - signH - 3 * scale);
+            break;
+    }
+}
+
+function drawTrafficLight(x, y, scale, state, seed) {
+    // Pole
+    ctx.fillStyle = '#333';
+    ctx.fillRect(x - 3 * scale, y - 70 * scale, 6 * scale, 70 * scale);
+    ctx.fillRect(x - 35 * scale, y - 70 * scale, 35 * scale, 5 * scale);
+    
+    // Housing
+    const lx = x - 30 * scale;
+    const ly = y - 75 * scale;
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(lx - 8 * scale, ly - 30 * scale, 16 * scale, 35 * scale);
+    
+    // Lights
+    const lightColors = [
+        state === 'red' ? '#ff0000' : '#400000',
+        state === 'yellow' ? '#ffff00' : '#404000',
+        state === 'green' ? '#00ff00' : '#004000'
+    ];
+    for (let i = 0; i < 3; i++) {
+        ctx.fillStyle = lightColors[i];
+        ctx.beginPath();
+        ctx.arc(lx, ly - 20 * scale + i * 10 * scale, 4 * scale, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    // Street sign
+    const streets = ['Oak St', 'Main Ave', 'Elm Rd', 'Pine Dr', 'Cedar Ln'];
+    ctx.fillStyle = '#006400';
+    ctx.fillRect(x - 38 * scale, y - 55 * scale, 40 * scale, 10 * scale);
+    ctx.fillStyle = '#fff';
+    ctx.font = `${6 * scale}px Arial`;
+    ctx.textAlign = 'left';
+    ctx.fillText(streets[seed % streets.length], x - 36 * scale, y - 47 * scale);
+}
+
+function drawCar(w, h, s, sub) {
+    const carX = w/2 + s.position.lane_offset * 150;
+    const carY = h - 55;
+    const speed = s.dynamics.speed_mph;
+    const braking = s.controls.brake > 0.1;
+    
+    // Shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.beginPath();
+    ctx.ellipse(carX, carY + 8, 65, 12, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Car colors by make
+    const carColors = {
+        'Toyota': '#b8b8b8', 'Ford': '#1a3f6b', 'Chevrolet': '#c41e3a',
+        'Tesla': '#1a1a1a', 'Honda': '#2d2d2d', 'BMW': '#0066b1',
+        'Porsche': '#c4a000', 'Dodge': '#b22222'
+    };
+    const bodyColor = sub ? (carColors[sub.make] || '#555') : '#555';
+    
+    // Body
+    ctx.fillStyle = bodyColor;
+    ctx.beginPath();
+    ctx.moveTo(carX - 58, carY);
+    ctx.lineTo(carX - 52, carY - 22);
+    ctx.lineTo(carX - 42, carY - 38);
+    ctx.lineTo(carX - 32, carY - 52);
+    ctx.lineTo(carX + 32, carY - 52);
+    ctx.lineTo(carX + 42, carY - 38);
+    ctx.lineTo(carX + 52, carY - 22);
+    ctx.lineTo(carX + 58, carY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // Rear window
+    const winGrad = ctx.createLinearGradient(carX - 28, carY - 50, carX + 28, carY - 36);
+    winGrad.addColorStop(0, '#1a3a5a');
+    winGrad.addColorStop(0.5, '#2a5a8a');
+    winGrad.addColorStop(1, '#1a4a6a');
+    ctx.fillStyle = winGrad;
+    ctx.beginPath();
+    ctx.moveTo(carX - 26, carY - 36);
+    ctx.lineTo(carX - 29, carY - 49);
+    ctx.lineTo(carX + 29, carY - 49);
+    ctx.lineTo(carX + 26, carY - 36);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Taillights
+    ctx.fillStyle = braking ? '#ff0000' : '#660000';
+    ctx.beginPath();
+    ctx.moveTo(carX - 52, carY - 22);
+    ctx.lineTo(carX - 48, carY - 32);
+    ctx.lineTo(carX - 40, carY - 32);
+    ctx.lineTo(carX - 43, carY - 22);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(carX + 52, carY - 22);
+    ctx.lineTo(carX + 48, carY - 32);
+    ctx.lineTo(carX + 40, carY - 32);
+    ctx.lineTo(carX + 43, carY - 22);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Brake glow
+    if (braking) {
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.25)';
+        ctx.beginPath();
+        ctx.ellipse(carX - 46, carY - 27, 12, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(carX + 46, carY - 27, 12, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    // License plate
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(carX - 16, carY - 10, 32, 9);
+    ctx.fillStyle = '#000';
+    ctx.font = '7px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(sub ? sub.model.toUpperCase().substring(0, 7) : 'CAR', carX, carY - 3);
+    
+    // Exhaust at high RPM
+    if (s.engine.rpm > 4500 && s.controls.throttle > 0.4) {
+        ctx.fillStyle = 'rgba(140, 140, 140, 0.2)';
+        for (let i = 0; i < 4; i++) {
+            const ex = carX - 18 + Math.sin(frameTime * 12 + i) * 4;
+            const ey = carY + 6 + i * 6;
+            ctx.beginPath();
+            ctx.arc(ex, ey, 4 + i * 2.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+}
+
+function drawHUD(w, h, s) {
+    // Control hints when parked
+    if (s.controls.gear === 0) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+        ctx.fillRect(w/2 - 145, h/2 - 55, 290, 110);
+        ctx.strokeStyle = '#58a6ff';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(w/2 - 145, h/2 - 55, 290, 110);
+        ctx.fillStyle = '#58a6ff';
+        ctx.font = 'bold 16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('DIMENSIONAL CAR SIMULATOR', w/2, h/2 - 32);
+        ctx.font = '13px Arial';
+        ctx.fillStyle = '#fff';
+        ctx.fillText('Press D to Drive | P to Park | R to Reverse', w/2, h/2 - 8);
+        ctx.fillText('W = Accelerate | S = Brake | A/D = Steer', w/2, h/2 + 15);
+        ctx.fillText('Mouse: Right=Gas | Left=Brake | X=Steer', w/2, h/2 + 38);
+    }
+    
+    // Speed/Gear HUD
+    ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+    ctx.fillRect(10, 10, 115, 52);
+    ctx.strokeStyle = '#58a6ff';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(10, 10, 115, 52);
+    ctx.fillStyle = '#0f0';
+    ctx.font = 'bold 22px monospace';
+    ctx.fillText(`${Math.round(s.dynamics.speed_mph)} MPH`, 18, 36);
+    ctx.font = '13px monospace';
+    const gearText = s.controls.gear === 0 ? 'P' : s.controls.gear === -1 ? 'R' : 'D';
+    ctx.fillStyle = '#58a6ff';
+    ctx.fillText(`Gear: ${gearText}`, 18, 54);
+    
+    // === HELIX STATE HUD ===
+    const hs = car.helixState;
+    const levelIcons = ['○', '•', '━', '▭', '▦', '▣', '◉'];
+    const levelNames = ['Potential', 'Point', 'Length', 'Width', 'Plane', 'Volume', 'Whole'];
+    
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+    ctx.fillRect(w - 180, 10, 170, 90);
+    ctx.strokeStyle = '#ff6b35';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(w - 180, 10, 170, 90);
+    
+    ctx.fillStyle = '#ff6b35';
+    ctx.font = 'bold 12px Arial';
+    ctx.textAlign = 'right';
+    ctx.fillText('HELIX STATE', w - 18, 28);
+    
+    ctx.fillStyle = '#00d4ff';
+    ctx.font = 'bold 28px monospace';
+    ctx.fillText(`(${hs.spiral}, ${hs.level})`, w - 18, 56);
+    
+    ctx.fillStyle = '#fff';
+    ctx.font = '14px Arial';
+    ctx.fillText(`${levelIcons[hs.level]} ${levelNames[hs.level]}`, w - 18, 78);
+    
+    // Level bar visualization
+    const barX = w - 175;
+    const barY = 84;
+    for (let i = 0; i <= 6; i++) {
+        ctx.fillStyle = i === hs.level ? '#00d4ff' : '#333';
+        ctx.beginPath();
+        ctx.arc(barX + i * 23, barY, 7, 0, Math.PI * 2);
+        ctx.fill();
+        if (i === hs.level) {
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+    }
+    
+    // Keys hint for helix control
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    ctx.fillRect(w - 180, 105, 170, 22);
+    ctx.fillStyle = '#888';
+    ctx.font = '10px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('1-7=Level | 8=UP | 9=DOWN | 0=COLLAPSE', w - 95, 119);
+}
+
+// Fallback render function if environment substrate isn't available
+function drawRoadFallback() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const s = car.getState();
+    const horizon = h * 0.38;
+    
+    // Simple sky
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, horizon);
+    skyGrad.addColorStop(0, '#1e90ff');
+    skyGrad.addColorStop(1, '#87ceeb');
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, w, horizon);
+    
+    // Simple ground
+    ctx.fillStyle = '#4a7c3f';
+    ctx.fillRect(0, horizon, w, h - horizon);
+    
+    // Simple road
+    ctx.fillStyle = '#333';
+    ctx.beginPath();
+    ctx.moveTo(w/2 - 400, h);
+    ctx.lineTo(w/2 - 15, horizon);
+    ctx.lineTo(w/2 + 15, horizon);
+    ctx.lineTo(w/2 + 400, h);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Road lines
+    const lineOffset = (s.position.distance_ft % 60) / 60;
+    ctx.strokeStyle = '#ffff00';
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 20; i++) {
+        const t = (i / 20 + lineOffset * 0.05) % 1;
+        const y = horizon + (h - horizon) * t;
+        if (i % 2 === 0) {
+            ctx.beginPath();
+            ctx.moveTo(w/2, y);
+            ctx.lineTo(w/2, y + 15);
+            ctx.stroke();
+        }
+    }
+    
+    // Car
+    const carX = w/2 + s.position.lane_offset * 150;
+    const carY = h - 50;
+    ctx.fillStyle = '#c00';
+    ctx.fillRect(carX - 50, carY - 40, 100, 40);
+    ctx.fillStyle = '#800';
+    ctx.fillRect(carX - 35, carY - 55, 70, 20);
+    
+    // HUD
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillRect(10, 10, 120, 50);
+    ctx.fillStyle = '#0f0';
+    ctx.font = 'bold 24px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(`${Math.round(s.dynamics.speed_mph)} MPH`, 20, 38);
+    ctx.font = '14px monospace';
+    const gearText = s.controls.gear === 0 ? 'P' : s.controls.gear === -1 ? 'R' : 'D';
+    ctx.fillText(`Gear: ${gearText}`, 20, 55);
+    
+    // Parked hint
+    if (s.controls.gear === 0) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(w/2 - 120, h/2 - 40, 240, 80);
+        ctx.fillStyle = '#fff';
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Press D to Drive', w/2, h/2);
+        ctx.fillText('W = Accel | S = Brake', w/2, h/2 + 25);
+    }
+}
+
+// Spec query handler
+function handleSpecQuery() {
+    const input = document.getElementById('specInput');
+    const result = document.getElementById('specResult');
+    const query = input.value.trim();
+    
+    if (!query) {
+        result.innerHTML = '<span style="color: var(--text-secondary);">Enter a dimensional path...</span>';
+        return;
+    }
+    
+    // Normalize path
+    let path = query;
+    if (!path.startsWith('car.')) path = 'car.' + path;
+    
+    const measurement = car.measureDynamic(path);
+    
+    if (measurement.error) {
+        result.innerHTML = `<div style="color: var(--accent-red);">Error: ${measurement.error}</div><div class="dimensional-path">${measurement.path}</div>`;
+    } else {
+        const valueStr = typeof measurement.value === 'object' 
+            ? JSON.stringify(measurement.value, null, 2) 
+            : measurement.value;
+        
+        result.innerHTML = `
+            <div class="dimensional-path" style="margin-bottom: 4px;">${measurement.path}</div>
+            <div class="measurement-value" style="font-size: 14px;">${valueStr}</div>
+        `;
+        
+        logAccess(measurement.path, measurement.value);
+    }
+    
+    input.value = '';
+}
+
+// Controls - MULTIPLE INPUT METHODS
+// Canvas events for mouse
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    mouseX = (e.clientX - rect.left) / rect.width;
+});
+canvas.addEventListener('mousedown', e => {
+    e.preventDefault();
+    if (e.button === 2) isAccelerating = true;
+    else if (e.button === 0) isBraking = true;
+    console.log('Mouse:', e.button === 2 ? 'ACCELERATE' : 'BRAKE');
+});
+canvas.addEventListener('mouseup', e => {
+    if (e.button === 2) isAccelerating = false;
+    else if (e.button === 0) isBraking = false;
+});
+canvas.addEventListener('mouseleave', () => { isAccelerating = false; isBraking = false; });
+
+// ALSO add body-level events as fallback
+document.body.addEventListener('contextmenu', e => e.preventDefault());
+document.body.addEventListener('mousedown', e => {
+    if (e.button === 2) { isAccelerating = true; e.preventDefault(); }
+});
+document.body.addEventListener('mouseup', e => {
+    if (e.button === 2) isAccelerating = false;
+    if (e.button === 0) isBraking = false;
+});
+
+// KEYBOARD controls for acceleration (W/S or Arrow keys)
+let keyAccel = false;
+let keyBrake = false;
+
+document.addEventListener('keydown', e => {
+    switch (e.key.toLowerCase()) {
+        case 'p': car.setGear(0); break;
+        case 'r': car.setGear(-1); break;
+        case 'd': car.setGear(1); break;
+        case 't': 
+            car.getState().trip.distance_ft = 0;
+            car.getState().fuel.consumed_gal = 0;
+            break;
+        case 'w': case 'arrowup': 
+            keyAccel = true; 
+            console.log('KEY ACCEL ON');
+            break;
+        case 's': case 'arrowdown': 
+            keyBrake = true; 
+            console.log('KEY BRAKE ON');
+            break;
+        case 'a': case 'arrowleft':
+            mouseX = Math.max(0, mouseX - 0.05);
+            break;
+        case 'arrowright':
+            mouseX = Math.min(1, mouseX + 0.05);
+            break;
+            
+        // === HELIX KERNEL CONTROLS ===
+        case '1': car.invoke(0); console.log('INVOKE(0) Potential'); break;
+        case '2': car.invoke(1); console.log('INVOKE(1) Point'); break;
+        case '3': car.invoke(2); console.log('INVOKE(2) Length'); break;
+        case '4': car.invoke(3); console.log('INVOKE(3) Width'); break;
+        case '5': car.invoke(4); console.log('INVOKE(4) Plane'); break;
+        case '6': car.invoke(5); console.log('INVOKE(5) Volume'); break;
+        case '7': car.invoke(6); console.log('INVOKE(6) Whole'); break;
+        case '8': 
+            try { car.spiralUp(); console.log('SPIRAL_UP'); } 
+            catch(e) { console.log('SPIRAL_UP failed:', e.message); }
+            break;
+        case '9': 
+            try { car.spiralDown(); console.log('SPIRAL_DOWN'); } 
+            catch(e) { console.log('SPIRAL_DOWN failed:', e.message); }
+            break;
+        case '0': car.collapse(); console.log('COLLAPSE'); break;
+    }
+});
+
+document.addEventListener('keyup', e => {
+    switch (e.key.toLowerCase()) {
+        case 'w': case 'arrowup': keyAccel = false; break;
+        case 's': case 'arrowdown': keyBrake = false; break;
+    }
+});
+
+document.getElementById('carSelector').addEventListener('change', e => instantiateCar(e.target.value));
+document.getElementById('specBtn').addEventListener('click', handleSpecQuery);
+document.getElementById('specInput').addEventListener('keydown', e => { if (e.key === 'Enter') handleSpecQuery(); });
+
+// Weather and time controls
+document.getElementById('weatherSelector').addEventListener('change', e => {
+    if (car) {
+        const env = car.getSubstrate().environment;
+        env.weather.type = e.target.value;
+        if (e.target.value === 'rain') {
+            env.road.condition = 'wet';
+            env.road.grip_multiplier = 0.7;
+        } else {
+            env.road.condition = 'dry';
+            env.road.grip_multiplier = 1.0;
+        }
+        console.log('Weather changed:', e.target.value);
+    }
+});
+
+document.getElementById('timeSelector').addEventListener('change', e => {
+    if (car) {
+        car.getSubstrate().environment.weather.sky.time_of_day = e.target.value;
+        console.log('Time of day:', e.target.value);
+    }
+});
+
+// Game loop
+function gameLoop(currentTime) {
+    if (!car) {
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+    
+    const dt = Math.min((currentTime - lastTime) / 1000, 0.1);
+    lastTime = currentTime;
+    
+    // Calculate effective throttle and brake from multiple inputs
+    const effectiveThrottle = (isAccelerating || keyAccel) ? 0.8 : 0;
+    const effectiveBrake = (isBraking || keyBrake) ? 0.7 : 0;
+    
+    // Transform the substrate
+    car.transform(dt, {
+        throttle: effectiveThrottle,
+        brake: effectiveBrake,
+        steering: (mouseX - 0.5) * 2
+    });
+    
+    // Render (which triggers measurements)
+    drawRoad();
+    updateDashboard();
+    updateTelemetry();
+    
+    requestAnimationFrame(gameLoop);
+}
+
+// Initialize
+instantiateCar('camry');
+requestAnimationFrame(gameLoop);
+
+console.log('🦋 ButterflyFX Dimensional Car Simulator');
+console.log('   PARADIGM: All attributes EXIST at instantiation');
+console.log('   Values only MATERIALIZE when MEASURED');
+console.log('   Every measurement shows dimensional path traversal');
+</script>
+</body>
+</html>

@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX - Dimensional Universe</title>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --card: rgba(20, 20, 35, 0.9);
+            --primary: #8b5cf6;
+            --secondary: #6366f1;
+            --accent: #f472b6;
+            --success: #10b981;
+            --text: #f1f5f9;
+            --text-dim: #94a3b8;
+            --glow: rgba(139, 92, 246, 0.5);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+        
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, var(--bg), transparent);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            font-size: 32px;
+        }
+        
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .logo-sub {
+            font-size: 12px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+        }
+        
+        /* Dimension indicator */
+        .dimension-indicator {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+        }
+        
+        .dim-level {
+            font-size: 72px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 60px var(--glow);
+            line-height: 1;
+        }
+        
+        .dim-name {
+            font-size: 24px;
+            color: var(--text);
+            margin-top: 5px;
+        }
+        
+        .dim-location {
+            font-size: 16px;
+            color: var(--text-dim);
+            margin-top: 10px;
+        }
+        
+        .dim-address {
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            color: var(--accent);
+            margin-top: 5px;
+            padding: 5px 15px;
+            background: rgba(244, 114, 182, 0.1);
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        /* Navigation breadcrumb */
+        .breadcrumb {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+            background: var(--card);
+            padding: 15px 25px;
+            border-radius: 30px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            max-width: 90%;
+            overflow-x: auto;
+        }
+        
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .breadcrumb-item:hover {
+            background: rgba(139, 92, 246, 0.3);
+        }
+        
+        .breadcrumb-item.current {
+            background: var(--primary);
+        }
+        
+        .breadcrumb-dim {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+        
+        .breadcrumb-arrow {
+            color: var(--text-dim);
+        }
+        
+        /* Navigation controls */
+        .nav-controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+        
+        .nav-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-btn.up {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .nav-btn.up:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px var(--glow);
+        }
+        
+        .nav-btn.create {
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            color: white;
+        }
+        
+        .nav-btn.create:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(244, 114, 182, 0.5);
+        }
+        
+        .nav-btn.demo {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        /* Side panel - object list */
+        .side-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 320px;
+            max-height: calc(100vh - 200px);
+            background: var(--card);
+            border-radius: 20px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            z-index: 100;
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .panel-count {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+        
+        .object-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .object-item {
+            padding: 15px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        
+        .object-item:hover {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: var(--primary);
+        }
+        
+        .object-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .object-inner-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            background: var(--accent);
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .object-address {
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            color: var(--secondary);
+        }
+        
+        .object-props {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 5px;
+        }
+        
+        /* Stats panel */
+        .stats-panel {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            background: var(--card);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            z-index: 100;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 13px;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            padding: 15px 20px;
+            background: var(--card);
+            border: 1px solid var(--primary);
+            border-radius: 15px;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            max-width: 300px;
+        }
+        
+        .tooltip.visible {
+            opacity: 1;
+        }
+        
+        .tooltip-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .tooltip-address {
+            font-family: monospace;
+            color: var(--accent);
+            font-size: 12px;
+        }
+        
+        .tooltip-hint {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+        
+        /* Create modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .modal-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal {
+            background: var(--card);
+            border-radius: 25px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid var(--primary);
+        }
+        
+        .modal h2 {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .modal input {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.1);
+            color: var(--text);
+            font-size: 16px;
+            margin-bottom: 15px;
+            outline: none;
+        }
+        
+        .modal input:focus {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal-buttons button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .modal-buttons .cancel {
+            background: rgba(255,255,255,0.1);
+            color: var(--text);
+        }
+        
+        .modal-buttons .confirm {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Loading */
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 500;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(139, 92, 246, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Instructions */
+        .instructions {
+            position: fixed;
+            bottom: 200px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 14px;
+            z-index: 50;
+        }
+        
+        kbd {
+            padding: 3px 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">🦋</span>
+            <div>
+                <div class="logo-text">ButterflyFX</div>
+                <div class="logo-sub">DIMENSIONAL UNIVERSE</div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Dimension Indicator -->
+    <div class="dimension-indicator">
+        <div class="dim-level" id="dimLevel">3</div>
+        <div class="dim-name" id="dimName">World</div>
+        <div class="dim-location" id="dimLocation">Origin World</div>
+        <div class="dim-address" id="dimAddress">τ(3,0.000,0.000,0.000)</div>
+    </div>
+    
+    <!-- Stats Panel -->
+    <div class="stats-panel">
+        <div class="stat-row">
+            <span class="stat-label">Total Points</span>
+            <span class="stat-value" id="statTotal">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Current Depth</span>
+            <span class="stat-value" id="statDepth">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Objects Here</span>
+            <span class="stat-value" id="statObjects">0</span>
+        </div>
+    </div>
+    
+    <!-- Side Panel -->
+    <div class="side-panel">
+        <div class="panel-header">
+            <span class="panel-title">Inner Universe</span>
+            <span class="panel-count" id="innerCount">0 points</span>
+        </div>
+        <div class="object-list" id="objectList">
+            <!-- Populated dynamically -->
+        </div>
+    </div>
+    
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb" id="breadcrumb">
+        <!-- Populated dynamically -->
+    </div>
+    
+    <!-- Navigation Controls -->
+    <div class="nav-controls">
+        <button class="nav-btn up" id="btnUp" onclick="drillUp()">
+            <span>↑</span> Ascend Dimension
+        </button>
+        <button class="nav-btn create" onclick="showCreateModal()">
+            <span>✦</span> Create
+        </button>
+        <button class="nav-btn demo" onclick="populateDemo()">
+            <span>✧</span> Populate Demo
+        </button>
+    </div>
+    
+    <!-- Instructions -->
+    <div class="instructions">
+        Click any object to <strong>drill down</strong> into its inner universe<br>
+        <kbd>↑</kbd> to ascend &nbsp; <kbd>Click</kbd> to descend &nbsp; <kbd>Scroll</kbd> to zoom
+    </div>
+    
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-title" id="tooltipTitle">Object</div>
+        <div class="tooltip-address" id="tooltipAddress">τ(0,0,0)</div>
+        <div class="tooltip-hint">Click to enter inner universe</div>
+    </div>
+    
+    <!-- Create Modal -->
+    <div class="modal-overlay" id="createModal">
+        <div class="modal">
+            <h2>✦ Create New Point</h2>
+            <p style="color: var(--text-dim); margin-bottom: 20px;">
+                This point will contain its own inner universe (Dimension <span id="newDimLevel">2</span>)
+            </p>
+            <input type="text" id="createName" placeholder="Name your creation...">
+            <input type="text" id="createType" placeholder="Type (optional: building, vehicle, entity...)">
+            <div class="modal-buttons">
+                <button class="cancel" onclick="hideCreateModal()">Cancel</button>
+                <button class="confirm" onclick="createPoint()">Create</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading -->
+    <div class="loading" id="loading" style="display: none;">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <script>
+        const API = '';
+        let scene, camera, renderer, controls;
+        let objects = [];
+        let currentData = null;
+        
+        // Initialize Three.js
+        function initThree() {
+            const container = document.getElementById('canvas-container');
+            
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a0f);
+            scene.fog = new THREE.Fog(0x0a0a0f, 20, 80);
+            
+            // Camera
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 15, 25);
+            
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+            
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxDistance = 100;
+            controls.minDistance = 5;
+            
+            // Lights
+            const ambient = new THREE.AmbientLight(0x404060, 0.5);
+            scene.add(ambient);
+            
+            const point1 = new THREE.PointLight(0x8b5cf6, 1, 50);
+            point1.position.set(10, 20, 10);
+            scene.add(point1);
+            
+            const point2 = new THREE.PointLight(0xf472b6, 0.8, 50);
+            point2.position.set(-10, 15, -10);
+            scene.add(point2);
+            
+            // Grid
+            const gridHelper = new THREE.GridHelper(50, 50, 0x333355, 0x222233);
+            scene.add(gridHelper);
+            
+            // Center glow
+            const centerGeom = new THREE.SphereGeometry(0.5, 32, 32);
+            const centerMat = new THREE.MeshBasicMaterial({ 
+                color: 0x8b5cf6, 
+                transparent: true, 
+                opacity: 0.3 
+            });
+            const center = new THREE.Mesh(centerGeom, centerMat);
+            center.position.y = 0.5;
+            scene.add(center);
+            
+            // Raycaster for clicks
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            
+            renderer.domElement.addEventListener('click', (e) => {
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(objects);
+                
+                if (intersects.length > 0) {
+                    const obj = intersects[0].object;
+                    if (obj.userData.pointId) {
+                        drillDown(obj.userData.pointId);
+                    }
+                }
+            });
+            
+            // Hover tooltip
+            renderer.domElement.addEventListener('mousemove', (e) => {
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(objects);
+                
+                const tooltip = document.getElementById('tooltip');
+                
+                if (intersects.length > 0) {
+                    const obj = intersects[0].object;
+                    const data = obj.userData;
+                    
+                    document.getElementById('tooltipTitle').textContent = data.name || 'Point';
+                    document.getElementById('tooltipAddress').textContent = data.address || 'τ(?)';
+                    
+                    tooltip.style.left = e.clientX + 20 + 'px';
+                    tooltip.style.top = e.clientY + 20 + 'px';
+                    tooltip.classList.add('visible');
+                    
+                    document.body.style.cursor = 'pointer';
+                } else {
+                    tooltip.classList.remove('visible');
+                    document.body.style.cursor = 'default';
+                }
+            });
+            
+            // Handle resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+            
+            animate();
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            
+            // Animate objects
+            objects.forEach((obj, i) => {
+                obj.rotation.y += 0.002;
+                obj.position.y = obj.userData.baseY + Math.sin(Date.now() * 0.001 + i) * 0.2;
+            });
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Clear scene objects
+        function clearObjects() {
+            objects.forEach(obj => scene.remove(obj));
+            objects = [];
+        }
+        
+        // Create 3D object for a point
+        function createObject(point) {
+            const props = point.properties || {};
+            const type = props.type || 'default';
+            
+            let geometry, material;
+            
+            // Choose geometry based on type
+            switch(type) {
+                case 'building':
+                    geometry = new THREE.BoxGeometry(2, 4, 2);
+                    break;
+                case 'vehicle':
+                    geometry = new THREE.ConeGeometry(1, 2, 8);
+                    break;
+                case 'organic':
+                case 'plant':
+                    geometry = new THREE.IcosahedronGeometry(1.5, 1);
+                    break;
+                case 'storage':
+                case 'data':
+                    geometry = new THREE.OctahedronGeometry(1.2);
+                    break;
+                default:
+                    geometry = new THREE.DodecahedronGeometry(1.2);
+            }
+            
+            // Color based on inner universe size
+            const innerCount = point.inner_count || 0;
+            const hue = (innerCount * 0.05) % 1;
+            const color = new THREE.Color().setHSL(hue + 0.7, 0.8, 0.5);
+            
+            material = new THREE.MeshPhongMaterial({
+                color: color,
+                emissive: color,
+                emissiveIntensity: 0.2,
+                transparent: true,
+                opacity: 0.9,
+                shininess: 100
+            });
+            
+            const mesh = new THREE.Mesh(geometry, material);
+            
+            // Position
+            const pos = point.position || [0, 0, 0];
+            mesh.position.set(pos[0], 2, pos[2] || pos[1] || 0);
+            mesh.userData = {
+                pointId: point.id,
+                name: point.name,
+                address: point.address,
+                baseY: 2,
+                innerCount: innerCount
+            };
+            
+            // Scale based on inner universe
+            const scale = 1 + Math.log(innerCount + 1) * 0.2;
+            mesh.scale.setScalar(scale);
+            
+            // Add glow ring if has inner universe
+            if (innerCount > 0) {
+                const ringGeom = new THREE.RingGeometry(1.5 * scale, 1.8 * scale, 32);
+                const ringMat = new THREE.MeshBasicMaterial({
+                    color: 0xf472b6,
+                    transparent: true,
+                    opacity: 0.5,
+                    side: THREE.DoubleSide
+                });
+                const ring = new THREE.Mesh(ringGeom, ringMat);
+                ring.rotation.x = -Math.PI / 2;
+                ring.position.y = 0.1;
+                mesh.add(ring);
+            }
+            
+            scene.add(mesh);
+            objects.push(mesh);
+            
+            return mesh;
+        }
+        
+        // Update visualization
+        function updateVisualization(data) {
+            currentData = data;
+            clearObjects();
+            
+            // Update dimension indicator
+            document.getElementById('dimLevel').textContent = data.current.dimension;
+            document.getElementById('dimName').textContent = data.current.dimension_name;
+            document.getElementById('dimLocation').textContent = data.current.name;
+            document.getElementById('dimAddress').textContent = data.current.address;
+            
+            // Update stats
+            document.getElementById('statTotal').textContent = data.stats.total_points;
+            document.getElementById('statDepth').textContent = data.path.length;
+            document.getElementById('statObjects').textContent = data.inner_points.length;
+            document.getElementById('innerCount').textContent = data.inner_points.length + ' points';
+            
+            // Update drill up button
+            document.getElementById('btnUp').disabled = !data.can_drill_up;
+            
+            // Update new dimension level in modal
+            document.getElementById('newDimLevel').textContent = data.current.dimension - 1;
+            
+            // Create objects for inner points
+            data.inner_points.forEach(point => {
+                createObject(point);
+            });
+            
+            // Update object list
+            const list = document.getElementById('objectList');
+            if (data.inner_points.length === 0) {
+                list.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: var(--text-dim);">
+                        <div style="font-size: 40px; margin-bottom: 10px;">∅</div>
+                        Empty universe<br>
+                        <small>Create something!</small>
+                    </div>
+                `;
+            } else {
+                list.innerHTML = data.inner_points.map(point => `
+                    <div class="object-item" onclick="drillDown('${point.id}')">
+                        <div class="object-name">
+                            ${point.name}
+                            ${point.inner_count > 0 ? `<span class="object-inner-badge">${point.inner_count} inner</span>` : ''}
+                        </div>
+                        <div class="object-address">${point.address}</div>
+                        ${point.properties.type ? `<div class="object-props">Type: ${point.properties.type}</div>` : ''}
+                    </div>
+                `).join('');
+            }
+            
+            // Update breadcrumb
+            const breadcrumb = document.getElementById('breadcrumb');
+            breadcrumb.innerHTML = data.path.map((step, i) => `
+                ${i > 0 ? '<span class="breadcrumb-arrow">→</span>' : ''}
+                <div class="breadcrumb-item ${i === data.path.length - 1 ? 'current' : ''}" 
+                     onclick="gotoPoint('${step.id}')">
+                    <span class="breadcrumb-dim">D${step.dimension}</span>
+                    <span>${step.name}</span>
+                </div>
+            `).join('');
+        }
+        
+        // API calls
+        async function loadUniverse() {
+            showLoading();
+            try {
+                const res = await fetch(`${API}/api/universe`);
+                const data = await res.json();
+                if (data.success) {
+                    updateVisualization(data);
+                }
+            } catch (e) {
+                console.error('Failed to load universe:', e);
+            }
+            hideLoading();
+        }
+        
+        async function drillDown(pointId) {
+            showLoading();
+            try {
+                const res = await fetch(`${API}/api/drill/down/${pointId}`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    updateVisualization(data);
+                    // Animate camera
+                    animateCamera();
+                }
+            } catch (e) {
+                console.error('Failed to drill down:', e);
+            }
+            hideLoading();
+        }
+        
+        async function drillUp() {
+            showLoading();
+            try {
+                const res = await fetch(`${API}/api/drill/up`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    updateVisualization(data);
+                    animateCamera();
+                }
+            } catch (e) {
+                console.error('Failed to drill up:', e);
+            }
+            hideLoading();
+        }
+        
+        async function gotoPoint(pointId) {
+            showLoading();
+            try {
+                const res = await fetch(`${API}/api/goto/${pointId}`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    updateVisualization(data);
+                }
+            } catch (e) {
+                console.error('Failed to goto:', e);
+            }
+            hideLoading();
+        }
+        
+        async function createPoint() {
+            const name = document.getElementById('createName').value.trim() || 'New Point';
+            const type = document.getElementById('createType').value.trim();
+            
+            hideCreateModal();
+            showLoading();
+            
+            try {
+                const res = await fetch(`${API}/api/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: name,
+                        properties: type ? { type: type } : {}
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    updateVisualization(data);
+                }
+            } catch (e) {
+                console.error('Failed to create:', e);
+            }
+            
+            hideLoading();
+            document.getElementById('createName').value = '';
+            document.getElementById('createType').value = '';
+        }
+        
+        async function populateDemo() {
+            showLoading();
+            try {
+                const res = await fetch(`${API}/api/demo/populate`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    updateVisualization(data);
+                }
+            } catch (e) {
+                console.error('Failed to populate:', e);
+            }
+            hideLoading();
+        }
+        
+        function animateCamera() {
+            // Simple zoom effect
+            const targetZ = camera.position.z;
+            camera.position.z = targetZ + 5;
+            
+            function ease() {
+                camera.position.z += (targetZ - camera.position.z) * 0.1;
+                if (Math.abs(camera.position.z - targetZ) > 0.1) {
+                    requestAnimationFrame(ease);
+                }
+            }
+            ease();
+        }
+        
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        function showCreateModal() {
+            document.getElementById('createModal').classList.add('visible');
+            document.getElementById('createName').focus();
+        }
+        
+        function hideCreateModal() {
+            document.getElementById('createModal').classList.remove('visible');
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'Escape') {
+                if (document.getElementById('createModal').classList.contains('visible')) {
+                    hideCreateModal();
+                } else {
+                    drillUp();
+                }
+            }
+            if (e.key === 'Enter' && document.getElementById('createModal').classList.contains('visible')) {
+                createPoint();
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initThree();
+            loadUniverse();
+        });
+    </script>
+</body>
+</html>

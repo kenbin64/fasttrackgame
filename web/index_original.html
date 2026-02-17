@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ButterflyFX — Dimensional Computing | Shapes Hold Data</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="ButterflyFX introduces Dimensional Computing — a revolutionary paradigm where geometric shapes inherently contain data. Objects exist with all their properties the moment they're defined. No building, just invoking.">
+    <meta name="keywords" content="dimensional computing, ButterflyFX, data structures, programming paradigm, geometric computing, DimensionOS, substrate computing">
+    <meta name="author" content="ButterflyFX">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://butterflyfx.us/">
+    <meta property="og:title" content="ButterflyFX — Dimensional Computing">
+    <meta property="og:description" content="A revolutionary paradigm where geometric shapes inherently contain data. Objects exist with all their properties the moment they're defined.">
+    <meta property="og:image" content="https://butterflyfx.us/static/og-image.png">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://butterflyfx.us/">
+    <meta name="twitter:title" content="ButterflyFX — Dimensional Computing">
+    <meta name="twitter:description" content="A revolutionary paradigm where geometric shapes inherently contain data. Objects exist with all their properties the moment they're defined.">
+    <meta name="twitter:image" content="https://butterflyfx.us/static/og-image.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://butterflyfx.us/">
+    
+    <link rel="stylesheet" href="static/css/index.css">
+</head>
+<body class="view-carousel">
+    <canvas id="starfield"></canvas>
+    <canvas id="canvas"></canvas>
+    <div class="nav-overlay" id="navOverlay"></div>
+    
+    <!-- Dimensional Computing Splash Intro -->
+    <div id="intro-splash">
+        <div id="intro-content">
+            <div id="intro-graphic">
+                <div class="dim-rings">
+                    <div class="ring ring-1"></div>
+                    <div class="ring ring-2"></div>
+                    <div class="ring ring-3"></div>
+                    <span class="center-icon">🦋</span>
+                </div>
+            </div>
+            <h1>ButterflyFX</h1>
+            <h2>🌐 Dimensional Computing</h2>
+            <p><strong>The Principle:</strong> Once an object exists, <em>all its parts, properties, and behaviors also exist</em> — 
+            just like in real life. A car has an engine, wheels, and seats the moment it's a car. 
+            We don't build them — we <strong>invoke</strong> them to manifest their dimensions.</p>
+            <div id="butterfly-statement">
+                <p>🦋 <em>"In chaos theory, a butterfly's wings can trigger a hurricane across the world. 
+                In ButterflyFX, a single dimensional definition cascades into infinite manifestations — 
+                small causes, vast effects. One shape. Endless possibilities."</em></p>
+            </div>
+            <button type="button" id="intro-demo-btn" onclick="dismissSplash()">✨ Click to Enter the New Dimensional Paradigm ✨</button>
+            <div id="intro-nav">
+                <a href="start-here.html" style="background: linear-gradient(135deg, #f0f, #60f); color: #fff; border-radius: 20px; padding: 8px 16px;">🚀 Start Here</a>
+                <a href="genesis.html">⚖️ Genesis</a>
+                <a href="apps.html">📦 Apps</a>
+                <a href="platform.html">🧬 Platform</a>
+                <a href="pricing.html">💎 Pricing</a>
+                <a href="benchmarks.html">📊 Benchmarks</a>
+                <a href="documents.html">📚 Documents</a>
+                <a href="about.html">ℹ️ About</a>
+            </div>
+        </div>
+    </div>
+    
+    <button id="panel-toggle-btn">
+        <span class="show-text">📝 Show Info</span>
+        <span class="hide-text">👁️ Hide Info</span>
+    </button>
+    
+    <header id="header">
+        <div class="logo">ButterflyFX</div>
+        <div class="tagline">Dimensional Computing — Shapes Hold Data</div>
+        <nav id="main-nav">
+            <a href="start-here.html">🚀 Start</a>
+            <a href="genesis.html">⚖️ Genesis</a>
+            <a href="apps.html">📦 Apps</a>
+            <a href="platform.html">🧬 Platform</a>
+            <a href="pricing.html">💎 Pricing</a>
+            <a href="benchmarks.html">📊 Benchmarks</a>
+            <a href="documents.html">📚 Docs</a>
+            <a href="about.html">ℹ️ About</a>
+            <div class="mobile-view-toggle">
+                <span class="nav-section-label">Views:</span>
+                <button type="button" class="mobile-view-btn" data-view="panels">📝 Panels</button>
+                <button type="button" class="mobile-view-btn" data-view="carousel">🎠 Carousel</button>
+                <button type="button" class="mobile-view-btn" data-view="demo">🎬 Demo</button>
+                <button type="button" class="mobile-view-btn" data-view="objects">🚗 Objects</button>
+            </div>
+        </nav>
+        <div id="view-toggle">
+            <button type="button" class="view-btn" data-view="panels">📝<span class="btn-text"> Panels</span></button>
+            <button type="button" class="view-btn active" data-view="carousel">🎠<span class="btn-text"> Carousel</span></button>
+            <button type="button" class="view-btn" data-view="demo">🎬<span class="btn-text"> Demo</span></button>
+            <button type="button" class="view-btn" data-view="objects">🚗<span class="btn-text"> Objects</span></button>
+        </div>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+    
+    <!-- Mobile 3D Carousel -->
+    <div id="carousel-container">
+        <div id="center-graphic">
+            <span class="symbol" id="center-symbol" style="color: #888;">∅</span>
+        </div>
+        <div id="carousel">
+            <!-- Panel 0: Dimension Info -->
+            <div class="carousel-panel" data-panel="dim" data-index="0">
+                <div class="panel-type">Dimension</div>
+                <h2><span class="panel-num" id="c-dim-num">0</span> <span id="c-dim-title">The Void</span></h2>
+                <h3 id="c-dim-subtitle">Pure Potential — All Values Exist Here</h3>
+                <p id="c-dim-description">
+                    Before context is applied, the substrate contains <span class="highlight">all possible values</span>. 
+                    Nothing is manifested yet.
+                </p>
+            </div>
+            
+            <!-- Panel 1: Code -->
+            <div class="carousel-panel" data-panel="code" data-index="1">
+                <div class="panel-type">Code Example</div>
+                <h2>ButterflyFX</h2>
+                <h3>How the framework handles this level</h3>
+                <div class="code-block" id="c-code-example"></div>
+            </div>
+            
+            <!-- Panel 2: Lens / Help -->
+            <div class="carousel-panel" data-panel="lens" data-index="2">
+                <div class="panel-type">Lens Selection</div>
+                <h2>Choose a Lens</h2>
+                <h3>Same geometry, different interpretation</h3>
+                <p>On levels 3-4, select how to view the substrate:</p>
+                <div class="lens-btns" style="margin-top: 12px;">
+                    <button class="lens-btn active" data-lens="color">🎨 Color</button>
+                    <button class="lens-btn" data-lens="sound">🔊 Sound</button>
+                    <button class="lens-btn" data-lens="value">📐 Value</button>
+                </div>
+                <p style="margin-top: 15px; font-size: 0.8em; color: #6080aa;">
+                    Tap anywhere on the visualization to extract values from that point.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Desktop Lens Bar -->
+    <div id="lens-bar">
+        <button class="lens-btn active" data-lens="color">🎨 Color</button>
+        <button class="lens-btn" data-lens="sound">🔊 Sound</button>
+        <button class="lens-btn" data-lens="value">📐 Value</button>
+    </div>
+    
+    <!-- Mobile Lens Bar (shown when carousel closed on lens-enabled levels) -->
+    <div id="mobile-lens-bar">
+        <button class="lens-btn active" data-lens="color">🎨</button>
+        <button class="lens-btn" data-lens="sound">🔊</button>
+        <button class="lens-btn" data-lens="value">📐</button>
+    </div>
+    
+    <!-- Objects Mode (Dimensional Computing) -->
+    <div id="objects-container">
+        <!-- Objects Carousel -->
+        <div id="objects-carousel-wrap">
+            <div id="obj-center-graphic">
+                <span class="symbol" id="obj-center-symbol" style="color: #ff66aa;">🅿️</span>
+            </div>
+            <div id="objects-carousel">
+                <!-- Panel 0: Current Level Info -->
+                <div class="obj-carousel-panel" data-panel="info" data-index="0">
+                    <div class="panel-type">Dimension Level</div>
+                    <h2><span class="level-icon" id="oc-icon">🅿️</span> <span id="oc-title">The Parking Lot</span></h2>
+                    <h3 id="oc-subtitle">Many Objects — The Highest Dimension</h3>
+                    <p id="oc-description">
+                        A parking lot full of cars. Each car is a <span class="highlight">complete 3D object</span>, 
+                        but from this dimension, they appear as simple points in space.
+                    </p>
+                </div>
+                
+                <!-- Panel 1: Key Insight -->
+                <div class="obj-carousel-panel" data-panel="insight" data-index="1">
+                    <div class="panel-type">Key Insight</div>
+                    <h2>🧠 The Dimensional Secret</h2>
+                    <h3>Why this matters</h3>
+                    <p id="oc-keypoint">
+                        In a higher dimension, complex objects become simple points. 
+                        A whole car — with its engine, seats, and thousands of parts — is just ONE point.
+                    </p>
+                </div>
+                
+                <!-- Panel 2: What's Next -->
+                <div class="obj-carousel-panel" data-panel="next" data-index="2">
+                    <div class="panel-type">Deeper Levels</div>
+                    <h2>🔍 Zoom In</h2>
+                    <h3>What's inside?</h3>
+                    <p id="oc-extra">
+                        Use the slider below to zoom into a single car, then its engine, pistons, 
+                        spark plugs... all the way down to individual atoms.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <nav id="objects-nav">
+            <div id="objects-buttons">
+                <button class="obj-btn active" data-level="0"><span>🅿️</span> Lot</button>
+                <button class="obj-btn" data-level="1"><span>🚗</span> Car</button>
+                <button class="obj-btn" data-level="2"><span>⚙️</span> Engine</button>
+                <button class="obj-btn" data-level="3"><span>🔧</span> Piston</button>
+                <button class="obj-btn" data-level="4"><span>⚡</span> Plug</button>
+                <button class="obj-btn" data-level="5"><span>📍</span> Elec</button>
+                <button class="obj-btn" data-level="6"><span>⚛️</span> Atom</button>
+            </div>
+            <div id="objects-slider-container">
+                <div class="label">6D<br>Whole</div>
+                <input type="range" id="objects-slider" min="0" max="6" value="0" step="0.01">
+                <div class="label">0D<br>Point</div>
+            </div>
+        </nav>
+    </div>
+    
+    <!-- Desktop Panels -->
+    <div id="info-panel">
+        <h2><span class="dim-num" id="dim-num">0</span> <span id="dim-title">The Void</span></h2>
+        <h3 id="dim-subtitle">Pure Potential — All Values Exist Here</h3>
+        <p id="dim-description">
+            Before context is applied, the substrate contains <span class="highlight">all possible values</span>. 
+            Nothing is manifested yet. The void is not empty — it's infinite potential waiting for a lens.
+        </p>
+        
+        <div id="lens-selector">
+            <h4>Choose a Lens:</h4>
+            <div class="lens-btns">
+                <button class="lens-btn active" data-lens="color">🎨 Color</button>
+                <button class="lens-btn" data-lens="sound">🔊 Sound</button>
+                <button class="lens-btn" data-lens="value">📐 Value</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="data-panel">
+        <h3>ButterflyFX: How It Works</h3>
+        <div class="code-block" id="code-example"></div>
+    </div>
+    
+    <div id="value-display"></div>
+    
+    <!-- Dimension Control -->
+    <div id="dimension-control">
+        <div class="dim-markers">
+            <div class="dim-marker active" data-dim="0"><span class="symbol">∅</span><span class="name">Void</span></div>
+            <div class="dim-marker" data-dim="1"><span class="symbol">•</span><span class="name">Point</span></div>
+            <div class="dim-marker" data-dim="2"><span class="symbol">―</span><span class="name">Line</span></div>
+            <div class="dim-marker" data-dim="3"><span class="symbol">⌓</span><span class="name">Saddle</span></div>
+            <div class="dim-marker" data-dim="4"><span class="symbol">◇</span><span class="name">Volume</span></div>
+            <div class="dim-marker" data-dim="5"><span class="symbol">⬡</span><span class="name">Network</span></div>
+            <div class="dim-marker" data-dim="6"><span class="symbol">◎</span><span class="name">Whole</span></div>
+        </div>
+        <div id="slider-container">
+            <div class="dim-label">0D<br>Potential</div>
+            <input type="range" id="dimension-slider" min="0" max="6" value="0" step="0.01">
+            <div class="dim-label">6D<br>Whole</div>
+        </div>
+    </div>
+    
+    <div id="instructions">
+        Drag to rotate • Scroll to zoom • Hover to extract values
+    </div>
+    
+    <script src="static/js/index.js"></script>
+</body>
+</html>

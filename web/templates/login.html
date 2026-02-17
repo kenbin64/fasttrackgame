@@ -3,147 +3,599 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Substrate Database Admin</title>
+    <title>Login | ButterflyFX</title>
     <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-green: #2ecc71;
+            --accent-purple: #9B59B6;
+            --accent-red: #f85149;
+            --border-color: #30363d;
+        }
+        
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 1rem;
         }
         
         .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 400px;
         }
         
+        /* Logo */
         .logo {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 2rem;
         }
         
-        .logo h1 {
-            color: #667eea;
-            font-size: 28px;
-            margin-bottom: 10px;
+        .logo-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
         }
         
-        .logo p {
-            color: #666;
-            font-size: 14px;
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-purple);
         }
         
-        .form-group {
-            margin-bottom: 20px;
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 4px;
         }
         
-        label {
+        .tab {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .tab:hover:not(.active) {
+            color: var(--text-primary);
+        }
+        
+        /* Form Container */
+        .form-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .form-panel {
+            display: none;
+        }
+        
+        .form-panel.active {
             display: block;
-            margin-bottom: 5px;
-            color: #333;
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+        
+        .form-input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        /* Tier Selection */
+        .tier-select {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .tier-option {
+            flex: 1;
+            padding: 0.75rem 0.5rem;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .tier-option:hover {
+            border-color: var(--accent-blue);
+        }
+        
+        .tier-option.selected {
+            border-color: var(--accent-blue);
+            background: rgba(88, 166, 255, 0.1);
+        }
+        
+        .tier-option input {
+            display: none;
+        }
+        
+        .tier-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .tier-name {
+            font-size: 0.875rem;
             font-weight: 500;
         }
         
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: border-color 0.3s;
+        .tier-price {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
         }
         
-        input[type="text"]:focus,
-        input[type="password"]:focus {
-            outline: none;
-            border-color: #667eea;
+        /* Beta Code Field */
+        .beta-code-group {
+            display: none;
+            margin-bottom: 1rem;
         }
         
-        .btn {
+        .beta-code-group.visible {
+            display: block;
+        }
+        
+        /* Submit Button */
+        .submit-btn {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            padding: 0.875rem;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 6px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.2s;
+            background: var(--accent-blue);
+            color: white;
         }
         
-        .btn:hover {
-            transform: translateY(-2px);
+        .submit-btn:hover {
+            background: #4090e0;
         }
         
-        .error {
-            background: #fee;
-            color: #c33;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Error/Success Messages */
+        .message {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .message.error {
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            display: block;
+        }
+        
+        .message.success {
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            display: block;
+        }
+        
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: var(--text-secondary);
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .divider span {
+            padding: 0 1rem;
+            font-size: 0.875rem;
+        }
+        
+        /* API Key Login */
+        .api-key-section {
+            margin-top: 1rem;
+        }
+        
+        .api-key-toggle {
+            background: none;
+            border: none;
+            color: var(--accent-blue);
+            cursor: pointer;
+            font-size: 0.875rem;
+            padding: 0;
+        }
+        
+        .api-key-toggle:hover {
+            text-decoration: underline;
+        }
+        
+        .api-key-form {
+            display: none;
+            margin-top: 1rem;
+        }
+        
+        .api-key-form.visible {
+            display: block;
+        }
+        
+        /* Links */
+        .form-links {
             text-align: center;
+            margin-top: 1rem;
         }
         
-        .info {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f0f0f0;
-            border-radius: 5px;
-            font-size: 12px;
-            color: #666;
+        .form-link {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-size: 0.875rem;
         }
         
-        .info strong {
-            color: #333;
+        .form-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Password Strength */
+        .password-strength {
+            height: 4px;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s;
+        }
+        
+        .password-strength-bar.weak {
+            width: 33%;
+            background: var(--accent-red);
+        }
+        
+        .password-strength-bar.medium {
+            width: 66%;
+            background: #f0c14b;
+        }
+        
+        .password-strength-bar.strong {
+            width: 100%;
+            background: var(--accent-green);
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            color: var(--text-primary);
+        }
+        
+        /* Jinja2 Error Display */
+        .error {
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
+        <!-- Logo -->
         <div class="logo">
-            <h1>🦋 Substrate Database</h1>
-            <p>Admin Interface</p>
+            <div class="logo-icon">🦋</div>
+            <div class="logo-text">ButterflyFX</div>
         </div>
         
-        {% if error %}
-        <div class="error">{{ error }}</div>
-        {% endif %}
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="login">Login</button>
+            <button class="tab" data-tab="register">Register</button>
+        </div>
         
-        <form method="POST">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required autofocus>
+        <div class="form-container">
+            <!-- Login Form -->
+            <div id="login-panel" class="form-panel active">
+                {% if error %}
+                <div class="error">{{ error }}</div>
+                {% endif %}
+                
+                <div id="login-message" class="message"></div>
+                
+                <form id="login-form" method="POST">
+                    <div class="form-group">
+                        <label class="form-label">Email or Username</label>
+                        <input type="text" name="username" class="form-input" 
+                               placeholder="Enter email or username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-input" 
+                               placeholder="Enter password" required>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Sign In</button>
+                </form>
+                
+                <div class="divider"><span>or</span></div>
+                
+                <div class="api-key-section">
+                    <button class="api-key-toggle" onclick="toggleApiKey()">
+                        Sign in with API Key
+                    </button>
+                    
+                    <div id="api-key-form" class="api-key-form">
+                        <div class="form-group">
+                            <label class="form-label">API Key</label>
+                            <input type="password" id="api-key-input" class="form-input" 
+                                   placeholder="bfx_xx_xxxxx...">
+                        </div>
+                        <button type="button" class="submit-btn" onclick="loginWithApiKey()">
+                            Authenticate
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-links">
+                    <a href="/forgot-password" class="form-link">Forgot password?</a>
+                </div>
             </div>
             
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+            <!-- Register Form -->
+            <div id="register-panel" class="form-panel">
+                <div id="register-message" class="message"></div>
+                
+                <form id="register-form" action="/api/auth/register" method="POST">
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" name="username" class="form-input" 
+                               placeholder="Choose a username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-input" 
+                               placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" id="register-password" 
+                               class="form-input" placeholder="Create a password" required>
+                        <div class="password-strength">
+                            <div id="password-strength-bar" class="password-strength-bar"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" name="confirm_password" class="form-input" 
+                               placeholder="Confirm your password" required>
+                    </div>
+                    
+                    <!-- Tier Selection -->
+                    <div class="form-group">
+                        <label class="form-label">Account Type</label>
+                        <div class="tier-select">
+                            <label class="tier-option selected">
+                                <input type="radio" name="tier" value="user" checked>
+                                <div class="tier-icon">👤</div>
+                                <div class="tier-name">User</div>
+                                <div class="tier-price">Free</div>
+                            </label>
+                            <label class="tier-option">
+                                <input type="radio" name="tier" value="dev">
+                                <div class="tier-icon">💻</div>
+                                <div class="tier-name">Developer</div>
+                                <div class="tier-price">$29/mo</div>
+                            </label>
+                            <label class="tier-option">
+                                <input type="radio" name="tier" value="beta">
+                                <div class="tier-icon">🧪</div>
+                                <div class="tier-name">Beta</div>
+                                <div class="tier-price">Invite</div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Beta Code (hidden by default) -->
+                    <div id="beta-code-group" class="beta-code-group">
+                        <label class="form-label">Beta Invitation Code</label>
+                        <input type="text" name="beta_code" class="form-input" 
+                               placeholder="Enter your beta code">
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Create Account</button>
+                </form>
             </div>
-            
-            <button type="submit" class="btn">Login</button>
-        </form>
+        </div>
         
-        <div class="info">
-            <strong>Access Levels:</strong><br>
-            • SUPERADMIN: Full access, cannot be deleted<br>
-            • ADMIN: Full access to admin interface<br>
-            • USER: Read-only, no admin interface access
+        <!-- Footer -->
+        <div class="footer">
+            <a href="/">Back to Home</a> | 
+            <a href="/terms">Terms</a> | 
+            <a href="/privacy">Privacy</a>
         </div>
     </div>
+    
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-panel`).classList.add('active');
+            });
+        });
+        
+        // Tier selection
+        document.querySelectorAll('.tier-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.tier-option').forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+                
+                // Show/hide beta code field
+                const tier = option.querySelector('input').value;
+                const betaGroup = document.getElementById('beta-code-group');
+                if (tier === 'beta') {
+                    betaGroup.classList.add('visible');
+                } else {
+                    betaGroup.classList.remove('visible');
+                }
+            });
+        });
+        
+        // Password strength
+        const regPassword = document.getElementById('register-password');
+        if (regPassword) {
+            regPassword.addEventListener('input', (e) => {
+                const password = e.target.value;
+                const bar = document.getElementById('password-strength-bar');
+                
+                bar.className = 'password-strength-bar';
+                
+                if (password.length === 0) {
+                    bar.classList.remove('weak', 'medium', 'strong');
+                } else if (password.length < 6) {
+                    bar.classList.add('weak');
+                } else if (password.length < 10 || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+                    bar.classList.add('medium');
+                } else {
+                    bar.classList.add('strong');
+                }
+            });
+        }
+        
+        // API Key toggle
+        function toggleApiKey() {
+            document.getElementById('api-key-form').classList.toggle('visible');
+        }
+        
+        // API Key login
+        async function loginWithApiKey() {
+            const apiKey = document.getElementById('api-key-input').value;
+            const msg = document.getElementById('login-message');
+            
+            if (!apiKey) {
+                msg.className = 'message error';
+                msg.textContent = 'Please enter an API key';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/login/apikey', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ api_key: apiKey })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    msg.className = 'message success';
+                    msg.textContent = 'Authenticated! Redirecting...';
+                    setTimeout(() => {
+                        window.location.href = data.redirect || '/dashboard';
+                    }, 1000);
+                } else {
+                    msg.className = 'message error';
+                    msg.textContent = data.error || 'Invalid API key';
+                }
+            } catch (err) {
+                msg.className = 'message error';
+                msg.textContent = 'Connection error. Please try again.';
+            }
+        }
+        
+        // Check for redirect param
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('redirect')) {
+            sessionStorage.setItem('login_redirect', params.get('redirect'));
+        }
+    </script>
 </body>
 </html>
 

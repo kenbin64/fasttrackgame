@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX — Non-Iteration Patterns</title>
+    <meta name="description" content="Think recursively, collapse dimensionally. Patterns for dimensional programming without iteration.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #050510, #0a1020);
+            color: #fff;
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+        
+        header {
+            background: rgba(5, 5, 16, 0.95);
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        nav { display: flex; gap: 20px; }
+        nav a { color: #8090aa; text-decoration: none; font-size: 0.9em; }
+        nav a:hover { color: #60b0ff; }
+        
+        main {
+            max-width: 950px;
+            margin: 0 auto;
+            padding: 100px 25px 60px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle { font-size: 1.1em; color: #60b0ff; margin-bottom: 40px; }
+        
+        h2 {
+            font-size: 1.6em;
+            color: #ff6090;
+            margin: 50px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 96, 144, 0.3);
+        }
+        
+        h3 { color: #60b0ff; margin: 30px 0 15px; font-size: 1.3em; }
+        h4 { color: #80ff80; margin: 20px 0 10px; font-size: 1.1em; }
+        
+        p { color: #b0c0e0; margin-bottom: 15px; }
+        
+        code {
+            background: rgba(100, 150, 255, 0.15);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.9em;
+            color: #80ff80;
+        }
+        
+        pre {
+            background: rgba(10, 15, 30, 0.9);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        pre code { background: none; padding: 0; font-size: 0.85em; line-height: 1.6; }
+        
+        .toc {
+            background: rgba(20, 30, 50, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px 25px;
+            margin: 30px 0;
+        }
+        
+        .toc h3 { margin-top: 0; color: #ff6090; }
+        .toc ul { list-style: none; margin: 15px 0 0 0; }
+        .toc li { margin: 8px 0; }
+        .toc a { color: #60b0ff; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .comparison-col {
+            background: rgba(20, 30, 50, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .comparison-col.bad { border-color: rgba(255, 100, 100, 0.3); }
+        .comparison-col.good { border-color: rgba(80, 200, 120, 0.3); }
+        
+        .comparison-col h4 { margin-top: 0; }
+        .comparison-col.bad h4 { color: #ff8080; }
+        .comparison-col.good h4 { color: #80ff80; }
+        
+        .info-box {
+            background: rgba(100, 150, 255, 0.15);
+            border-left: 4px solid #60b0ff;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+            color: #80c0ff;
+        }
+        
+        .principle {
+            background: rgba(255, 100, 150, 0.1);
+            border-left: 4px solid #ff6090;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .principle h4 { color: #ff6090; margin-top: 0; }
+        .principle p { color: #d0a0b0; margin: 0; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+        }
+        
+        th { background: rgba(64, 96, 255, 0.2); color: #60b0ff; }
+        td { color: #b0c0e0; }
+        
+        @media (max-width: 768px) {
+            .comparison { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="../index.html" class="logo">🦋 ButterflyFX</a>
+        <nav>
+            <a href="../developer.html">Developer</a>
+            <a href="index.html">Docs</a>
+            <a href="../apps.html">Apps</a>
+        </nav>
+    </header>
+    
+    <main>
+        <h1>🔄 Non-Iteration Patterns</h1>
+        <p class="subtitle">When you stop iterating, you start thinking dimensionally</p>
+        
+        <div style="background: rgba(100, 150, 255, 0.15); border-left: 4px solid #60b0ff; padding: 15px 20px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+            <strong style="color: #60b0ff;">📘 Using the Simple API?</strong>
+            <p style="margin: 8px 0 0; color: #b0c0e0;">
+                These patterns show kernel-level concepts. With the <a href="../developer.html" style="color: #80ff80;">Identity-First Simple API</a>, 
+                you get non-iteration patterns automatically through <code style="color: #80ff80;">find()</code>, <code style="color: #80ff80;">relate()</code>, and semantic queries.
+            </p>
+        </div>
+        
+        <div class="toc">
+            <h3>📑 Contents</h3>
+            <ul>
+                <li><a href="#philosophy">The Philosophy: Kill the For-Loop</a></li>
+                <li><a href="#why">Why Iteration is Harmful</a></li>
+                <li><a href="#recursion">Pattern 1: Recursive Descent</a></li>
+                <li><a href="#collapse">Pattern 2: Dimensional Collapse</a></li>
+                <li><a href="#spiral">Pattern 3: Level Spiral</a></li>
+                <li><a href="#address">Pattern 4: SRL Addressing</a></li>
+                <li><a href="#transform">Pattern 5: Token Transform Chains</a></li>
+                <li><a href="#examples">Full Examples</a></li>
+            </ul>
+        </div>
+        
+        <!-- Philosophy -->
+        <section id="philosophy">
+            <h2>The Philosophy: Kill the For-Loop</h2>
+            
+            <div class="principle">
+                <h4>Core Insight</h4>
+                <p>Iteration visits elements one-by-one. Dimensional thinking addresses space directly.</p>
+            </div>
+            
+            <p>Traditional programming teaches us to iterate:</p>
+            
+<pre><code><span style="color: #666;"># Traditional: Visit every element</span>
+<span style="color: #ff80a0;">for</span> item <span style="color: #ff80a0;">in</span> collection:
+    process(item)
+
+<span style="color: #666;"># Traditional: Search by scanning</span>
+<span style="color: #ff80a0;">for</span> user <span style="color: #ff80a0;">in</span> users:
+    <span style="color: #ff80a0;">if</span> user.id == target_id:
+        <span style="color: #ff80a0;">return</span> user</code></pre>
+
+            <p>This is <strong>O(n)</strong> — cost scales with size. Dimensional programming eliminates this entirely:</p>
+            
+<pre><code><span style="color: #666;"># Dimensional: Direct address — O(1)</span>
+user = srl(<span style="color: #80ff80;">"srl://database/users/42"</span>)
+
+<span style="color: #666;"># Dimensional: Collapse to result</span>
+result = substrate.collapse_to(target_level)</code></pre>
+
+            <div class="info-box">
+                <strong>Mental Shift:</strong> You're not a builder assembling pieces. You're an observer pointing at what already exists.
+            </div>
+        </section>
+        
+        <!-- Why Iteration is Harmful -->
+        <section id="why">
+            <h2>Why Iteration is Harmful</h2>
+            
+            <table>
+                <thead>
+                    <tr><th>Problem</th><th>Iteration</th><th>Dimensional</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Time Complexity</strong></td>
+                        <td>O(n) — scales with size</td>
+                        <td>O(1) — constant</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Management</strong></td>
+                        <td>Mutable index, counter</td>
+                        <td>Immutable tokens</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Parallelism</strong></td>
+                        <td>Difficult — order matters</td>
+                        <td>Natural — no dependencies</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Error Handling</strong></td>
+                        <td>Off-by-one, boundary</td>
+                        <td>Type-safe addresses</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Code Clarity</strong></td>
+                        <td>Implementation focus</td>
+                        <td>Intent focus</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Pattern 1: Recursive Descent -->
+        <section id="recursion">
+            <h2>Pattern 1: Recursive Descent</h2>
+            
+            <p>Replace iteration with recursive drill-down through dimensional levels.</p>
+            
+            <div class="comparison">
+                <div class="comparison-col bad">
+                    <h4>❌ Iterative (Don't)</h4>
+<pre><code><span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">sum_nested</span>(data):
+    total = 0
+    stack = [data]
+    <span style="color: #ff80a0;">while</span> stack:
+        item = stack.pop()
+        <span style="color: #ff80a0;">if</span> isinstance(item, list):
+            stack.extend(item)
+        <span style="color: #ff80a0;">else</span>:
+            total += item
+    <span style="color: #ff80a0;">return</span> total</code></pre>
+                </div>
+                <div class="comparison-col good">
+                    <h4>✓ Recursive (Do)</h4>
+<pre><code><span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">sum_nested</span>(data):
+    <span style="color: #ff80a0;">if not</span> isinstance(data, list):
+        <span style="color: #ff80a0;">return</span> data
+    <span style="color: #ff80a0;">return</span> sum(
+        sum_nested(item) 
+        <span style="color: #ff80a0;">for</span> item <span style="color: #ff80a0;">in</span> data
+    )</code></pre>
+                </div>
+            </div>
+            
+            <h3>Dimensional Recursive Pattern</h3>
+<pre><code><span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">process_dimensional</span>(substrate, level=6):
+    <span style="color: #80ff80;">"""Process by descending through dimensional levels"""</span>
+    
+    <span style="color: #666;"># Base case: reached fundamental level</span>
+    <span style="color: #ff80a0;">if</span> level == 0:
+        <span style="color: #ff80a0;">return</span> substrate.collapse()
+    
+    <span style="color: #666;"># Process current level</span>
+    tokens = substrate.tokens_at_level(level)
+    
+    <span style="color: #666;"># Recursive descent</span>
+    results = [
+        process_dimensional(token.substrate, level - 1)
+        <span style="color: #ff80a0;">for</span> token <span style="color: #ff80a0;">in</span> tokens
+    ]
+    
+    <span style="color: #666;"># Combine at this level</span>
+    <span style="color: #ff80a0;">return</span> substrate.combine(results, level)</code></pre>
+
+            <div class="principle">
+                <h4>Recursion Rule</h4>
+                <p>Every recursive call descends one dimensional level. Base case is level 0 (Potential).</p>
+            </div>
+        </section>
+        
+        <!-- Pattern 2: Dimensional Collapse -->
+        <section id="collapse">
+            <h2>Pattern 2: Dimensional Collapse</h2>
+            
+            <p>Instead of accumulating through iteration, collapse dimensional structure to the target level.</p>
+            
+            <div class="comparison">
+                <div class="comparison-col bad">
+                    <h4>❌ Accumulation Loop</h4>
+<pre><code><span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">calculate_stats</span>(records):
+    total = 0
+    count = 0
+    <span style="color: #ff80a0;">for</span> record <span style="color: #ff80a0;">in</span> records:
+        total += record.value
+        count += 1
+    avg = total / count
+    <span style="color: #ff80a0;">return</span> {
+        <span style="color: #80ff80;">"sum"</span>: total,
+        <span style="color: #80ff80;">"avg"</span>: avg,
+        <span style="color: #80ff80;">"count"</span>: count
+    }</code></pre>
+                </div>
+                <div class="comparison-col good">
+                    <h4>✓ Dimensional Collapse</h4>
+<pre><code><span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">calculate_stats</span>(substrate):
+    <span style="color: #666;"># Collapse from Volume(5) to Point(1)</span>
+    stats = substrate.collapse_to(
+        level=1,
+        aggregators={
+            <span style="color: #80ff80;">"sum"</span>: sum,
+            <span style="color: #80ff80;">"avg"</span>: statistics.mean,
+            <span style="color: #80ff80;">"count"</span>: len
+        }
+    )
+    <span style="color: #ff80a0;">return</span> stats.value</code></pre>
+                </div>
+            </div>
+            
+            <h3>Multi-Level Collapse</h3>
+<pre><code><span style="color: #666;"># Data lives at Level 5 (Volume)</span>
+volume = srl(<span style="color: #80ff80;">"srl://analytics/sales/2024"</span>)
+
+<span style="color: #666;"># Collapse to Level 4 (Plane) — group by month</span>
+monthly = volume.collapse_to(4, group_by=<span style="color: #80ff80;">"month"</span>)
+
+<span style="color: #666;"># Collapse to Level 2 (Length) — trend line</span>
+trend = monthly.collapse_to(2, aggregator=<span style="color: #80ff80;">"regression"</span>)
+
+<span style="color: #666;"># Collapse to Level 1 (Point) — single prediction</span>
+prediction = trend.collapse_to(1, target=<span style="color: #80ff80;">"next_quarter"</span>)</code></pre>
+        </section>
+        
+        <!-- Pattern 3: Level Spiral -->
+        <section id="spiral">
+            <h2>Pattern 3: Level Spiral</h2>
+            
+            <p>Navigate dimensional levels with spiral_up/spiral_down instead of sequential iteration.</p>
+            
+            <div class="comparison">
+                <div class="comparison-col bad">
+                    <h4>❌ Linear Search</h4>
+<pre><code><span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">find_optimal</span>(options):
+    best = <span style="color: #ff80a0;">None</span>
+    best_score = float(<span style="color: #80ff80;">'-inf'</span>)
+    <span style="color: #ff80a0;">for</span> opt <span style="color: #ff80a0;">in</span> options:
+        score = evaluate(opt)
+        <span style="color: #ff80a0;">if</span> score > best_score:
+            best = opt
+            best_score = score
+    <span style="color: #ff80a0;">return</span> best</code></pre>
+                </div>
+                <div class="comparison-col good">
+                    <h4>✓ Level Spiral</h4>
+<pre><code><span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">find_optimal</span>(substrate):
+    kernel = HelixKernel()
+    kernel.invoke(substrate.seed)
+    
+    <span style="color: #666;"># Spiral up to see whole space</span>
+    <span style="color: #ff80a0;">while</span> kernel.level < 6:
+        kernel.spiral_up()
+    
+    <span style="color: #666;"># Direct observation of optimal</span>
+    <span style="color: #ff80a0;">return</span> kernel.collapse()</code></pre>
+                </div>
+            </div>
+            
+            <h3>Bidirectional Spiral</h3>
+<pre><code><span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">navigate_to_target</span>(kernel, target_level: int):
+    <span style="color: #80ff80;">"""Spiral to target level — no iteration"""</span>
+    
+    <span style="color: #ff80a0;">if</span> kernel.level == target_level:
+        <span style="color: #ff80a0;">return</span> kernel.collapse()
+    
+    <span style="color: #ff80a0;">if</span> kernel.level < target_level:
+        kernel.spiral_up()
+    <span style="color: #ff80a0;">else</span>:
+        kernel.spiral_down()
+    
+    <span style="color: #666;"># Recursive (not iterative!)</span>
+    <span style="color: #ff80a0;">return</span> navigate_to_target(kernel, target_level)</code></pre>
+        </section>
+        
+        <!-- Pattern 4: SRL Addressing -->
+        <section id="address">
+            <h2>Pattern 4: SRL Direct Addressing</h2>
+            
+            <p>Replace search loops with O(1) SRL lookups.</p>
+            
+            <div class="comparison">
+                <div class="comparison-col bad">
+                    <h4>❌ Search Loop</h4>
+<pre><code><span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">get_user</span>(user_id, users):
+    <span style="color: #ff80a0;">for</span> user <span style="color: #ff80a0;">in</span> users:
+        <span style="color: #ff80a0;">if</span> user.id == user_id:
+            <span style="color: #ff80a0;">return</span> user
+    <span style="color: #ff80a0;">return</span> <span style="color: #ff80a0;">None</span>
+
+<span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">get_user_email</span>(user_id, users):
+    user = get_user(user_id, users)
+    <span style="color: #ff80a0;">if</span> user:
+        <span style="color: #ff80a0;">return</span> user.email
+    <span style="color: #ff80a0;">return</span> <span style="color: #ff80a0;">None</span></code></pre>
+                </div>
+                <div class="comparison-col good">
+                    <h4>✓ SRL Address</h4>
+<pre><code><span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">get_user</span>(user_id):
+    <span style="color: #ff80a0;">return</span> srl(f<span style="color: #80ff80;">"srl://db/users/{user_id}"</span>)
+
+<span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">get_user_email</span>(user_id):
+    <span style="color: #ff80a0;">return</span> srl(f<span style="color: #80ff80;">"srl://db/users/{user_id}/email"</span>)
+    
+<span style="color: #666;"># Or with invoke for operations</span>
+<span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">update_user</span>(user_id, data):
+    invoke(f<span style="color: #80ff80;">"srl://db/users/{user_id}/update"</span>, data)</code></pre>
+                </div>
+            </div>
+            
+            <h3>Addressing Patterns</h3>
+<pre><code><span style="color: #666;"># Direct value access</span>
+value = srl(<span style="color: #80ff80;">"srl://domain/substrate/primitive"</span>)
+
+<span style="color: #666;"># Nested path drilling</span>
+deep = srl(<span style="color: #80ff80;">"srl://domain/substrate/level1/level2/value"</span>)
+
+<span style="color: #666;"># Operation invocation</span>
+result = invoke(<span style="color: #80ff80;">"srl://domain/substrate/operation"</span>, arg1, arg2)
+
+<span style="color: #666;"># Pattern matching (when multiple needed)</span>
+matches = SRL.find(<span style="color: #80ff80;">"users/.*@company.com"</span>)</code></pre>
+
+            <div class="principle">
+                <h4>Addressing Rule</h4>
+                <p>If you're iterating to find something, you're missing a dimensional address.</p>
+            </div>
+        </section>
+        
+        <!-- Pattern 5: Token Transform -->
+        <section id="transform">
+            <h2>Pattern 5: Token Transform Chains</h2>
+            
+            <p>Replace map/filter/reduce chains with token transformations that preserve dimensional context.</p>
+            
+            <div class="comparison">
+                <div class="comparison-col bad">
+                    <h4>❌ Map/Filter Chain</h4>
+<pre><code>prices = [item.price <span style="color: #ff80a0;">for</span> item <span style="color: #ff80a0;">in</span> items]
+valid = [p <span style="color: #ff80a0;">for</span> p <span style="color: #ff80a0;">in</span> prices <span style="color: #ff80a0;">if</span> p > 0]
+taxed = [p * 1.1 <span style="color: #ff80a0;">for</span> p <span style="color: #ff80a0;">in</span> valid]
+total = sum(taxed)</code></pre>
+                </div>
+                <div class="comparison-col good">
+                    <h4>✓ Token Transform</h4>
+<pre><code>total = (
+    Token.from_substrate(items)
+    .filter(lambda t: t.value > 0)
+    .transform(lambda v: v * 1.1)
+    .collapse(sum)
+)</code></pre>
+                </div>
+            </div>
+            
+            <h3>Transform API</h3>
+<pre><code><span style="color: #666;"># Token transforms preserve dimensional level</span>
+token = Token(<span style="color: #80ff80;">"price"</span>, 100, level=1)
+
+<span style="color: #666;"># Transform value, keep level</span>
+taxed = token.transform(<span style="color: #ff80a0;">lambda</span> v: v * 1.1)
+taxed.value  <span style="color: #666;"># → 110</span>
+taxed.level  <span style="color: #666;"># → 1 (unchanged)</span>
+
+<span style="color: #666;"># Elevate to higher dimension</span>
+elevated = token.elevate()
+elevated.level  <span style="color: #666;"># → 2</span>
+
+<span style="color: #666;"># Reduce to lower dimension</span>
+reduced = token.reduce()
+reduced.level  <span style="color: #666;"># → 0</span></code></pre>
+        </section>
+        
+        <!-- Full Examples -->
+        <section id="examples">
+            <h2>Full Examples</h2>
+            
+            <h3>Example 1: Processing a Fleet</h3>
+            
+            <div class="comparison">
+                <div class="comparison-col bad">
+                    <h4>❌ Iterative Approach</h4>
+<pre><code><span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">get_fleet_status</span>(vehicles):
+    results = []
+    <span style="color: #ff80a0;">for</span> vehicle <span style="color: #ff80a0;">in</span> vehicles:
+        status = get_vehicle_status(vehicle.id)
+        <span style="color: #ff80a0;">if</span> status.needs_maintenance:
+            results.append({
+                <span style="color: #80ff80;">'id'</span>: vehicle.id,
+                <span style="color: #80ff80;">'type'</span>: vehicle.type,
+                <span style="color: #80ff80;">'urgency'</span>: status.urgency
+            })
+    <span style="color: #ff80a0;">return</span> sorted(
+        results, 
+        key=<span style="color: #ff80a0;">lambda</span> x: x[<span style="color: #80ff80;">'urgency'</span>], 
+        reverse=<span style="color: #ff80a0;">True</span>
+    )</code></pre>
+                </div>
+                <div class="comparison-col good">
+                    <h4>✓ Dimensional Approach</h4>
+<pre><code><span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">get_fleet_status</span>():
+    <span style="color: #666;"># Direct address to maintenance view</span>
+    <span style="color: #ff80a0;">return</span> srl(<span style="color: #80ff80;">"srl://fleet/maintenance/needed"</span>)
+
+<span style="color: #666;"># Or with operation</span>
+<span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">get_urgent_maintenance</span>():
+    <span style="color: #ff80a0;">return</span> invoke(
+        <span style="color: #80ff80;">"srl://fleet/maintenance/filter"</span>,
+        urgency=<span style="color: #80ff80;">"high"</span>,
+        sorted=<span style="color: #ff80a0;">True</span>
+    )</code></pre>
+                </div>
+            </div>
+            
+            <h3>Example 2: Tree Processing</h3>
+<pre><code><span style="color: #666;"># Traditional: Iterative tree traversal</span>
+<span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">count_nodes_iterative</span>(root):
+    count = 0
+    stack = [root]
+    <span style="color: #ff80a0;">while</span> stack:
+        node = stack.pop()
+        count += 1
+        stack.extend(node.children)
+    <span style="color: #ff80a0;">return</span> count
+
+<span style="color: #666;"># Dimensional: Recursive collapse</span>
+<span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">count_nodes_dimensional</span>(node):
+    <span style="color: #ff80a0;">if not</span> node.children:
+        <span style="color: #ff80a0;">return</span> 1
+    <span style="color: #ff80a0;">return</span> 1 + sum(count_nodes_dimensional(c) <span style="color: #ff80a0;">for</span> c <span style="color: #ff80a0;">in</span> node.children)
+
+<span style="color: #666;"># Truly dimensional: Direct address</span>
+<span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">count_nodes</span>(tree_address):
+    <span style="color: #ff80a0;">return</span> srl(f<span style="color: #80ff80;">"{tree_address}/count"</span>)</code></pre>
+
+            <h3>Example 3: Data Aggregation</h3>
+<pre><code><span style="color: #666;"># Traditional: Multiple passes</span>
+<span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">analyze_sales_iterative</span>(records):
+    total = 0
+    by_region = {}
+    by_month = {}
+    <span style="color: #ff80a0;">for</span> record <span style="color: #ff80a0;">in</span> records:
+        total += record.amount
+        by_region[record.region] = by_region.get(record.region, 0) + record.amount
+        by_month[record.month] = by_month.get(record.month, 0) + record.amount
+    <span style="color: #ff80a0;">return</span> {<span style="color: #80ff80;">'total'</span>: total, <span style="color: #80ff80;">'by_region'</span>: by_region, <span style="color: #80ff80;">'by_month'</span>: by_month}
+
+<span style="color: #666;"># Dimensional: Multi-level collapse</span>
+<span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">analyze_sales_dimensional</span>():
+    sales = srl(<span style="color: #80ff80;">"srl://analytics/sales/current"</span>)
+    
+    <span style="color: #ff80a0;">return</span> {
+        <span style="color: #80ff80;">'total'</span>: sales.collapse_to(1).value,            <span style="color: #666;"># Single point</span>
+        <span style="color: #80ff80;">'by_region'</span>: sales.collapse_to(3, <span style="color: #80ff80;">'region'</span>),   <span style="color: #666;"># Width dimension</span>
+        <span style="color: #80ff80;">'by_month'</span>: sales.collapse_to(2, <span style="color: #80ff80;">'time'</span>),      <span style="color: #666;"># Length dimension</span>
+    }</code></pre>
+        </section>
+        
+        <!-- Summary -->
+        <section style="margin-top: 50px;">
+            <h2>Quick Reference</h2>
+            
+            <table>
+                <thead>
+                    <tr><th>Instead of...</th><th>Use...</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>for item in items:</code></td>
+                        <td>Recursive descent or SRL address</td>
+                    </tr>
+                    <tr>
+                        <td><code>while condition:</code></td>
+                        <td>Recursive with base case at level 0</td>
+                    </tr>
+                    <tr>
+                        <td>Accumulator variable</td>
+                        <td><code>substrate.collapse_to(level)</code></td>
+                    </tr>
+                    <tr>
+                        <td>Search loop</td>
+                        <td><code>srl("srl://domain/path/id")</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>[x for x in ...]</code></td>
+                        <td><code>token.transform(fn)</code></td>
+                    </tr>
+                    <tr>
+                        <td>Index counter</td>
+                        <td><code>kernel.level</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Footer -->
+        <section style="margin-top: 60px; padding-top: 40px; border-top: 1px solid rgba(100, 150, 255, 0.2);">
+            <p style="text-align: center; color: #666;">
+                <a href="paradigm-comparison.html" style="color: #60b0ff;">← Paradigm Comparison</a> |
+                <a href="index.html" style="color: #60b0ff;">Full Docs</a> |
+                <a href="api-reference.html" style="color: #60b0ff;">API Reference →</a>
+            </p>
+        </section>
+    </main>
+</body>
+</html>

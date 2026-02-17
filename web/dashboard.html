@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — ButterflyFX</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-card-hover: #1a1a25;
+            --border-color: #2a2a3a;
+            --text-primary: #fff;
+            --text-secondary: #a0a0b0;
+            --accent-purple: #8855ff;
+            --accent-pink: #ff55aa;
+            --accent-green: #2ed573;
+            --accent-blue: #4285F4;
+            --accent-orange: #ffa502;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-card);
+        }
+        
+        .header .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .header .logo h1 {
+            font-size: 1.3em;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        
+        .user-menu:hover {
+            background: var(--bg-dark);
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .user-info {
+            text-align: left;
+        }
+        
+        .user-name {
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+        
+        .user-tier {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+        }
+        
+        .user-tier.paid {
+            color: var(--accent-green);
+        }
+        
+        /* Main Layout */
+        .main-container {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: calc(100vh - 76px);
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            padding: 20px 0;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+        
+        .sidebar-section h3 {
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            padding: 0 20px;
+            margin-bottom: 10px;
+        }
+        
+        .sidebar-nav {
+            list-style: none;
+        }
+        
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .sidebar-nav a:hover {
+            color: var(--text-primary);
+            background: var(--bg-dark);
+        }
+        
+        .sidebar-nav a.active {
+            color: var(--accent-purple);
+            background: rgba(136, 85, 255, 0.1);
+            border-left: 3px solid var(--accent-purple);
+        }
+        
+        .sidebar-nav a i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Content */
+        .content {
+            padding: 40px;
+            max-width: 1200px;
+        }
+        
+        .page-header {
+            margin-bottom: 40px;
+        }
+        
+        .page-header h1 {
+            font-size: 1.8em;
+            margin-bottom: 8px;
+        }
+        
+        .page-header p {
+            color: var(--text-secondary);
+        }
+        
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, rgba(136, 85, 255, 0.2), rgba(255, 85, 170, 0.2));
+            border: 1px solid var(--accent-purple);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .welcome-banner h2 {
+            font-size: 1.5em;
+            margin-bottom: 8px;
+        }
+        
+        .welcome-banner p {
+            color: var(--text-secondary);
+        }
+        
+        .welcome-banner .btn {
+            padding: 12px 24px;
+            background: var(--accent-purple);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .welcome-banner .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(136, 85, 255, 0.4);
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .stat-card .label {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .stat-card .value {
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+        
+        .stat-card .change {
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+        
+        .stat-card .change.positive {
+            color: var(--accent-green);
+        }
+        
+        /* Downloads Section */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-header h2 {
+            font-size: 1.3em;
+        }
+        
+        .section-header a {
+            color: var(--accent-purple);
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        
+        .downloads-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .download-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.2s;
+        }
+        
+        .download-card:hover {
+            border-color: var(--accent-purple);
+        }
+        
+        .download-card.locked {
+            opacity: 0.7;
+        }
+        
+        .download-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .download-card h3 {
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .download-card .icon {
+            font-size: 1.5em;
+        }
+        
+        .tier-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+        
+        .tier-badge.free {
+            background: var(--accent-green);
+            color: #000;
+        }
+        
+        .tier-badge.starter {
+            background: var(--accent-purple);
+            color: #fff;
+        }
+        
+        .tier-badge.pro {
+            background: var(--accent-pink);
+            color: #fff;
+        }
+        
+        .download-card p {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        
+        .download-card .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        
+        .download-card .btn-download:hover {
+            border-color: var(--accent-purple);
+            color: var(--accent-purple);
+        }
+        
+        .download-card .btn-upgrade {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        
+        .download-card .btn-upgrade:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Subscription Card */
+        .subscription-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 40px;
+        }
+        
+        .subscription-card h3 {
+            margin-bottom: 15px;
+        }
+        
+        .subscription-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .subscription-info .item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .subscription-info .label {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+        
+        .subscription-info .value {
+            font-weight: 500;
+        }
+        
+        .subscription-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .subscription-actions button,
+        .subscription-actions a {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .btn-manage {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .btn-manage:hover {
+            border-color: var(--accent-purple);
+        }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .welcome-banner {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+        }
+        
+        /* Hidden until auth */
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 50vh;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <a href="index.html" class="logo">
+            <span>🦋</span>
+            <h1>ButterflyFX</h1>
+        </a>
+        
+        <div class="header-right">
+            <div class="user-menu" id="user-menu">
+                <div class="user-avatar" id="user-avatar">
+                    <span id="avatar-initial">?</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="user-name">Loading...</div>
+                    <div class="user-tier" id="user-tier">—</div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3>Dashboard</h3>
+                <ul class="sidebar-nav">
+                    <li><a href="#" class="active"><i class="fas fa-home"></i> Overview</a></li>
+                    <li><a href="#downloads"><i class="fas fa-download"></i> Downloads</a></li>
+                    <li><a href="#subscription"><i class="fas fa-credit-card"></i> Subscription</a></li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Resources</h3>
+                <ul class="sidebar-nav">
+                    <li><a href="developer-docs.html"><i class="fas fa-book"></i> Documentation</a></li>
+                    <li><a href="apps.html"><i class="fas fa-box"></i> Apps</a></li>
+                    <li><a href="platform.html"><i class="fas fa-cube"></i> Platform</a></li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Account</h3>
+                <ul class="sidebar-nav">
+                    <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Sign Out</a></li>
+                </ul>
+            </div>
+        </aside>
+        
+        <!-- Content -->
+        <main class="content" id="main-content">
+            <div class="loading-state" id="loading-state">
+                <i class="fas fa-spinner fa-spin"></i>&nbsp;&nbsp;Loading...
+            </div>
+            
+            <!-- Content will be populated by JS -->
+        </main>
+    </div>
+    
+    <script>
+        // Check authentication
+        const sessionToken = localStorage.getItem('session_token');
+        const userJson = localStorage.getItem('user');
+        
+        if (!sessionToken) {
+            window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+        } else {
+            loadDashboard();
+        }
+        
+        async function loadDashboard() {
+            try {
+                // Get user info
+                const response = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${sessionToken}` }
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    localStorage.removeItem('session_token');
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                const user = data.user;
+                
+                // Update header
+                document.getElementById('user-name').textContent = user.display_name || user.username;
+                document.getElementById('avatar-initial').textContent = (user.display_name || user.username)[0].toUpperCase();
+                
+                const tierEl = document.getElementById('user-tier');
+                tierEl.textContent = user.tier;
+                if (user.tier !== 'USER' && user.tier !== 'ANONYMOUS') {
+                    tierEl.classList.add('paid');
+                }
+                
+                // Render dashboard content
+                renderDashboard(user);
+                
+            } catch (err) {
+                console.error('Dashboard load error:', err);
+                localStorage.removeItem('session_token');
+                window.location.href = '/login.html';
+            }
+        }
+        
+        function renderDashboard(user) {
+            const isWelcome = new URLSearchParams(window.location.search).get('welcome');
+            const isUpgraded = new URLSearchParams(window.location.search).get('upgraded');
+            
+            const isPaid = user.tier !== 'USER' && user.tier !== 'ANONYMOUS';
+            const isPro = user.tier === 'DEV' || user.tier === 'PROFESSIONAL';
+            
+            document.getElementById('main-content').innerHTML = `
+                <div class="page-header">
+                    <h1>Welcome back, ${user.display_name || user.username}!</h1>
+                    <p>Manage your downloads and subscription</p>
+                </div>
+                
+                ${isWelcome ? `
+                <div class="welcome-banner">
+                    <div>
+                        <h2>🎉 Welcome to ButterflyFX!</h2>
+                        <p>Your account is ready. Start by downloading the free apps below.</p>
+                    </div>
+                    <a href="start-here.html" class="btn">Get Started</a>
+                </div>
+                ` : ''}
+                
+                ${isUpgraded ? `
+                <div class="welcome-banner">
+                    <div>
+                        <h2>✨ Upgrade Successful!</h2>
+                        <p>You now have access to premium packages. Download them below.</p>
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div class="section-header">
+                    <h2>📦 Your Downloads</h2>
+                </div>
+                
+                <div class="downloads-grid">
+                    <!-- Free Apps - Always Available -->
+                    <div class="download-card">
+                        <div class="download-card-header">
+                            <h3><span class="icon">🗃️</span> Helix Database</h3>
+                            <span class="tier-badge free">FREE</span>
+                        </div>
+                        <p>Dimensional document database with JSON persistence</p>
+                        <a href="/api/download/helix_database" class="btn-download">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    </div>
+                    
+                    <div class="download-card">
+                        <div class="download-card-header">
+                            <h3><span class="icon">🔗</span> Universal Connector</h3>
+                            <span class="tier-badge free">FREE</span>
+                        </div>
+                        <p>API aggregator with 37+ integrations</p>
+                        <a href="/api/download/universal_connector" class="btn-download">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    </div>
+                    
+                    <div class="download-card">
+                        <div class="download-card-header">
+                            <h3><span class="icon">💾</span> Universal Hard Drive</h3>
+                            <span class="tier-badge free">FREE</span>
+                        </div>
+                        <p>Dimensional storage with collections</p>
+                        <a href="/api/download/universal_harddrive" class="btn-download">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    </div>
+                    
+                    <div class="download-card">
+                        <div class="download-card-header">
+                            <h3><span class="icon">🔍</span> Dimensional Explorer</h3>
+                            <span class="tier-badge free">FREE</span>
+                        </div>
+                        <p>AI-powered file browser and search</p>
+                        <a href="/api/download/dimensional_explorer" class="btn-download">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    </div>
+                    
+                    <!-- Starter Packages -->
+                    <div class="download-card ${isPaid ? '' : 'locked'}">
+                        <div class="download-card-header">
+                            <h3><span class="icon">📊</span> Graphics Package</h3>
+                            <span class="tier-badge starter">STARTER</span>
+                        </div>
+                        <p>Pixel, Gradient, and Shader substrates</p>
+                        ${isPaid 
+                            ? `<a href="/api/download/graphics_pkg" class="btn-download"><i class="fas fa-download"></i> Download</a>`
+                            : `<a href="pricing.html" class="btn-upgrade"><i class="fas fa-lock"></i> Upgrade to Access</a>`
+                        }
+                    </div>
+                    
+                    <div class="download-card ${isPaid ? '' : 'locked'}">
+                        <div class="download-card-header">
+                            <h3><span class="icon">🎨</span> CSS Animation</h3>
+                            <span class="tier-badge starter">STARTER</span>
+                        </div>
+                        <p>CSS animations and HTML page substrates</p>
+                        ${isPaid 
+                            ? `<a href="/api/download/css_substrate" class="btn-download"><i class="fas fa-download"></i> Download</a>`
+                            : `<a href="pricing.html" class="btn-upgrade"><i class="fas fa-lock"></i> Upgrade to Access</a>`
+                        }
+                    </div>
+                    
+                    <div class="download-card ${isPaid ? '' : 'locked'}">
+                        <div class="download-card-header">
+                            <h3><span class="icon">📈</span> Reports & Charts</h3>
+                            <span class="tier-badge starter">STARTER</span>
+                        </div>
+                        <p>Data visualization and reporting</p>
+                        ${isPaid 
+                            ? `<a href="/api/download/reports_substrate" class="btn-download"><i class="fas fa-download"></i> Download</a>`
+                            : `<a href="pricing.html" class="btn-upgrade"><i class="fas fa-lock"></i> Upgrade to Access</a>`
+                        }
+                    </div>
+                    
+                    <!-- Professional Packages -->
+                    <div class="download-card ${isPro ? '' : 'locked'}">
+                        <div class="download-card-header">
+                            <h3><span class="icon">🎵</span> Media Package</h3>
+                            <span class="tier-badge pro">PRO</span>
+                        </div>
+                        <p>Audio and video processing substrates</p>
+                        ${isPro 
+                            ? `<a href="/api/download/media_pkg" class="btn-download"><i class="fas fa-download"></i> Download</a>`
+                            : `<a href="pricing.html" class="btn-upgrade"><i class="fas fa-lock"></i> Upgrade to Pro</a>`
+                        }
+                    </div>
+                    
+                    <div class="download-card ${isPro ? '' : 'locked'}">
+                        <div class="download-card-header">
+                            <h3><span class="icon">🤖</span> AI Substrate</h3>
+                            <span class="tier-badge pro">PRO</span>
+                        </div>
+                        <p>LLM integration and intelligent agents</p>
+                        ${isPro 
+                            ? `<a href="/api/download/ai_substrate" class="btn-download"><i class="fas fa-download"></i> Download</a>`
+                            : `<a href="pricing.html" class="btn-upgrade"><i class="fas fa-lock"></i> Upgrade to Pro</a>`
+                        }
+                    </div>
+                </div>
+                
+                <!-- Subscription Section -->
+                <div class="subscription-card" id="subscription">
+                    <h3>💳 Your Subscription</h3>
+                    <div class="subscription-info">
+                        <div class="item">
+                            <span class="label">Current Plan</span>
+                            <span class="value">${user.tier === 'USER' ? 'Free' : user.tier}</span>
+                        </div>
+                        <div class="item">
+                            <span class="label">Status</span>
+                            <span class="value">${user.payment_status || 'Active'}</span>
+                        </div>
+                    </div>
+                    <div class="subscription-actions">
+                        ${isPaid 
+                            ? `<button class="btn-manage" onclick="manageSubscription()">Manage Subscription</button>`
+                            : `<a href="pricing.html" class="btn-manage">View Plans</a>`
+                        }
+                    </div>
+                </div>
+            `;
+        }
+        
+        async function manageSubscription() {
+            try {
+                const response = await fetch('/api/payment/portal', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${sessionToken}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert(data.error || 'Could not open subscription management');
+                }
+            } catch (err) {
+                alert('Error opening subscription management');
+            }
+        }
+        
+        // Logout handler
+        document.getElementById('logout-link').addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            try {
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${sessionToken}` }
+                });
+            } catch (err) {
+                // Ignore
+            }
+            
+            localStorage.removeItem('session_token');
+            localStorage.removeItem('user');
+            window.location.href = '/login.html';
+        });
+    </script>
+</body>
+</html>

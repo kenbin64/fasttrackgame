@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data & AI Suite — ButterflyFX</title>
+    <meta name="description" content="AI-powered data analysis, report generation, trend prediction, and data transformation. Amplify your AI workflows.">
+    <style>
+        :root {
+            --bg: #0a0a12;
+            --bg-card: #12121c;
+            --neon-purple: #8855ff;
+            --neon-pink: #ff55aa;
+            --neon-cyan: #40ffff;
+            --neon-green: #60ff90;
+            --text: #ffffff;
+            --text-dim: #a0a8c0;
+            --border: #2a2a40;
+            --product-accent: #ff55aa;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        .bg-effects {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse at 30% 20%, rgba(255, 85, 170, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(136, 85, 255, 0.1) 0%, transparent 50%);
+        }
+        
+        /* Header */
+        header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 18, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+        .logo-icon { font-size: 1.8em; }
+        .logo-text {
+            font-size: 1.4em; font-weight: 700;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        
+        nav { display: flex; gap: 30px; align-items: center; }
+        nav a { color: var(--text-dim); text-decoration: none; font-size: 0.95em; transition: color 0.2s; }
+        nav a:hover { color: var(--text); }
+        .nav-cta {
+            padding: 10px 25px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            border-radius: 25px; font-weight: 600; color: white !important;
+        }
+        
+        .btn-primary {
+            padding: 16px 40px;
+            background: linear-gradient(135deg, var(--product-accent), var(--neon-purple));
+            border: none; border-radius: 30px;
+            color: white; font-size: 1.1em; font-weight: 700;
+            cursor: pointer; text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 85, 170, 0.4);
+        }
+        
+        .btn-secondary {
+            padding: 16px 40px;
+            background: transparent;
+            border: 2px solid var(--border);
+            border-radius: 30px;
+            color: var(--text); font-size: 1.1em; font-weight: 600;
+            cursor: pointer; text-decoration: none;
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+        
+        /* Product Hero */
+        .product-hero {
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 40px 80px;
+        }
+        
+        .hero-content {
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        
+        @media (max-width: 900px) {
+            .hero-content { grid-template-columns: 1fr; text-align: center; }
+        }
+        
+        .hero-text .breadcrumb {
+            color: var(--text-dim);
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        
+        .hero-text .breadcrumb a { color: var(--product-accent); text-decoration: none; }
+        
+        .hero-text h1 {
+            font-size: 3.5em;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 25px;
+        }
+        
+        .hero-text h1 .accent { color: var(--product-accent); }
+        
+        .hero-text .tagline {
+            font-size: 1.5em;
+            color: var(--text-dim);
+            margin-bottom: 25px;
+        }
+        
+        .hero-text p {
+            font-size: 1.15em;
+            color: var(--text-dim);
+            line-height: 1.8;
+            margin-bottom: 35px;
+        }
+        
+        .hero-cta { display: flex; gap: 15px; flex-wrap: wrap; }
+        
+        .hero-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hero-image {
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 4/3;
+            background: linear-gradient(145deg, var(--bg-card), rgba(255, 85, 170, 0.1));
+            border: 2px solid var(--product-accent);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8em;
+            box-shadow: 0 30px 80px rgba(255, 85, 170, 0.3);
+        }
+        
+        /* Section Header */
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-header h2 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        .section-header p {
+            color: var(--text-dim);
+            font-size: 1.2em;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Apps Grid */
+        .apps-section {
+            padding: 100px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+        
+        @media (max-width: 800px) {
+            .apps-grid { grid-template-columns: 1fr; }
+        }
+        
+        .app-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            transition: all 0.3s;
+        }
+        
+        .app-card:hover {
+            border-color: var(--product-accent);
+            transform: translateY(-5px);
+        }
+        
+        .app-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        
+        .app-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        
+        .app-card .highlight {
+            color: var(--product-accent);
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .app-card p {
+            color: var(--text-dim);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        
+        .app-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .app-features span {
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            font-size: 0.8em;
+            color: var(--text-dim);
+        }
+        
+        /* AI Models Section */
+        .ai-models-section {
+            padding: 100px 40px;
+            background: var(--bg-card);
+        }
+        
+        .models-grid {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .model-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px 40px;
+            text-align: center;
+            min-width: 200px;
+            transition: all 0.3s;
+        }
+        
+        .model-card:hover {
+            border-color: var(--neon-cyan);
+        }
+        
+        .model-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        .model-card h3 {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+        
+        .model-card p {
+            color: var(--text-dim);
+            font-size: 0.85em;
+        }
+        
+        /* Use Cases */
+        .usecases-section {
+            padding: 100px 40px;
+        }
+        
+        .usecases-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 900px) {
+            .usecases-grid { grid-template-columns: 1fr; }
+        }
+        
+        .usecase-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+        }
+        
+        .usecase-card h4 {
+            color: var(--neon-cyan);
+            margin-bottom: 15px;
+        }
+        
+        .usecase-card p {
+            color: var(--text-dim);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        
+        .usecase-result {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: var(--neon-green);
+        }
+        
+        /* Demo Section */
+        .demo-section {
+            padding: 100px 40px;
+            background: linear-gradient(180deg, var(--bg) 0%, var(--bg-card) 100%);
+        }
+        
+        .demo-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .demo-header {
+            padding: 15px 25px;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .demo-dot { width: 12px; height: 12px; border-radius: 50%; }
+        
+        .demo-content {
+            padding: 30px;
+        }
+        
+        .demo-input {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .demo-input label {
+            display: block;
+            color: var(--text-dim);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .demo-input .sample {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: var(--text);
+        }
+        
+        .demo-output {
+            background: rgba(96, 255, 144, 0.05);
+            border: 1px solid rgba(96, 255, 144, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .demo-output label {
+            display: block;
+            color: var(--neon-green);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .demo-output .result {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: var(--text);
+            line-height: 1.7;
+        }
+        
+        /* Metrics */
+        .metrics-section {
+            padding: 80px 40px;
+        }
+        
+        .metrics-grid {
+            display: flex;
+            justify-content: center;
+            gap: 80px;
+            flex-wrap: wrap;
+        }
+        
+        .metric {
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 4em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--product-accent), var(--neon-purple));
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        
+        .metric-label {
+            color: var(--text-dim);
+            margin-top: 10px;
+        }
+        
+        /* Pricing */
+        .pricing-section {
+            padding: 100px 40px;
+            background: var(--bg-card);
+            text-align: center;
+        }
+        
+        .pricing-box {
+            display: inline-block;
+            background: var(--bg);
+            border: 2px solid var(--product-accent);
+            border-radius: 24px;
+            padding: 50px 60px;
+            max-width: 400px;
+        }
+        
+        .pricing-box h3 { font-size: 1.5em; margin-bottom: 10px; }
+        
+        .pricing-amount {
+            font-size: 4em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--product-accent), var(--neon-purple));
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        
+        .pricing-amount span {
+            font-size: 0.3em;
+            color: var(--text-dim);
+            -webkit-text-fill-color: var(--text-dim);
+        }
+        
+        .pricing-box ul {
+            list-style: none;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .pricing-box li {
+            padding: 12px 0;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .pricing-box li::before { content: '✓'; color: var(--neon-green); }
+        
+        .pricing-box .btn-primary { width: 100%; margin-top: 10px; }
+        
+        .pricing-note {
+            margin-top: 20px;
+            color: var(--text-dim);
+            font-size: 0.9em;
+        }
+        
+        .pricing-note a { color: var(--neon-cyan); text-decoration: none; }
+        
+        /* Footer */
+        footer {
+            padding: 40px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-dim);
+        }
+        
+        footer a { color: var(--text-dim); text-decoration: none; margin: 0 15px; }
+        footer a:hover { color: var(--neon-purple); }
+        
+        @media (max-width: 900px) { nav { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="bg-effects"></div>
+    
+    <!-- Header -->
+    <header>
+        <a href="../index.html" class="logo">
+            <span class="logo-icon">🦋</span>
+            <span class="logo-text">ButterflyFX</span>
+        </a>
+        <nav>
+            <a href="../index.html#products">Products</a>
+            <a href="../apps.html">App Suites</a>
+            <a href="../pricing.html">Pricing</a>
+            <a href="../login.html">Log In</a>
+            <a href="../register.html" class="nav-cta">Get Started</a>
+        </nav>
+    </header>
+    
+    <!-- Product Hero -->
+    <section class="product-hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="breadcrumb">
+                    <a href="../index.html">Home</a> → 
+                    <a href="../index.html#products">Products</a> → 
+                    Data & AI Suite
+                </div>
+                <h1>Data & <span class="accent">AI Suite</span></h1>
+                <p class="tagline">Amplify your AI. Analyze anything.</p>
+                <p>
+                    Don't just use AI — <strong>supercharge it</strong>. Feed any data into Claude, GPT, or local models. 
+                    Generate reports automatically. Predict trends. Transform messy data into 
+                    structured, actionable insights.
+                </p>
+                <div class="hero-cta">
+                    <a href="../register.html" class="btn-primary">Start Analyzing →</a>
+                    <a href="#apps" class="btn-secondary">View Apps</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-image">🧠</div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Apps in Suite -->
+    <section id="apps" class="apps-section">
+        <div class="section-header">
+            <h2>4 Powerful Apps</h2>
+            <p>Everything you need for AI-powered data workflows.</p>
+        </div>
+        
+        <div class="apps-grid">
+            <div class="app-card">
+                <div class="app-icon">🧠</div>
+                <h3>AI Amplifier</h3>
+                <div class="highlight">Supercharge Your AI</div>
+                <p>
+                    Feed any data source directly into AI models. Database rows, spreadsheets, 
+                    PDFs, images — anything. Get enhanced analysis with full context.
+                </p>
+                <div class="app-features">
+                    <span>Claude Integration</span>
+                    <span>GPT-4 Support</span>
+                    <span>Local LLMs</span>
+                    <span>Context Injection</span>
+                </div>
+            </div>
+            
+            <div class="app-card">
+                <div class="app-icon">📈</div>
+                <h3>Trend Predictor</h3>
+                <div class="highlight">See The Future</div>
+                <p>
+                    Time-series analysis and forecasting. Predict stock trends, sales patterns, 
+                    user behavior. Uses ML models trained on your data.
+                </p>
+                <div class="app-features">
+                    <span>Time Series</span>
+                    <span>ML Models</span>
+                    <span>Confidence Intervals</span>
+                    <span>Auto-Training</span>
+                </div>
+            </div>
+            
+            <div class="app-card">
+                <div class="app-icon">📄</div>
+                <h3>Report Generator</h3>
+                <div class="highlight">Automated Intelligence</div>
+                <p>
+                    Generate beautiful reports from any data. Executive summaries, technical analyses, 
+                    visualizations — all automated. Schedule daily, weekly, or on-demand.
+                </p>
+                <div class="app-features">
+                    <span>PDF Export</span>
+                    <span>Charts & Graphs</span>
+                    <span>Scheduling</span>
+                    <span>Templates</span>
+                </div>
+            </div>
+            
+            <div class="app-card">
+                <div class="app-icon">🔮</div>
+                <h3>Data Alchemist</h3>
+                <div class="highlight">Transform Anything</div>
+                <p>
+                    Convert data between any format. JSON to CSV, XML to JSON, unstructured text 
+                    to tables. AI-powered schema detection and mapping.
+                </p>
+                <div class="app-features">
+                    <span>Format Conversion</span>
+                    <span>Schema Detection</span>
+                    <span>Data Cleaning</span>
+                    <span>Validation</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Supported AI Models -->
+    <section class="ai-models-section">
+        <div class="section-header">
+            <h2>Works With Your AI</h2>
+            <p>Connect to leading AI models or run locally.</p>
+        </div>
+        
+        <div class="models-grid">
+            <div class="model-card">
+                <div class="model-icon">🟣</div>
+                <h3>Claude</h3>
+                <p>Anthropic's advanced AI</p>
+            </div>
+            <div class="model-card">
+                <div class="model-icon">🟢</div>
+                <h3>GPT-4</h3>
+                <p>OpenAI's flagship model</p>
+            </div>
+            <div class="model-card">
+                <div class="model-icon">🔵</div>
+                <h3>Copilot</h3>
+                <p>GitHub's code assistant</p>
+            </div>
+            <div class="model-card">
+                <div class="model-icon">🟠</div>
+                <h3>Ollama</h3>
+                <p>Local models, private</p>
+            </div>
+            <div class="model-card">
+                <div class="model-icon">🟡</div>
+                <h3>Hugging Face</h3>
+                <p>Open source models</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Use Cases -->
+    <section class="usecases-section">
+        <div class="section-header">
+            <h2>Real-World Use Cases</h2>
+            <p>See what's possible.</p>
+        </div>
+        
+        <div class="usecases-grid">
+            <div class="usecase-card">
+                <h4>📊 Sales Analysis</h4>
+                <p>Upload your CRM data. Get instant analysis of trends, top performers, and at-risk accounts.</p>
+                <div class="usecase-result">
+                    ✓ Q4 trending 12% above forecast<br>
+                    ✓ 3 accounts flagged for churn risk<br>
+                    ✓ Top product: Enterprise Suite
+                </div>
+            </div>
+            <div class="usecase-card">
+                <h4>📈 Stock Prediction</h4>
+                <p>Feed historical data to the Trend Predictor. Get probability-weighted forecasts.</p>
+                <div class="usecase-result">
+                    AAPL 30-day forecast:<br>
+                    ↑ Bull: +8.2% (65% conf)<br>
+                    → Neutral: +1.1% (25% conf)<br>
+                    ↓ Bear: -4.5% (10% conf)
+                </div>
+            </div>
+            <div class="usecase-card">
+                <h4>📄 Auto-Reports</h4>
+                <p>Connect to your database. Generate weekly executive summaries automatically.</p>
+                <div class="usecase-result">
+                    Report: Weekly_Summary_W42.pdf<br>
+                    ✓ 12 pages generated<br>
+                    ✓ 8 charts included<br>
+                    ✓ Sent to 5 recipients
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Demo -->
+    <section class="demo-section">
+        <div class="section-header">
+            <h2>See AI Amplifier In Action</h2>
+            <p>Feed data in, get intelligence out.</p>
+        </div>
+        
+        <div class="demo-container">
+            <div class="demo-header">
+                <div class="demo-dot" style="background: #ff5f56;"></div>
+                <div class="demo-dot" style="background: #ffbd2e;"></div>
+                <div class="demo-dot" style="background: #27ca41;"></div>
+                <span style="margin-left: 15px; color: var(--text-dim);">AI Amplifier</span>
+            </div>
+            <div class="demo-content">
+                <div class="demo-input">
+                    <label>📥 INPUT: Sales data from PostgreSQL + market context</label>
+                    <div class="sample">
+                        SELECT * FROM sales WHERE date > '2024-01-01';<br>
+                        + Market context: "Q1 tech sector down 5%, AI sector up 20%"<br>
+                        + Query: "Analyze performance and recommend strategy"
+                    </div>
+                </div>
+                <div class="demo-output">
+                    <label>🧠 AI ANALYSIS (Claude)</label>
+                    <div class="result">
+                        <strong>Key Findings:</strong><br>
+                        1. Your AI products outperforming market (+35% vs sector +20%)<br>
+                        2. Traditional software declining (-8% vs sector -5%)<br>
+                        3. Customer acquisition cost down 15% QoQ<br><br>
+                        
+                        <strong>Recommendations:</strong><br>
+                        • Shift marketing budget 20% toward AI products<br>
+                        • Consider sunsetting 2 underperforming SKUs<br>
+                        • Expand enterprise sales team (+2 headcount)<br><br>
+                        
+                        <em>Confidence: 87% based on 2,847 data points analyzed</em>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Metrics -->
+    <section class="metrics-section">
+        <div class="metrics-grid">
+            <div class="metric">
+                <div class="metric-value">5</div>
+                <div class="metric-label">AI Models Supported</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">∞</div>
+                <div class="metric-label">Data Formats</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">&lt;2s</div>
+                <div class="metric-label">Avg. Analysis Time</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">4</div>
+                <div class="metric-label">Apps Included</div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Pricing -->
+    <section class="pricing-section">
+        <div class="section-header">
+            <h2>Start Amplifying Your AI</h2>
+            <p>The complete Data & AI Suite</p>
+        </div>
+        
+        <div class="pricing-box">
+            <h3>Data & AI Suite</h3>
+            <div class="pricing-amount">$8<span>/month</span></div>
+            <ul>
+                <li>AI Amplifier</li>
+                <li>Trend Predictor</li>
+                <li>Report Generator</li>
+                <li>Data Alchemist</li>
+                <li>5 AI model integrations</li>
+                <li>Unlimited transformations</li>
+            </ul>
+            <a href="../register.html" class="btn-primary">Start Free Trial</a>
+        </div>
+        
+        <p class="pricing-note">
+            Get all 13 apps with the <a href="../pricing.html">Data Power Bundle ($20/mo)</a>
+        </p>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div>
+            <a href="../index.html">Home</a>
+            <a href="../apps.html">All Apps</a>
+            <a href="../pricing.html">Pricing</a>
+            <a href="../documents.html">Documentation</a>
+            <a href="../login.html">Login</a>
+        </div>
+        <p style="margin-top: 20px;">© 2026 ButterflyFX. All rights reserved.</p>
+    </footer>
+</body>
+</html>

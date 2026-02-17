@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products — ButterflyFX</title>
+    <meta name="description" content="Explore ButterflyFX products built on dimensional computing — Universal Hard Drive, Universal Connector, Data & AI Suite, and more.">
+    <link rel="icon" href="static/favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --bg: #050508;
+            --bg-card: rgba(18, 18, 28, 0.85);
+            --neon-purple: #8855ff;
+            --neon-pink: #ff55aa;
+            --neon-cyan: #40ffff;
+            --neon-green: #60ff90;
+            --neon-orange: #ff8844;
+            --text: #ffffff;
+            --text-dim: #a0a8c0;
+            --border: rgba(136, 85, 255, 0.3);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        /* ===== STARFIELD ===== */
+        #hyperspace {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* ===== HEADER ===== */
+        header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(5, 5, 8, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text);
+        }
+        
+        .logo-icon { font-size: 1.8em; }
+        .logo-text { font-size: 1.3em; font-weight: 700; }
+        
+        nav {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+        
+        nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.3s;
+        }
+        
+        nav a:hover { color: var(--neon-cyan); }
+        
+        nav .nav-cta {
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            color: white;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        /* ===== MAIN ===== */
+        main {
+            position: relative;
+            z-index: 10;
+            padding: 100px 30px 60px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        /* ===== HERO ===== */
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero p {
+            font-size: 1.2em;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        /* ===== STORY INTRO ===== */
+        .story-intro {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+        
+        .story-intro h2 {
+            font-size: 1.5em;
+            color: var(--neon-cyan);
+            margin-bottom: 15px;
+        }
+        
+        .story-intro p {
+            color: var(--text-dim);
+            line-height: 1.7;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        /* ===== PRODUCT CARDS ===== */
+        .products-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+        
+        .product-story {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 30px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 35px;
+            transition: all 0.3s;
+        }
+        
+        .product-story:hover {
+            border-color: var(--neon-purple);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(136, 85, 255, 0.2);
+        }
+        
+        .product-story:nth-child(even) {
+            grid-template-columns: 1.5fr 1fr;
+        }
+        
+        .product-story:nth-child(even) .product-visual {
+            order: 2;
+        }
+        
+        .product-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(136, 85, 255, 0.1);
+            border-radius: 12px;
+            min-height: 200px;
+            font-size: 5em;
+        }
+        
+        .product-content h3 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        
+        .product-content .tagline {
+            color: var(--neon-cyan);
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+        
+        .product-content p {
+            color: var(--text-dim);
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+        
+        .product-content .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .product-content .features span {
+            background: rgba(136, 85, 255, 0.15);
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            color: var(--text);
+        }
+        
+        .product-content .cta {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .product-content .cta:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(136, 85, 255, 0.4);
+        }
+        
+        /* ===== BOTTOM CTA ===== */
+        .bottom-cta {
+            text-align: center;
+            margin-top: 60px;
+            padding: 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+        }
+        
+        .bottom-cta h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+        
+        .bottom-cta p {
+            color: var(--text-dim);
+            margin-bottom: 25px;
+        }
+        
+        .bottom-cta .cta {
+            display: inline-block;
+            padding: 15px 35px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-green));
+            color: #000;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+        
+        .bottom-cta .cta:hover {
+            transform: scale(1.05);
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .product-story {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .product-story:nth-child(even) .product-visual {
+                order: 0;
+            }
+            
+            .hero h1 { font-size: 2em; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="hyperspace"></canvas>
+    
+    <header>
+        <a href="index.html" class="logo">
+            <span class="logo-icon">🦋</span>
+            <span class="logo-text">ButterflyFX</span>
+        </a>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="how-it-works.html">How It Works</a>
+            <a href="platform.html">Platform</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="login.html">Log In</a>
+            <a href="register.html" class="nav-cta">Get Started</a>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="hero">
+            <h1>🚀 The Product Suite</h1>
+            <p>Every product below is powered by dimensional computing — shapes that hold data, accessed instantly, connected infinitely.</p>
+        </div>
+        
+        <div class="story-intro">
+            <h2>Built Different. By Design.</h2>
+            <p>Traditional apps iterate through databases, wait for API calls, and stitch data together piece by piece. Our products don't. They extract what they need from geometric substrates — instantly. That's why they're faster, simpler, and more powerful.</p>
+        </div>
+        
+        <div class="products-grid">
+            <!-- Universal Hard Drive -->
+            <div class="product-story">
+                <div class="product-visual">💾</div>
+                <div class="product-content">
+                    <h3>Universal Hard Drive</h3>
+                    <div class="tagline">Every file. Every cloud. One place.</div>
+                    <p>Stop jumping between Google Drive, Dropbox, OneDrive, and your local files. Universal Hard Drive connects them all into one unified explorer. Search across everything. Move files anywhere. It's all your data, finally together.</p>
+                    <div class="features">
+                        <span>🔗 100+ Connectors</span>
+                        <span>🔍 Instant Search</span>
+                        <span>📊 Smart Organization</span>
+                    </div>
+                    <a href="products/universal-hdd.html" class="cta">Explore →</a>
+                </div>
+            </div>
+            
+            <!-- Universal Connector -->
+            <div class="product-story">
+                <div class="product-visual">🔌</div>
+                <div class="product-content">
+                    <h3>Universal Connector</h3>
+                    <div class="tagline">Connect to anything. Literally.</div>
+                    <p>102+ service integrations ready to go. Google, Spotify, PostgreSQL, weather APIs, stock prices, Wikipedia, movies — all connected through one simple interface. No more API headaches. Just point and connect.</p>
+                    <div class="features">
+                        <span>☁️ Cloud Storage</span>
+                        <span>🤖 AI Services</span>
+                        <span>📊 Finance APIs</span>
+                        <span>🎵 Media</span>
+                    </div>
+                    <a href="products/universal-connector.html" class="cta">Explore →</a>
+                </div>
+            </div>
+            
+            <!-- Data & AI Suite -->
+            <div class="product-story">
+                <div class="product-visual">🧠</div>
+                <div class="product-content">
+                    <h3>Data & AI Suite</h3>
+                    <div class="tagline">Amplify your AI. Analyze anything.</div>
+                    <p>Feed any data into Claude, GPT, or local models and get real insights. Generate reports, predict trends, transform messy spreadsheets into clean analysis. Your AI, supercharged with your data.</p>
+                    <div class="features">
+                        <span>🤖 AI Amplifier</span>
+                        <span>📈 Trend Predictor</span>
+                        <span>🔮 Data Alchemist</span>
+                    </div>
+                    <a href="products/data-ai-suite.html" class="cta">Explore →</a>
+                </div>
+            </div>
+            
+            <!-- Security Suite -->
+            <div class="product-story">
+                <div class="product-visual">🛡️</div>
+                <div class="product-content">
+                    <h3>Security Suite</h3>
+                    <div class="tagline">Security through identity — makes antivirus obsolete.</div>
+                    <p>Dimensional Shield, Manifold Firewall, Identity Vault, Threat Prism. Protection that doesn't iterate through threats — it recognizes identity at the core.</p>
+                    <div class="features">
+                        <span>🔐 Identity-First Security</span>
+                        <span>🌐 No Scanning</span>
+                        <span>🎯 Zero-Iteration Detection</span>
+                    </div>
+                    <span class="cta" style="opacity: 0.6; cursor: default;">Coming Soon</span>
+                </div>
+            </div>
+            
+            <!-- Media Restoration Suite -->
+            <div class="product-story">
+                <div class="product-visual">🎨</div>
+                <div class="product-content">
+                    <h3>Media Restoration Suite</h3>
+                    <div class="tagline">Restore and enhance by invoking the original.</div>
+                    <p>Vinyl Resurrector, Photo Healer, Instant Enhancer, Video Upscaler. Dimensional computing doesn't just enhance — it invokes what was always there.</p>
+                    <div class="features">
+                        <span>🎵 Audio Restoration</span>
+                        <span>🖼️ Photo Healing</span>
+                        <span>🎥 Video Upscaling</span>
+                    </div>
+                    <span class="cta" style="opacity: 0.6; cursor: default;">Coming Soon</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bottom-cta">
+            <h2>Ready to choose your suites?</h2>
+            <p>$8/month per suite, or bundle 3 for $20. Get all 11 suites for $60. Cancel anytime.</p>
+            <a href="https://butterflyfx.us/pricing.html" class="cta">🦋 See Pricing &amp; Choose Suites</a>
+        </div>
+    </main>
+    
+    <script>
+        // Starfield
+        const canvas = document.getElementById('hyperspace');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        function createStars() {
+            stars = [];
+            for (let i = 0; i < 200; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width - canvas.width / 2,
+                    y: Math.random() * canvas.height - canvas.height / 2,
+                    z: Math.random() * 1000,
+                    speed: 0.5 + Math.random() * 1.5
+                });
+            }
+        }
+        
+        function animate() {
+            ctx.fillStyle = 'rgba(5, 5, 8, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            
+            stars.forEach(star => {
+                star.z -= star.speed * 2;
+                if (star.z <= 0) {
+                    star.x = Math.random() * canvas.width - cx;
+                    star.y = Math.random() * canvas.height - cy;
+                    star.z = 1000;
+                }
+                
+                const scale = 500 / star.z;
+                const x = star.x * scale + cx;
+                const y = star.y * scale + cy;
+                const size = Math.max(0.5, 3 * scale);
+                const alpha = Math.min(1, scale);
+                
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(136, 85, 255, ${alpha * 0.8})`;
+                ctx.fill();
+            });
+            
+            requestAnimationFrame(animate);
+        }
+        
+        window.addEventListener('resize', () => { resize(); createStars(); });
+        resize();
+        createStars();
+        animate();
+    </script>
+</body>
+</html>

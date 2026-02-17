@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing — ButterflyFX Apps | $8/month for Everything</title>
+    
+    <!-- SEO -->
+    <meta name="description" content="ButterflyFX Apps — $8/month flat rate for all apps. Universal Hard Drive, Helix Database, Dimensional Explorer, Universal Connector, and more.">
+    <link rel="canonical" href="https://butterflyfx.us/pricing.html">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-card-hover: #1a1a25;
+            --border-color: #2a2a3a;
+            --text-primary: #fff;
+            --text-secondary: #a0a0b0;
+            --accent-purple: #8855ff;
+            --accent-pink: #ff55aa;
+            --accent-green: #2ed573;
+            --accent-blue: #4285F4;
+            --accent-gold: #ffd700;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 30% 20%, rgba(136, 85, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 70% 80%, rgba(255, 85, 170, 0.1) 0%, transparent 40%);
+        }
+        
+        /* Header */
+        .header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .header .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .header .logo h1 {
+            font-size: 1.5em;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header nav {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .header nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .header nav a:hover {
+            color: var(--text-primary);
+        }
+        
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 80px 20px 60px;
+        }
+        
+        .hero h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p {
+            font-size: 1.3em;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+        
+        /* Single Pricing Card */
+        .pricing-section {
+            padding: 40px 20px 80px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .pricing-card {
+            background: var(--bg-card);
+            border: 2px solid var(--accent-purple);
+            border-radius: 24px;
+            padding: 50px 40px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 60px rgba(136, 85, 255, 0.2);
+        }
+        
+        .pricing-badge {
+            position: absolute;
+            top: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            color: #fff;
+            padding: 8px 28px;
+            border-radius: 24px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        .plan-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .plan-name {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .plan-tagline {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+        
+        .plan-price {
+            margin-bottom: 15px;
+        }
+        
+        .price-amount {
+            font-size: 5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-green), #50fa7b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .price-currency {
+            font-size: 0.4em;
+            vertical-align: top;
+            position: relative;
+            top: 0.5em;
+        }
+        
+        .price-period {
+            color: var(--text-secondary);
+            font-size: 1.2em;
+        }
+        
+        .price-flat {
+            display: inline-block;
+            background: rgba(46, 213, 115, 0.15);
+            color: var(--accent-green);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.95em;
+            margin-bottom: 35px;
+        }
+        
+        /* Apps Grid */
+        .apps-included {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+            text-align: left;
+        }
+        
+        .app-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: rgba(136, 85, 255, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(136, 85, 255, 0.2);
+        }
+        
+        .app-item .app-icon {
+            font-size: 1.4em;
+        }
+        
+        .app-item .app-name {
+            font-weight: 500;
+        }
+        
+        .app-item .app-check {
+            margin-left: auto;
+            color: var(--accent-green);
+        }
+        
+        .btn-subscribe {
+            display: inline-block;
+            padding: 20px 60px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        
+        .btn-subscribe:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(136, 85, 255, 0.4);
+        }
+        
+        .guarantee {
+            margin-top: 25px;
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+        
+        .guarantee i {
+            color: var(--accent-green);
+            margin-right: 8px;
+        }
+        
+        /* What's Included */
+        .includes-section {
+            padding: 60px 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .includes-section h2 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 50px;
+        }
+        
+        .includes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        
+        .include-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.2s;
+        }
+        
+        .include-card:hover {
+            border-color: var(--accent-purple);
+            transform: translateY(-4px);
+        }
+        
+        .include-card .card-icon {
+            font-size: 2.2em;
+            margin-bottom: 16px;
+        }
+        
+        .include-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .include-card p {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+        
+        /* Coming Soon Section */
+        .coming-soon-section {
+            padding: 60px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .coming-soon-section h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+        }
+        
+        .coming-soon-section p {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+        
+        .coming-soon-items {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+        }
+        
+        .coming-soon-item {
+            background: var(--bg-card);
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+        
+        .coming-soon-item .badge {
+            background: rgba(255, 215, 0, 0.2);
+            color: var(--accent-gold);
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        
+        /* FAQ Section */
+        .faq-section {
+            padding: 60px 20px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .faq-section h2 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 40px;
+        }
+        
+        .faq-item {
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .faq-question {
+            padding: 20px 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .faq-question h3 {
+            font-size: 1em;
+            font-weight: 500;
+        }
+        
+        .faq-question i {
+            transition: transform 0.2s;
+            color: var(--text-secondary);
+        }
+        
+        .faq-item.open .faq-question i {
+            transform: rotate(180deg);
+        }
+        
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s;
+        }
+        
+        .faq-item.open .faq-answer {
+            max-height: 200px;
+        }
+        
+        .faq-answer p {
+            padding-bottom: 20px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .footer a {
+            color: var(--accent-purple);
+            text-decoration: none;
+        }
+        
+        /* Checkout Modal */
+        .checkout-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .checkout-modal.active {
+            display: flex;
+        }
+        
+        .checkout-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 450px;
+            margin: 20px;
+        }
+        
+        .checkout-header {
+            padding: 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .checkout-header h2 {
+            font-size: 1.2em;
+        }
+        
+        .checkout-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        
+        .checkout-body {
+            padding: 25px;
+        }
+        
+        .checkout-summary {
+            background: var(--bg-dark);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .checkout-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+        
+        .checkout-line.total {
+            border-top: 1px solid var(--border-color);
+            margin-top: 15px;
+            padding-top: 15px;
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+        
+        .checkout-line.total .price {
+            color: var(--accent-green);
+        }
+        
+        #stripe-element {
+            padding: 15px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        #checkout-error {
+            color: #ff4757;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        
+        .btn-checkout {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-checkout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(136, 85, 255, 0.4);
+        }
+        
+        .btn-checkout:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .secure-note {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+        
+        .secure-note i {
+            color: var(--accent-green);
+            margin-right: 6px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .hero h1 {
+                font-size: 2.2em;
+            }
+            
+            .hero p {
+                font-size: 1.1em;
+            }
+            
+            .pricing-card {
+                padding: 40px 25px;
+            }
+            
+            .price-amount {
+                font-size: 4em;
+            }
+            
+            .apps-included {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <a href="index.html" class="logo">
+            <span>🦋</span>
+            <h1>ButterflyFX</h1>
+        </a>
+        <nav>
+            <a href="apps.html">Apps</a>
+            <a href="platform.html">Platform</a>
+            <a href="documents.html">Docs</a>
+            <a href="about.html">About</a>
+        </nav>
+    </header>
+    
+    <!-- Hero -->
+    <section class="hero">
+        <h1>Choose Your Power</h1>
+        <p>Pick the suites you need. Each suite is $8/month, or bundle and save.</p>
+    </section>
+    
+    <!-- Featured Data Power Bundle -->
+    <section style="max-width: 900px; margin: 0 auto 40px; padding: 0 20px;">
+        <div style="background: linear-gradient(135deg, rgba(96, 255, 144, 0.15), rgba(64, 180, 255, 0.1)); border: 2px solid rgba(96, 255, 144, 0.5); border-radius: 20px; padding: 30px; text-align: center;">
+            <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                <span style="background: linear-gradient(135deg, #60ff90, #40b4ff); color: #000; padding: 8px 16px; border-radius: 20px; font-weight: 700;">⭐ FLAGSHIP BUNDLE</span>
+                <span style="background: rgba(255, 200, 50, 0.2); color: #ffc832; padding: 6px 12px; border-radius: 15px;">AVAILABLE NOW</span>
+            </div>
+            <h2 style="font-size: 2em; margin-bottom: 10px;">🔥 Data Power Bundle</h2>
+            <p style="color: #b0c0e0; margin-bottom: 20px;">Universal Connector + Database + Data & AI = 13 apps for data mastery</p>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap;">
+                <div>
+                    <span style="font-size: 3em; font-weight: 700; color: #60ff90;">$20</span>
+                    <span style="color: #888;">/month</span>
+                    <span style="text-decoration: line-through; color: #666; margin-left: 8px;">$24</span>
+                </div>
+                <button class="btn-subscribe" style="background: linear-gradient(135deg, #60ff90, #40b4ff); color: #000;" onclick="startCheckout('data-power')">
+                    Get Data Power Bundle →
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Pricing Cards -->
+    <section class="pricing-section" style="display: flex; flex-wrap: wrap; gap: 25px; justify-content: center; max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        
+        <!-- Single Suite -->
+        <div class="pricing-card" style="flex: 1; min-width: 280px; max-width: 350px;">
+            <span class="pricing-badge">🎯 Pick One</span>
+            
+            <div class="plan-icon">📦</div>
+            <h2 class="plan-name">Single Suite</h2>
+            <p class="plan-tagline">Get started with one focus area</p>
+            
+            <div class="plan-price">
+                <span class="price-amount"><span class="price-currency">$</span>8</span>
+                <span class="price-period">/month</span>
+            </div>
+            
+            <div class="price-flat">✓ Any suite of your choice</div>
+            
+            <div class="apps-included" style="text-align: left; font-size: 0.9em;">
+                <p style="color: #888; margin-bottom: 10px;">Available now:</p>
+                <div class="app-item" style="color: #60ff90;">🔌 Universal Connector Suite ✓</div>
+                <div class="app-item" style="color: #60ff90;">🗄️ Database Suite ✓</div>
+                <div class="app-item" style="color: #60ff90;">📊 Data & AI Suite ✓</div>
+                <p style="color: #888; margin: 10px 0 5px;">Coming soon:</p>
+                <div class="app-item" style="opacity: 0.6;">🛡️ Security Suite</div>
+                <div class="app-item" style="opacity: 0.6;">🎨 Media Restoration Suite</div>
+                <div class="app-item" style="opacity: 0.6;">🔧 System Optimizer Suite</div>
+                <div class="app-item" style="opacity: 0.6;">+ 5 more suites</div>
+            </div>
+            
+            <button class="btn-subscribe" onclick="startCheckout('single')">
+                Subscribe $8/month
+            </button>
+        </div>
+        
+        <!-- Data Power Bundle (3 Suites) -->
+        <div class="pricing-card" style="flex: 1; min-width: 280px; max-width: 350px; border-color: rgba(96, 255, 144, 0.6); background: linear-gradient(135deg, rgba(96, 255, 144, 0.15), rgba(64, 180, 255, 0.1));">
+            <span class="pricing-badge" style="background: linear-gradient(135deg, #60ff90, #40b4ff); color: #000;">🔥 Data Power</span>
+            
+            <div class="plan-icon">🎁</div>
+            <h2 class="plan-name">Data Power Bundle</h2>
+            <p class="plan-tagline">Connect • Store • Analyze</p>
+            
+            <div class="plan-price">
+                <span class="price-amount"><span class="price-currency">$</span>20</span>
+                <span class="price-period">/month</span>
+            </div>
+            
+            <div class="price-flat" style="color: #60ff90;">✓ Save $4/month • All available now</div>
+            
+            <div class="apps-included" style="text-align: left; font-size: 0.9em;">
+                <div class="app-item" style="color: #60ff90;">🔌 Universal Connector Suite (5 apps)</div>
+                <div class="app-item" style="color: #60ff90;">🗄️ Database Suite (3 apps)</div>
+                <div class="app-item" style="color: #60ff90;">📊 Data & AI Suite (5 apps)</div>
+                <div class="app-item" style="color: #ffc832; margin-top: 10px;">= 13 apps total</div>
+            </div>
+            
+            <button class="btn-subscribe" style="background: linear-gradient(135deg, #60ff90, #40b4ff); color: #000;" onclick="startCheckout('data-power')">
+                Get Data Power $20/mo
+            </button>
+        </div>
+        
+        <!-- All Suites -->
+        <div class="pricing-card" style="flex: 1; min-width: 280px; max-width: 350px; border-color: rgba(136, 85, 255, 0.6); background: linear-gradient(135deg, rgba(136, 85, 255, 0.15), rgba(255, 85, 170, 0.1));">
+            <span class="pricing-badge" style="background: linear-gradient(135deg, #8855ff, #ff55aa);">🚀 Everything</span>
+            
+            <div class="plan-icon">🌟</div>
+            <h2 class="plan-name">All Suites</h2>
+            <p class="plan-tagline">Everything. Nothing held back.</p>
+            
+            <div class="plan-price">
+                <span class="price-amount"><span class="price-currency">$</span>60</span>
+                <span class="price-period">/month</span>
+            </div>
+            
+            <div class="price-flat" style="color: #60ff90;">✓ Save $28/month (was $88)</div>
+            
+            <div class="apps-included" style="text-align: left; font-size: 0.9em;">
+                <p style="color: #888; margin-bottom: 10px;">Everything included:</p>
+                <div class="app-item" style="color: #60ff90;">✓ All 11 suites (55+ apps)</div>
+                <div class="app-item" style="color: #60ff90;">✓ Data Power Bundle included</div>
+                <div class="app-item" style="color: #60ff90;">✓ Future apps included</div>
+                <div class="app-item" style="color: #60ff90;">✓ Priority support</div>
+            </div>
+            
+            <button class="btn-subscribe" style="background: linear-gradient(135deg, #60ff90, #40ffff); color: #000;" onclick="startCheckout('all')">
+                Subscribe $60/month
+            </button>
+            
+            <p class="guarantee">
+                <i class="fas fa-shield-alt"></i>
+                Cancel anytime. No long-term contracts.
+            </p>
+        </div>
+    </section>
+    
+    <!-- Suite Details -->
+    <section class="includes-section">
+        <h2>11 Suites • 55+ Apps</h2>
+        
+        <div class="includes-grid">
+            <div class="include-card" style="border-color: rgba(96, 255, 144, 0.4);">
+                <div class="card-icon">📊</div>
+                <h3>Data & AI Suite <span style="background: rgba(255, 200, 50, 0.3); color: #ffc832; padding: 2px 8px; border-radius: 10px; font-size: 0.6em; margin-left: 5px;">✓ Available</span></h3>
+                <p>Universal Reference, AI Amplifier, Report Generator, Trend Predictor, Data Alchemist. Supercharge analysis and AI.</p>
+            </div>
+            
+            <div class="include-card" style="opacity: 0.7;">
+                <div class="card-icon">🛡️</div>
+                <h3>Security Suite <span style="background: rgba(136, 85, 255, 0.3); color: #a080ff; padding: 2px 8px; border-radius: 10px; font-size: 0.6em; margin-left: 5px;">Coming Soon</span></h3>
+                <p>Dimensional Shield, Manifold Firewall, Identity Vault, Threat Prism. Security through identity — makes antivirus obsolete.</p>
+            </div>
+            
+            <div class="include-card" style="opacity: 0.7;">
+                <div class="card-icon">🎨</div>
+                <h3>Media Restoration Suite <span style="background: rgba(136, 85, 255, 0.3); color: #a080ff; padding: 2px 8px; border-radius: 10px; font-size: 0.6em; margin-left: 5px;">Coming Soon</span></h3>
+                <p>Vinyl Resurrector, Photo Healer, Instant Enhancer, Video Upscaler. Restore and enhance by invoking the original.</p>
+            </div>
+            
+            <div class="include-card" style="opacity: 0.7;">
+                <div class="card-icon">🔧</div>
+                <h3>System Optimizer Suite <span style="background: rgba(136, 85, 255, 0.3); color: #a080ff; padding: 2px 8px; border-radius: 10px; font-size: 0.6em; margin-left: 5px;">Coming Soon</span></h3>
+                <p>Startup Surgeon, Registry Healer, Space Reclaimer, Service Optimizer, Boot Accelerator. Supercharged PC cleanup.</p>
+            </div>
+            
+            <div class="include-card" style="border-color: rgba(96, 255, 144, 0.4);">
+                <div class="card-icon">🔌</div>
+                <h3>Universal Connector Suite <span style="background: rgba(255, 200, 50, 0.3); color: #ffc832; padding: 2px 8px; border-radius: 10px; font-size: 0.6em; margin-left: 5px;">✓ Available</span></h3>
+                <p>Universal Hard Drive, File Harvester, URL Vacuum, AI Ingester, App Mirror. Ingest anything from anywhere.</p>
+            </div>
+            
+            <div class="include-card" style="border-color: rgba(96, 255, 144, 0.4);">
+                <div class="card-icon">🗄️</div>
+                <h3>Database Suite <span style="background: rgba(255, 200, 50, 0.3); color: #ffc832; padding: 2px 8px; border-radius: 10px; font-size: 0.6em; margin-left: 5px;">✓ Available</span></h3>
+                <p>DimensionDB, Dimensional Organizer, Knowledge Weaver. Data storage without SQL, joins, or iteration.</p>
+            </div>
+            
+            <div class="include-card" style="opacity: 0.7;">
+                <div class="card-icon">🎯</div>
+                <h3>Creative Suite <span style="background: rgba(136, 85, 255, 0.3); color: #a080ff; padding: 2px 8px; border-radius: 10px; font-size: 0.6em; margin-left: 5px;">Coming Soon</span></h3>
+                <p>Web Architect, Photo Dimension, Layout Manifold, Brand Synthesizer, Collage Maker, Mosaic Maker. Design with dimensional intelligence.</p>
+            </div>
+            
+            <div class="include-card" style="opacity: 0.7;">
+                <div class="card-icon">🎵</div>
+                <h3>Music Collaboration Suite <span style="background: rgba(136, 85, 255, 0.3); color: #a080ff; padding: 2px 8px; border-radius: 10px; font-size: 0.6em; margin-left: 5px;">Coming Soon</span></h3>
+                <p>Sync Metronome, DAW Track Syncer, World Time Syncer, Video-Audio Syncer. Play together online with perfect sync.</p>
+            </div>
+            
+            <div class="include-card" style="opacity: 0.7;">
+                <div class="card-icon">🎧</div>
+                <h3>Audio Production Suite <span style="background: rgba(136, 85, 255, 0.3); color: #a080ff; padding: 2px 8px; border-radius: 10px; font-size: 0.6em; margin-left: 5px;">Coming Soon</span></h3>
+                <p>Channel Divider, Instrument Remover, Audio Enhancer, Music Mixer, Single Player Studio. Isolate, enhance, and remix any audio.</p>
+            </div>
+            
+            <div class="include-card" style="opacity: 0.7;">
+                <div class="card-icon">🎤</div>
+                <h3>Karaoke Suite <span style="background: rgba(136, 85, 255, 0.3); color: #a080ff; padding: 2px 8px; border-radius: 10px; font-size: 0.6em; margin-left: 5px;">Coming Soon</span></h3>
+                <p>Karaoke Maker, Karaoke Host, Singer Charter, Karaoke Player. Create, host, and enjoy karaoke.</p>
+            </div>
+            
+            <div class="include-card" style="opacity: 0.7;">
+                <div class="card-icon">🎬</div>
+                <h3>Video Production Suite <span style="background: rgba(136, 85, 255, 0.3); color: #a080ff; padding: 2px 8px; border-radius: 10px; font-size: 0.6em; margin-left: 5px;">Coming Soon</span></h3>
+                <p>Video Enhancer, A/V Sync Master, Multi-Cam Syncer. Enhance and sync video with dimensional precision.</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Coming Soon -->
+    <section class="coming-soon-section">
+        <h2>Coming Soon</h2>
+        <p>Developer tools and the ButterflyFX programming language will be available in a future release.</p>
+        
+        <div class="coming-soon-items">
+            <div class="coming-soon-item">
+                <span>💻</span>
+                <span>Programming Language</span>
+                <span class="badge">Coming Soon</span>
+            </div>
+            <div class="coming-soon-item">
+                <span>🛠️</span>
+                <span>Developer Tools</span>
+                <span class="badge">Coming Soon</span>
+            </div>
+            <div class="coming-soon-item">
+                <span>📦</span>
+                <span>SDK & Libraries</span>
+                <span class="badge">Coming Soon</span>
+            </div>
+        </div>
+    </section>
+    
+    <!-- FAQ -->
+    <section class="faq-section">
+        <h2>Frequently Asked Questions</h2>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <h3>How does suite pricing work?</h3>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Each suite is $8/month. Bundle 3 suites for $20/month (save $4), or get all 11 suites for $60/month (save $28). Mix and match any suites you want.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <h3>Can I cancel anytime?</h3>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Yes! No contracts, no cancellation fees. Cancel whenever you want and you'll have access until the end of your billing period.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <h3>What about the developer tools?</h3>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>The ButterflyFX programming language and developer SDK are coming soon. When released, existing subscribers will get special early access.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <h3>Is my data secure?</h3>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Absolutely. Data stays on your connected sources until accessed (lazy loading). We only store Substrate Reference Links (SRLs), not your actual data.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <h3>Do I need technical knowledge?</h3>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Not at all. Our apps are designed for everyone. The Universal Hard Drive works like Windows Explorer, and connectors have pre-configured buttons — just add your credentials.</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 ButterflyFX. All rights reserved.</p>
+        <p style="margin-top: 10px;">
+            <a href="terms.html">Terms</a> · 
+            <a href="privacy.html">Privacy</a> · 
+            <a href="mailto:support@butterflyfx.us">Contact</a>
+        </p>
+    </footer>
+    
+    <!-- Checkout Modal -->
+    <div class="checkout-modal" id="checkoutModal">
+        <div class="checkout-container">
+            <div class="checkout-header">
+                <h2>🦋 Subscribe to ButterflyFX</h2>
+                <button class="checkout-close" onclick="closeCheckout()">&times;</button>
+            </div>
+            <div class="checkout-body">
+                <div class="checkout-summary">
+                    <div class="checkout-line">
+                        <span>ButterflyFX Apps (Full Access)</span>
+                        <span>$8.00</span>
+                    </div>
+                    <div class="checkout-line total">
+                        <span>Total</span>
+                        <span class="price">$8.00/month</span>
+                    </div>
+                </div>
+                
+                <div id="stripe-element"></div>
+                <div id="checkout-error"></div>
+                
+                <button class="btn-checkout" id="btn-pay" onclick="processPayment()">
+                    Subscribe — $8/month
+                </button>
+                
+                <p class="secure-note">
+                    <i class="fas fa-lock"></i>
+                    Secured by Stripe. Cancel anytime.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // FAQ Toggle
+        function toggleFAQ(element) {
+            const faqItem = element.parentElement;
+            faqItem.classList.toggle('open');
+        }
+        
+        // Checkout Modal
+        function startCheckout() {
+            document.getElementById('checkoutModal').classList.add('active');
+            // Initialize Stripe Elements here when you have a Stripe account
+        }
+        
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.remove('active');
+        }
+        
+        // Close on background click
+        document.getElementById('checkoutModal').addEventListener('click', function(e) {
+            if (e.target === this) closeCheckout();
+        });
+        
+        // Payment processing (placeholder)
+        function processPayment() {
+            const btn = document.getElementById('btn-pay');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            
+            // TODO: Integrate with Stripe when ready
+            setTimeout(() => {
+                alert('Payment integration coming soon! For now, contact support@butterflyfx.us');
+                btn.disabled = false;
+                btn.textContent = 'Subscribe — $8/month';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

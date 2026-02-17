@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karaoke Maker | ButterflyFX</title>
+    <style>
+        :root {
+            --bg: #050508;
+            --bg-card: rgba(18, 18, 28, 0.9);
+            --text: #ffffff;
+            --text-dim: #a0a8c0;
+            --neon-green: #00ff88;
+            --neon-cyan: #00d4ff;
+            --neon-pink: #ff4d8b;
+            --neon-purple: #9b6dff;
+            --border: rgba(0, 255, 136, 0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        header { text-align: center; padding: 30px 0; }
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .tagline { color: var(--text-dim); font-size: 1.1rem; }
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin: 20px 0;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--neon-pink);
+            background: rgba(255,77,139,0.1);
+        }
+        .drop-zone.loaded {
+            border-color: var(--neon-green);
+            background: rgba(0,255,136,0.05);
+        }
+        .drop-icon { font-size: 4rem; margin-bottom: 20px; }
+        .drop-text { font-size: 1.2rem; margin-bottom: 10px; }
+        .drop-hint { color: var(--text-dim); font-size: 0.9rem; }
+        input[type="file"] { display: none; }
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+        .panel h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .waveform-container {
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            height: 120px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .waveform {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 2px;
+            padding: 0 20px;
+        }
+        .wave-bar {
+            width: 4px;
+            background: linear-gradient(180deg, var(--neon-pink), var(--neon-purple));
+            border-radius: 2px;
+            transition: height 0.1s;
+        }
+        .playback-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .play-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .play-btn:hover { transform: scale(1.1); }
+        .play-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .time-display {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            font-family: monospace;
+        }
+        .stems-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .stem-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+        }
+        .stem-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stem-card.vocals h3 { color: var(--neon-pink); }
+        .stem-card.instrumental h3 { color: var(--neon-green); }
+        .stem-card.drums h3 { color: var(--neon-cyan); }
+        .stem-card.bass h3 { color: var(--neon-purple); }
+        .stem-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .stem-slider {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            outline: none;
+        }
+        .stem-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            cursor: pointer;
+        }
+        .stem-value {
+            font-size: 0.85rem;
+            width: 40px;
+            text-align: right;
+        }
+        .mute-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .mute-btn.muted {
+            background: var(--neon-pink);
+            color: white;
+        }
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .action-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+            color: white;
+        }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .processing-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(5,5,8,0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .processing-overlay.active { display: flex; }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--border);
+            border-top-color: var(--neon-pink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .processing-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .processing-status {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 25px;
+            text-align: center;
+        }
+        .comparison-box {
+            padding: 20px;
+            border-radius: 12px;
+        }
+        .comparison-box.before { background: rgba(255,77,139,0.15); }
+        .comparison-box.after { background: rgba(0,255,136,0.15); }
+        .comparison-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .before .comparison-value { color: var(--neon-pink); }
+        .after .comparison-value { color: var(--neon-green); }
+        .comparison-label { font-size: 0.8rem; color: var(--text-dim); }
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .preset-btn {
+            padding: 8px 16px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .preset-btn:hover { border-color: var(--neon-pink); }
+        .preset-btn.active { background: var(--neon-pink); border-color: var(--neon-pink); }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+        }
+        .back-link:hover { color: var(--neon-green); }
+        @media (max-width: 600px) {
+            .stems-grid { grid-template-columns: 1fr; }
+            .action-buttons { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/superchargers" class="back-link">← Back to Superchargers</a>
+        
+        <header>
+            <h1>🎤 Karaoke Maker</h1>
+            <p class="tagline">Remove vocals from any song — create instant karaoke tracks</p>
+        </header>
+        
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="drop-icon">🎵</div>
+            <div class="drop-text">Drop your audio file here</div>
+            <div class="drop-hint">MP3, WAV, M4A, or FLAC (max 50MB)</div>
+            <input type="file" id="fileInput" accept="audio/*">
+        </div>
+        
+        <div class="panel" id="audioPanel" style="display: none;">
+            <h2>🎧 Audio Processing</h2>
+            
+            <div class="waveform-container">
+                <div class="waveform" id="waveform"></div>
+            </div>
+            
+            <div class="playback-controls">
+                <span class="time-display" id="currentTime">0:00</span>
+                <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+                <span class="time-display" id="duration">0:00</span>
+            </div>
+            
+            <h3 style="font-size: 1rem; margin-bottom: 15px; color: var(--neon-cyan);">🎛️ Stem Mixer</h3>
+            
+            <div class="preset-buttons">
+                <button class="preset-btn active" onclick="applyPreset('karaoke')">🎤 Karaoke</button>
+                <button class="preset-btn" onclick="applyPreset('acapella')">🗣️ Acapella</button>
+                <button class="preset-btn" onclick="applyPreset('instrumental')">🎸 Instrumental</button>
+                <button class="preset-btn" onclick="applyPreset('drums')">🥁 Drums Only</button>
+            </div>
+            
+            <div class="stems-grid">
+                <div class="stem-card vocals">
+                    <button class="mute-btn" id="vocalsMute" onclick="toggleMute('vocals')">MUTE</button>
+                    <h3>🎤 Vocals</h3>
+                    <div class="stem-slider-container">
+                        <input type="range" class="stem-slider" id="vocalsSlider" min="0" max="100" value="0" oninput="updateStem('vocals')">
+                        <span class="stem-value" id="vocalsValue">0%</span>
+                    </div>
+                </div>
+                
+                <div class="stem-card instrumental">
+                    <button class="mute-btn" id="instrumentalMute" onclick="toggleMute('instrumental')">MUTE</button>
+                    <h3>🎸 Instrumental</h3>
+                    <div class="stem-slider-container">
+                        <input type="range" class="stem-slider" id="instrumentalSlider" min="0" max="100" value="100" oninput="updateStem('instrumental')">
+                        <span class="stem-value" id="instrumentalValue">100%</span>
+                    </div>
+                </div>
+                
+                <div class="stem-card drums">
+                    <button class="mute-btn" id="drumsMute" onclick="toggleMute('drums')">MUTE</button>
+                    <h3>🥁 Drums</h3>
+                    <div class="stem-slider-container">
+                        <input type="range" class="stem-slider" id="drumsSlider" min="0" max="100" value="100" oninput="updateStem('drums')">
+                        <span class="stem-value" id="drumsValue">100%</span>
+                    </div>
+                </div>
+                
+                <div class="stem-card bass">
+                    <button class="mute-btn" id="bassMute" onclick="toggleMute('bass')">MUTE</button>
+                    <h3>🎸 Bass</h3>
+                    <div class="stem-slider-container">
+                        <input type="range" class="stem-slider" id="bassSlider" min="0" max="100" value="100" oninput="updateStem('bass')">
+                        <span class="stem-value" id="bassValue">100%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="comparison">
+                <div class="comparison-box before">
+                    <div class="comparison-value" id="originalInfo">Original Track</div>
+                    <div class="comparison-label">With vocals</div>
+                </div>
+                <div class="comparison-box after">
+                    <div class="comparison-value" id="processedInfo">Karaoke Ready</div>
+                    <div class="comparison-label">Vocals removed</div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn btn-secondary" onclick="preview()">👁️ Preview Mix</button>
+                <button class="action-btn btn-primary" onclick="exportTrack()">⬇️ Export Karaoke</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="processing-overlay" id="processingOverlay">
+        <div class="spinner"></div>
+        <div class="processing-text">Processing Audio...</div>
+        <div class="processing-status" id="processingStatus">Analyzing waveform...</div>
+    </div>
+    
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const audioPanel = document.getElementById('audioPanel');
+        const processingOverlay = document.getElementById('processingOverlay');
+        const waveform = document.getElementById('waveform');
+        
+        let audioContext;
+        let audioBuffer;
+        let sourceNode;
+        let isPlaying = false;
+        let audioFile = null;
+        
+        // Create waveform visualization
+        function createWaveform() {
+            const bars = 60;
+            waveform.innerHTML = '';
+            for (let i = 0; i < bars; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'wave-bar';
+                bar.style.height = Math.random() * 80 + 20 + 'px';
+                waveform.appendChild(bar);
+            }
+        }
+        
+        // Animate waveform
+        function animateWaveform() {
+            const bars = waveform.querySelectorAll('.wave-bar');
+            bars.forEach(bar => {
+                bar.style.height = Math.random() * 80 + 20 + 'px';
+            });
+            if (isPlaying) {
+                requestAnimationFrame(animateWaveform);
+            }
+        }
+        
+        // Drag and drop handling
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length && files[0].type.startsWith('audio/')) {
+                processFile(files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                processFile(e.target.files[0]);
+            }
+        });
+        
+        async function processFile(file) {
+            audioFile = file;
+            
+            // Show processing overlay
+            processingOverlay.classList.add('active');
+            
+            const steps = [
+                'Analyzing waveform...',
+                'Separating vocal frequencies...',
+                'Isolating instrumental tracks...',
+                'Extracting drum patterns...',
+                'Processing bass lines...',
+                'Finalizing stems...'
+            ];
+            
+            for (let i = 0; i < steps.length; i++) {
+                document.getElementById('processingStatus').textContent = steps[i];
+                await new Promise(r => setTimeout(r, 500));
+            }
+            
+            // Hide processing, show panel
+            processingOverlay.classList.remove('active');
+            dropZone.classList.add('loaded');
+            dropZone.innerHTML = `
+                <div class="drop-icon">✓</div>
+                <div class="drop-text">${file.name}</div>
+                <div class="drop-hint">${(file.size / 1024 / 1024).toFixed(2)} MB - Click to change</div>
+            `;
+            
+            audioPanel.style.display = 'block';
+            createWaveform();
+            
+            // Get duration
+            const audio = new Audio(URL.createObjectURL(file));
+            audio.addEventListener('loadedmetadata', () => {
+                document.getElementById('duration').textContent = formatTime(audio.duration);
+            });
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('playBtn');
+            btn.textContent = isPlaying ? '⏸' : '▶';
+            
+            if (isPlaying) {
+                animateWaveform();
+            }
+        }
+        
+        function updateStem(stem) {
+            const value = document.getElementById(stem + 'Slider').value;
+            document.getElementById(stem + 'Value').textContent = value + '%';
+            
+            // Update mute button state
+            const muteBtn = document.getElementById(stem + 'Mute');
+            if (parseInt(value) === 0) {
+                muteBtn.classList.add('muted');
+            } else {
+                muteBtn.classList.remove('muted');
+            }
+        }
+        
+        function toggleMute(stem) {
+            const slider = document.getElementById(stem + 'Slider');
+            const muteBtn = document.getElementById(stem + 'Mute');
+            
+            if (muteBtn.classList.contains('muted')) {
+                slider.value = 100;
+                muteBtn.classList.remove('muted');
+            } else {
+                slider.value = 0;
+                muteBtn.classList.add('muted');
+            }
+            updateStem(stem);
+        }
+        
+        function applyPreset(preset) {
+            // Reset all preset buttons
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const presets = {
+                karaoke: { vocals: 0, instrumental: 100, drums: 100, bass: 100 },
+                acapella: { vocals: 100, instrumental: 0, drums: 0, bass: 0 },
+                instrumental: { vocals: 0, instrumental: 100, drums: 100, bass: 100 },
+                drums: { vocals: 0, instrumental: 0, drums: 100, bass: 0 }
+            };
+            
+            const values = presets[preset];
+            Object.keys(values).forEach(stem => {
+                document.getElementById(stem + 'Slider').value = values[stem];
+                updateStem(stem);
+            });
+            
+            // Update comparison box
+            const labels = {
+                karaoke: 'Vocals removed',
+                acapella: 'Vocals only',
+                instrumental: 'No vocals',
+                drums: 'Drums isolated'
+            };
+            document.getElementById('processedInfo').textContent = preset.charAt(0).toUpperCase() + preset.slice(1) + ' Ready';
+            document.querySelector('.comparison-box.after .comparison-label').textContent = labels[preset];
+        }
+        
+        function preview() {
+            if (!audioFile) {
+                alert('Please upload an audio file first');
+                return;
+            }
+            togglePlay();
+        }
+        
+        function exportTrack() {
+            if (!audioFile) {
+                alert('Please upload an audio file first');
+                return;
+            }
+            
+            // Simulate export
+            const vocals = document.getElementById('vocalsSlider').value;
+            const instrumental = document.getElementById('instrumentalSlider').value;
+            
+            let suffix = 'edited';
+            if (vocals === '0' && instrumental === '100') suffix = 'karaoke';
+            else if (vocals === '100' && instrumental === '0') suffix = 'acapella';
+            
+            const fileName = audioFile.name.replace(/\.[^/.]+$/, '') + '_' + suffix + '.mp3';
+            
+            alert(`Export ready: ${fileName}\n\nIn production, this would download the processed audio file with your stem mix applied.`);
+        }
+        
+        // Initialize
+        createWaveform();
+    </script>
+</body>
+</html>

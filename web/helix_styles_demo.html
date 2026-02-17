@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelixStyles Demo — ButterflyFX Substrate Presentation</title>
+    <link rel="stylesheet" href="static/css/helix_styles_demo.css">
+</head>
+<body style="background:#050510;color:#fff;margin:0;padding:0;font-family:sans-serif;">
+    <noscript>
+        <div style="background:red;color:white;padding:50px;text-align:center;">
+            <h1>JavaScript is Disabled</h1>
+            <p>This demo requires JavaScript to run.</p>
+        </div>
+    </noscript>
+    
+    <div id="loading-msg" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1f3a;color:#4060ff;padding:30px 50px;border-radius:15px;font-family:sans-serif;z-index:1000;">
+        <h2>HelixStyles Demo</h2>
+        <p>Loading...</p>
+    </div>
+    
+    <canvas id="canvas"></canvas>
+    
+    <div id="ui-overlay">
+        <h1 id="title">HelixStyles</h1>
+        <p id="subtitle">Substrate-Based Visual Presentation</p>
+        
+        <div id="controls">
+            <div class="control-group">
+                <h3>Text Swarm Controls</h3>
+                <input type="text" id="swarm-text" value="ButterflyFX" placeholder="Enter text...">
+                <button onclick="createNewSwarm()">Create Swarm</button>
+                <button onclick="explodeSwarm()">💥 Explode</button>
+                <button onclick="implodeSwarm()">🌀 Implode</button>
+            </div>
+            
+            <div class="control-group">
+                <h3>Formations</h3>
+                <button onclick="spiralFormation()">🌀 Spiral</button>
+                <button onclick="sphereFormation()">🔮 Sphere</button>
+                <button onclick="waveFormation()">🌊 Wave</button>
+                <button onclick="textFormation()">📝 Text</button>
+            </div>
+            
+            <div class="control-group">
+                <h3>Level Transitions</h3>
+                <div class="level-buttons">
+                    <button onclick="setLevel(0)">0</button>
+                    <button onclick="setLevel(1)">1</button>
+                    <button onclick="setLevel(2)">2</button>
+                    <button onclick="setLevel(3)">3</button>
+                    <button onclick="setLevel(4)">4</button>
+                    <button onclick="setLevel(5)">5</button>
+                    <button onclick="setLevel(6)" class="active">6</button>
+                </div>
+                <div class="level-labels">
+                    <span>Potential</span>
+                    <span>Point</span>
+                    <span>Length</span>
+                    <span>Width</span>
+                    <span>Plane</span>
+                    <span>Volume</span>
+                    <span>Whole</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>Theme</h3>
+                <select id="theme-select" onchange="changeTheme(this.value)">
+                    <option value="dark">Dark Manifold</option>
+                    <option value="neon">Neon Cyber</option>
+                    <option value="cosmic">Cosmic Dream</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <h3>Morph Text</h3>
+                <input type="text" id="morph-text" value="DIMENSIONAL" placeholder="Morph to...">
+                <button onclick="morphText()">🔄 Morph</button>
+            </div>
+        </div>
+        
+        <div id="info-panel">
+            <h3>What is HelixStyles?</h3>
+            <p>
+                <strong>Not CSS</strong> — a revolutionary substrate-based presentation system where 
+                visual elements exist as tokens in a 7-level helix manifold.
+            </p>
+            <ul>
+                <li>🌀 Elements spiral through dimensional levels</li>
+                <li>✨ Text decomposes into particle swarms</li>
+                <li>🎨 Colors derive from helix position</li>
+                <li>🔮 Each render is mathematically unique</li>
+                <li>📐 3D/4D immersive experiences</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div id="level-indicator">
+        <span id="current-level">Level 6: Whole</span>
+    </div>
+    
+    <script>
+        // Error handler to show errors on screen
+        window.onerror = function(msg, url, line, col, error) {
+            var overlay = document.getElementById('ui-overlay');
+            if (overlay) {
+                overlay.innerHTML = '<div style="background:red;color:white;padding:30px;margin:50px;border-radius:10px;"><h2>JavaScript Error</h2><p>' + msg + '</p><p>Line: ' + line + '</p><p>URL: ' + url + '</p></div>' + overlay.innerHTML;
+            }
+            console.error('Error:', msg, 'at', url, 'line', line);
+            return false;
+        };
+        console.log('Error handler installed');
+    </script>
+    <script src="static/js/helix_styles.js"></script>
+    <script>
+        console.log('HelixStyles loaded:', typeof window.HelixStyles, window.HelixStyles ? Object.keys(window.HelixStyles) : 'NOT LOADED');
+        if (!window.HelixStyles) {
+            document.getElementById('ui-overlay').innerHTML = '<div style="background:orange;color:black;padding:30px;margin:50px;border-radius:10px;"><h2>Warning</h2><p>HelixStyles failed to load!</p></div>';
+        }
+    </script>
+    <script src="static/js/helix_styles_demo.js"></script>
+</body>
+</html>

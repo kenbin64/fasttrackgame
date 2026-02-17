@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX — The Future of Computing is Dimensional</title>
+    
+    <meta name="description" content="ButterflyFX: Revolutionary software where shapes hold data. Warp drive for your applications.">
+    <meta property="og:title" content="ButterflyFX — The Future of Computing">
+    <meta property="og:description" content="Revolutionary software where shapes hold data. Warp drive for your applications.">
+    
+    <style>
+        :root {
+            --bg: #030306;
+            --bg-card: rgba(12, 12, 20, 0.95);
+            --neon-purple: #8855ff;
+            --neon-pink: #ff55aa;
+            --neon-cyan: #40ffff;
+            --neon-green: #60ff90;
+            --neon-orange: #ff8844;
+            --text: #ffffff;
+            --text-dim: #a0a8c0;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html, body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        /* Background Canvas - Tesseract */
+        #tesseractBg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            opacity: 0.4;
+        }
+        
+        /* Starfield */
+        #starfield {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+        }
+        
+        /* ============================================
+           HERO STATE
+           ============================================ */
+        .hero-state {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: opacity 0.8s, transform 0.8s;
+        }
+        
+        .hero-state.hidden {
+            opacity: 0;
+            transform: scale(0.9);
+            pointer-events: none;
+        }
+        
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 24px;
+            background: rgba(136, 85, 255, 0.2);
+            border: 1px solid var(--neon-purple);
+            border-radius: 25px;
+            font-size: 0.85em;
+            color: var(--neon-purple);
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .hero-state h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 25px;
+            max-width: 900px;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink), var(--neon-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-sub {
+            font-size: 1.25em;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .hero-sub strong { color: var(--text); }
+        
+        .enter-btn {
+            padding: 18px 50px;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            box-shadow: 0 0 40px rgba(136, 85, 255, 0.4);
+        }
+        
+        .enter-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 60px rgba(136, 85, 255, 0.6);
+        }
+        
+        /* ============================================
+           CAROUSEL STATE
+           ============================================ */
+        .carousel-state {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s;
+            perspective: 1200px;
+        }
+        
+        .carousel-state.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* 3D Carousel */
+        .carousel {
+            position: relative;
+            width: 320px;
+            height: 420px;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease-out;
+        }
+        
+        .carousel-card {
+            position: absolute;
+            width: 320px;
+            height: 420px;
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            backface-visibility: hidden;
+            transition: opacity 0.3s, filter 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .carousel-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: 24px 24px 0 0;
+            background: linear-gradient(90deg, var(--card-color), transparent);
+            box-shadow: 0 0 20px var(--card-color);
+        }
+        
+        .carousel-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            border: 2px solid var(--card-color);
+            opacity: 0.5;
+            box-shadow: 0 0 30px var(--card-color), inset 0 0 30px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+        
+        .carousel-card.active {
+            z-index: 10;
+        }
+        
+        .carousel-card:not(.active) {
+            opacity: 0.4;
+            filter: blur(2px);
+        }
+        
+        .card-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px var(--card-color));
+        }
+        
+        .card-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .card-tagline {
+            font-size: 1em;
+            color: var(--card-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .card-desc {
+            font-size: 0.9em;
+            color: var(--text-dim);
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .card-feature {
+            font-size: 0.85em;
+            font-style: italic;
+            color: var(--card-color);
+            opacity: 0.8;
+            margin-bottom: 25px;
+        }
+        
+        .card-btn {
+            margin-top: auto;
+            padding: 12px 30px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--card-color);
+            border-radius: 25px;
+            color: var(--card-color);
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .carousel-card:hover .card-btn {
+            background: var(--card-color);
+            color: var(--bg);
+        }
+        
+        /* Navigation */
+        .carousel-nav {
+            position: fixed;
+            bottom: 50%;
+            transform: translateY(50%);
+            z-index: 20;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .carousel-nav.left { left: 30px; }
+        .carousel-nav.right { right: 30px; }
+        
+        .nav-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(18, 18, 28, 0.9);
+            border: 2px solid rgba(136, 85, 255, 0.4);
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .nav-btn:hover {
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 25px rgba(136, 85, 255, 0.4);
+            transform: scale(1.1);
+        }
+        
+        /* Dots */
+        .carousel-dots {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(136, 85, 255, 0.3);
+            border: 2px solid rgba(136, 85, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .dot.active {
+            background: var(--neon-purple);
+            box-shadow: 0 0 15px var(--neon-purple);
+            transform: scale(1.2);
+        }
+        
+        .dot:hover:not(.active) {
+            background: rgba(136, 85, 255, 0.5);
+        }
+        
+        /* Back button */
+        .back-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 100;
+            padding: 12px 24px;
+            background: rgba(18, 18, 28, 0.9);
+            border: 1px solid rgba(136, 85, 255, 0.4);
+            border-radius: 25px;
+            color: var(--text);
+            font-size: 0.9em;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+        
+        .back-btn.visible { opacity: 1; pointer-events: auto; }
+        .back-btn:hover { border-color: var(--neon-purple); box-shadow: 0 0 20px rgba(136, 85, 255, 0.3); }
+        
+        /* Logo */
+        .logo-corner {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .logo-icon { font-size: 1.5em; }
+        
+        .logo-text {
+            font-size: 1.2em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Category tabs */
+        .category-tabs {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            display: flex;
+            gap: 10px;
+            background: rgba(10, 10, 18, 0.9);
+            padding: 8px;
+            border-radius: 30px;
+            border: 1px solid rgba(136, 85, 255, 0.3);
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 20px;
+            color: var(--text-dim);
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            background: var(--neon-purple);
+            color: white;
+        }
+        
+        .tab-btn:hover:not(.active) {
+            color: white;
+        }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            .carousel { width: 280px; height: 380px; }
+            .carousel-card { width: 280px; height: 380px; padding: 25px; }
+            .nav-btn { width: 50px; height: 50px; }
+            .carousel-nav.left { left: 10px; }
+            .carousel-nav.right { right: 10px; }
+            .category-tabs { flex-wrap: wrap; max-width: 90%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Starfield Background -->
+    <canvas id="starfield"></canvas>
+    
+    <!-- Tesseract Background -->
+    <canvas id="tesseractBg"></canvas>
+    
+    <!-- Logo -->
+    <a href="index.html" class="logo-corner">
+        <span class="logo-icon">🦋</span>
+        <span class="logo-text">ButterflyFX</span>
+    </a>
+    
+    <!-- Back Button -->
+    <button class="back-btn" id="backBtn">← Back</button>
+    
+    <!-- HERO STATE -->
+    <div class="hero-state" id="heroState">
+        <div class="hero-badge">🚀 The New Dimension</div>
+        <h1>Welcome to <span class="gradient-text">Dimensional Computing</span></h1>
+        <p class="hero-sub">
+            Where <strong>data lives in geometry</strong>, not bits and bytes.<br>
+            <strong>Warp drive</strong> for your applications.
+        </p>
+        <button class="enter-btn" id="enterBtn">Explore Products →</button>
+    </div>
+    
+    <!-- CAROUSEL STATE -->
+    <div class="carousel-state" id="carouselState">
+        <!-- Category Tabs -->
+        <div class="category-tabs">
+            <button class="tab-btn active" data-category="current">Available Now</button>
+            <button class="tab-btn" data-category="coming">Coming Soon</button>
+        </div>
+        
+        <!-- 3D Carousel -->
+        <div class="carousel" id="carousel">
+            <!-- Current Products -->
+            <a href="products/universal-hdd.html" class="carousel-card" data-category="current" style="--card-color: #8855ff;">
+                <div class="card-icon">💎</div>
+                <h3 class="card-title">Universal Hard Drive</h3>
+                <p class="card-tagline">One API for Everything</p>
+                <p class="card-desc">Files • Databases • APIs • Services — all through a single dimensional interface.</p>
+                <p class="card-feature">O(1) dimensional access</p>
+                <span class="card-btn">Explore →</span>
+            </a>
+            
+            <a href="products/universal-connector.html" class="carousel-card" data-category="current" style="--card-color: #ff55aa;">
+                <div class="card-icon">🔗</div>
+                <h3 class="card-title">Universal Connector</h3>
+                <p class="card-tagline">102 Services Unified</p>
+                <p class="card-desc">AWS • Azure • GCP • AI • Databases — one gateway to every service.</p>
+                <p class="card-feature">Single dimensional gateway</p>
+                <span class="card-btn">Explore →</span>
+            </a>
+            
+            <a href="products/data-ai-suite.html" class="carousel-card" data-category="current" style="--card-color: #40ffff;">
+                <div class="card-icon">🧠</div>
+                <h3 class="card-title">Data & AI Suite</h3>
+                <p class="card-tagline">Intelligence Amplified</p>
+                <p class="card-desc">AI Amplifier • Data Alchemist • Trend Oracle — geometry-powered intelligence.</p>
+                <p class="card-feature">From raw data to insights</p>
+                <span class="card-btn">Explore →</span>
+            </a>
+            
+            <a href="platform.html" class="carousel-card" data-category="current" style="--card-color: #60ff90;">
+                <div class="card-icon">🌐</div>
+                <h3 class="card-title">DimensionOS</h3>
+                <p class="card-tagline">The Platform</p>
+                <p class="card-desc">Where shapes hold data. The operating system for dimensional computing.</p>
+                <p class="card-feature">Warp drive for applications</p>
+                <span class="card-btn">Explore →</span>
+            </a>
+            
+            <a href="developers.html" class="carousel-card" data-category="current" style="--card-color: #ff8844;">
+                <div class="card-icon">🧬</div>
+                <h3 class="card-title">Helix Framework</h3>
+                <p class="card-tagline">Build Dimensional Apps</p>
+                <p class="card-desc">Structural primitives • Substrates • Assemblers — code that builds like DNA.</p>
+                <p class="card-feature">From concept to deployment</p>
+                <span class="card-btn">Explore →</span>
+            </a>
+            
+            <a href="register.html" class="carousel-card" data-category="current" style="--card-color: #ff55aa;">
+                <div class="card-icon">⚡</div>
+                <h3 class="card-title">Get Started</h3>
+                <p class="card-tagline">Enter the Dimension</p>
+                <p class="card-desc">Free trial • Full access • No credit card required.</p>
+                <p class="card-feature">Start building today</p>
+                <span class="card-btn">Start Free →</span>
+            </a>
+            
+            <!-- Coming Soon Products -->
+            <a href="roadmap.html" class="carousel-card" data-category="coming" style="--card-color: #8855ff;">
+                <div class="card-icon">🌉</div>
+                <h3 class="card-title">Quantum Bridge</h3>
+                <p class="card-tagline">Coming 2026</p>
+                <p class="card-desc">Cross-dimensional networking with zero-latency data transfer.</p>
+                <p class="card-feature">Instant anywhere access</p>
+                <span class="card-btn">Learn More →</span>
+            </a>
+            
+            <a href="roadmap.html" class="carousel-card" data-category="coming" style="--card-color: #ff8844;">
+                <div class="card-icon">🔥</div>
+                <h3 class="card-title">Shape Forge</h3>
+                <p class="card-tagline">Coming 2026</p>
+                <p class="card-desc">Visual dimensional builder — drag, drop, deploy.</p>
+                <p class="card-feature">No code required</p>
+                <span class="card-btn">Learn More →</span>
+            </a>
+            
+            <a href="roadmap.html" class="carousel-card" data-category="coming" style="--card-color: #40ffff;">
+                <div class="card-icon">☁️</div>
+                <h3 class="card-title">Manifold Cloud</h3>
+                <p class="card-tagline">Coming 2027</p>
+                <p class="card-desc">Dimensional infrastructure — serverless geometry at scale.</p>
+                <p class="card-feature">Infinite scalability</p>
+                <span class="card-btn">Learn More →</span>
+            </a>
+            
+            <a href="enterprise.html" class="carousel-card" data-category="coming" style="--card-color: #60ff90;">
+                <div class="card-icon">🏢</div>
+                <h3 class="card-title">Enterprise</h3>
+                <p class="card-tagline">Contact Sales</p>
+                <p class="card-desc">Custom solutions • SLA • Dedicated support • On-premise options.</p>
+                <p class="card-feature">Dimensional at scale</p>
+                <span class="card-btn">Contact Us →</span>
+            </a>
+        </div>
+        
+        <!-- Navigation -->
+        <div class="carousel-nav left">
+            <button class="nav-btn" id="prevBtn">◀</button>
+        </div>
+        <div class="carousel-nav right">
+            <button class="nav-btn" id="nextBtn">▶</button>
+        </div>
+        
+        <!-- Dots -->
+        <div class="carousel-dots" id="carouselDots"></div>
+    </div>
+    
+    <script>
+    // ============================================
+    // STATE MANAGEMENT
+    // ============================================
+    let currentState = 'hero';
+    const heroState = document.getElementById('heroState');
+    const carouselState = document.getElementById('carouselState');
+    const enterBtn = document.getElementById('enterBtn');
+    const backBtn = document.getElementById('backBtn');
+    
+    enterBtn.addEventListener('click', () => {
+        currentState = 'carousel';
+        heroState.classList.add('hidden');
+        carouselState.classList.add('active');
+        backBtn.classList.add('visible');
+    });
+    
+    backBtn.addEventListener('click', () => {
+        currentState = 'hero';
+        heroState.classList.remove('hidden');
+        carouselState.classList.remove('active');
+        backBtn.classList.remove('visible');
+    });
+    
+    // ============================================
+    // STARFIELD
+    // ============================================
+    (function() {
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars = [];
+        const STAR_COUNT = 200;
+        
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        
+        function createStar() {
+            return {
+                x: Math.random() * width,
+                y: Math.random() * height,
+                size: Math.random() * 1.5 + 0.5,
+                twinkle: Math.random() * Math.PI * 2,
+                speed: Math.random() * 0.02 + 0.01,
+                color: `hsl(${Math.random() * 60 + 220}, 70%, 70%)`
+            };
+        }
+        
+        function init() {
+            resize();
+            stars = [];
+            for (let i = 0; i < STAR_COUNT; i++) stars.push(createStar());
+        }
+        
+        function draw() {
+            ctx.fillStyle = 'rgba(3, 3, 6, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+            
+            for (let s of stars) {
+                s.twinkle += s.speed;
+                const alpha = 0.3 + Math.sin(s.twinkle) * 0.3;
+                
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fillStyle = s.color.replace('70%)', `${alpha * 100}%)`);
+                ctx.fill();
+            }
+            
+            requestAnimationFrame(draw);
+        }
+        
+        window.addEventListener('resize', resize);
+        init();
+        draw();
+    })();
+    
+    // ============================================
+    // TESSERACT BACKGROUND
+    // ============================================
+    (function() {
+        const canvas = document.getElementById('tesseractBg');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let rotXW = 0, rotYZ = 0, rotZW = 0;
+        let colorPhase = 0;
+        
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        
+        function getVertices(size) {
+            const s = size;
+            return [
+                [-s, -s, -s, -s], [s, -s, -s, -s], [s, s, -s, -s], [-s, s, -s, -s],
+                [-s, -s, s, -s], [s, -s, s, -s], [s, s, s, -s], [-s, s, s, -s],
+                [-s, -s, -s, s], [s, -s, -s, s], [s, s, -s, s], [-s, s, -s, s],
+                [-s, -s, s, s], [s, -s, s, s], [s, s, s, s], [-s, s, s, s]
+            ];
+        }
+        
+        const edges = [
+            [0,1], [1,2], [2,3], [3,0], [4,5], [5,6], [6,7], [7,4],
+            [0,4], [1,5], [2,6], [3,7],
+            [8,9], [9,10], [10,11], [11,8], [12,13], [13,14], [14,15], [15,12],
+            [8,12], [9,13], [10,14], [11,15],
+            [0,8], [1,9], [2,10], [3,11], [4,12], [5,13], [6,14], [7,15]
+        ];
+        
+        function rotate4D(v, rXW, rYZ, rZW) {
+            let [x, y, z, w] = v;
+            let c = Math.cos(rXW), s = Math.sin(rXW);
+            [x, w] = [x*c - w*s, x*s + w*c];
+            c = Math.cos(rYZ); s = Math.sin(rYZ);
+            [y, z] = [y*c - z*s, y*s + z*c];
+            c = Math.cos(rZW); s = Math.sin(rZW);
+            [z, w] = [z*c - w*s, z*s + w*c];
+            return [x, y, z, w];
+        }
+        
+        function project(v) {
+            const [x, y, z, w] = v;
+            const d4 = 2.5, d3 = 4;
+            const s4 = d4 / (d4 - w);
+            const s3 = d3 / (d3 + z * s4);
+            return {
+                x: x * s4 * s3 * 150 + width / 2,
+                y: y * s4 * s3 * 150 + height / 2,
+                w: w
+            };
+        }
+        
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            
+            rotXW += 0.003;
+            rotYZ += 0.002;
+            rotZW += 0.0015;
+            colorPhase += 0.3;
+            
+            const verts = getVertices(1);
+            const proj = verts.map(v => project(rotate4D(v, rotXW, rotYZ, rotZW)));
+            
+            for (let [i1, i2] of edges) {
+                const p1 = proj[i1], p2 = proj[i2];
+                const avgW = (p1.w + p2.w) / 2;
+                const hue = (colorPhase + avgW * 30 + 270) % 360;
+                
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.strokeStyle = `hsla(${hue}, 100%, 60%, 0.6)`;
+                ctx.lineWidth = 1.5;
+                ctx.shadowColor = `hsl(${hue}, 100%, 60%)`;
+                ctx.shadowBlur = 10;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+            
+            requestAnimationFrame(draw);
+        }
+        
+        window.addEventListener('resize', resize);
+        resize();
+        draw();
+    })();
+    
+    // ============================================
+    // CAROUSEL
+    // ============================================
+    (function() {
+        const carousel = document.getElementById('carousel');
+        const cards = Array.from(carousel.querySelectorAll('.carousel-card'));
+        const dotsContainer = document.getElementById('carouselDots');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        
+        let currentCategory = 'current';
+        let currentIndex = 0;
+        let filteredCards = [];
+        
+        function filterCards(category) {
+            currentCategory = category;
+            filteredCards = cards.filter(c => c.dataset.category === category);
+            
+            // Hide all cards first
+            cards.forEach(c => c.style.display = 'none');
+            
+            // Show filtered cards
+            filteredCards.forEach(c => c.style.display = 'flex');
+            
+            currentIndex = 0;
+            updateCarousel();
+            updateDots();
+            
+            // Update tab buttons
+            tabBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.category === category);
+            });
+        }
+        
+        function updateCarousel() {
+            const total = filteredCards.length;
+            const radius = 400;
+            const angleStep = (Math.PI * 2) / Math.max(total, 3);
+            
+            filteredCards.forEach((card, i) => {
+                const offset = i - currentIndex;
+                const angle = offset * angleStep;
+                
+                const x = Math.sin(angle) * radius;
+                const z = Math.cos(angle) * radius - radius;
+                const rotY = -angle * (180 / Math.PI);
+                
+                card.style.transform = `translateX(${x}px) translateZ(${z}px) rotateY(${rotY}deg)`;
+                card.classList.toggle('active', i === currentIndex);
+            });
+        }
+        
+        function updateDots() {
+            dotsContainer.innerHTML = '';
+            filteredCards.forEach((_, i) => {
+                const dot = document.createElement('button');
+                dot.className = 'dot' + (i === currentIndex ? ' active' : '');
+                dot.addEventListener('click', () => goTo(i));
+                dotsContainer.appendChild(dot);
+            });
+        }
+        
+        function goTo(index) {
+            currentIndex = ((index % filteredCards.length) + filteredCards.length) % filteredCards.length;
+            updateCarousel();
+            updateDots();
+        }
+        
+        function next() { goTo(currentIndex + 1); }
+        function prev() { goTo(currentIndex - 1); }
+        
+        prevBtn.addEventListener('click', prev);
+        nextBtn.addEventListener('click', next);
+        
+        // Tab switching
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => filterCards(btn.dataset.category));
+        });
+        
+        // Keyboard nav
+        document.addEventListener('keydown', e => {
+            if (currentState !== 'carousel') return;
+            if (e.key === 'ArrowLeft') prev();
+            if (e.key === 'ArrowRight') next();
+        });
+        
+        // Touch swipe
+        let touchStartX = 0;
+        carousel.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+        carousel.addEventListener('touchend', e => {
+            const diff = e.changedTouches[0].clientX - touchStartX;
+            if (Math.abs(diff) > 50) {
+                diff > 0 ? prev() : next();
+            }
+        });
+        
+        // Initialize
+        filterCards('current');
+    })();
+    </script>
+</body>
+</html>

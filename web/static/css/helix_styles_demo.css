@@ -1,0 +1,303 @@
+/**
+ * HelixStyles Demo - Stylesheet
+ * 
+ * Copyright (c) 2024-2026 Kenneth Bingham
+ * Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0)
+ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    background: #050510;
+    color: #fff;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+#canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+#ui-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+#ui-overlay > * {
+    pointer-events: auto;
+}
+
+#title {
+    font-size: 2em;
+    font-weight: 700;
+    background: linear-gradient(135deg, #4060ff, #ff4080, #40ff80);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    margin-bottom: 5px;
+    text-shadow: 0 0 30px rgba(100, 150, 255, 0.5);
+}
+
+#subtitle {
+    font-size: 0.9em;
+    color: #6080aa;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#controls {
+    position: absolute;
+    top: 80px;
+    left: 20px;
+    width: 280px;
+    background: rgba(10, 15, 30, 0.85);
+    border: 1px solid rgba(100, 150, 255, 0.3);
+    border-radius: 12px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+}
+
+.control-group {
+    margin-bottom: 15px;
+}
+
+.control-group:last-child {
+    margin-bottom: 0;
+}
+
+.control-group h3 {
+    font-size: 0.75em;
+    color: #8090aa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.control-group input[type="text"] {
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(20, 30, 50, 0.8);
+    border: 1px solid rgba(100, 150, 255, 0.3);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.9em;
+    margin-bottom: 8px;
+}
+
+.control-group input[type="text"]:focus {
+    outline: none;
+    border-color: rgba(100, 150, 255, 0.7);
+    box-shadow: 0 0 10px rgba(100, 150, 255, 0.3);
+}
+
+.control-group button {
+    padding: 8px 12px;
+    background: linear-gradient(135deg, rgba(60, 100, 200, 0.4), rgba(100, 60, 200, 0.4));
+    border: 1px solid rgba(100, 150, 255, 0.4);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.control-group button:hover {
+    background: linear-gradient(135deg, rgba(80, 120, 220, 0.6), rgba(120, 80, 220, 0.6));
+    border-color: rgba(150, 180, 255, 0.7);
+    box-shadow: 0 0 15px rgba(100, 150, 255, 0.4);
+    transform: translateY(-1px);
+}
+
+.control-group button:active {
+    transform: translateY(0);
+}
+
+.control-group select {
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(20, 30, 50, 0.8);
+    border: 1px solid rgba(100, 150, 255, 0.3);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+.control-group select:focus {
+    outline: none;
+    border-color: rgba(100, 150, 255, 0.7);
+}
+
+.level-buttons {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.level-buttons button {
+    flex: 1;
+    padding: 10px 0;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.level-buttons button.active {
+    background: linear-gradient(135deg, rgba(100, 150, 255, 0.6), rgba(150, 100, 255, 0.6));
+    border-color: rgba(150, 180, 255, 0.8);
+    box-shadow: 0 0 15px rgba(100, 150, 255, 0.5);
+}
+
+.level-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6em;
+    color: #6080aa;
+    padding: 0 2px;
+}
+
+.level-labels span {
+    text-align: center;
+    flex: 1;
+}
+
+#info-panel {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    background: rgba(10, 15, 30, 0.85);
+    border: 1px solid rgba(100, 150, 255, 0.3);
+    border-radius: 12px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+}
+
+#info-panel h3 {
+    font-size: 0.9em;
+    color: #a0b0cc;
+    margin-bottom: 10px;
+}
+
+#info-panel p {
+    font-size: 0.8em;
+    color: #8090aa;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+#info-panel ul {
+    list-style: none;
+    font-size: 0.8em;
+    color: #8090aa;
+}
+
+#info-panel li {
+    margin-bottom: 5px;
+    padding-left: 5px;
+}
+
+#level-indicator {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(10, 15, 30, 0.85);
+    border: 1px solid rgba(100, 150, 255, 0.3);
+    border-radius: 20px;
+    padding: 10px 25px;
+    backdrop-filter: blur(10px);
+    z-index: 20;
+}
+
+#current-level {
+    font-size: 1em;
+    font-weight: 600;
+    background: linear-gradient(135deg, #4060ff, #ff4080);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #controls {
+        width: calc(100% - 40px);
+        top: auto;
+        bottom: 100px;
+        left: 20px;
+        max-height: 40vh;
+        overflow-y: auto;
+    }
+    
+    #info-panel {
+        display: none;
+    }
+    
+    #title {
+        font-size: 1.5em;
+    }
+}
+
+/* Animation for level indicator */
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(100, 150, 255, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(100, 150, 255, 0.6);
+    }
+}
+
+#level-indicator {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Transition effects for theme changes */
+body.theme-neon #controls,
+body.theme-neon #info-panel,
+body.theme-neon #level-indicator {
+    border-color: rgba(255, 0, 128, 0.4);
+}
+
+body.theme-neon .control-group button {
+    background: linear-gradient(135deg, rgba(255, 0, 128, 0.3), rgba(0, 255, 128, 0.3));
+    border-color: rgba(255, 0, 128, 0.4);
+}
+
+body.theme-neon .control-group button:hover {
+    box-shadow: 0 0 20px rgba(255, 0, 128, 0.5);
+}
+
+body.theme-cosmic #controls,
+body.theme-cosmic #info-panel,
+body.theme-cosmic #level-indicator {
+    border-color: rgba(150, 100, 200, 0.4);
+    background: rgba(20, 10, 40, 0.85);
+}
+
+body.theme-cosmic .control-group button {
+    background: linear-gradient(135deg, rgba(100, 50, 150, 0.4), rgba(150, 100, 200, 0.4));
+    border-color: rgba(150, 100, 200, 0.4);
+}

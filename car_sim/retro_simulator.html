@@ -1,0 +1,2064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX RETRO Helix Simulator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background: #000;
+            color: #0ff;
+            overflow: hidden;
+        }
+        
+        .simulator {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            grid-template-rows: 1fr 180px;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        .canvas-area {
+            position: relative;
+            background: #000;
+        }
+        
+        #simCanvas {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+        
+        /* CRT Scanlines overlay */
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        /* CRT Glow */
+        .crt-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 100px rgba(0, 255, 255, 0.1);
+            pointer-events: none;
+            z-index: 11;
+        }
+        
+        /* RETRO Panel */
+        .helix-panel {
+            background: linear-gradient(180deg, #1a0a2e, #0a0515);
+            border-left: 3px solid #f0f;
+            padding: 12px;
+            overflow-y: auto;
+            font-size: 8px;
+        }
+        
+        .helix-panel h2 {
+            color: #f0f;
+            font-size: 10px;
+            margin-bottom: 12px;
+            text-align: center;
+            text-shadow: 0 0 10px #f0f;
+        }
+        
+        .state-display {
+            background: rgba(255, 0, 255, 0.1);
+            border: 2px solid #f0f;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        
+        .state-coords {
+            font-size: 24px;
+            color: #0ff;
+            text-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
+        }
+        
+        .state-name {
+            font-size: 12px;
+            color: #ff0;
+            margin-top: 5px;
+            text-shadow: 0 0 10px #ff0;
+        }
+        
+        .level-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #111;
+            border: 2px solid #333;
+            padding: 6px;
+            margin: 10px 0;
+        }
+        
+        .level-pip {
+            width: 32px;
+            height: 32px;
+            background: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            border: 2px solid #444;
+            transition: all 0.1s;
+        }
+        
+        .level-pip:hover {
+            background: #333;
+            border-color: #0ff;
+            box-shadow: 0 0 10px #0ff;
+        }
+        
+        .level-pip.active {
+            background: #0ff;
+            color: #000;
+            border-color: #fff;
+            box-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
+        }
+        
+        .op-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        
+        .op-btn {
+            background: #111;
+            border: 2px solid #f0f;
+            color: #f0f;
+            padding: 10px 5px;
+            cursor: pointer;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 6px;
+            text-shadow: 0 0 5px #f0f;
+            transition: all 0.1s;
+        }
+        
+        .op-btn:hover:not(:disabled) {
+            background: #f0f;
+            color: #000;
+            box-shadow: 0 0 20px #f0f;
+        }
+        
+        .op-btn:disabled {
+            opacity: 0.3;
+            border-color: #444;
+        }
+        
+        .op-btn.drive {
+            border-color: #0f0;
+            color: #0f0;
+        }
+        
+        .op-btn.drive:hover {
+            background: #0f0;
+            box-shadow: 0 0 20px #0f0;
+        }
+        
+        .token-section {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            padding: 8px;
+            margin-top: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .token-section h3 {
+            color: #888;
+            font-size: 6px;
+            margin-bottom: 6px;
+        }
+        
+        .token-item {
+            font-size: 6px;
+            padding: 4px 5px;
+            margin: 2px 0;
+            border-left: 2px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .token-name {
+            text-transform: uppercase;
+        }
+        
+        .token-value {
+            font-weight: bold;
+            color: #ff0;
+        }
+        
+        .token-item.visible {
+            background: rgba(0, 255, 0, 0.1);
+            border-left-color: #0f0;
+            color: #0f0;
+        }
+        
+        .token-item.visible .token-value {
+            color: #0ff;
+        }
+        
+        .token-item.hidden {
+            color: #444;
+        }
+        
+        .token-item.hidden .token-value {
+            color: #666;
+        }
+        
+        /* Telemetry Panel */
+        .telemetry-panel {
+            background: linear-gradient(180deg, #1a0a2e, #0a0515);
+            border-top: 3px solid #f0f;
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 6px;
+            padding: 10px;
+        }
+        
+        .telem-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #333;
+            padding: 8px 4px;
+            text-align: center;
+        }
+        
+        .telem-card.disabled {
+            opacity: 0.2;
+        }
+        
+        .telem-value {
+            font-size: 16px;
+            color: #0f0;
+            text-shadow: 0 0 10px #0f0;
+        }
+        
+        .telem-label {
+            color: #888;
+            font-size: 6px;
+            margin-top: 5px;
+        }
+        
+        .telem-sig {
+            font-size: 5px;
+            color: #444;
+        }
+        
+        select {
+            width: 100%;
+            background: #111;
+            border: 2px solid #f0f;
+            color: #f0f;
+            padding: 8px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .controls-hint {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 6px;
+            font-size: 5px;
+            color: #666;
+            text-align: center;
+            margin-top: 8px;
+            border: 1px solid #333;
+        }
+        
+        /* Intro Overlay */
+        .intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .intro-content {
+            max-width: 900px;
+            padding: 40px;
+            text-align: center;
+            overflow-y: auto;
+            max-height: 95vh;
+        }
+        
+        .intro-title {
+            font-size: 28px;
+            color: #f0f;
+            text-shadow: 0 0 20px #f0f, 0 0 40px #f0f;
+            margin-bottom: 20px;
+        }
+        
+        .intro-subtitle {
+            font-size: 16px;
+            color: #0ff;
+            margin-bottom: 25px;
+        }
+        
+        .intro-section {
+            background: linear-gradient(180deg, rgba(255,0,255,0.1), rgba(0,255,255,0.05));
+            border: 2px solid #f0f;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        
+        .intro-section h3 {
+            color: #ff0;
+            font-size: 14px;
+            margin-bottom: 12px;
+            text-shadow: 0 0 10px #ff0;
+        }
+        
+        .intro-section p {
+            font-size: 11px;
+            line-height: 1.8;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+        
+        .dim-list {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .dim-item {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #0ff;
+            padding: 10px 6px;
+            text-align: center;
+            font-size: 10px;
+        }
+        
+        .dim-item .num {
+            color: #0ff;
+            font-size: 18px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .dim-item .name {
+            color: #aaa;
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .control-box {
+            background: rgba(0,255,255,0.1);
+            border: 1px solid #0ff;
+            padding: 10px;
+        }
+        
+        .control-box h4 {
+            color: #0ff;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .control-box p {
+            font-size: 10px;
+            color: #ccc;
+            margin: 6px 0;
+        }
+        
+        .key {
+            display: inline-block;
+            background: #333;
+            border: 1px solid #666;
+            padding: 3px 8px;
+            color: #fff;
+            font-size: 10px;
+            margin: 2px;
+        }
+        
+        .start-btn {
+            background: linear-gradient(180deg, #f0f, #a0a);
+            border: none;
+            padding: 20px 50px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 16px;
+            color: #fff;
+            cursor: pointer;
+            margin-top: 20px;
+            text-shadow: 0 0 10px #fff;
+            box-shadow: 0 0 30px #f0f;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px #f0f; }
+            50% { box-shadow: 0 0 40px #f0f, 0 0 60px #f0f; }
+        }
+        
+        .start-btn:hover {
+            background: linear-gradient(180deg, #f5f, #c0c);
+        }
+    </style>
+</head>
+<body>
+    <!-- Intro Overlay -->
+    <div class="intro-overlay" id="introOverlay">
+        <div class="intro-content">
+            <div class="intro-title">🦋 BUTTERFLYFX HELIX SIMULATOR</div>
+            <div class="intro-subtitle">DIMENSIONS AS CREATIVE BUILDING BLOCKS</div>
+            
+            <div class="intro-section">
+                <h3>🎮 THE DIMENSIONAL PARADIGM</h3>
+                <p>In ButterflyFX, objects don't get "built" — they get <span style="color:#0ff">INVOKED</span>. 
+                Watch as each dimension adds a new <span style="color:#ff0">creative building block</span> to the scene:</p>
+                
+                <div class="dim-list">
+                    <div class="dim-item"><span class="num">0</span><span class="name">Void</span></div>
+                    <div class="dim-item"><span class="num">1</span><span class="name">Point</span></div>
+                    <div class="dim-item"><span class="num">2</span><span class="name">Line</span></div>
+                    <div class="dim-item"><span class="num">3</span><span class="name">Plane</span></div>
+                    <div class="dim-item"><span class="num">4</span><span class="name">Depth</span></div>
+                    <div class="dim-item"><span class="num">5</span><span class="name">Volume</span></div>
+                    <div class="dim-item"><span class="num">6</span><span class="name">Whole</span></div>
+                </div>
+                
+                <p style="font-size:9px; color:#888; margin-top:12px;">
+                <span style="color:#0ff">0</span> Pure darkness | 
+                <span style="color:#0ff">1</span> Origin point appears | 
+                <span style="color:#0ff">2</span> Horizon line extends | 
+                <span style="color:#0ff">3</span> Grid plane + sun | 
+                <span style="color:#0ff">4</span> Mountains add depth | 
+                <span style="color:#0ff">5</span> Road creates volume | 
+                <span style="color:#0ff">6</span> Trees + car = complete!
+                </p>
+                
+                <p style="color:#f0f">Click SPIRAL UP or press number keys 1-6 to invoke each dimension!</p>
+            </div>
+            
+            <div class="intro-section">
+                <h3>🕹️ CONTROLS</h3>
+                <div class="controls-grid">
+                    <div class="control-box">
+                        <h4>⌨️ KEYBOARD</h4>
+                        <p><span class="key">↑</span> or <span class="key">W</span> = Accelerate</p>
+                        <p><span class="key">↓</span> or <span class="key">S</span> = Brake</p>
+                        <p><span class="key">←</span> <span class="key">→</span> or <span class="key">A</span> <span class="key">D</span> = Steer</p>
+                        <p><span class="key">1</span>-<span class="key">6</span> = Invoke dimension level</p>
+                        <p><span class="key">7</span> = Jump to Level 6 (DRIVE!)</p>
+                    </div>
+                    <div class="control-box">
+                        <h4>🖱️ MOUSE</h4>
+                        <p>Left side of canvas = Gas</p>
+                        <p>Right side of canvas = Brake</p>
+                        <p>Move mouse left/right = Steer</p>
+                        <p>Click canvas at Level 6 = Start driving</p>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="start-btn" onclick="dismissIntro()">▶ START SIMULATOR</button>
+        </div>
+    </div>
+    
+    <div class="simulator">
+        <div class="canvas-area">
+            <canvas id="simCanvas"></canvas>
+            <div class="scanlines"></div>
+            <div class="crt-glow"></div>
+        </div>
+        
+        <div class="helix-panel">
+            <h2>⬡ HELIX KERNEL ⬡</h2>
+            
+            <select id="carSelector">
+                <option value="camry">CAMRY XSE V6</option>
+                <option value="mustang">MUSTANG GT</option>
+                <option value="corvette">CORVETTE</option>
+                <option value="tesla">TESLA M3</option>
+            </select>
+            
+            <div class="state-display">
+                <div class="state-coords" id="stateCoords">(0,0)</div>
+                <div class="state-name" id="stateName">○ POTENTIAL</div>
+            </div>
+            
+            <div class="level-bar">
+                <div class="level-pip active" onclick="invokeLevel(0)">0</div>
+                <div class="level-pip" onclick="invokeLevel(1)">1</div>
+                <div class="level-pip" onclick="invokeLevel(2)">2</div>
+                <div class="level-pip" onclick="invokeLevel(3)">3</div>
+                <div class="level-pip" onclick="invokeLevel(4)">4</div>
+                <div class="level-pip" onclick="invokeLevel(5)">5</div>
+                <div class="level-pip" onclick="invokeLevel(6)">6</div>
+            </div>
+            
+            <div class="op-buttons">
+                <button class="op-btn" id="btnSpiralUp" onclick="spiralUp()">↑ SPIRAL UP</button>
+                <button class="op-btn" id="btnSpiralDown" onclick="spiralDown()">↓ SPIRAL DN</button>
+                <button class="op-btn" onclick="collapse()">◉ COLLAPSE</button>
+                <button class="op-btn drive" id="btnDrive" onclick="toggleDrive()">▶ DRIVE</button>
+            </div>
+            
+            <div class="token-section">
+                <h3>TOKEN VISIBILITY</h3>
+                <div id="tokenList"></div>
+            </div>
+            
+            <div class="controls-hint">
+                ARROWS: ↑GAS ↓BRAKE ←→STEER<br>
+                WASD ALSO WORKS | 7=LVL6<br>
+                DODGE TRAFFIC TO SCORE!
+            </div>
+        </div>
+        
+        <div class="telemetry-panel">
+            <div class="telem-card" id="telemIdentity">
+                <div class="telem-value" id="tvMake">---</div>
+                <div class="telem-label">MAKE</div>
+                <div class="telem-sig">σ:[1-6]</div>
+            </div>
+            <div class="telem-card" id="telemHP">
+                <div class="telem-value" id="tvHP">---</div>
+                <div class="telem-label">HP</div>
+                <div class="telem-sig">σ:[2-6]</div>
+            </div>
+            <div class="telem-card" id="telemTorque">
+                <div class="telem-value" id="tvTorque">---</div>
+                <div class="telem-label">TQ</div>
+                <div class="telem-sig">σ:[3-6]</div>
+            </div>
+            <div class="telem-card" id="telemSpeed">
+                <div class="telem-value" id="tvSpeed">---</div>
+                <div class="telem-label">MPH</div>
+                <div class="telem-sig">σ:[6]</div>
+            </div>
+            <div class="telem-card" id="telemRPM">
+                <div class="telem-value" id="tvRPM">---</div>
+                <div class="telem-label">RPM</div>
+                <div class="telem-sig">σ:[6]</div>
+            </div>
+            <div class="telem-card" id="telemFuel">
+                <div class="telem-value" id="tvFuel">---</div>
+                <div class="telem-label">FUEL</div>
+                <div class="telem-sig">σ:[4-6]</div>
+            </div>
+            <div class="telem-card" id="telemMPG">
+                <div class="telem-value" id="tvMPG">---</div>
+                <div class="telem-label">MPG</div>
+                <div class="telem-sig">σ:[5-6]</div>
+            </div>
+            <div class="telem-card" id="telemTemp">
+                <div class="telem-value" id="tvTemp">---</div>
+                <div class="telem-label">TEMP</div>
+                <div class="telem-sig">σ:[6]</div>
+            </div>
+        </div>
+    </div>
+
+<script>
+// =============================================================================
+// RETRO 80s HELIX KERNEL SIMULATOR
+// Low-poly, particles, neon grid, synthwave aesthetic
+// =============================================================================
+
+const LEVEL_NAMES = ['POTENTIAL', 'POINT', 'LENGTH', 'WIDTH', 'PLANE', 'VOLUME', 'WHOLE'];
+const LEVEL_ICONS = ['○', '•', '━', '▭', '▦', '▣', '◉'];
+
+const CAR_DATABASE = {
+    camry: { 
+        make: 'TOYOTA', model: 'CAMRY', hp: 301, torque: 267, cylinders: 6, 
+        displacement: 3.5, topSpeed: 135, color: '#f00', weight: 3572,
+        fuelCapacity: 15.8, mpgCity: 22, mpgHwy: 33, mpgCombined: 26
+    },
+    mustang: { 
+        make: 'FORD', model: 'MUSTANG', hp: 480, torque: 420, cylinders: 8, 
+        displacement: 5.0, topSpeed: 168, color: '#00f', weight: 3832,
+        fuelCapacity: 16.0, mpgCity: 15, mpgHwy: 24, mpgCombined: 18
+    },
+    corvette: { 
+        make: 'CHEVY', model: 'VETTE', hp: 490, torque: 465, cylinders: 8, 
+        displacement: 6.2, topSpeed: 194, color: '#ff0', weight: 3647,
+        fuelCapacity: 18.5, mpgCity: 16, mpgHwy: 27, mpgCombined: 20
+    },
+    tesla: { 
+        make: 'TESLA', model: 'M3', hp: 510, torque: 471, cylinders: 0, 
+        displacement: 0, topSpeed: 162, color: '#fff', weight: 4065,
+        fuelCapacity: 82, mpgCity: 138, mpgHwy: 126, mpgCombined: 132  // kWh / MPGe
+    }
+};
+
+const TOKEN_SIGNATURES = {
+    'identity': [1,2,3,4,5,6],
+    'horsepower': [2,3,4,5,6],
+    'torque': [3,4,5,6],
+    'fuel': [4,5,6],
+    'mpg': [5,6],
+    'speed': [6],
+    'rpm': [6],
+    'temp': [6],
+    'operational': [6]
+};
+
+let canvas, ctx;
+let carData = CAR_DATABASE.camry;
+let helixState = { spiral: 0, level: 0 };
+let driving = false;
+let gameTime = 0;
+
+// Physics
+let physics = {
+    distance: 0,
+    speed: 0,
+    rpm: 0,
+    throttle: 0,
+    brake: 0,
+    steering: 0,
+    laneOffset: 0,
+    // Engine metrics
+    fuel: 100,        // Percentage
+    fuelUsed: 0,      // Gallons used this trip
+    instantMPG: 0,    // Current fuel economy
+    engineTemp: 180,  // Fahrenheit (normal operating 195-220)
+    oilPressure: 45   // PSI
+};
+
+// Road curves - generates smooth S-curves
+let roadCurve = 0;        // Current curve amount (-1 to 1)
+let roadCurveTarget = 0;  // Target curve
+let curveChangeTimer = 0; // Time until next curve change
+let roadHill = 0;         // Current hill (up/down)
+let hillTarget = 0;
+
+function updateRoadCurve(dt) {
+    // Change curve target periodically
+    curveChangeTimer -= dt;
+    if (curveChangeTimer <= 0) {
+        curveChangeTimer = 2 + Math.random() * 3; // Change every 2-5 seconds
+        roadCurveTarget = (Math.random() - 0.5) * 1.5; // -0.75 to 0.75
+        hillTarget = (Math.random() - 0.5) * 0.3;
+    }
+    
+    // Smoothly interpolate to target
+    roadCurve += (roadCurveTarget - roadCurve) * dt * 0.8;
+    roadHill += (hillTarget - roadHill) * dt * 0.5;
+}
+
+// Particles
+let particles = [];
+let stars = [];
+let floaters = [];
+let gridOffset = 0;
+
+// Controls
+let keys = { 
+    w: false, s: false, a: false, d: false,
+    up: false, down: false, left: false, right: false
+};
+
+// Mouse
+let mouse = {
+    x: 0.5,
+    y: 0.5,
+    down: false,
+    rightDown: false,
+    inCanvas: false
+};
+
+// Traffic / Game State
+let traffic = [];
+let gameState = {
+    score: 0,
+    lives: 3,
+    crashed: false,
+    crashTimer: 0,
+    dodgeStreak: 0,
+    highScore: 0,
+    spawnTimer: 0,
+    difficulty: 1
+};
+
+const TRAFFIC_COLORS = ['#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff', '#fff', '#f80'];
+
+class TrafficCar {
+    constructor(lane) {
+        this.t = 0; // 0 = horizon, 1 = bottom
+        this.lane = lane; // -1 = left, 0 = center, 1 = right
+        this.speed = 0.3 + Math.random() * 0.2;
+        this.color = TRAFFIC_COLORS[Math.floor(Math.random() * TRAFFIC_COLORS.length)];
+        this.passed = false;
+    }
+    
+    update(dt, playerSpeed) {
+        // Traffic comes toward player (relative speed)
+        const relSpeed = (playerSpeed * 0.01 + 0.5) * this.speed;
+        this.t += relSpeed * dt;
+    }
+    
+    getScreenPos(w, h, horizon) {
+        const y = horizon + (h - horizon) * this.t;
+        const scale = this.t;
+        const roadWidth = 10 + 170 * this.t;
+        const laneOffset = this.lane * (roadWidth / 3); // 3 lanes
+        // Include road curve offset
+        const curveOffset = roadCurve * this.t * this.t * 200;
+        const x = w/2 + curveOffset + laneOffset;
+        return { x, y, scale };
+    }
+}
+
+// =============================================================================
+// PARTICLE SYSTEM
+// =============================================================================
+
+class Particle {
+    constructor(x, y, vx, vy, color, life, size) {
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
+        this.color = color;
+        this.life = life;
+        this.maxLife = life;
+        this.size = size;
+    }
+    
+    update(dt) {
+        this.x += this.vx * dt;
+        this.y += this.vy * dt;
+        this.life -= dt;
+        this.vy += 50 * dt; // gravity
+    }
+    
+    draw(ctx) {
+        const alpha = this.life / this.maxLife;
+        ctx.fillStyle = this.color.replace(')', `,${alpha})`).replace('rgb', 'rgba');
+        ctx.fillRect(this.x - this.size/2, this.y - this.size/2, this.size, this.size);
+    }
+}
+
+function spawnExhaust(x, y) {
+    for (let i = 0; i < 3; i++) {
+        particles.push(new Particle(
+            x + (Math.random() - 0.5) * 10,
+            y,
+            (Math.random() - 0.5) * 30,
+            -20 - Math.random() * 40,
+            'rgb(100, 100, 100)',
+            0.5 + Math.random() * 0.5,
+            3 + Math.random() * 4
+        ));
+    }
+}
+
+function spawnSparks(x, y) {
+    for (let i = 0; i < 5; i++) {
+        particles.push(new Particle(
+            x, y,
+            (Math.random() - 0.5) * 100,
+            -50 - Math.random() * 50,
+            'rgb(255, 200, 50)',
+            0.3 + Math.random() * 0.3,
+            2 + Math.random() * 2
+        ));
+    }
+}
+
+function spawnTireSmoke(x, y) {
+    // White/gray tire smoke for burnouts and hard turns
+    for (let i = 0; i < 5; i++) {
+        particles.push(new Particle(
+            x + (Math.random() - 0.5) * 20,
+            y,
+            (Math.random() - 0.5) * 60,
+            -30 - Math.random() * 50,
+            'rgb(200, 200, 200)',
+            0.8 + Math.random() * 0.6,
+            6 + Math.random() * 8
+        ));
+    }
+}
+
+function spawnAccelSmoke(x, y) {
+    // Black exhaust smoke when flooring it
+    for (let i = 0; i < 4; i++) {
+        particles.push(new Particle(
+            x + (Math.random() - 0.5) * 15,
+            y,
+            (Math.random() - 0.5) * 40,
+            -40 - Math.random() * 60,
+            'rgb(50, 50, 50)',
+            0.6 + Math.random() * 0.4,
+            5 + Math.random() * 6
+        ));
+    }
+}
+
+// =============================================================================
+// STARS (Background)
+// =============================================================================
+
+function initStars() {
+    stars = [];
+    for (let i = 0; i < 150; i++) {
+        stars.push({
+            x: Math.random(),
+            y: Math.random() * 0.45,
+            size: 1 + Math.random() * 2,
+            twinkle: Math.random() * Math.PI * 2,
+            speed: 0.001 + Math.random() * 0.003
+        });
+    }
+}
+
+function initFloaters() {
+    floaters = [];
+    for (let i = 0; i < 30; i++) {
+        floaters.push({
+            x: Math.random(),
+            y: Math.random(),
+            vx: (Math.random() - 0.5) * 0.02,
+            vy: (Math.random() - 0.5) * 0.01,
+            size: 2 + Math.random() * 4,
+            color: Math.random() < 0.5 ? '#f0f' : '#0ff',
+            pulse: Math.random() * Math.PI * 2
+        });
+    }
+}
+
+function updateFloaters(dt) {
+    floaters.forEach(f => {
+        f.x += f.vx * dt;
+        f.y += f.vy * dt;
+        f.pulse += dt * 3;
+        
+        // Wrap around
+        if (f.x < 0) f.x = 1;
+        if (f.x > 1) f.x = 0;
+        if (f.y < 0) f.y = 1;
+        if (f.y > 1) f.y = 0;
+    });
+}
+
+// =============================================================================
+// HELIX OPERATIONS
+// =============================================================================
+
+function invokeLevel(level) {
+    if (level < 0 || level > 6) return;
+    helixState.level = level;
+    // Spawn particles on level change
+    for (let i = 0; i < 20; i++) {
+        particles.push(new Particle(
+            canvas.width / 2 + (Math.random() - 0.5) * 200,
+            canvas.height / 2,
+            (Math.random() - 0.5) * 200,
+            (Math.random() - 0.5) * 200,
+            `rgb(0, ${150 + level * 15}, 255)`,
+            0.5 + Math.random() * 0.5,
+            4 + Math.random() * 4
+        ));
+    }
+    updateUI();
+}
+
+function spiralUp() {
+    if (helixState.level !== 6) return;
+    helixState.spiral++;
+    helixState.level = 0;
+    updateUI();
+}
+
+function spiralDown() {
+    if (helixState.level !== 0) return;
+    helixState.spiral--;
+    helixState.level = 6;
+    updateUI();
+}
+
+function collapse() {
+    helixState.level = 0;
+    updateUI();
+}
+
+function toggleDrive() {
+    driving = !driving;
+    document.getElementById('btnDrive').textContent = driving ? '⏸ STOP' : '▶ DRIVE';
+}
+
+function dismissIntro() {
+    const overlay = document.getElementById('introOverlay');
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 0.5s ease';
+    setTimeout(() => {
+        overlay.style.display = 'none';
+    }, 500);
+}
+
+function canMaterialize(token) {
+    return TOKEN_SIGNATURES[token]?.includes(helixState.level);
+}
+
+// =============================================================================
+// SIMULATION
+// =============================================================================
+
+function simulate(dt) {
+    gameTime += dt;
+    
+    // Update road curves
+    if (physics.speed > 0) {
+        updateRoadCurve(dt * (physics.speed / 50)); // Curves change based on speed
+    }
+    
+    // Update stars motion (drift)
+    stars.forEach(star => {
+        star.x -= star.speed * (1 + physics.speed * 0.01);
+        if (star.x < 0) {
+            star.x = 1;
+            star.y = Math.random() * 0.45;
+        }
+    });
+    
+    // Update floaters
+    updateFloaters(dt);
+    
+    // Ambient grid motion even when stopped
+    gridOffset += dt * 20;
+    
+    if (helixState.level !== 6 || !driving) {
+        physics.throttle = 0;
+        physics.brake = 0;
+        if (physics.speed > 0) physics.speed = Math.max(0, physics.speed - 30 * dt);
+    } else {
+        // Combine keyboard (WASD + Arrow) and mouse controls
+        let mouseThrottle = mouse.inCanvas && mouse.down ? 1 : 0;
+        let mouseBrake = mouse.inCanvas && mouse.rightDown ? 1 : 0;
+        
+        // Up/W = accelerate, Down/S = brake
+        physics.throttle = (keys.w || keys.up) ? 1 : mouseThrottle;
+        physics.brake = (keys.s || keys.down) ? 1 : mouseBrake;
+        
+        // Arrow/WASD steering - snappy lane changes
+        let keyboardSteering = ((keys.a || keys.left) ? -1 : 0) + ((keys.d || keys.right) ? 1 : 0);
+        
+        // Keyboard steering is now primary - fast and responsive
+        if (keyboardSteering !== 0) {
+            physics.laneOffset += keyboardSteering * 0.12; // Fast steering
+        } else if (mouse.inCanvas && mouse.down) {
+            // Mouse steering only when holding click
+            const targetLane = (mouse.x - 0.5) * 2;
+            physics.laneOffset += (targetLane - physics.laneOffset) * 0.3;
+        }
+        
+        // Centrifugal force - curves push the car outward
+        const centrifugalForce = roadCurve * physics.speed * 0.0003;
+        physics.laneOffset += centrifugalForce;
+        
+        // Clamp to road boundaries (3 lanes, stay on road)
+        const roadLimit = 0.85; // Keep car within road edges
+        physics.laneOffset = Math.max(-roadLimit, Math.min(roadLimit, physics.laneOffset));
+    }
+    
+    if (canMaterialize('operational')) {
+        const mass = carData.weight * 0.453592;
+        const maxForce = physics.speed > 1 ? Math.min(carData.hp * 745.7 / (physics.speed * 0.44704), 8000) : 8000;
+        
+        const accel = (physics.throttle * maxForce - physics.brake * mass * 8 - 
+                       0.5 * 1.225 * 0.3 * 2.2 * Math.pow(physics.speed * 0.44704, 2)) / mass;
+        
+        physics.speed = Math.max(0, Math.min(carData.topSpeed, physics.speed + accel * 2.23694 * dt));
+        physics.distance += physics.speed * 1.46667 * dt;
+        physics.rpm = 800 + (physics.speed / carData.topSpeed) * 6200;
+        
+        // === FUEL CONSUMPTION ===
+        // Base consumption rate (gallons per hour at idle)
+        const idleConsumption = carData.cylinders > 0 ? 0.5 : 0; // EVs don't burn fuel
+        
+        // Throttle-based consumption (higher RPM = more fuel)
+        const throttleConsumption = physics.throttle * (carData.hp / 100) * 0.8;
+        
+        // Speed-based efficiency
+        const gallonsPerHour = idleConsumption + throttleConsumption;
+        const fuelUsedThisFrame = (gallonsPerHour / 3600) * dt;
+        
+        physics.fuelUsed += fuelUsedThisFrame;
+        physics.fuel = Math.max(0, 100 - (physics.fuelUsed / carData.fuelCapacity) * 100);
+        
+        // Instant MPG calculation
+        if (fuelUsedThisFrame > 0 && physics.speed > 1) {
+            const milesThisFrame = (physics.speed / 3600) * dt;
+            physics.instantMPG = milesThisFrame / fuelUsedThisFrame;
+            physics.instantMPG = Math.min(99, Math.max(0, physics.instantMPG));
+        } else {
+            physics.instantMPG = physics.speed > 0 ? carData.mpgCombined : 0;
+        }
+        
+        // === ENGINE TEMPERATURE ===
+        // Warm up when running, cool down when not
+        const targetTemp = 195 + physics.throttle * 30 + (physics.rpm / 7000) * 20;
+        physics.engineTemp += (targetTemp - physics.engineTemp) * 0.01 * dt;
+        physics.engineTemp = Math.max(70, Math.min(260, physics.engineTemp));
+        
+        // Oil pressure varies with RPM
+        physics.oilPressure = 25 + (physics.rpm / 7000) * 40;
+    }
+    
+    // Update grid (add speed-based motion)
+    gridOffset += physics.speed * 0.5 * dt;
+    
+    // Update particles
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => p.update(dt));
+    
+    // Spawn exhaust and smoke when driving
+    if (helixState.level === 6 && physics.speed > 0) {
+        const carX = canvas.width / 2 + physics.laneOffset * 140;
+        const carY = canvas.height - 60;
+        
+        // Regular exhaust at moderate speeds
+        if (physics.speed > 5 && Math.random() < 0.3) {
+            spawnExhaust(carX - 25, carY);
+            spawnExhaust(carX + 25, carY);
+        }
+        
+        // Heavy acceleration smoke (flooring it)
+        if (physics.throttle > 0.8 && physics.speed < 60 && Math.random() < 0.5) {
+            spawnAccelSmoke(carX - 30, carY);
+            spawnAccelSmoke(carX + 30, carY);
+        }
+        
+        // Tire smoke on hard turns or hard braking
+        const isTurningHard = Math.abs(physics.laneOffset) > 0.5 && physics.speed > 30;
+        const isBrakingHard = physics.brake > 0.5 && physics.speed > 20;
+        if ((isTurningHard || isBrakingHard) && Math.random() < 0.4) {
+            spawnTireSmoke(carX - 40, carY + 10);
+            spawnTireSmoke(carX + 40, carY + 10);
+        }
+        
+        // Burnout smoke when starting from standstill with full throttle
+        if (physics.throttle > 0.8 && physics.speed < 10 && Math.random() < 0.6) {
+            spawnTireSmoke(carX - 35, carY + 5);
+            spawnTireSmoke(carX + 35, carY + 5);
+        }
+    }
+    
+    // === TRAFFIC SYSTEM ===
+    if (helixState.level === 6 && driving && !gameState.crashed) {
+        // Spawn traffic
+        gameState.spawnTimer += dt;
+        const spawnRate = 2.5 - gameState.difficulty * 0.3; // Faster spawns as difficulty increases
+        if (gameState.spawnTimer > spawnRate && traffic.length < 5) {
+            gameState.spawnTimer = 0;
+            const lanes = [-1, 0, 1];
+            const lane = lanes[Math.floor(Math.random() * lanes.length)];
+            traffic.push(new TrafficCar(lane));
+        }
+        
+        // Update traffic
+        traffic.forEach(car => car.update(dt, physics.speed));
+        
+        // Check for passed cars (scoring)
+        traffic.forEach(car => {
+            if (car.t > 0.9 && !car.passed) {
+                car.passed = true;
+                gameState.score += 100 * gameState.difficulty;
+                gameState.dodgeStreak++;
+                if (gameState.dodgeStreak % 5 === 0) {
+                    gameState.difficulty = Math.min(5, gameState.difficulty + 0.5);
+                }
+            }
+        });
+        
+        // Remove cars that passed
+        traffic = traffic.filter(car => car.t < 1.2);
+        
+        // Collision detection (compare pixel positions at bottom of screen)
+        const playerX = physics.laneOffset * 140; // Player position in pixels from center
+        traffic.forEach(car => {
+            if (car.t > 0.7 && car.t < 0.95) {
+                const roadWidth = 10 + 170 * car.t;
+                const carX = car.lane * (roadWidth / 3); // Traffic position in pixels
+                const distance = Math.abs(playerX - carX);
+                if (distance < 50) { // ~50 pixels collision threshold
+                    // CRASH!
+                    gameState.crashed = true;
+                    gameState.crashTimer = 2;
+                    gameState.lives--;
+                    gameState.dodgeStreak = 0;
+                    gameState.difficulty = Math.max(1, gameState.difficulty - 0.5);
+                    
+                    // Explosion particles
+                    for (let i = 0; i < 50; i++) {
+                        particles.push(new Particle(
+                            canvas.width / 2 + playerX,
+                            canvas.height - 100,
+                            (Math.random() - 0.5) * 400,
+                            (Math.random() - 0.5) * 400,
+                            'rgb(255, 100, 50)',
+                            0.5 + Math.random() * 0.5,
+                            4 + Math.random() * 8
+                        ));
+                    }
+                    
+                    if (gameState.lives <= 0) {
+                        // Game over
+                        gameState.highScore = Math.max(gameState.highScore, gameState.score);
+                    }
+                }
+            }
+        });
+    }
+    
+    // Crash recovery
+    if (gameState.crashed) {
+        gameState.crashTimer -= dt;
+        if (gameState.crashTimer <= 0) {
+            gameState.crashed = false;
+            traffic = [];
+            physics.speed = 0;
+            physics.laneOffset = 0;
+            if (gameState.lives <= 0) {
+                // Reset game
+                gameState.lives = 3;
+                gameState.score = 0;
+                gameState.difficulty = 1;
+            }
+        }
+    }
+}
+
+// =============================================================================
+// RENDERING - 80s RETRO STYLE
+// =============================================================================
+
+function render() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const horizon = h * 0.45;
+    
+    // Clear with dark purple
+    ctx.fillStyle = '#0a0515';
+    ctx.fillRect(0, 0, w, h);
+    
+    // === LEVEL 0: THE VOID ===
+    // Nothing but darkness - pure potential
+    
+    // === LEVEL 1: POINT (0D collapsed to single point) ===
+    if (helixState.level >= 1) {
+        // A single point of light - the origin
+        const pulse = 0.5 + 0.5 * Math.sin(gameTime * 3);
+        const pointSize = 8 + pulse * 6;
+        
+        ctx.shadowColor = '#f0f';
+        ctx.shadowBlur = 30 + pulse * 20;
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(w/2, horizon - 60, pointSize, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        
+        // Label
+        ctx.fillStyle = 'rgba(255,0,255,0.5)';
+        ctx.font = '8px "Press Start 2P"';
+        ctx.textAlign = 'center';
+        ctx.fillText('ORIGIN', w/2, horizon - 90);
+    }
+    
+    // === LEVEL 2: LINE (1D - extends in one direction) ===
+    if (helixState.level >= 2) {
+        // The point extends into a line (horizon)
+        ctx.strokeStyle = '#f0f';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#f0f';
+        ctx.shadowBlur = 15;
+        ctx.beginPath();
+        ctx.moveTo(0, horizon);
+        ctx.lineTo(w, horizon);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        
+        // Stars appear (points along the void)
+        stars.forEach(star => {
+            const twinkle = 0.5 + 0.5 * Math.sin(gameTime * 3 + star.twinkle);
+            ctx.fillStyle = `rgba(255, 255, 255, ${twinkle * 0.8})`;
+            ctx.fillRect(star.x * w, star.y * h, star.size, star.size);
+        });
+    }
+    
+    // === LEVEL 3: PLANE (2D - adds width) ===
+    if (helixState.level >= 3) {
+        // The line extends into a plane (grid floor)
+        ctx.strokeStyle = '#f0f';
+        ctx.lineWidth = 1;
+        
+        // Horizontal lines (receding)
+        for (let i = 0; i < 20; i++) {
+            const t = (i / 20 + gridOffset / 50) % 1;
+            const y = horizon + (h - horizon) * t;
+            const fade = 0.2 + t * 0.8;
+            ctx.globalAlpha = fade;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(w, y);
+            ctx.stroke();
+        }
+        
+        // Vertical lines (converging to origin point)
+        ctx.globalAlpha = 0.6;
+        const vanishX = w / 2;
+        for (let i = -10; i <= 10; i++) {
+            const bottomX = vanishX + i * 80;
+            ctx.beginPath();
+            ctx.moveTo(vanishX, horizon);
+            ctx.lineTo(bottomX, h);
+            ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        
+        // The point becomes the sun (growing from origin)
+        const sunY = horizon - 60;
+        const pulse = 1 + 0.1 * Math.sin(gameTime * 2);
+        const sunSize = 70 * pulse;
+        const gradient = ctx.createLinearGradient(w/2 - 80, sunY - 80, w/2 + 80, sunY + 80);
+        gradient.addColorStop(0, '#ff6b35');
+        gradient.addColorStop(0.5, '#f0f');
+        gradient.addColorStop(1, '#6b35ff');
+        
+        ctx.shadowColor = '#f0f';
+        ctx.shadowBlur = 30 + 20 * Math.sin(gameTime * 2);
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(w/2, sunY, sunSize, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        
+        // Sun lines (80s style)
+        ctx.fillStyle = '#0a0515';
+        for (let i = 0; i < 8; i++) {
+            const y = sunY + 10 + i * 8;
+            ctx.fillRect(w/2 - 70, y, 140, 3);
+        }
+    }
+    
+    // === LEVEL 4: DEPTH (3D - adds height/depth) ===
+    if (helixState.level >= 4) {
+        // Mountains rise from the plane - adding depth/height
+        ctx.fillStyle = '#1a0a2e';
+        ctx.beginPath();
+        ctx.moveTo(0, horizon);
+        for (let x = 0; x <= w; x += 60) {
+            const h1 = Math.sin(x * 0.01 + 1) * 40 + Math.sin(x * 0.02) * 20;
+            ctx.lineTo(x, horizon - 50 - h1);
+        }
+        ctx.lineTo(w, horizon);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Mountain outline (neon)
+        ctx.strokeStyle = '#f0f';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, horizon);
+        for (let x = 0; x <= w; x += 60) {
+            const h1 = Math.sin(x * 0.01 + 1) * 40 + Math.sin(x * 0.02) * 20;
+            ctx.lineTo(x, horizon - 50 - h1);
+        }
+        ctx.stroke();
+    }
+    
+    // === LEVEL 5: VOLUME (4D - road as volumetric space) ===
+    if (helixState.level >= 5) {
+        const segments = 30;
+        const segmentHeight = (h - horizon) / segments;
+        
+        // Draw road segments from back to front
+        for (let i = 0; i < segments; i++) {
+            const t1 = i / segments;
+            const t2 = (i + 1) / segments;
+            
+            const y1 = horizon + (h - horizon) * t1;
+            const y2 = horizon + (h - horizon) * t2;
+            
+            // Curve offset increases with distance from horizon (perspective)
+            const curveOffset1 = roadCurve * t1 * t1 * 200;
+            const curveOffset2 = roadCurve * t2 * t2 * 200;
+            
+            // Road width expands toward camera
+            const roadWidth1 = 10 + 170 * t1;
+            const roadWidth2 = 10 + 170 * t2;
+            
+            const centerX1 = w/2 + curveOffset1;
+            const centerX2 = w/2 + curveOffset2;
+            
+            // Road surface (dark)
+            const shade = Math.floor(20 + t1 * 10);
+            ctx.fillStyle = `rgb(${shade}, ${shade * 0.5}, ${shade * 1.5})`;
+            ctx.beginPath();
+            ctx.moveTo(centerX1 - roadWidth1, y1);
+            ctx.lineTo(centerX2 - roadWidth2, y2);
+            ctx.lineTo(centerX2 + roadWidth2, y2);
+            ctx.lineTo(centerX1 + roadWidth1, y1);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Rumble strips (alternating colors based on distance)
+            const rumbleIndex = Math.floor((physics.distance / 10 + i) % 2);
+            if (rumbleIndex === 0) {
+                ctx.fillStyle = '#f00';
+                // Left rumble
+                ctx.beginPath();
+                ctx.moveTo(centerX1 - roadWidth1, y1);
+                ctx.lineTo(centerX2 - roadWidth2, y2);
+                ctx.lineTo(centerX2 - roadWidth2 + 15 * t2, y2);
+                ctx.lineTo(centerX1 - roadWidth1 + 15 * t1, y1);
+                ctx.closePath();
+                ctx.fill();
+                // Right rumble
+                ctx.beginPath();
+                ctx.moveTo(centerX1 + roadWidth1, y1);
+                ctx.lineTo(centerX2 + roadWidth2, y2);
+                ctx.lineTo(centerX2 + roadWidth2 - 15 * t2, y2);
+                ctx.lineTo(centerX1 + roadWidth1 - 15 * t1, y1);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+        
+        // Road edge lines (cyan neon glow)
+        ctx.strokeStyle = '#0ff';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#0ff';
+        ctx.shadowBlur = 10;
+        
+        // Left edge
+        ctx.beginPath();
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const y = horizon + (h - horizon) * t;
+            const curveOffset = roadCurve * t * t * 200;
+            const roadWidth = 10 + 170 * t;
+            const x = w/2 + curveOffset - roadWidth;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        
+        // Right edge
+        ctx.beginPath();
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const y = horizon + (h - horizon) * t;
+            const curveOffset = roadCurve * t * t * 200;
+            const roadWidth = 10 + 170 * t;
+            const x = w/2 + curveOffset + roadWidth;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        
+        // Lane dividers (2 lines for 3 lanes)
+        ctx.strokeStyle = '#ff0';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([20, 30]);
+        const dashOffset = (physics.distance % 50) * 2;
+        ctx.lineDashOffset = -dashOffset;
+        
+        // Left lane divider (at -1/3 of road width)
+        ctx.beginPath();
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const y = horizon + (h - horizon) * t;
+            const curveOffset = roadCurve * t * t * 200;
+            const roadWidth = 10 + 170 * t;
+            const x = w/2 + curveOffset - roadWidth / 3;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        
+        // Right lane divider (at +1/3 of road width)
+        ctx.beginPath();
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const y = horizon + (h - horizon) * t;
+            const curveOffset = roadCurve * t * t * 200;
+            const roadWidth = 10 + 170 * t;
+            const x = w/2 + curveOffset + roadWidth / 3;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+    
+    // === LEVEL 6: WHOLE (Complete objects - trees, car, traffic) ===
+    if (helixState.level >= 6) {
+        // Trees
+        for (let i = 0; i < 8; i++) {
+            const dist = ((physics.distance / 80 + i * 60) % 500);
+            const t = dist / 500;
+            if (t < 0.05) continue;
+            
+            const y = horizon + (h - horizon) * t;
+            const scale = t;
+            const side = i % 2 === 0 ? -1 : 1;
+            // Add curve offset to tree positions
+            const curveOffset = roadCurve * t * t * 200;
+            const x = w/2 + curveOffset + side * (200 + 150 * (1 - t));
+            
+            // Low poly tree (triangle)
+            ctx.fillStyle = '#0f0';
+            ctx.shadowColor = '#0f0';
+            ctx.shadowBlur = 5;
+            ctx.beginPath();
+            ctx.moveTo(x, y - 60 * scale);
+            ctx.lineTo(x - 20 * scale, y);
+            ctx.lineTo(x + 20 * scale, y);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Trunk
+            ctx.fillStyle = '#840';
+            ctx.fillRect(x - 5 * scale, y, 10 * scale, 15 * scale);
+            ctx.shadowBlur = 0;
+        }
+        
+        // Draw traffic (behind player)
+        traffic.forEach(car => {
+            const pos = car.getScreenPos(w, h, horizon);
+            if (pos.scale > 0.1) {
+                drawTrafficCar(pos.x, pos.y, pos.scale, car.color);
+            }
+        });
+        
+        const carX = w/2 + physics.laneOffset * 140;
+        const carY = h - 90;
+        
+        // Flash car if crashed
+        if (gameState.crashed && Math.floor(gameTime * 10) % 2 === 0) {
+            // Skip drawing (flash effect)
+        } else {
+            drawRetroCar(carX, carY, carData.color);
+        }
+    } else if (helixState.level > 0) {
+        // Ghost car placeholder
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.font = '16px "Press Start 2P"';
+        ctx.textAlign = 'center';
+        ctx.fillText('[ CAR NOT MATERIALIZED ]', w/2, h - 100);
+        ctx.font = '10px "Press Start 2P"';
+        ctx.fillText('INVOKE LEVEL 6', w/2, h - 75);
+    }
+    
+    // === FLOATERS (ambient particles) ===
+    floaters.forEach(f => {
+        const alpha = 0.3 + 0.3 * Math.sin(f.pulse);
+        ctx.fillStyle = f.color;
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.arc(f.x * w, f.y * h, f.size, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    
+    // === PARTICLES ===
+    particles.forEach(p => p.draw(ctx));
+    
+    // === HUD OVERLAY ===
+    drawHUD(w, h);
+    
+    // === MOUSE CURSOR (when in canvas) ===
+    if (mouse.inCanvas && helixState.level === 6) {
+        ctx.strokeStyle = mouse.down ? '#0f0' : '#0ff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(mouse.x * w, mouse.y * h, 15, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        // Steering indicator
+        ctx.beginPath();
+        ctx.moveTo(w/2, h - 30);
+        ctx.lineTo(w/2 + (mouse.x - 0.5) * 100, h - 30);
+        ctx.strokeStyle = '#ff0';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+    }
+}
+
+function drawRetroCar(x, y, color) {
+    // Shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillRect(x - 45, y + 8, 90, 15);
+    
+    // Main body (low poly)
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 15;
+    
+    // Body
+    ctx.beginPath();
+    ctx.moveTo(x - 50, y);
+    ctx.lineTo(x - 40, y - 25);
+    ctx.lineTo(x - 25, y - 35);
+    ctx.lineTo(x + 25, y - 35);
+    ctx.lineTo(x + 40, y - 25);
+    ctx.lineTo(x + 50, y);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Windshield
+    ctx.fillStyle = '#226';
+    ctx.beginPath();
+    ctx.moveTo(x - 22, y - 33);
+    ctx.lineTo(x - 15, y - 45);
+    ctx.lineTo(x + 15, y - 45);
+    ctx.lineTo(x + 22, y - 33);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Wheels
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#222';
+    ctx.fillRect(x - 45, y - 5, 18, 12);
+    ctx.fillRect(x + 27, y - 5, 18, 12);
+    
+    // Wheel shine
+    ctx.fillStyle = '#444';
+    ctx.fillRect(x - 42, y - 2, 12, 6);
+    ctx.fillRect(x + 30, y - 2, 12, 6);
+    
+    // Headlights (neon glow when moving)
+    if (physics.speed > 0) {
+        ctx.fillStyle = '#ff0';
+        ctx.shadowColor = '#ff0';
+        ctx.shadowBlur = 20;
+        ctx.fillRect(x - 48, y - 20, 8, 6);
+        ctx.fillRect(x + 40, y - 20, 8, 6);
+        ctx.shadowBlur = 0;
+    }
+    
+    // Taillights
+    ctx.fillStyle = '#f00';
+    ctx.shadowColor = '#f00';
+    ctx.shadowBlur = 10;
+    ctx.fillRect(x - 48, y - 8, 6, 4);
+    ctx.fillRect(x + 42, y - 8, 6, 4);
+    ctx.shadowBlur = 0;
+}
+
+function drawTrafficCar(x, y, scale, color) {
+    const s = scale * 60; // Base size scaled by distance
+    
+    // Shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.fillRect(x - s * 0.6, y + s * 0.1, s * 1.2, s * 0.2);
+    
+    // Main body
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 10 * scale;
+    
+    // Body (coming toward player - front facing)
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.7, y);
+    ctx.lineTo(x - s * 0.5, y - s * 0.4);
+    ctx.lineTo(x - s * 0.3, y - s * 0.5);
+    ctx.lineTo(x + s * 0.3, y - s * 0.5);
+    ctx.lineTo(x + s * 0.5, y - s * 0.4);
+    ctx.lineTo(x + s * 0.7, y);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Windshield (dark)
+    ctx.fillStyle = '#113';
+    ctx.shadowBlur = 0;
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.25, y - s * 0.45);
+    ctx.lineTo(x - s * 0.18, y - s * 0.6);
+    ctx.lineTo(x + s * 0.18, y - s * 0.6);
+    ctx.lineTo(x + s * 0.25, y - s * 0.45);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Headlights (bright, facing player)
+    ctx.fillStyle = '#ff0';
+    ctx.shadowColor = '#ff0';
+    ctx.shadowBlur = 15 * scale;
+    ctx.fillRect(x - s * 0.6, y - s * 0.3, s * 0.15, s * 0.1);
+    ctx.fillRect(x + s * 0.45, y - s * 0.3, s * 0.15, s * 0.1);
+    ctx.shadowBlur = 0;
+}
+
+function drawHUD(w, h) {
+    // Level indicator box
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(10, 10, 180, 80);
+    ctx.strokeStyle = '#0ff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(10, 10, 180, 80);
+    
+    ctx.fillStyle = '#0ff';
+    ctx.font = '10px "Press Start 2P"';
+    ctx.textAlign = 'left';
+    ctx.fillText(`STATE:(${helixState.spiral},${helixState.level})`, 20, 32);
+    
+    ctx.fillStyle = '#ff0';
+    ctx.font = '14px "Press Start 2P"';
+    ctx.fillText(`${LEVEL_ICONS[helixState.level]} ${LEVEL_NAMES[helixState.level]}`, 20, 55);
+    
+    // Status
+    if (driving && helixState.level === 6) {
+        ctx.fillStyle = '#0f0';
+        ctx.font = '8px "Press Start 2P"';
+        ctx.fillText('DRIVING ACTIVE', 20, 80);
+    } else if (driving) {
+        ctx.fillStyle = '#f80';
+        ctx.fillText('NEED LVL 6', 20, 80);
+    } else {
+        ctx.fillStyle = '#888';
+        ctx.font = '8px "Press Start 2P"';
+        ctx.fillText('PRESS DRIVE', 20, 80);
+    }
+    
+    // Speed display (if operational)
+    if (canMaterialize('speed')) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(w - 140, 10, 130, 60);
+        ctx.strokeStyle = '#0f0';
+        ctx.strokeRect(w - 140, 10, 130, 60);
+        
+        ctx.fillStyle = '#0f0';
+        ctx.font = '24px "Press Start 2P"';
+        ctx.textAlign = 'right';
+        ctx.shadowColor = '#0f0';
+        ctx.shadowBlur = 10;
+        ctx.fillText(Math.round(physics.speed), w - 20, 45);
+        ctx.shadowBlur = 0;
+        ctx.font = '8px "Press Start 2P"';
+        ctx.fillText('MPH', w - 20, 60);
+    }
+    
+    // === GAME HUD (Score, Lives, Difficulty) ===
+    if (helixState.level === 6) {
+        // Score box
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(w/2 - 100, 10, 200, 35);
+        ctx.strokeStyle = '#f0f';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(w/2 - 100, 10, 200, 35);
+        
+        ctx.fillStyle = '#f0f';
+        ctx.font = '8px "Press Start 2P"';
+        ctx.textAlign = 'center';
+        ctx.fillText('SCORE', w/2, 25);
+        
+        ctx.fillStyle = '#ff0';
+        ctx.font = '14px "Press Start 2P"';
+        ctx.shadowColor = '#ff0';
+        ctx.shadowBlur = 10;
+        ctx.fillText(gameState.score.toString().padStart(6, '0'), w/2, 40);
+        ctx.shadowBlur = 0;
+        
+        // Lives
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(10, 100, 80, 35);
+        ctx.strokeStyle = '#f00';
+        ctx.strokeRect(10, 100, 80, 35);
+        
+        ctx.fillStyle = '#f00';
+        ctx.font = '8px "Press Start 2P"';
+        ctx.textAlign = 'left';
+        ctx.fillText('LIVES', 20, 115);
+        
+        // Heart icons
+        ctx.fillStyle = '#f00';
+        ctx.font = '14px "Press Start 2P"';
+        let hearts = '';
+        for (let i = 0; i < gameState.lives; i++) hearts += '♥';
+        ctx.fillText(hearts, 20, 130);
+        
+        // Difficulty / Level indicator
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(10, 145, 80, 25);
+        ctx.strokeStyle = '#0ff';
+        ctx.strokeRect(10, 145, 80, 25);
+        
+        ctx.fillStyle = '#0ff';
+        ctx.font = '8px "Press Start 2P"';
+        ctx.fillText(`LV${Math.floor(gameState.difficulty)}`, 20, 162);
+        
+        // Dodge streak
+        if (gameState.dodgeStreak > 0) {
+            ctx.fillStyle = '#0f0';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText(`STREAK x${gameState.dodgeStreak}`, w/2, 60);
+        }
+        
+        // CRASHED message
+        if (gameState.crashed) {
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+            ctx.fillRect(0, h/2 - 50, w, 100);
+            
+            ctx.fillStyle = '#f00';
+            ctx.font = '24px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = '#f00';
+            ctx.shadowBlur = 20;
+            ctx.fillText('CRASH!', w/2, h/2);
+            
+            if (gameState.lives <= 0) {
+                ctx.fillStyle = '#ff0';
+                ctx.font = '16px "Press Start 2P"';
+                ctx.fillText('GAME OVER', w/2, h/2 + 30);
+                ctx.font = '10px "Press Start 2P"';
+                ctx.fillText(`HIGH SCORE: ${gameState.highScore}`, w/2, h/2 + 50);
+            }
+            ctx.shadowBlur = 0;
+        }
+    }
+}
+
+// =============================================================================
+// UI UPDATES
+// =============================================================================
+
+function updateUI() {
+    document.getElementById('stateCoords').textContent = `(${helixState.spiral},${helixState.level})`;
+    document.getElementById('stateName').textContent = `${LEVEL_ICONS[helixState.level]} ${LEVEL_NAMES[helixState.level]}`;
+    
+    document.querySelectorAll('.level-pip').forEach((pip, i) => {
+        pip.classList.toggle('active', i === helixState.level);
+    });
+    
+    document.getElementById('btnSpiralUp').disabled = helixState.level !== 6;
+    document.getElementById('btnSpiralDown').disabled = helixState.level !== 0;
+    
+    updateTokenList();
+    updateTelemetry();
+}
+
+function updateTokenList() {
+    const container = document.getElementById('tokenList');
+    
+    // Get token values
+    const tokenValues = {
+        'identity': carData.make + ' ' + carData.model,
+        'horsepower': carData.hp + ' HP',
+        'torque': carData.torque + ' lb-ft',
+        'fuel': Math.round(physics.fuel) + '% (' + carData.fuelCapacity + ' gal)',
+        'mpg': carData.cylinders === 0 ? 'EV' : Math.round(physics.instantMPG) + ' MPG',
+        'speed': Math.round(physics.speed) + ' MPH',
+        'rpm': Math.round(physics.rpm) + ' RPM',
+        'temp': Math.round(physics.engineTemp) + '°F',
+        'operational': driving ? 'ACTIVE' : 'READY'
+    };
+    
+    let html = '';
+    for (const [name, sig] of Object.entries(TOKEN_SIGNATURES)) {
+        const visible = sig.includes(helixState.level);
+        const value = visible ? tokenValues[name] || '---' : '???';
+        html += `<div class="token-item ${visible ? 'visible' : 'hidden'}">
+            <span class="token-name">${name}</span>
+            <span class="token-value">${value}</span>
+        </div>`;
+    }
+    container.innerHTML = html;
+}
+
+function updateTelemetry() {
+    // Identity
+    const idCard = document.getElementById('telemIdentity');
+    if (canMaterialize('identity')) {
+        idCard.classList.remove('disabled');
+        document.getElementById('tvMake').textContent = carData.make;
+    } else {
+        idCard.classList.add('disabled');
+        document.getElementById('tvMake').textContent = '???';
+    }
+    
+    // HP
+    const hpCard = document.getElementById('telemHP');
+    if (canMaterialize('horsepower')) {
+        hpCard.classList.remove('disabled');
+        document.getElementById('tvHP').textContent = carData.hp;
+    } else {
+        hpCard.classList.add('disabled');
+        document.getElementById('tvHP').textContent = '???';
+    }
+    
+    // Torque
+    const tqCard = document.getElementById('telemTorque');
+    if (canMaterialize('torque')) {
+        tqCard.classList.remove('disabled');
+        document.getElementById('tvTorque').textContent = carData.torque;
+    } else {
+        tqCard.classList.add('disabled');
+        document.getElementById('tvTorque').textContent = '???';
+    }
+    
+    // Speed
+    const speedCard = document.getElementById('telemSpeed');
+    if (canMaterialize('speed')) {
+        speedCard.classList.remove('disabled');
+        document.getElementById('tvSpeed').textContent = Math.round(physics.speed);
+    } else {
+        speedCard.classList.add('disabled');
+        document.getElementById('tvSpeed').textContent = '???';
+    }
+    
+    // RPM
+    const rpmCard = document.getElementById('telemRPM');
+    if (canMaterialize('rpm')) {
+        rpmCard.classList.remove('disabled');
+        document.getElementById('tvRPM').textContent = Math.round(physics.rpm);
+    } else {
+        rpmCard.classList.add('disabled');
+        document.getElementById('tvRPM').textContent = '???';
+    }
+    
+    // Fuel
+    const fuelCard = document.getElementById('telemFuel');
+    if (canMaterialize('fuel')) {
+        fuelCard.classList.remove('disabled');
+        const fuelPct = Math.round(physics.fuel);
+        document.getElementById('tvFuel').textContent = fuelPct + '%';
+        document.getElementById('tvFuel').style.color = 
+            fuelPct < 20 ? '#f00' : (fuelPct < 50 ? '#ff0' : '#0f0');
+    } else {
+        fuelCard.classList.add('disabled');
+        document.getElementById('tvFuel').textContent = '???';
+    }
+    
+    // Instant MPG
+    const mpgCard = document.getElementById('telemMPG');
+    if (canMaterialize('mpg')) {
+        mpgCard.classList.remove('disabled');
+        const mpg = carData.cylinders === 0 ? 'EV' : Math.round(physics.instantMPG);
+        document.getElementById('tvMPG').textContent = mpg;
+    } else {
+        mpgCard.classList.add('disabled');
+        document.getElementById('tvMPG').textContent = '???';
+    }
+    
+    // Engine Temp
+    const tempCard = document.getElementById('telemTemp');
+    if (canMaterialize('temp')) {
+        tempCard.classList.remove('disabled');
+        const temp = Math.round(physics.engineTemp);
+        document.getElementById('tvTemp').textContent = temp + '°';
+        document.getElementById('tvTemp').style.color = 
+            temp > 230 ? '#f00' : (temp > 210 ? '#ff0' : '#0f0');
+    } else {
+        tempCard.classList.add('disabled');
+        document.getElementById('tvTemp').textContent = '???';
+    }
+}
+
+// =============================================================================
+// GAME LOOP
+// =============================================================================
+
+let lastTime = 0;
+
+function gameLoop(timestamp) {
+    const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
+    lastTime = timestamp;
+    
+    simulate(dt);
+    render();
+    updateTelemetry();
+    updateTokenList();
+    
+    requestAnimationFrame(gameLoop);
+}
+
+// =============================================================================
+// INIT
+// =============================================================================
+
+function init() {
+    canvas = document.getElementById('simCanvas');
+    ctx = canvas.getContext('2d');
+    
+    function resize() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    
+    initStars();
+    initFloaters();
+    
+    // Mouse controls
+    canvas.addEventListener('mouseenter', () => mouse.inCanvas = true);
+    canvas.addEventListener('mouseleave', () => {
+        mouse.inCanvas = false;
+        mouse.down = false;
+        mouse.rightDown = false;
+    });
+    
+    canvas.addEventListener('mousemove', e => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = (e.clientX - rect.left) / rect.width;
+        mouse.y = (e.clientY - rect.top) / rect.height;
+    });
+    
+    canvas.addEventListener('mousedown', e => {
+        e.preventDefault();
+        if (e.button === 0) {
+            mouse.down = true;
+            if (helixState.level === 6 && !driving) toggleDrive();
+        }
+        if (e.button === 2) mouse.rightDown = true;
+    });
+    
+    canvas.addEventListener('mouseup', e => {
+        if (e.button === 0) mouse.down = false;
+        if (e.button === 2) mouse.rightDown = false;
+    });
+    
+    canvas.addEventListener('contextmenu', e => e.preventDefault());
+    
+    // Touch controls
+    canvas.addEventListener('touchstart', e => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = (touch.clientX - rect.left) / rect.width;
+        mouse.y = (touch.clientY - rect.top) / rect.height;
+        mouse.down = true;
+        mouse.inCanvas = true;
+        if (helixState.level === 6 && !driving) toggleDrive();
+    });
+    
+    canvas.addEventListener('touchmove', e => {
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = (touch.clientX - rect.left) / rect.width;
+        mouse.y = (touch.clientY - rect.top) / rect.height;
+    });
+    
+    canvas.addEventListener('touchend', () => {
+        mouse.down = false;
+    });
+    
+    document.getElementById('carSelector').addEventListener('change', e => {
+        carData = CAR_DATABASE[e.target.value];
+        physics.speed = 0;
+        physics.distance = 0;
+        physics.laneOffset = 0;
+        physics.fuel = 100;
+        physics.fuelUsed = 0;
+        physics.engineTemp = 180;
+        physics.rpm = 0;
+        updateUI();
+    });
+    
+    document.addEventListener('keydown', e => {
+        switch (e.key.toLowerCase()) {
+            case 'w': keys.w = true; break;
+            case 's': keys.s = true; break;
+            case 'a': keys.a = true; break;
+            case 'd': 
+                keys.d = true;
+                if (!driving) toggleDrive();
+                break;
+            case '1': invokeLevel(0); break;
+            case '2': invokeLevel(1); break;
+            case '3': invokeLevel(2); break;
+            case '4': invokeLevel(3); break;
+            case '5': invokeLevel(4); break;
+            case '6': invokeLevel(5); break;
+            case '7': invokeLevel(6); break;
+            case '8': spiralUp(); break;
+            case '9': spiralDown(); break;
+            case '0': collapse(); break;
+        }
+        // Arrow keys (use e.key not toLowerCase)
+        switch (e.key) {
+            case 'ArrowUp': 
+                keys.up = true; 
+                if (!driving) toggleDrive();
+                e.preventDefault();
+                break;
+            case 'ArrowDown': 
+                keys.down = true; 
+                e.preventDefault();
+                break;
+            case 'ArrowLeft': 
+                keys.left = true; 
+                e.preventDefault();
+                break;
+            case 'ArrowRight': 
+                keys.right = true; 
+                if (!driving) toggleDrive();
+                e.preventDefault();
+                break;
+        }
+    });
+    
+    document.addEventListener('keyup', e => {
+        switch (e.key.toLowerCase()) {
+            case 'w': keys.w = false; break;
+            case 's': keys.s = false; break;
+            case 'a': keys.a = false; break;
+            case 'd': keys.d = false; break;
+        }
+        switch (e.key) {
+            case 'ArrowUp': keys.up = false; break;
+            case 'ArrowDown': keys.down = false; break;
+            case 'ArrowLeft': keys.left = false; break;
+            case 'ArrowRight': keys.right = false; break;
+        }
+    });
+    
+    updateUI();
+    requestAnimationFrame(gameLoop);
+}
+
+init();
+</script>
+</body>
+</html>

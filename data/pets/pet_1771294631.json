@@ -1,0 +1,157 @@
+{
+  "pet_id": "pet_1771294631",
+  "name": "Pixel",
+  "species": "fox",
+  "substrate": {
+    "identity": {
+      "name": "Pixel",
+      "species": "fox",
+      "emoji": "\ud83e\udd8a",
+      "color": "#ff6b35",
+      "born": 1771294631.2231388,
+      "personality": "curious"
+    },
+    "memory": {
+      "conversations": {
+        "m1_1771294641": {
+          "id": "m1_1771294641",
+          "content": "User said: Hi! My name is Jordan!",
+          "category": "conversations",
+          "emotion": "curious",
+          "timestamp": 1771294641.4604304,
+          "importance": 0.6,
+          "references": []
+        },
+        "m2_1771294656": {
+          "id": "m2_1771294656",
+          "content": "User said: What is your favorite food",
+          "category": "conversations",
+          "emotion": "curious",
+          "timestamp": 1771294656.9264932,
+          "importance": 0.6,
+          "references": []
+        },
+        "m4_1771294696": {
+          "id": "m4_1771294696",
+          "content": "User said: Your name is pixel",
+          "category": "conversations",
+          "emotion": "curious",
+          "timestamp": 1771294696.361494,
+          "importance": 0.6,
+          "references": []
+        },
+        "m5_1771294719": {
+          "id": "m5_1771294719",
+          "content": "User said: Do you like to be petted?",
+          "category": "conversations",
+          "emotion": "curious",
+          "timestamp": 1771294719.426488,
+          "importance": 0.6,
+          "references": []
+        },
+        "m6_1771294737": {
+          "id": "m6_1771294737",
+          "content": "User said: are you happy",
+          "category": "conversations",
+          "emotion": "happy",
+          "timestamp": 1771294737.8590221,
+          "importance": 0.6,
+          "references": []
+        },
+        "m7_1771294755": {
+          "id": "m7_1771294755",
+          "content": "User said: who are you",
+          "category": "conversations",
+          "emotion": "curious",
+          "timestamp": 1771294755.7371833,
+          "importance": 0.6,
+          "references": []
+        },
+        "m8_1771294763": {
+          "id": "m8_1771294763",
+          "content": "User said: i don't understand",
+          "category": "conversations",
+          "emotion": "curious",
+          "timestamp": 1771294763.1641672,
+          "importance": 0.6,
+          "references": []
+        }
+      },
+      "facts": {},
+      "feelings": {},
+      "preferences": {
+        "m3_1771294656": {
+          "id": "m3_1771294656",
+          "content": "What is your favorite food",
+          "category": "preferences",
+          "emotion": "happy",
+          "timestamp": 1771294656.9265602,
+          "importance": 0.8,
+          "references": []
+        }
+      }
+    },
+    "emotions": {
+      "current": {
+        "name": "curious",
+        "intensity": 0.5279304805936311,
+        "cause": "User message: i don't understand"
+      },
+      "history": [
+        {
+          "name": "curious",
+          "intensity": 0.8822204332950341,
+          "cause": "User message: Hi! My name is Jordan!",
+          "timestamp": 1771294641.46062
+        },
+        {
+          "name": "curious",
+          "intensity": 0.677640382313007,
+          "cause": "User message: What is your favorite food",
+          "timestamp": 1771294656.926616
+        },
+        {
+          "name": "curious",
+          "intensity": 0.8910497934349785,
+          "cause": "User message: Your name is pixel",
+          "timestamp": 1771294696.361585
+        },
+        {
+          "name": "curious",
+          "intensity": 0.6147587193792045,
+          "cause": "User message: Do you like to be petted?",
+          "timestamp": 1771294719.426626
+        },
+        {
+          "name": "happy",
+          "intensity": 0.727092119006781,
+          "cause": "User message: are you happy",
+          "timestamp": 1771294737.8591647
+        },
+        {
+          "name": "curious",
+          "intensity": 0.7734791254614232,
+          "cause": "User message: who are you",
+          "timestamp": 1771294755.737274
+        },
+        {
+          "name": "curious",
+          "intensity": 0.5279304805936311,
+          "cause": "User message: i don't understand",
+          "timestamp": 1771294763.1642609
+        }
+      ]
+    },
+    "knowledge": {
+      "user_name": "Jordan",
+      "user_facts": [],
+      "favorite_topics": [],
+      "conversation_count": 7
+    },
+    "personality": {
+      "trait": "curious",
+      "quirks": [],
+      "catchphrases": []
+    }
+  }
+}

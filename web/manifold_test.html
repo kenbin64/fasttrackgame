@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manifold Test</title>
+    <style>
+        body {
+            background: #080814;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        canvas {
+            border: 2px solid #6666aa;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="manifoldCanvas" width="450" height="380"></canvas>
+    
+    <script>
+    (function() {
+        const canvas = document.getElementById('manifoldCanvas');
+        const ctx = canvas.getContext('2d');
+        const width = 450;
+        const height = 380;
+        
+        let rotationY = 0;
+        const rotationX = 0.4;
+        const cubeSize = 1.0;
+        
+        function project(x, y, z) {
+            const cosY = Math.cos(rotationY);
+            const sinY = Math.sin(rotationY);
+            const x1 = x * cosY - z * sinY;
+            const z1 = x * sinY + z * cosY;
+            
+            const cosX = Math.cos(rotationX);
+            const sinX = Math.sin(rotationX);
+            const y1 = y * cosX - z1 * sinX;
+            const z2 = y * sinX + z1 * cosX;
+            
+            const perspective = 400;
+            const scale = perspective / (perspective + z2 + 150);
+            
+            return {
+                x: width / 2 + x1 * scale * 100,
+                y: height / 2 - y1 * scale * 100,
+                z: z2,
+                scale: scale
+            };
+        }
+        
+        function drawFrame() {
+            ctx.fillStyle = '#080814';
+            ctx.fillRect(0, 0, width, height);
+            
+            const drawables = [];
+            const s = cubeSize;
+            
+            // 8 vertices of the cube
+            const vertices = [
+                [-s, -s, -s], [s, -s, -s], [s, s, -s], [-s, s, -s],
+                [-s, -s, s], [s, -s, s], [s, s, s], [-s, s, s]
+            ];
+            
+            // 12 edges
+            const edges = [
+                [0, 1], [1, 2], [2, 3], [3, 0],
+                [4, 5], [5, 6], [6, 7], [7, 4],
+                [0, 4], [1, 5], [2, 6], [3, 7]
+            ];
+            
+            const projectedVerts = vertices.map(v => project(v[0], v[1], v[2]));
+            
+            // Add cube edges
+            edges.forEach(edge => {
+                const p1 = projectedVerts[edge[0]];
+                const p2 = projectedVerts[edge[1]];
+                const avgZ = (p1.z + p2.z) / 2;
+                drawables.push({ type: 'edge', p1, p2, z: avgZ });
+            });
+            
+            // Add corner dots
+            projectedVerts.forEach(p => {
+                drawables.push({ type: 'corner', p, z: p.z });
+            });
+            
+            // Build z=xy surface (saddle) with dots
+            const gridSize = 14;
+            const range = cubeSize;
+            const step = range * 2 / gridSize;
+            
+            for (let i = 0; i <= gridSize; i++) {
+                for (let j = 0; j <= gridSize; j++) {
+                    const x = -range + i * step;
+                    const y = -range + j * step;
+                    const z = (x * y) / range;
+                    const p = project(x, z, y);
+                    drawables.push({ type: 'surfaceDot', p, z: p.z });
+                }
+            }
+            
+            // Sort by depth
+            drawables.sort((a, b) => a.z - b.z);
+            
+            // Draw everything
+            drawables.forEach(d => {
+                if (d.type === 'edge') {
+                    ctx.strokeStyle = 'rgba(64, 255, 255, 0.8)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(d.p1.x, d.p1.y);
+                    ctx.lineTo(d.p2.x, d.p2.y);
+                    ctx.stroke();
+                } else if (d.type === 'corner') {
+                    ctx.fillStyle = 'rgba(64, 255, 255, 0.9)';
+                    ctx.beginPath();
+                    ctx.arc(d.p.x, d.p.y, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (d.type === 'surfaceDot') {
+                    ctx.fillStyle = 'rgba(170, 85, 255, 0.9)';
+                    ctx.beginPath();
+                    ctx.arc(d.p.x, d.p.y, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+            
+            // Label
+            ctx.fillStyle = 'rgba(0, 255, 136, 0.9)';
+            ctx.font = 'bold 14px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('z = x × y', width / 2, height - 15);
+            
+            rotationY += 0.008;
+            requestAnimationFrame(drawFrame);
+        }
+        
+        drawFrame();
+    })();
+    </script>
+</body>
+</html>

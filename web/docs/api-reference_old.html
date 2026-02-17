@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX — Full API Reference</title>
+    <meta name="description" content="Complete API reference for the ButterflyFX Helix Kernel, Substrates, Tokens, and Primitives.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #050510, #0a1020);
+            color: #fff;
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+        
+        header {
+            background: rgba(5, 5, 16, 0.95);
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        nav { display: flex; gap: 20px; }
+        nav a { color: #8090aa; text-decoration: none; font-size: 0.9em; }
+        nav a:hover { color: #60b0ff; }
+        
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 100px 25px 60px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle { font-size: 1.1em; color: #60b0ff; margin-bottom: 40px; }
+        
+        h2 {
+            font-size: 1.6em;
+            color: #ff6090;
+            margin: 50px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 96, 144, 0.3);
+        }
+        
+        h3 { color: #60b0ff; margin: 30px 0 15px; font-size: 1.3em; }
+        h4 { color: #80ff80; margin: 20px 0 10px; font-size: 1.1em; }
+        
+        p { color: #b0c0e0; margin-bottom: 15px; }
+        
+        code {
+            background: rgba(100, 150, 255, 0.15);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.9em;
+            color: #80ff80;
+        }
+        
+        pre {
+            background: rgba(10, 15, 30, 0.9);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        pre code { background: none; padding: 0; font-size: 0.85em; line-height: 1.6; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+        }
+        
+        th { background: rgba(64, 96, 255, 0.2); color: #60b0ff; }
+        td { color: #b0c0e0; }
+        td:first-child { color: #80ff80; font-family: monospace; }
+        
+        .api-box {
+            background: rgba(20, 30, 50, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px 25px;
+            margin: 20px 0;
+        }
+        
+        .api-box h4 { margin-top: 0; }
+        
+        .returns {
+            color: #ffd700;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+        
+        .toc {
+            background: rgba(20, 30, 50, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px 25px;
+            margin: 30px 0;
+        }
+        
+        .toc h3 { margin-top: 0; color: #ff6090; }
+        .toc ul { list-style: none; margin: 15px 0 0 0; }
+        .toc li { margin: 8px 0; }
+        .toc a { color: #60b0ff; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .tag-class { background: rgba(64, 96, 255, 0.3); color: #80b0ff; }
+        .tag-function { background: rgba(80, 200, 120, 0.3); color: #80ff80; }
+        .tag-primitive { background: rgba(255, 200, 100, 0.3); color: #ffd080; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="../index.html" class="logo">🦋 ButterflyFX</a>
+        <nav>
+            <a href="../developer.html">Developer</a>
+            <a href="index.html">Docs</a>
+            <a href="../apps.html">Apps</a>
+        </nav>
+    </header>
+    
+    <main>
+        <h1>📖 Full API Reference</h1>
+        <p class="subtitle">Complete Reference for the ButterflyFX Helix Kernel</p>
+        
+        <div class="toc">
+            <h3>📑 Contents</h3>
+            <ul>
+                <li><a href="#kernel">HelixKernel</a> — Core state machine</li>
+                <li><a href="#substrate">Substrate</a> — Data containers</li>
+                <li><a href="#token">Token</a> — Value wrappers</li>
+                <li><a href="#srl">SecureResourceLocator</a> — Global registry</li>
+                <li><a href="#functions">Top-Level Functions</a> — srl(), invoke()</li>
+                <li><a href="#primitives">Primitives</a> — Vector3D, RGB, Duration, etc.</li>
+                <li><a href="#operators">Operators</a> — INVOKE, SPIRAL_UP, SPIRAL_DOWN, COLLAPSE</li>
+            </ul>
+        </div>
+        
+        <!-- HelixKernel -->
+        <section id="kernel">
+            <h2>HelixKernel <span class="tag tag-class">class</span></h2>
+            
+            <p>The core state machine that implements the formal kernel H = {(s,ℓ) | s ∈ Z, ℓ ∈ {0..6}}.</p>
+            
+<pre><code><span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> HelixKernel
+
+kernel = HelixKernel()
+kernel.invoke(42)
+kernel.spiral_up()
+kernel.spiral_down()
+kernel.collapse()</code></pre>
+
+            <table>
+                <thead>
+                    <tr><th>Method</th><th>Parameters</th><th>Returns</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>__init__()</td>
+                        <td>None</td>
+                        <td>HelixKernel</td>
+                        <td>Creates kernel in null state (0, 0)</td>
+                    </tr>
+                    <tr>
+                        <td>invoke(k)</td>
+                        <td>k: int</td>
+                        <td>None</td>
+                        <td>Sets state seed to k, resets level to 0</td>
+                    </tr>
+                    <tr>
+                        <td>spiral_up()</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td>Increments level (max 6)</td>
+                    </tr>
+                    <tr>
+                        <td>spiral_down()</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td>Decrements level (min 0)</td>
+                    </tr>
+                    <tr>
+                        <td>collapse()</td>
+                        <td>None</td>
+                        <td>tuple</td>
+                        <td>Returns (state_hash, level) and collapses</td>
+                    </tr>
+                    <tr>
+                        <td>state</td>
+                        <td>property</td>
+                        <td>int</td>
+                        <td>Current state seed value</td>
+                    </tr>
+                    <tr>
+                        <td>level</td>
+                        <td>property</td>
+                        <td>int</td>
+                        <td>Current dimensional level (0-6)</td>
+                    </tr>
+                    <tr>
+                        <td>level_name</td>
+                        <td>property</td>
+                        <td>str</td>
+                        <td>Human-readable level name</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="api-box">
+                <h4>Level Constants</h4>
+                <table>
+                    <tr><td>LEVEL_POTENTIAL</td><td>0</td><td>Undefined / dormant</td></tr>
+                    <tr><td>LEVEL_POINT</td><td>1</td><td>Existence, single value</td></tr>
+                    <tr><td>LEVEL_LENGTH</td><td>2</td><td>Linear relationship</td></tr>
+                    <tr><td>LEVEL_WIDTH</td><td>3</td><td>2D structure</td></tr>
+                    <tr><td>LEVEL_PLANE</td><td>4</td><td>Flat surface</td></tr>
+                    <tr><td>LEVEL_VOLUME</td><td>5</td><td>3D body</td></tr>
+                    <tr><td>LEVEL_WHOLE</td><td>6</td><td>Complete system</td></tr>
+                </table>
+            </div>
+        </section>
+        
+        <!-- Substrate -->
+        <section id="substrate">
+            <h2>Substrate <span class="tag tag-class">class</span></h2>
+            
+            <p>Base class for all data containers. Substrates hold primitives (data) and operations (actions).</p>
+            
+<pre><code><span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> Substrate
+
+<span style="color: #ff80a0;">class</span> <span style="color: #ffd700;">MySubstrate</span>(Substrate):
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">__init__</span>(self, name: str):
+        super().__init__(name)
+        self.register_primitive(<span style="color: #80ff80;">"color"</span>, RGB(255, 100, 50))
+        self.register_operation(<span style="color: #80ff80;">"reset"</span>, self._reset)
+    
+    @property
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">domain</span>(self) -> str:
+        <span style="color: #ff80a0;">return</span> <span style="color: #80ff80;">"myapp.data"</span>
+    
+    <span style="color: #ff80a0;">def</span> <span style="color: #60b0ff;">_reset</span>(self):
+        self.set_primitive(<span style="color: #80ff80;">"color"</span>, RGB(0, 0, 0))</code></pre>
+
+            <table>
+                <thead>
+                    <tr><th>Method</th><th>Parameters</th><th>Returns</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>__init__(name)</td>
+                        <td>name: str</td>
+                        <td>Substrate</td>
+                        <td>Create substrate with given name</td>
+                    </tr>
+                    <tr>
+                        <td>domain</td>
+                        <td>property (abstract)</td>
+                        <td>str</td>
+                        <td>Override to return domain path</td>
+                    </tr>
+                    <tr>
+                        <td>name</td>
+                        <td>property</td>
+                        <td>str</td>
+                        <td>Substrate name</td>
+                    </tr>
+                    <tr>
+                        <td>address</td>
+                        <td>property</td>
+                        <td>str</td>
+                        <td>Full SRL address</td>
+                    </tr>
+                    <tr>
+                        <td>register_primitive(key, value)</td>
+                        <td>key: str, value: Any</td>
+                        <td>None</td>
+                        <td>Register a data primitive</td>
+                    </tr>
+                    <tr>
+                        <td>register_operation(name, fn)</td>
+                        <td>name: str, fn: Callable</td>
+                        <td>None</td>
+                        <td>Register an operation</td>
+                    </tr>
+                    <tr>
+                        <td>get_primitive(key)</td>
+                        <td>key: str</td>
+                        <td>Any</td>
+                        <td>Get primitive value</td>
+                    </tr>
+                    <tr>
+                        <td>set_primitive(key, value)</td>
+                        <td>key: str, value: Any</td>
+                        <td>None</td>
+                        <td>Update primitive value</td>
+                    </tr>
+                    <tr>
+                        <td>invoke_operation(name, *args)</td>
+                        <td>name: str, args</td>
+                        <td>Any</td>
+                        <td>Execute operation</td>
+                    </tr>
+                    <tr>
+                        <td>list_primitives()</td>
+                        <td>None</td>
+                        <td>list[str]</td>
+                        <td>List all primitive keys</td>
+                    </tr>
+                    <tr>
+                        <td>list_operations()</td>
+                        <td>None</td>
+                        <td>list[str]</td>
+                        <td>List all operation names</td>
+                    </tr>
+                    <tr>
+                        <td>to_token(key)</td>
+                        <td>key: str</td>
+                        <td>Token</td>
+                        <td>Wrap primitive as Token</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Token -->
+        <section id="token">
+            <h2>Token <span class="tag tag-class">class</span></h2>
+            
+            <p>Immutable wrapper for primitive values. Provides typed access to substrate data.</p>
+            
+<pre><code><span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> Token
+
+<span style="color: #666;"># Create a token</span>
+token = Token(<span style="color: #80ff80;">"color"</span>, RGB(255, 100, 50), level=1)
+
+<span style="color: #666;"># Access</span>
+token.name      <span style="color: #666;"># → "color"</span>
+token.value     <span style="color: #666;"># → RGB(255, 100, 50)</span>
+token.level     <span style="color: #666;"># → 1</span>
+token.type_name <span style="color: #666;"># → "RGB"</span></code></pre>
+
+            <table>
+                <thead>
+                    <tr><th>Property/Method</th><th>Type</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>name</td>
+                        <td>str</td>
+                        <td>Token identifier</td>
+                    </tr>
+                    <tr>
+                        <td>value</td>
+                        <td>Any</td>
+                        <td>Wrapped primitive value</td>
+                    </tr>
+                    <tr>
+                        <td>level</td>
+                        <td>int</td>
+                        <td>Dimensional level (0-6)</td>
+                    </tr>
+                    <tr>
+                        <td>type_name</td>
+                        <td>str</td>
+                        <td>Type name of value</td>
+                    </tr>
+                    <tr>
+                        <td>is_valid</td>
+                        <td>bool</td>
+                        <td>Whether token has valid value</td>
+                    </tr>
+                    <tr>
+                        <td>hash</td>
+                        <td>int</td>
+                        <td>Deterministic hash</td>
+                    </tr>
+                    <tr>
+                        <td>transform(fn)</td>
+                        <td>Callable → Token</td>
+                        <td>Apply function, return new Token</td>
+                    </tr>
+                    <tr>
+                        <td>elevate()</td>
+                        <td>Token</td>
+                        <td>Return Token at level+1</td>
+                    </tr>
+                    <tr>
+                        <td>reduce()</td>
+                        <td>Token</td>
+                        <td>Return Token at level-1</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- SecureResourceLocator -->
+        <section id="srl">
+            <h2>SecureResourceLocator <span class="tag tag-class">class</span></h2>
+            
+            <p>Singleton registry for all SRL mappings. Provides O(1) lookup for any registered resource.</p>
+            
+<pre><code><span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> SecureResourceLocator
+
+SRL = SecureResourceLocator()
+
+<span style="color: #666;"># Register</span>
+address = SRL.register(my_substrate)
+
+<span style="color: #666;"># Lookup</span>
+value = SRL.resolve(<span style="color: #80ff80;">"srl://domain/substrate/primitive"</span>)
+
+<span style="color: #666;"># Search</span>
+matches = SRL.find(<span style="color: #80ff80;">"user.*profile"</span>)
+
+<span style="color: #666;"># List all</span>
+SRL.list_substrates()</code></pre>
+
+            <table>
+                <thead>
+                    <tr><th>Method</th><th>Parameters</th><th>Returns</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>register(substrate)</td>
+                        <td>substrate: Substrate</td>
+                        <td>str</td>
+                        <td>Register substrate, return SRL address</td>
+                    </tr>
+                    <tr>
+                        <td>unregister(address)</td>
+                        <td>address: str</td>
+                        <td>bool</td>
+                        <td>Remove substrate from registry</td>
+                    </tr>
+                    <tr>
+                        <td>resolve(address)</td>
+                        <td>address: str</td>
+                        <td>Any</td>
+                        <td>Get primitive value at address</td>
+                    </tr>
+                    <tr>
+                        <td>invoke(address, *args)</td>
+                        <td>address: str, args</td>
+                        <td>Any</td>
+                        <td>Execute operation at address</td>
+                    </tr>
+                    <tr>
+                        <td>find(pattern)</td>
+                        <td>pattern: str (regex)</td>
+                        <td>list[str]</td>
+                        <td>Find matching addresses</td>
+                    </tr>
+                    <tr>
+                        <td>list_substrates()</td>
+                        <td>None</td>
+                        <td>list[str]</td>
+                        <td>List all registered substrates</td>
+                    </tr>
+                    <tr>
+                        <td>exists(address)</td>
+                        <td>address: str</td>
+                        <td>bool</td>
+                        <td>Check if address is registered</td>
+                    </tr>
+                    <tr>
+                        <td>get_substrate(address)</td>
+                        <td>address: str</td>
+                        <td>Substrate</td>
+                        <td>Get substrate object</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Top-Level Functions -->
+        <section id="functions">
+            <h2>Top-Level Functions <span class="tag tag-function">functions</span></h2>
+            
+            <p>Convenience functions for working with SRLs.</p>
+            
+            <div class="api-box">
+                <h4>srl(address) → Any</h4>
+                <p>Resolve an SRL address to its value. O(1) lookup.</p>
+<pre><code><span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> srl
+
+color = srl(<span style="color: #80ff80;">"srl://graphics.color/palette/primary"</span>)
+speed = srl(<span style="color: #80ff80;">"srl://vehicle.car/tesla/speed"</span>)</code></pre>
+                <p class="returns">Returns: The primitive value at the address</p>
+            </div>
+            
+            <div class="api-box">
+                <h4>invoke(address, *args, **kwargs) → Any</h4>
+                <p>Execute an operation at an SRL address.</p>
+<pre><code><span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> invoke
+
+result = invoke(<span style="color: #80ff80;">"srl://vehicle.car/tesla/accelerate"</span>, 10)
+user = invoke(<span style="color: #80ff80;">"srl://database.users/profiles/find"</span>, id=42)</code></pre>
+                <p class="returns">Returns: The result of the operation</p>
+            </div>
+            
+            <div class="api-box">
+                <h4>register_substrate(substrate) → str</h4>
+                <p>Register a substrate with the global SRL registry.</p>
+<pre><code><span style="color: #ff80a0;">from</span> helix <span style="color: #ff80a0;">import</span> register_substrate
+
+address = register_substrate(my_substrate)
+<span style="color: #ff80a0;">print</span>(address)  <span style="color: #666;"># → "srl://domain/name"</span></code></pre>
+                <p class="returns">Returns: The full SRL address of the registered substrate</p>
+            </div>
+        </section>
+        
+        <!-- Primitives -->
+        <section id="primitives">
+            <h2>Primitives <span class="tag tag-primitive">types</span></h2>
+            
+            <p>Built-in dimensional value types.</p>
+            
+            <h3>Vector3D</h3>
+            <div class="api-box">
+<pre><code><span style="color: #ff80a0;">from</span> helix.primitives <span style="color: #ff80a0;">import</span> Vector3D
+
+v = Vector3D(1.0, 2.0, 3.0)
+v.x, v.y, v.z      <span style="color: #666;"># → 1.0, 2.0, 3.0</span>
+v.magnitude        <span style="color: #666;"># → 3.7416...</span>
+v.normalized()     <span style="color: #666;"># → Vector3D(0.267, 0.534, 0.801)</span>
+v + Vector3D(1,1,1) <span style="color: #666;"># → Vector3D(2.0, 3.0, 4.0)</span></code></pre>
+                <table>
+                    <tr><td>x, y, z</td><td>float</td><td>Components</td></tr>
+                    <tr><td>magnitude</td><td>float</td><td>Vector length</td></tr>
+                    <tr><td>normalized()</td><td>Vector3D</td><td>Unit vector</td></tr>
+                    <tr><td>dot(other)</td><td>float</td><td>Dot product</td></tr>
+                    <tr><td>cross(other)</td><td>Vector3D</td><td>Cross product</td></tr>
+                </table>
+            </div>
+            
+            <h3>RGB / RGBA</h3>
+            <div class="api-box">
+<pre><code><span style="color: #ff80a0;">from</span> helix.primitives <span style="color: #ff80a0;">import</span> RGB, RGBA
+
+c = RGB(255, 100, 50)
+c.r, c.g, c.b      <span style="color: #666;"># → 255, 100, 50</span>
+c.hex              <span style="color: #666;"># → "#FF6432"</span>
+c.tuple            <span style="color: #666;"># → (255, 100, 50)</span>
+
+c2 = RGBA(255, 100, 50, 128)
+c2.a               <span style="color: #666;"># → 128</span></code></pre>
+                <table>
+                    <tr><td>r, g, b</td><td>int (0-255)</td><td>Color channels</td></tr>
+                    <tr><td>a</td><td>int (0-255)</td><td>Alpha (RGBA only)</td></tr>
+                    <tr><td>hex</td><td>str</td><td>Hex color string</td></tr>
+                    <tr><td>tuple</td><td>tuple</td><td>As tuple</td></tr>
+                    <tr><td>blend(other, factor)</td><td>RGB</td><td>Blend colors</td></tr>
+                </table>
+            </div>
+            
+            <h3>Duration</h3>
+            <div class="api-box">
+<pre><code><span style="color: #ff80a0;">from</span> helix.primitives <span style="color: #ff80a0;">import</span> Duration
+
+d = Duration(seconds=90)
+d.minutes          <span style="color: #666;"># → 1.5</span>
+d.hours            <span style="color: #666;"># → 0.025</span>
+d.total_seconds    <span style="color: #666;"># → 90</span>
+d.formatted        <span style="color: #666;"># → "00:01:30"</span>
+
+d2 = Duration.from_minutes(30)
+d3 = d + d2        <span style="color: #666;"># → Duration(seconds=1890)</span></code></pre>
+                <table>
+                    <tr><td>seconds</td><td>float</td><td>Duration in seconds</td></tr>
+                    <tr><td>minutes</td><td>float</td><td>Duration in minutes</td></tr>
+                    <tr><td>hours</td><td>float</td><td>Duration in hours</td></tr>
+                    <tr><td>formatted</td><td>str</td><td>HH:MM:SS format</td></tr>
+                    <tr><td>from_minutes(m)</td><td>Duration</td><td>Class method</td></tr>
+                    <tr><td>from_hours(h)</td><td>Duration</td><td>Class method</td></tr>
+                </table>
+            </div>
+            
+            <h3>Frequency</h3>
+            <div class="api-box">
+<pre><code><span style="color: #ff80a0;">from</span> helix.primitives <span style="color: #ff80a0;">import</span> Frequency
+
+f = Frequency(hz=440)
+f.hz               <span style="color: #666;"># → 440</span>
+f.khz              <span style="color: #666;"># → 0.44</span>
+f.period           <span style="color: #666;"># → 0.00227... (seconds)</span></code></pre>
+            </div>
+            
+            <h3>TimePoint</h3>
+            <div class="api-box">
+<pre><code><span style="color: #ff80a0;">from</span> helix.primitives <span style="color: #ff80a0;">import</span> TimePoint
+
+t = TimePoint.now()
+t.timestamp        <span style="color: #666;"># → 1704067200.0</span>
+t.iso              <span style="color: #666;"># → "2024-01-01T00:00:00Z"</span>
+t.date             <span style="color: #666;"># → "2024-01-01"</span>
+t.time             <span style="color: #666;"># → "00:00:00"</span></code></pre>
+            </div>
+        </section>
+        
+        <!-- Operators -->
+        <section id="operators">
+            <h2>Operators <span class="tag tag-function">core</span></h2>
+            
+            <p>Kernel operators for dimensional state transitions.</p>
+            
+            <table>
+                <thead>
+                    <tr><th>Operator</th><th>Syntax</th><th>Effect</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>INVOKE(k)</td>
+                        <td><code>kernel.invoke(k)</code></td>
+                        <td>(_, _) → (k, 0) — Initialize with seed k</td>
+                    </tr>
+                    <tr>
+                        <td>SPIRAL_UP</td>
+                        <td><code>kernel.spiral_up()</code></td>
+                        <td>(s, ℓ) → (s, min(ℓ+1, 6)) — Ascend level</td>
+                    </tr>
+                    <tr>
+                        <td>SPIRAL_DOWN</td>
+                        <td><code>kernel.spiral_down()</code></td>
+                        <td>(s, ℓ) → (s, max(ℓ-1, 0)) — Descend level</td>
+                    </tr>
+                    <tr>
+                        <td>COLLAPSE</td>
+                        <td><code>kernel.collapse()</code></td>
+                        <td>(s, ℓ) → observe + reset — Measure state</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>State Transition Diagram</h3>
+<pre><code>                    INVOKE(k)
+                        │
+                        ▼
+    ┌─────────────────────────────────────────┐
+    │         Level 0: POTENTIAL              │
+    └─────────────────────────────────────────┘
+                        │
+                   SPIRAL_UP
+                        │
+                        ▼
+    ┌─────────────────────────────────────────┐
+    │         Level 1: POINT                  │
+    │         (Value exists)                  │
+    └─────────────────────────────────────────┘
+                        │
+                   SPIRAL_UP
+                        │
+                        ▼
+    ┌─────────────────────────────────────────┐
+    │         Level 2: LENGTH                 │◄──────┐
+    │         (Relationship)                  │       │
+    └─────────────────────────────────────────┘       │
+           │         │                                │
+    SPIRAL_UP    SPIRAL_DOWN                          │
+           │         │                                │
+           ▼         ▼                                │
+    ...continues through 6: WHOLE...           COLLAPSE
+                                                (any level)</code></pre>
+        </section>
+        
+        <!-- Footer -->
+        <section style="margin-top: 60px; padding-top: 40px; border-top: 1px solid rgba(100, 150, 255, 0.2);">
+            <p style="text-align: center; color: #666;">
+                <a href="index.html" style="color: #60b0ff;">← Back to Full Docs</a> |
+                <a href="srl-guide.html" style="color: #60b0ff;">SRL Guide</a> |
+                <a href="../developer.html" style="color: #60b0ff;">Developer Guide</a>
+            </p>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Writing Amplifier | ButterflyFX</title>
+    <style>
+        :root {
+            --bg: #050508;
+            --bg-card: rgba(18, 18, 28, 0.9);
+            --text: #ffffff;
+            --text-dim: #a0a8c0;
+            --neon-green: #00ff88;
+            --neon-cyan: #00d4ff;
+            --neon-purple: #9b6dff;
+            --border: rgba(0, 255, 136, 0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; padding: 30px 0; }
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .tagline { color: var(--text-dim); font-size: 1.1rem; }
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+        }
+        .panel h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            padding: 15px;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: none;
+        }
+        textarea:focus { outline: none; border-color: var(--neon-green); }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+        }
+        .control-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+        select:focus { outline: none; border-color: var(--neon-green); }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
+            color: var(--bg);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,255,136,0.3); }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+        .btn-secondary:hover { border-color: var(--neon-green); }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+        .stat { text-align: center; }
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--neon-green); }
+        .stat-label { font-size: 0.8rem; color: var(--text-dim); }
+        .templates {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .template-btn {
+            padding: 8px 15px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .template-btn:hover {
+            border-color: var(--neon-green);
+            background: rgba(0,255,136,0.1);
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+        }
+        .back-link:hover { color: var(--neon-green); }
+        .amplification-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        .amp-before, .amp-after {
+            text-align: center;
+        }
+        .amp-value { font-size: 2rem; font-weight: 700; }
+        .amp-before .amp-value { color: var(--text-dim); }
+        .amp-after .amp-value { color: var(--neon-green); }
+        .amp-label { font-size: 0.8rem; color: var(--text-dim); }
+        .amp-arrow { font-size: 2rem; color: var(--neon-cyan); }
+        @media (max-width: 768px) {
+            .workspace { grid-template-columns: 1fr; }
+            .stats { flex-wrap: wrap; gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/superchargers" class="back-link">← Back to Superchargers</a>
+        
+        <header>
+            <h1>✍️ AI Writing Amplifier</h1>
+            <p class="tagline">Turn rough ideas into polished content — emails, posts, reports in seconds</p>
+        </header>
+        
+        <div class="templates">
+            <button class="template-btn" onclick="loadTemplate('email')">📧 Email</button>
+            <button class="template-btn" onclick="loadTemplate('linkedin')">💼 LinkedIn Post</button>
+            <button class="template-btn" onclick="loadTemplate('tweet')">🐦 Tweet Thread</button>
+            <button class="template-btn" onclick="loadTemplate('blog')">📝 Blog Intro</button>
+            <button class="template-btn" onclick="loadTemplate('apology')">🙏 Apology</button>
+            <button class="template-btn" onclick="loadTemplate('thank')">❤️ Thank You</button>
+            <button class="template-btn" onclick="loadTemplate('pitch')">🚀 Sales Pitch</button>
+        </div>
+        
+        <div class="workspace">
+            <div class="panel">
+                <h2>📝 Your Rough Idea</h2>
+                <textarea id="inputText" placeholder="Type your rough idea here...
+
+Example: 'meeting tomorrow 3pm about q2 results bring laptop'"></textarea>
+                <div class="char-count" style="text-align: right; font-size: 0.85rem; color: var(--text-dim); margin-top: 8px;">
+                    <span id="inputCount">0</span> characters
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2>✨ Amplified Content</h2>
+                <textarea id="outputText" readonly placeholder="Your polished content will appear here..."></textarea>
+                <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+                    <span style="font-size: 0.85rem; color: var(--text-dim);"><span id="outputCount">0</span> characters</span>
+                    <button onclick="copyOutput()" style="background: none; border: none; color: var(--neon-green); cursor: pointer;">📋 Copy</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>Content Type</label>
+                <select id="contentType">
+                    <option value="email">Professional Email</option>
+                    <option value="casual-email">Casual Email</option>
+                    <option value="linkedin">LinkedIn Post</option>
+                    <option value="tweet">Tweet/Thread</option>
+                    <option value="blog">Blog Post</option>
+                    <option value="report">Business Report</option>
+                    <option value="message">Chat Message</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Tone</label>
+                <select id="tone">
+                    <option value="professional">Professional</option>
+                    <option value="friendly">Friendly</option>
+                    <option value="formal">Formal</option>
+                    <option value="casual">Casual</option>
+                    <option value="enthusiastic">Enthusiastic</option>
+                    <option value="empathetic">Empathetic</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Length</label>
+                <select id="length">
+                    <option value="short">Short (concise)</option>
+                    <option value="medium" selected>Medium (balanced)</option>
+                    <option value="long">Long (detailed)</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Style</label>
+                <select id="style">
+                    <option value="clear">Clear & Direct</option>
+                    <option value="persuasive">Persuasive</option>
+                    <option value="storytelling">Storytelling</option>
+                    <option value="technical">Technical</option>
+                    <option value="creative">Creative</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn-primary" onclick="amplify()">⚡ Amplify Writing</button>
+            <button class="btn-secondary" onclick="regenerate()">🔄 Regenerate</button>
+            <button class="btn-secondary" onclick="clear()">🗑️ Clear</button>
+        </div>
+        
+        <div class="amplification-indicator" id="indicator" style="display: none;">
+            <div class="amp-before">
+                <div class="amp-value" id="beforeWords">0</div>
+                <div class="amp-label">words input</div>
+            </div>
+            <span class="amp-arrow">→</span>
+            <div class="amp-after">
+                <div class="amp-value" id="afterWords">0</div>
+                <div class="amp-label">words output</div>
+            </div>
+            <span class="amp-arrow">→</span>
+            <div class="amp-after">
+                <div class="amp-value" id="amplification">0x</div>
+                <div class="amp-label">amplification</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        
+        inputText.addEventListener('input', () => {
+            document.getElementById('inputCount').textContent = inputText.value.length;
+        });
+        
+        const templates = {
+            email: "meeting tomorrow 3pm q2 results bring laptop",
+            linkedin: "just launched new product really excited tell everyone",
+            tweet: "learned something important today about productivity share tips",
+            blog: "want to write about why remote work is future of business",
+            apology: "sorry about the delay on the project had some issues",
+            thank: "thanks for helping with the presentation you saved the day",
+            pitch: "our product saves time automating reports 50% faster"
+        };
+        
+        function loadTemplate(type) {
+            inputText.value = templates[type];
+            document.getElementById('inputCount').textContent = inputText.value.length;
+            
+            // Set appropriate content type
+            const typeMap = {
+                email: 'email',
+                linkedin: 'linkedin',
+                tweet: 'tweet',
+                blog: 'blog',
+                apology: 'email',
+                thank: 'email',
+                pitch: 'email'
+            };
+            document.getElementById('contentType').value = typeMap[type] || 'email';
+        }
+        
+        function amplify() {
+            const input = inputText.value.trim();
+            if (!input) {
+                alert('Please enter some text to amplify');
+                return;
+            }
+            
+            const contentType = document.getElementById('contentType').value;
+            const tone = document.getElementById('tone').value;
+            const length = document.getElementById('length').value;
+            const style = document.getElementById('style').value;
+            
+            const amplified = generateAmplifiedContent(input, contentType, tone, length, style);
+            outputText.value = amplified;
+            document.getElementById('outputCount').textContent = amplified.length;
+            
+            // Show amplification stats
+            const inputWords = input.split(/\s+/).length;
+            const outputWords = amplified.split(/\s+/).length;
+            const amp = (outputWords / inputWords).toFixed(1);
+            
+            document.getElementById('beforeWords').textContent = inputWords;
+            document.getElementById('afterWords').textContent = outputWords;
+            document.getElementById('amplification').textContent = amp + 'x';
+            document.getElementById('indicator').style.display = 'flex';
+        }
+        
+        function generateAmplifiedContent(input, contentType, tone, length, style) {
+            // Parse the rough input to extract key elements
+            const words = input.toLowerCase();
+            
+            // Determine intent and content
+            const hasMeeting = /meet|meeting|call|sync|chat/.test(words);
+            const hasTime = words.match(/(\d{1,2})(:\d{2})?\s*(am|pm)?/i);
+            const hasDate = /tomorrow|today|monday|tuesday|wednesday|thursday|friday|next week|this week/.test(words);
+            const hasGratitude = /thanks|thank|grateful|appreciate/.test(words);
+            const hasApology = /sorry|apologize|apologies|my bad/.test(words);
+            const hasProduct = /product|launch|release|new|feature/.test(words);
+            const hasLearning = /learn|discover|realize|found|tip|hack/.test(words);
+            
+            // Build appropriate response based on content type
+            let result = '';
+            
+            const greetings = {
+                professional: 'Hi Team,',
+                friendly: 'Hey there!',
+                formal: 'Dear Team Members,',
+                casual: 'Hey!',
+                enthusiastic: 'Hi everyone! 🎉',
+                empathetic: 'Hello,'
+            };
+            
+            const closings = {
+                professional: 'Best regards',
+                friendly: 'Cheers',
+                formal: 'Sincerely',
+                casual: 'Talk soon',
+                enthusiastic: 'Can\'t wait! 🚀',
+                empathetic: 'With appreciation'
+            };
+            
+            if (contentType === 'email' || contentType === 'casual-email') {
+                result = greetings[tone] + '\n\n';
+                
+                if (hasMeeting) {
+                    const time = hasTime ? hasTime[0] : '3:00 PM';
+                    const date = hasDate ? input.match(/tomorrow|today|monday|tuesday|wednesday|thursday|friday|next week|this week/i)[0] : 'tomorrow';
+                    
+                    result += `I wanted to reach out regarding our upcoming meeting scheduled for ${date} at ${time}.\n\n`;
+                    
+                    if (words.includes('q2') || words.includes('results') || words.includes('report')) {
+                        result += `We'll be reviewing the Q2 results and discussing our performance metrics. `;
+                    }
+                    
+                    if (words.includes('laptop') || words.includes('bring') || words.includes('prepare')) {
+                        result += `Please come prepared with your laptop and any relevant materials you'd like to share.\n\n`;
+                    }
+                    
+                    if (length === 'long') {
+                        result += `The meeting agenda will cover:\n• Performance review\n• Key metrics analysis\n• Next steps and action items\n• Open discussion\n\n`;
+                    }
+                    
+                    result += `Please confirm your attendance at your earliest convenience. If you have any questions or need to reschedule, don't hesitate to let me know.\n\n`;
+                    
+                } else if (hasGratitude) {
+                    const whatFor = input.replace(/thanks?|thank you|grateful|appreciate/gi, '').trim();
+                    result += `I wanted to take a moment to express my sincere gratitude for ${whatFor || 'your help'}.\n\n`;
+                    result += `Your support truly made a difference, and I couldn't have done it without you. `;
+                    if (length !== 'short') {
+                        result += `It's people like you who make our team exceptional.\n\n`;
+                    }
+                    result += `Thank you again for everything.\n\n`;
+                    
+                } else if (hasApology) {
+                    const issue = input.replace(/sorry|apologize|apologies|my bad/gi, '').trim();
+                    result += `I want to sincerely apologize for ${issue || 'the inconvenience'}.\n\n`;
+                    result += `I understand this may have caused difficulties, and I take full responsibility. `;
+                    result += `I'm committed to ensuring this doesn't happen again and will take the necessary steps to make things right.\n\n`;
+                    if (length !== 'short') {
+                        result += `Please let me know if there's anything I can do to address this situation.\n\n`;
+                    }
+                    
+                } else {
+                    // Generic professional email
+                    result += `${input.charAt(0).toUpperCase() + input.slice(1)}.\n\n`;
+                    result += `Please let me know if you have any questions or need additional information.\n\n`;
+                }
+                
+                result += closings[tone];
+                
+            } else if (contentType === 'linkedin') {
+                if (hasProduct) {
+                    result = `🚀 Exciting news!\n\n`;
+                    result += `I'm thrilled to announce that we've just launched something I've been working on for months.\n\n`;
+                    result += `${input.charAt(0).toUpperCase() + input.slice(1)}.\n\n`;
+                    result += `This has been an incredible journey, and I'm so grateful to the amazing team that made it possible.\n\n`;
+                    result += `What does this mean for you? Stay tuned for more updates!\n\n`;
+                    result += `#ProductLaunch #Innovation #Excited`;
+                } else if (hasLearning) {
+                    result = `💡 Today I learned something that changed my perspective.\n\n`;
+                    result += `${input.charAt(0).toUpperCase() + input.slice(1)}.\n\n`;
+                    result += `Here are 3 key takeaways:\n\n`;
+                    result += `1️⃣ Focus on what matters most\n`;
+                    result += `2️⃣ Consistency beats intensity\n`;
+                    result += `3️⃣ Share your knowledge with others\n\n`;
+                    result += `What's something you've learned recently? 👇\n\n`;
+                    result += `#Learning #Growth #Productivity`;
+                } else {
+                    result = `🔥 ${input.charAt(0).toUpperCase() + input.slice(1)}.\n\n`;
+                    result += `This is something I've been thinking about a lot lately.\n\n`;
+                    result += `What are your thoughts? I'd love to hear from you in the comments! 👇\n\n`;
+                    result += `#Thoughts #Discussion #Community`;
+                }
+                
+            } else if (contentType === 'tweet') {
+                result = `🧵 Thread:\n\n`;
+                result += `1/ ${input.charAt(0).toUpperCase() + input.slice(1)}.\n\n`;
+                result += `Let me break this down for you:\n\n`;
+                result += `2/ The key insight is understanding that small changes lead to big results.\n\n`;
+                result += `3/ Here's what most people get wrong:\n`;
+                result += `They try to change everything at once instead of focusing on what matters.\n\n`;
+                result += `4/ My advice? Start small, stay consistent, and keep learning.\n\n`;
+                result += `5/ If you found this helpful, follow for more insights!\n\n`;
+                result += `♻️ Retweet to share with others!`;
+                
+            } else if (contentType === 'blog') {
+                result = `# ${input.charAt(0).toUpperCase() + input.slice(1)}\n\n`;
+                result += `In today's rapidly evolving landscape, this topic has never been more relevant.\n\n`;
+                result += `## The Challenge\n\n`;
+                result += `Many people struggle with this concept, but it doesn't have to be complicated.\n\n`;
+                result += `## What You Need to Know\n\n`;
+                result += `Here's the truth that few people talk about:\n\n`;
+                result += `The key is to start with the fundamentals and build from there. When you understand the core principles, everything else falls into place.\n\n`;
+                result += `## Taking Action\n\n`;
+                result += `Now it's your turn. What steps will you take today to make progress?`;
+                
+            } else if (contentType === 'report') {
+                result = `EXECUTIVE SUMMARY\n\n`;
+                result += `${input.charAt(0).toUpperCase() + input.slice(1)}.\n\n`;
+                result += `KEY FINDINGS\n\n`;
+                result += `• Analysis indicates positive trends across key metrics\n`;
+                result += `• Performance has exceeded expectations in critical areas\n`;
+                result += `• Opportunities for improvement have been identified\n\n`;
+                result += `RECOMMENDATIONS\n\n`;
+                result += `Based on the data, we recommend focusing on:\n`;
+                result += `1. Continuing current successful strategies\n`;
+                result += `2. Addressing identified gaps\n`;
+                result += `3. Implementing proposed improvements\n\n`;
+                result += `NEXT STEPS\n\n`;
+                result += `Please review and provide feedback by end of week.`;
+                
+            } else {
+                // Chat message
+                result = input.charAt(0).toUpperCase() + input.slice(1);
+                if (!result.endsWith('.') && !result.endsWith('!') && !result.endsWith('?')) {
+                    result += '.';
+                }
+                result += ` Let me know what you think!`;
+            }
+            
+            return result;
+        }
+        
+        function regenerate() {
+            amplify();
+        }
+        
+        function clear() {
+            inputText.value = '';
+            outputText.value = '';
+            document.getElementById('inputCount').textContent = '0';
+            document.getElementById('outputCount').textContent = '0';
+            document.getElementById('indicator').style.display = 'none';
+        }
+        
+        function copyOutput() {
+            outputText.select();
+            document.execCommand('copy');
+            alert('Copied to clipboard!');
+        }
+        
+        // Demo
+        inputText.value = "meeting tomorrow 3pm about q2 results bring laptop";
+        document.getElementById('inputCount').textContent = inputText.value.length;
+    </script>
+</body>
+</html>

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Supercharger | ButterflyFX</title>
+    <style>
+        :root {
+            --bg: #050508;
+            --bg-card: rgba(18, 18, 28, 0.9);
+            --text: #ffffff;
+            --text-dim: #a0a8c0;
+            --neon-green: #00ff88;
+            --neon-cyan: #00d4ff;
+            --neon-red: #ff4d4d;
+            --border: rgba(0, 255, 136, 0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; padding: 30px 0; }
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .tagline { color: var(--text-dim); font-size: 1.1rem; }
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+        }
+        .panel h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .holding-row {
+            display: grid;
+            grid-template-columns: 1fr 100px 100px 80px;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .holding-row input {
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+        .holding-row input:focus { outline: none; border-color: var(--neon-green); }
+        .remove-btn {
+            background: var(--neon-red);
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .add-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,255,136,0.1);
+            border: 1px dashed var(--neon-green);
+            border-radius: 8px;
+            color: var(--neon-green);
+            cursor: pointer;
+            font-size: 0.95rem;
+            margin-top: 10px;
+        }
+        .add-btn:hover { background: rgba(0,255,136,0.2); }
+        .analysis-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .metric-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--neon-green);
+        }
+        .metric-value.negative { color: var(--neon-red); }
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-top: 5px;
+        }
+        .allocation-chart {
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            margin: 20px 0;
+        }
+        .allocation-segment {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--bg);
+            transition: all 0.3s;
+        }
+        .optimization-list {
+            margin-top: 20px;
+        }
+        .optimization-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .optimization-item.positive { border-left: 3px solid var(--neon-green); }
+        .optimization-item.warning { border-left: 3px solid #ffeb3b; }
+        .optimization-item.negative { border-left: 3px solid var(--neon-red); }
+        .optimization-icon { font-size: 1.5rem; }
+        .optimization-text h4 { font-size: 1rem; margin-bottom: 5px; }
+        .optimization-text p { font-size: 0.85rem; color: var(--text-dim); }
+        .comparison-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .comparison-table th { color: var(--text-dim); font-size: 0.85rem; }
+        .comparison-table .before { color: var(--neon-red); }
+        .comparison-table .after { color: var(--neon-green); }
+        .action-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
+            color: var(--bg);
+        }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+        }
+        .back-link:hover { color: var(--neon-green); }
+        .header-row {
+            display: grid;
+            grid-template-columns: 1fr 100px 100px 80px;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+        .total-row {
+            display: grid;
+            grid-template-columns: 1fr 100px 100px 80px;
+            gap: 10px;
+            padding: 15px 0;
+            border-top: 2px solid var(--border);
+            margin-top: 15px;
+            font-weight: 600;
+        }
+        @media (max-width: 768px) {
+            .workspace { grid-template-columns: 1fr; }
+            .holding-row { grid-template-columns: 1fr 1fr; }
+            .metric-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/superchargers" class="back-link">← Back to Superchargers</a>
+        
+        <header>
+            <h1>📊 Portfolio Supercharger</h1>
+            <p class="tagline">Analyze and optimize your investments — find hidden fees, rebalance risk</p>
+        </header>
+        
+        <div class="workspace">
+            <div class="panel">
+                <h2>💼 Your Holdings</h2>
+                
+                <div class="header-row">
+                    <span>Ticker/Name</span>
+                    <span>Shares</span>
+                    <span>Price ($)</span>
+                    <span></span>
+                </div>
+                
+                <div id="holdingsContainer">
+                    <!-- Holdings will be added here -->
+                </div>
+                
+                <button class="add-btn" onclick="addHolding()">+ Add Holding</button>
+                
+                <div class="total-row">
+                    <span>Total Portfolio Value</span>
+                    <span></span>
+                    <span id="totalValue">$0</span>
+                    <span></span>
+                </div>
+                
+                <button class="action-btn btn-primary" onclick="analyzePortfolio()">📊 Analyze & Optimize</button>
+            </div>
+            
+            <div class="panel">
+                <h2>📈 Analysis</h2>
+                
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="expenseRatio">0.00%</div>
+                        <div class="metric-label">Expense Ratio</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="annualFees">$0</div>
+                        <div class="metric-label">Annual Fees</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="diversification">-</div>
+                        <div class="metric-label">Diversification</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="riskLevel">-</div>
+                        <div class="metric-label">Risk Level</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 25px; font-size: 1rem; color: var(--neon-cyan);">📊 Allocation</h3>
+                <div class="allocation-chart" id="allocationChart"></div>
+                
+                <h3 style="margin-top: 25px; font-size: 1rem; color: var(--neon-cyan);">💡 Optimizations</h3>
+                <div class="optimization-list" id="optimizations">
+                    <div class="optimization-item warning">
+                        <span class="optimization-icon">📝</span>
+                        <div class="optimization-text">
+                            <h4>Add your holdings</h4>
+                            <p>Enter your portfolio to see personalized recommendations</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 25px; font-size: 1rem; color: var(--neon-cyan);">🔄 Before vs After</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Metric</th>
+                        <th>Current</th>
+                        <th>Optimized</th>
+                    </tr>
+                    <tr>
+                        <td>Expense Ratio</td>
+                        <td class="before" id="beforeExpense">-</td>
+                        <td class="after" id="afterExpense">-</td>
+                    </tr>
+                    <tr>
+                        <td>Annual Fees</td>
+                        <td class="before" id="beforeFees">-</td>
+                        <td class="after" id="afterFees">-</td>
+                    </tr>
+                    <tr>
+                        <td>10-Year Fee Savings</td>
+                        <td colspan="2" class="after" id="tenYearSavings">-</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let holdings = [];
+        let holdingId = 0;
+        
+        // Common fund data (expense ratios)
+        const fundData = {
+            'VOO': { name: 'Vanguard S&P 500 ETF', expense: 0.03, type: 'stock', lowCostAlt: null },
+            'VTI': { name: 'Vanguard Total Stock', expense: 0.03, type: 'stock', lowCostAlt: null },
+            'SPY': { name: 'SPDR S&P 500', expense: 0.09, type: 'stock', lowCostAlt: 'VOO' },
+            'QQQ': { name: 'Invesco QQQ', expense: 0.20, type: 'stock', lowCostAlt: 'VGT' },
+            'VGT': { name: 'Vanguard Tech ETF', expense: 0.10, type: 'stock', lowCostAlt: null },
+            'ARKK': { name: 'ARK Innovation', expense: 0.75, type: 'stock', lowCostAlt: 'VGT' },
+            'BND': { name: 'Vanguard Total Bond', expense: 0.03, type: 'bond', lowCostAlt: null },
+            'AGG': { name: 'iShares Core US Aggregate Bond', expense: 0.04, type: 'bond', lowCostAlt: 'BND' },
+            'VNQ': { name: 'Vanguard Real Estate', expense: 0.12, type: 'reit', lowCostAlt: null },
+            'GLD': { name: 'SPDR Gold', expense: 0.40, type: 'commodity', lowCostAlt: 'GLDM' },
+            'GLDM': { name: 'SPDR Gold MiniShares', expense: 0.18, type: 'commodity', lowCostAlt: null },
+            'VXUS': { name: 'Vanguard Int\'l Stock', expense: 0.07, type: 'intl', lowCostAlt: null },
+            'VWO': { name: 'Vanguard Emerging Markets', expense: 0.08, type: 'emerging', lowCostAlt: null },
+        };
+        
+        // Add initial demo holdings
+        function init() {
+            addHolding('VOO', 10, 450);
+            addHolding('QQQ', 5, 380);
+            addHolding('ARKK', 20, 45);
+            addHolding('BND', 15, 72);
+        }
+        
+        function addHolding(ticker = '', shares = '', price = '') {
+            const id = holdingId++;
+            holdings.push({ id, ticker, shares, price });
+            renderHoldings();
+        }
+        
+        function removeHolding(id) {
+            holdings = holdings.filter(h => h.id !== id);
+            renderHoldings();
+            updateTotal();
+        }
+        
+        function renderHoldings() {
+            const container = document.getElementById('holdingsContainer');
+            container.innerHTML = holdings.map(h => `
+                <div class="holding-row">
+                    <input type="text" placeholder="e.g., VOO" value="${h.ticker}" 
+                        onchange="updateHolding(${h.id}, 'ticker', this.value)" 
+                        oninput="updateTotal()">
+                    <input type="number" placeholder="Shares" value="${h.shares}" 
+                        onchange="updateHolding(${h.id}, 'shares', this.value)"
+                        oninput="updateTotal()">
+                    <input type="number" placeholder="Price" value="${h.price}" step="0.01"
+                        onchange="updateHolding(${h.id}, 'price', this.value)"
+                        oninput="updateTotal()">
+                    <button class="remove-btn" onclick="removeHolding(${h.id})">×</button>
+                </div>
+            `).join('');
+        }
+        
+        function updateHolding(id, field, value) {
+            const holding = holdings.find(h => h.id === id);
+            if (holding) {
+                holding[field] = field === 'ticker' ? value.toUpperCase() : parseFloat(value) || 0;
+            }
+            updateTotal();
+        }
+        
+        function updateTotal() {
+            let total = 0;
+            holdings.forEach(h => {
+                total += (parseFloat(h.shares) || 0) * (parseFloat(h.price) || 0);
+            });
+            document.getElementById('totalValue').textContent = '$' + total.toLocaleString(undefined, {maximumFractionDigits: 0});
+        }
+        
+        function analyzePortfolio() {
+            let totalValue = 0;
+            let weightedExpense = 0;
+            const types = {};
+            const optimizations = [];
+            
+            holdings.forEach(h => {
+                const value = (parseFloat(h.shares) || 0) * (parseFloat(h.price) || 0);
+                totalValue += value;
+                
+                const fund = fundData[h.ticker.toUpperCase()];
+                if (fund) {
+                    weightedExpense += (value * fund.expense);
+                    types[fund.type] = (types[fund.type] || 0) + value;
+                    
+                    // Check for lower-cost alternatives
+                    if (fund.lowCostAlt) {
+                        const alt = fundData[fund.lowCostAlt];
+                        const savings = value * (fund.expense - alt.expense) / 100;
+                        optimizations.push({
+                            type: 'warning',
+                            icon: '💰',
+                            title: `Switch ${h.ticker} to ${fund.lowCostAlt}`,
+                            text: `Save $${savings.toFixed(0)}/year with lower expense ratio (${fund.expense}% → ${alt.expense}%)`
+                        });
+                    }
+                } else {
+                    // Unknown stock - estimate expense at 0
+                    types['stock'] = (types['stock'] || 0) + value;
+                }
+            });
+            
+            if (totalValue === 0) {
+                alert('Please add holdings with values');
+                return;
+            }
+            
+            const expenseRatio = (weightedExpense / totalValue);
+            const annualFees = totalValue * expenseRatio / 100;
+            
+            // Update metrics
+            document.getElementById('expenseRatio').textContent = expenseRatio.toFixed(2) + '%';
+            document.getElementById('annualFees').textContent = '$' + annualFees.toFixed(0);
+            
+            // Diversification score
+            const typeCount = Object.keys(types).length;
+            let diversification = 'Poor';
+            if (typeCount >= 4) diversification = 'Excellent';
+            else if (typeCount >= 3) diversification = 'Good';
+            else if (typeCount >= 2) diversification = 'Fair';
+            document.getElementById('diversification').textContent = diversification;
+            
+            // Risk level based on allocation
+            const stockPct = ((types['stock'] || 0) / totalValue) * 100;
+            let riskLevel = 'Moderate';
+            if (stockPct > 90) riskLevel = 'Aggressive';
+            else if (stockPct > 70) riskLevel = 'Growth';
+            else if (stockPct < 40) riskLevel = 'Conservative';
+            document.getElementById('riskLevel').textContent = riskLevel;
+            
+            // Render allocation chart
+            const colors = {
+                stock: '#00ff88',
+                bond: '#00d4ff',
+                reit: '#9b6dff',
+                commodity: '#ffeb3b',
+                intl: '#ff9f43',
+                emerging: '#ff4d8b'
+            };
+            
+            const chart = document.getElementById('allocationChart');
+            chart.innerHTML = Object.entries(types).map(([type, value]) => {
+                const pct = (value / totalValue * 100).toFixed(0);
+                return `<div class="allocation-segment" style="width: ${pct}%; background: ${colors[type] || '#888'}">${pct}%</div>`;
+            }).join('');
+            
+            // Add diversification recommendations
+            if (!types['bond'] && stockPct > 80) {
+                optimizations.push({
+                    type: 'warning',
+                    icon: '⚖️',
+                    title: 'Add bond allocation',
+                    text: 'Consider adding 10-20% bonds (e.g., BND) to reduce volatility'
+                });
+            }
+            
+            if (!types['intl'] && !types['emerging']) {
+                optimizations.push({
+                    type: 'warning',
+                    icon: '🌍',
+                    title: 'Add international exposure',
+                    text: 'Consider VXUS or VWO for global diversification'
+                });
+            }
+            
+            if (expenseRatio > 0.20) {
+                optimizations.push({
+                    type: 'negative',
+                    icon: '💸',
+                    title: 'High expense ratio',
+                    text: `Your ${expenseRatio.toFixed(2)}% expense ratio is above average. Target under 0.20%`
+                });
+            } else if (expenseRatio < 0.10) {
+                optimizations.push({
+                    type: 'positive',
+                    icon: '✅',
+                    title: 'Great expense ratio!',
+                    text: `Your ${expenseRatio.toFixed(2)}% expense ratio is excellent`
+                });
+            }
+            
+            // Render optimizations
+            const optContainer = document.getElementById('optimizations');
+            optContainer.innerHTML = optimizations.length ? optimizations.map(o => `
+                <div class="optimization-item ${o.type}">
+                    <span class="optimization-icon">${o.icon}</span>
+                    <div class="optimization-text">
+                        <h4>${o.title}</h4>
+                        <p>${o.text}</p>
+                    </div>
+                </div>
+            `).join('') : '<div class="optimization-item positive"><span class="optimization-icon">✅</span><div class="optimization-text"><h4>Looking good!</h4><p>No major optimizations needed</p></div></div>';
+            
+            // Before/After comparison
+            const optimizedExpense = Math.max(0.05, expenseRatio * 0.5);
+            const optimizedFees = totalValue * optimizedExpense / 100;
+            const tenYearSavings = (annualFees - optimizedFees) * 10;
+            
+            document.getElementById('beforeExpense').textContent = expenseRatio.toFixed(2) + '%';
+            document.getElementById('afterExpense').textContent = optimizedExpense.toFixed(2) + '%';
+            document.getElementById('beforeFees').textContent = '$' + annualFees.toFixed(0) + '/yr';
+            document.getElementById('afterFees').textContent = '$' + optimizedFees.toFixed(0) + '/yr';
+            document.getElementById('tenYearSavings').textContent = '$' + tenYearSavings.toFixed(0);
+        }
+        
+        init();
+        updateTotal();
+    </script>
+</body>
+</html>

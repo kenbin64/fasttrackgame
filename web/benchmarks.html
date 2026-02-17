@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX — Benchmarks | Live Performance Tests</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Live benchmarks proving ButterflyFX dimensional computing claims. Run tests in your browser: dimensional instantiation, geometric encoding, higher dimensions containing lower dimensions.">
+    <meta name="keywords" content="ButterflyFX benchmarks, performance tests, dimensional computing proof, geometric encoding, live demo">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://butterflyfx.us/benchmarks.html">
+    <meta property="og:title" content="ButterflyFX — Live Benchmarks">
+    <meta property="og:description" content="Run live benchmarks proving dimensional computing claims in your browser.">
+    
+    <link rel="canonical" href="https://butterflyfx.us/benchmarks.html">
+    
+    <link rel="stylesheet" href="static/css/benchmarks.css">
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+    <div class="nav-overlay" id="navOverlay"></div>
+    <header>
+        <a href="index.html" class="logo">🦋 ButterflyFX</a>
+        <nav id="mainNav">
+            <a href="start-here.html">Start Here</a>
+            <a href="genesis.html">Genesis</a>
+            <a href="index.html">Demo</a>
+            <a href="apps.html">Apps</a>
+            <a href="platform.html">Platform</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="benchmarks.html" class="active">Benchmarks</a>
+            <a href="documents.html">Documents</a>
+            <a href="about.html">About</a>
+        </nav>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+    
+    <main>
+        <h1>📊 Benchmarks</h1>
+        <p class="subtitle">Real measurements, verifiable results, no simulation</p>
+        
+        <div class="credibility-notice">
+            <h3>✓ Credibility Commitment</h3>
+            <p>Every benchmark on this page runs real code in your browser. Click "Run Benchmark" to execute 
+            the actual operations and see measured results. No pre-computed values, no estimates, no simulations. 
+            All code is visible and verifiable. Results may vary based on your hardware.</p>
+        </div>
+        
+        <!-- Benchmark 1: Direct Access vs Search -->
+        <div class="benchmark-section">
+            <h2>Benchmark 1: Direct Access vs Linear Search</h2>
+            <span class="verified-badge">✓ Live Execution</span>
+            
+            <p>This benchmark compares finding a specific item by coordinate (dimensional) 
+            versus searching through an array (traditional).</p>
+            
+            <h3>The Scenario</h3>
+            <p>Given a collection of 10,000 items, find the item at a specific position.</p>
+            
+            <div class="code-compare">
+                <div class="code-box">
+                    <div class="code-box-header">Traditional: Array Search</div>
+                    <pre><span class="comment">// Search through array to find item</span>
+<span class="keyword">function</span> <span class="function">findTraditional</span>(items, targetId) {
+  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < items.length; i++) {
+    <span class="keyword">if</span> (items[i].id === targetId) {
+      <span class="keyword">return</span> items[i];
+    }
+  }
+  <span class="keyword">return</span> <span class="keyword">null</span>;
+}
+
+<span class="comment">// Must iterate to find</span>
+<span class="keyword">const</span> result = <span class="function">findTraditional</span>(items, <span class="number">7500</span>);</pre>
+                </div>
+                <div class="code-box">
+                    <div class="code-box-header">Dimensional: Coordinate Access</div>
+                    <pre><span class="comment">// Create dimensional substrate (Map)</span>
+<span class="keyword">const</span> substrate = <span class="keyword">new</span> <span class="function">Map</span>();
+items.<span class="function">forEach</span>(item => {
+  substrate.<span class="function">set</span>(item.id, item);
+});
+
+<span class="comment">// Direct coordinate access - O(1)</span>
+<span class="keyword">const</span> result = substrate.<span class="function">get</span>(<span class="number">7500</span>);
+
+<span class="comment">// No iteration needed</span></pre>
+                </div>
+            </div>
+            
+            <button class="run-benchmark" onclick="runBenchmark1()">▶ Run Benchmark (1000 lookups)</button>
+            
+            <div class="results pending" id="results1">Click "Run Benchmark" to execute...</div>
+            
+            <div class="explanation">
+                <strong>What this proves:</strong> Dimensional access (coordinate-based) is O(1) constant time, 
+                while linear search is O(n). The Map-based substrate demonstrates the core principle: 
+                <em>position IS the lookup</em>, eliminating search entirely.
+            </div>
+        </div>
+        
+        <!-- Benchmark 2: Nested Property Access -->
+        <div class="benchmark-section">
+            <h2>Benchmark 2: Nested Object Access</h2>
+            <span class="verified-badge">✓ Live Execution</span>
+            
+            <p>This benchmark demonstrates accessing deeply nested properties: 
+            a car's spark plug gap measurement.</p>
+            
+            <h3>The Scenario</h3>
+            <p>Access parkingLot → car → engine → cylinder → sparkPlug → gap</p>
+            
+            <div class="code-compare">
+                <div class="code-box">
+                    <div class="code-box-header">Traditional: Null Checks Required</div>
+                    <pre><span class="comment">// Must check each level</span>
+<span class="keyword">function</span> <span class="function">getSparkPlugGap</span>(lot, carId, cylNum) {
+  <span class="keyword">if</span> (!lot || !lot.cars) <span class="keyword">return</span> <span class="keyword">null</span>;
+  <span class="keyword">const</span> car = lot.cars.<span class="function">find</span>(
+    c => c.id === carId
+  );
+  <span class="keyword">if</span> (!car || !car.engine) <span class="keyword">return</span> <span class="keyword">null</span>;
+  <span class="keyword">const</span> cyl = car.engine.cylinders[cylNum];
+  <span class="keyword">if</span> (!cyl || !cyl.sparkPlug) <span class="keyword">return</span> <span class="keyword">null</span>;
+  <span class="keyword">return</span> cyl.sparkPlug.gap;
+}</pre>
+                </div>
+                <div class="code-box">
+                    <div class="code-box-header">Dimensional: Path Navigation</div>
+                    <pre><span class="comment">// Dimensional substrate with paths</span>
+<span class="keyword">const</span> substrate = <span class="function">buildSubstrate</span>(lot);
+
+<span class="comment">// Direct path access</span>
+<span class="keyword">const</span> gap = substrate.<span class="function">at</span>(
+  <span class="string">'car:42'</span>,
+  <span class="string">'cylinder:3'</span>,
+  <span class="string">'sparkPlug'</span>,
+  <span class="string">'gap'</span>
+);
+
+<span class="comment">// Returns undefined if path invalid</span>
+<span class="comment">// No manual null checks</span></pre>
+                </div>
+            </div>
+            
+            <button class="run-benchmark" onclick="runBenchmark2()">▶ Run Benchmark (10,000 accesses)</button>
+            
+            <div class="results pending" id="results2">Click "Run Benchmark" to execute...</div>
+            
+            <div class="explanation">
+                <strong>What this proves:</strong> Both approaches have similar raw speed for valid paths. 
+                The dimensional advantage is <em>code clarity and automatic null handling</em>. 
+                The substrate returns undefined for invalid paths without throwing errors.
+            </div>
+        </div>
+        
+        <!-- Benchmark 3: Code Complexity -->
+        <div class="benchmark-section">
+            <h2>Benchmark 3: Code Complexity Metrics</h2>
+            <span class="verified-badge">✓ Measured Values</span>
+            
+            <p>This benchmark measures actual code characteristics, not runtime. 
+            These are objective, countable properties.</p>
+            
+            <h3>Task: Find all cars in a parking lot with mileage > 50000</h3>
+            
+            <div class="code-compare">
+                <div class="code-box">
+                    <div class="code-box-header">Traditional Approach</div>
+                    <pre><span class="keyword">const</span> highMileageCars = [];
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < parkingLot.cars.length; i++) {
+  <span class="keyword">const</span> car = parkingLot.cars[i];
+  <span class="keyword">if</span> (car && car.mileage && car.mileage > <span class="number">50000</span>) {
+    highMileageCars.<span class="function">push</span>(car);
+  }
+}
+<span class="keyword">return</span> highMileageCars;</pre>
+                </div>
+                <div class="code-box">
+                    <div class="code-box-header">Dimensional Approach</div>
+                    <pre><span class="keyword">return</span> parkingLot.cars.<span class="function">filter</span>(
+  car => car?.mileage > <span class="number">50000</span>
+);</pre>
+                </div>
+            </div>
+            
+            <button class="run-benchmark" onclick="runBenchmark3()">▶ Analyze Code Metrics</button>
+            
+            <div class="results pending" id="results3">Click to analyze code metrics...</div>
+            
+            <div class="explanation">
+                <strong>What this proves:</strong> Dimensional thinking enables more declarative code. 
+                The filter approach treats the collection as a substrate where we specify <em>what</em> we want, 
+                not <em>how</em> to iterate. Both approaches work; dimensional is more concise.
+            </div>
+        </div>
+        
+        <!-- Benchmark 4: Memory Layout -->
+        <div class="benchmark-section">
+            <h2>Benchmark 4: Substrate Memory Efficiency</h2>
+            <span class="verified-badge">✓ Live Execution</span>
+            
+            <p>Comparing memory overhead of traditional nested objects vs flat coordinate-based substrates.</p>
+            
+            <h3>The Scenario</h3>
+            <p>Store 1000 points with x, y, z coordinates and a value.</p>
+            
+            <div class="code-compare">
+                <div class="code-box">
+                    <div class="code-box-header">Traditional: Nested Objects</div>
+                    <pre><span class="comment">// Each point is an object</span>
+<span class="keyword">const</span> points = [];
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < <span class="number">1000</span>; i++) {
+  points.<span class="function">push</span>({
+    x: Math.<span class="function">random</span>(),
+    y: Math.<span class="function">random</span>(),
+    z: Math.<span class="function">random</span>(),
+    value: i
+  });
+}</pre>
+                </div>
+                <div class="code-box">
+                    <div class="code-box-header">Dimensional: Typed Arrays</div>
+                    <pre><span class="comment">// Flat typed arrays</span>
+<span class="keyword">const</span> substrate = {
+  x: <span class="keyword">new</span> <span class="function">Float32Array</span>(<span class="number">1000</span>),
+  y: <span class="keyword">new</span> <span class="function">Float32Array</span>(<span class="number">1000</span>),
+  z: <span class="keyword">new</span> <span class="function">Float32Array</span>(<span class="number">1000</span>),
+  values: <span class="keyword">new</span> <span class="function">Int32Array</span>(<span class="number">1000</span>)
+};
+<span class="comment">// Index IS the coordinate</span></pre>
+                </div>
+            </div>
+            
+            <button class="run-benchmark" onclick="runBenchmark4()">▶ Run Memory Benchmark</button>
+            
+            <div class="results pending" id="results4">Click "Run Benchmark" to execute...</div>
+            
+            <div class="explanation">
+                <strong>What this proves:</strong> Typed arrays (substrate approach) use less memory and 
+                enable faster iteration due to CPU cache efficiency. The coordinate (index) directly 
+                maps to memory position — no object overhead, no property name storage.
+            </div>
+        </div>
+        
+        <!-- Benchmark 5: Real DOM Example -->
+        <div class="benchmark-section">
+            <h2>Benchmark 5: DOM as Dimensional Substrate</h2>
+            <span class="verified-badge">✓ Live Execution</span>
+            
+            <p>The DOM itself is a dimensional substrate. Elements exist at coordinates (selectors). 
+            This tests direct access vs. traversal.</p>
+            
+            <div class="code-compare">
+                <div class="code-box">
+                    <div class="code-box-header">Traditional: DOM Traversal</div>
+                    <pre><span class="comment">// Walk DOM tree manually</span>
+<span class="keyword">const</span> container = document.body;
+<span class="keyword">const</span> children = container.children;
+<span class="keyword">for</span> (<span class="keyword">let</span> el <span class="keyword">of</span> children) {
+  <span class="keyword">if</span> (el.id === <span class="string">'target'</span>) {
+    <span class="keyword">return</span> el;
+  }
+}</pre>
+                </div>
+                <div class="code-box">
+                    <div class="code-box-header">Dimensional: Coordinate Query</div>
+                    <pre><span class="comment">// Direct coordinate access</span>
+<span class="keyword">const</span> el = document.<span class="function">getElementById</span>(
+  <span class="string">'target'</span>
+);
+
+<span class="comment">// The selector IS the coordinate</span>
+<span class="comment">// Browser maintains the substrate</span></pre>
+                </div>
+            </div>
+            
+            <button class="run-benchmark" onclick="runBenchmark5()">▶ Run DOM Benchmark</button>
+            
+            <div class="results pending" id="results5">Click "Run Benchmark" to execute...</div>
+            
+            <div class="explanation">
+                <strong>What this proves:</strong> The browser's DOM is already a dimensional substrate. 
+                getElementById uses an internal hash map (O(1) lookup) while manual traversal is O(n). 
+                Dimensional computing applies this principle to all data.
+            </div>
+        </div>
+        
+        <!-- Benchmark 6: Serialization Latency -->
+        <div class="benchmark-section">
+            <h2>Benchmark 6: Serialization Latency</h2>
+            <span class="verified-badge">✓ Live Execution</span>
+            
+            <p>This benchmark measures the time to serialize and deserialize data structures. 
+            Lower latency means faster data transfer preparation.</p>
+            
+            <h3>The Scenario</h3>
+            <p>Serialize 1000 objects to JSON and parse them back.</p>
+            
+            <div class="code-compare">
+                <div class="code-box">
+                    <div class="code-box-header">Traditional: Nested Objects</div>
+                    <pre><span class="comment">// Deeply nested structure</span>
+<span class="keyword">const</span> data = {
+  parkingLot: {
+    cars: [{
+      id: <span class="number">1</span>,
+      engine: {
+        cylinders: [{ sparkPlug: {...} }]
+      }
+    }, ...]
+  }
+};
+<span class="keyword">const</span> json = JSON.<span class="function">stringify</span>(data);</pre>
+                </div>
+                <div class="code-box">
+                    <div class="code-box-header">Dimensional: Flat Coordinates</div>
+                    <pre><span class="comment">// Flat key-value pairs</span>
+<span class="keyword">const</span> substrate = {
+  <span class="string">"car:1:engine:cyl:0:gap"</span>: <span class="number">0.028</span>,
+  <span class="string">"car:1:engine:cyl:1:gap"</span>: <span class="number">0.030</span>,
+  <span class="string">"car:1:mileage"</span>: <span class="number">50000</span>,
+  ...
+};
+<span class="keyword">const</span> json = JSON.<span class="function">stringify</span>(substrate);</pre>
+                </div>
+            </div>
+            
+            <button class="run-benchmark" onclick="runBenchmark6()">&#9654; Run Latency Benchmark</button>
+            
+            <div class="results pending" id="results6">Click "Run Benchmark" to execute...</div>
+            
+            <div class="explanation">
+                <strong>What this proves:</strong> Flat structures often serialize faster because 
+                JSON.stringify doesn't need to recurse through nested objects. The dimensional 
+                substrate's flat coordinate system reduces serialization complexity.
+            </div>
+        </div>
+        
+        <!-- Benchmark 7: Network Payload Efficiency -->
+        <div class="benchmark-section">
+            <h2>Benchmark 7: Network Payload Efficiency</h2>
+            <span class="verified-badge">✓ Measured Values</span>
+            
+            <p>This benchmark compares the actual byte size of data payloads. 
+            Smaller payloads mean faster network transfer and lower bandwidth costs.</p>
+            
+            <h3>The Scenario</h3>
+            <p>Store 100 cars with engine data (8 cylinders each, spark plug gap values).</p>
+            
+            <div class="code-compare">
+                <div class="code-box">
+                    <div class="code-box-header">Traditional: Full Object Graph</div>
+                    <pre><span class="comment">// Full nested structure</span>
+{
+  <span class="string">"cars"</span>: [{
+    <span class="string">"id"</span>: <span class="number">1</span>,
+    <span class="string">"make"</span>: <span class="string">"Toyota"</span>,
+    <span class="string">"engine"</span>: {
+      <span class="string">"cylinders"</span>: [{
+        <span class="string">"sparkPlug"</span>: { <span class="string">"gap"</span>: <span class="number">0.028</span> }
+      }, ...]
+    }
+  }, ...]
+}</pre>
+                </div>
+                <div class="code-box">
+                    <div class="code-box-header">Dimensional: Sparse Coordinates</div>
+                    <pre><span class="comment">// Only send what's needed</span>
+{
+  <span class="string">"c:1:e:0:g"</span>: <span class="number">0.028</span>,
+  <span class="string">"c:1:e:1:g"</span>: <span class="number">0.030</span>,
+  <span class="string">"c:1:e:2:g"</span>: <span class="number">0.029</span>,
+  ...
+}
+
+<span class="comment">// Coordinates are self-describing</span>
+<span class="comment">// c=car, e=cylinder, g=gap</span></pre>
+                </div>
+            </div>
+            
+            <button class="run-benchmark" onclick="runBenchmark7()">&#9654; Run Payload Benchmark</button>
+            
+            <div class="results pending" id="results7">Click "Run Benchmark" to execute...</div>
+            
+            <div class="explanation">
+                <strong>What this proves:</strong> When you only need specific data (like all spark plug gaps), 
+                the dimensional approach sends just coordinates and values. The traditional approach 
+                includes all object structure overhead. Real savings depend on data sparsity.
+            </div>
+        </div>
+        
+        <!-- Benchmark 8: Nested For Loop vs Direct Access -->
+        <div class="benchmark-section">
+            <h2>Benchmark 8: Nested For Loop vs Direct Coordinate Access</h2>
+            <span class="verified-badge">✓ Live Execution</span>
+            
+            <p>This is the core dimensional computing benchmark. Compare iterating through nested 
+            loops to find a specific item versus jumping directly to its coordinates.</p>
+            
+            <h3>The Scenario</h3>
+            <p>Find the spark plug gap for Car #75, Cylinder #5 in a parking lot with 100 cars, 8 cylinders each.</p>
+            
+            <div class="code-compare">
+                <div class="code-box">
+                    <div class="code-box-header">Traditional: Nested For Loops</div>
+                    <pre><span class="comment">// Must iterate through each level</span>
+<span class="keyword">let</span> result = <span class="keyword">null</span>;
+<span class="keyword">for</span> (<span class="keyword">let</span> c = <span class="number">0</span>; c < lot.cars.length; c++) {
+  <span class="keyword">if</span> (lot.cars[c].id === <span class="number">75</span>) {
+    <span class="keyword">for</span> (<span class="keyword">let</span> cyl = <span class="number">0</span>; cyl < car.cylinders.length; cyl++) {
+      <span class="keyword">if</span> (car.cylinders[cyl].num === <span class="number">5</span>) {
+        result = car.cylinders[cyl].sparkPlug.gap;
+        <span class="keyword">break</span>;
+      }
+    }
+    <span class="keyword">break</span>;
+  }
+}</pre>
+                </div>
+                <div class="code-box">
+                    <div class="code-box-header">ButterflyFX: Direct Coordinate</div>
+                    <pre><span class="comment">// Jump directly to the coordinate</span>
+<span class="keyword">const</span> result = substrate.<span class="function">get</span>(
+  <span class="string">'car:75:cyl:5:gap'</span>
+);
+
+<span class="comment">// O(1) access - no loops</span>
+<span class="comment">// The coordinate IS the address</span>
+<span class="comment">// No iteration through 100 cars</span>
+<span class="comment">// No iteration through 8 cylinders</span></pre>
+                </div>
+            </div>
+            
+            <button class="run-benchmark" onclick="runBenchmark8()">&#9654; Run Nested Loop Benchmark</button>
+            
+            <div class="results pending" id="results8">Click "Run Benchmark" to execute...</div>
+            
+            <div class="explanation">
+                <strong>What this proves:</strong> Traditional nested loops are O(n·m) where n=cars and m=cylinders. 
+                Dimensional coordinate access is O(1) constant time. The more nested your data, 
+                the bigger the advantage. This is the fundamental insight of dimensional computing.
+            </div>
+        </div>
+        
+        <!-- Analysis: Optimization Trade-offs -->
+        <div class="benchmark-section" style="border-color: rgba(255, 150, 100, 0.4);">
+            <h2 style="color: #ffaa66;">⚙️ Optimization Trade-offs</h2>
+            
+            <p>Dimensional computing eliminates iteration entirely — you invoke higher dimensions that already 
+            contain their lower parts. However, the <em>encoding</em> has optimization trade-offs worth understanding.</p>
+            
+            <h3>1. String Key Overhead (Serialization)</h3>
+            <p><strong>The Trade-off:</strong> Coordinate keys like <code>"car:75:cyl:5:gap"</code> are strings 
+            that must be created and hashed. In Benchmark 6, you may see dimensional serialization 
+            being slower because:</p>
+            <ul style="margin: 10px 0 15px 20px; color: #b0c0e0; font-size: 0.9em;">
+                <li>More string keys = more bytes to serialize</li>
+                <li>Each key is stored separately (no structure sharing)</li>
+                <li>String hashing has overhead on each access</li>
+            </ul>
+            <p><strong>Solution:</strong> Use <em>compressed coordinates</em> or <em>numeric indices</em>:</p>
+            <div class="code-box" style="margin: 15px 0;">
+                <div class="code-box-header">Optimized: Compressed Keys</div>
+                <pre><span class="comment">// Instead of verbose keys:</span>
+<span class="string">"car:75:cyl:5:gap"</span>  <span class="comment">// 17 chars</span>
+
+<span class="comment">// Use compressed encoding:</span>
+<span class="string">"75:5:g"</span>            <span class="comment">// 6 chars (64% smaller)</span>
+
+<span class="comment">// Or numeric coordinate arrays:</span>
+substrate[<span class="number">75</span>][<span class="number">5</span>] = <span class="number">0.028</span>;  <span class="comment">// No string overhead</span></pre>
+            </div>
+            
+            <h3>2. Payload Size (Network Benchmark 7)</h3>
+            <p><strong>The Trade-off:</strong> When comparing "sparse" dimensional data to efficiently-packed 
+            traditional structures, the coordinate keys add overhead. If you see dimensional payloads 
+            being <em>larger</em>, it's because:</p>
+            <ul style="margin: 10px 0 15px 20px; color: #b0c0e0; font-size: 0.9em;">
+                <li>Each value carries its full coordinate path</li>
+                <li>Nested structures share parent keys implicitly</li>
+                <li>Short values (like numbers) are dwarfed by long keys</li>
+            </ul>
+            <p><strong>Solution:</strong> Use <em>key dictionaries</em> or <em>columnar format</em>:</p>
+            <div class="code-box" style="margin: 15px 0;">
+                <div class="code-box-header">Optimized: Dictionary Encoding</div>
+                <pre><span class="comment">// Full keys (repetitive):</span>
+{ <span class="string">"car:1:gap"</span>: <span class="number">0.028</span>, <span class="string">"car:2:gap"</span>: <span class="number">0.029</span>, ... }
+
+<span class="comment">// Dictionary encoded:</span>
+{
+  <span class="string">"_keys"</span>: [<span class="string">"car:1:gap"</span>, <span class="string">"car:2:gap"</span>],
+  <span class="string">"_vals"</span>: [<span class="number">0.028</span>, <span class="number">0.029</span>]
+}
+
+<span class="comment">// Or columnar (best for homogeneous data):</span>
+{ <span class="string">"gaps"</span>: Float32Array([<span class="number">0.028</span>, <span class="number">0.029</span>, ...]) }</pre>
+            </div>
+            
+            <h3>3. Static Property Access (Benchmark 2)</h3>
+            <p><strong>The Trade-off:</strong> JavaScript engines heavily optimize <code>obj.prop.subprop</code> access. 
+            When you compare direct property chains vs Map.get() with string concatenation, 
+            the traditional approach may be faster because:</p>
+            <ul style="margin: 10px 0 15px 20px; color: #b0c0e0; font-size: 0.9em;">
+                <li>Property access is JIT-compiled to near-native speed</li>
+                <li>Map.get() requires string key lookup each time</li>
+                <li>String concatenation (<code>`car:${id}`</code>) creates temporary objects</li>
+            </ul>
+            <p><strong>Solution:</strong> For hot paths, use <em>pre-computed keys</em> or <em>typed indices</em>:</p>
+            <div class="code-box" style="margin: 15px 0;">
+                <div class="code-box-header">Optimized: Pre-computed Keys</div>
+                <pre><span class="comment">// Slow (string concatenation each access):</span>
+substrate.<span class="function">get</span>(<span class="string">`car:</span>${carId}<span class="string">:gap`</span>);
+
+<span class="comment">// Fast (pre-compute key once):</span>
+<span class="keyword">const</span> key = <span class="string">`car:</span>${carId}<span class="string">:gap`</span>;
+<span class="keyword">for</span> (i = <span class="number">0</span>; i < N; i++) substrate.<span class="function">get</span>(key);
+
+<span class="comment">// Fastest (typed array index):</span>
+<span class="keyword">const</span> gaps = <span class="keyword">new</span> Float32Array(numCars);
+gaps[carId];  <span class="comment">// Direct memory access</span></pre>
+            </div>
+            
+            <h3>The Core Principle: Dimensions Contain Dimensions</h3>
+            <div class="explanation" style="border-left-color: #60dd80; background: linear-gradient(135deg, rgba(96,221,128,0.1), rgba(0,212,255,0.05));">
+                <strong style="font-size: 1.1em;">You never iterate in dimensional computing.</strong>
+                <p style="margin: 15px 0; color: #d0e0f0; line-height: 1.6;">
+                    When you invoke a <em>higher</em> dimension, it automatically includes everything in the 
+                    lower dimensions. The whole contains its parts — you invoke the whole.
+                </p>
+                
+                <div class="code-box" style="margin: 20px 0;">
+                    <div class="code-box-header">Traditional: Nested Iteration</div>
+                    <pre><span class="comment">// "I need all spark plug gaps"</span>
+<span class="comment">// Traditional: iterate through every level</span>
+<span class="keyword">const</span> allGaps = [];
+<span class="keyword">for</span> (<span class="keyword">const</span> car <span class="keyword">of</span> cars) {
+    <span class="keyword">for</span> (<span class="keyword">const</span> cylinder <span class="keyword">of</span> car.cylinders) {
+        allGaps.<span class="function">push</span>(cylinder.sparkPlug.gap);
+    }
+}
+<span class="comment">// O(n × m) operations - must touch every object</span></pre>
+                </div>
+                
+                <div class="code-box" style="margin: 20px 0;">
+                    <div class="code-box-header">Dimensional: Invoke the Higher Dimension</div>
+                    <pre><span class="comment">// "I need all spark plug gaps"</span>
+<span class="comment">// Dimensional: invoke the "gaps" dimension directly</span>
+<span class="keyword">const</span> allGaps = substrate.<span class="function">get</span>(<span class="string">"gaps"</span>);  
+<span class="comment">// O(1) - the "gaps" dimension already contains all gaps</span>
+<span class="comment">// No iteration. The whole includes its parts.</span></pre>
+                </div>
+                
+                <p style="margin: 15px 0; color: #d0e0f0; line-height: 1.6;">
+                    This is why Benchmark 8 shows the massive speedup. Traditional code must 
+                    <em>traverse</em> to reach data. Dimensional code <em>invokes</em> the data directly 
+                    at whatever level of aggregation you need.
+                </p>
+                
+                <div style="background: rgba(255,170,85,0.1); padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 3px solid #ffaa55;">
+                    <strong style="color: #ffaa55;">The Dimensional Principle:</strong>
+                    <p style="margin: 8px 0 0 0; color: #e0d0c0; font-style: italic;">
+                        "Everything that exists is a coordinate. Every whole contains its parts as coordinates. 
+                        Invoke the whole, and all parts are present."
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+    </main>
+    
+    <script src="static/js/benchmarks.js"></script>
+</body>
+</html>

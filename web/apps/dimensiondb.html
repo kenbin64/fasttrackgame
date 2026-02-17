@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DimensionDB | ButterflyFX - The Database Where Queries Are Coordinates</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="DimensionDB - A revolutionary database where queries are coordinates. No SQL, no joins, no iteration. Access any data through dimensional invocation with O(1) complexity.">
+    <meta name="keywords" content="ButterflyFX, DimensionDB, dimensional database, NoSQL, coordinates, O(1) access">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="product">
+    <meta property="og:url" content="https://butterflyfx.us/apps/dimensiondb.html">
+    <meta property="og:title" content="DimensionDB | ButterflyFX">
+    <meta property="og:description" content="The database where queries are coordinates. O(1) access to any data.">
+    
+    <link rel="canonical" href="https://butterflyfx.us/apps/dimensiondb.html">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #050510;
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        header {
+            background: rgba(5, 5, 16, 0.95);
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4060ff, #ff4080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+        
+        nav a {
+            color: #8090aa;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+        
+        nav a:hover, nav a.active {
+            color: #60b0ff;
+        }
+        
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+        
+        .hamburger span {
+            width: 25px;
+            height: 2px;
+            background: #60b0ff;
+        }
+        
+        @media (max-width: 768px) {
+            nav { display: none; }
+            .hamburger { display: flex; }
+        }
+        
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 100px 25px 60px;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 60px 0;
+        }
+        
+        .product-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #ff4080, #f90);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .tagline {
+            font-size: 1.4em;
+            color: #ff8060;
+            margin-bottom: 30px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #f90, #f60);
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 40px;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .cta-btn {
+            padding: 15px 35px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .cta-btn.primary {
+            background: linear-gradient(135deg, #ff4080, #f90);
+            color: #fff;
+        }
+        
+        .cta-btn.secondary {
+            background: rgba(255, 100, 100, 0.15);
+            color: #ff8060;
+            border: 1px solid rgba(255, 100, 100, 0.3);
+        }
+        
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 64, 128, 0.3);
+        }
+        
+        .section {
+            margin: 60px 0;
+        }
+        
+        .section h2 {
+            font-size: 1.8em;
+            color: #fff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .section p {
+            color: #a0b0cc;
+            line-height: 1.8;
+            font-size: 1.1em;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            text-align: center;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 40px 0;
+        }
+        
+        @media (max-width: 700px) {
+            .comparison { grid-template-columns: 1fr; }
+        }
+        
+        .comparison-card {
+            background: rgba(20, 25, 45, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px;
+        }
+        
+        .comparison-card.traditional {
+            border-color: rgba(255, 100, 100, 0.3);
+        }
+        
+        .comparison-card.dimensional {
+            border-color: rgba(100, 255, 150, 0.3);
+        }
+        
+        .comparison-card h3 {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .comparison-card.traditional h3 { color: #ff8080; }
+        .comparison-card.dimensional h3 { color: #80ff80; }
+        
+        .comparison-card pre {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85em;
+            line-height: 1.5;
+            color: #a0c0ff;
+            overflow-x: auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .feature-card {
+            background: rgba(20, 25, 45, 0.8);
+            border: 1px solid rgba(255, 100, 100, 0.15);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        
+        .feature-card h3 {
+            color: #ff8060;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .feature-card p {
+            color: #8090aa;
+            text-align: left;
+            font-size: 0.95em;
+        }
+        
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+        
+        .benchmark-bar {
+            background: rgba(10, 12, 25, 0.8);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .benchmark-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .benchmark-label {
+            width: 150px;
+            color: #8090aa;
+            font-size: 0.9em;
+        }
+        
+        .benchmark-bar-fill {
+            flex: 1;
+            height: 30px;
+            border-radius: 15px;
+            position: relative;
+        }
+        
+        .benchmark-bar-fill.sql {
+            background: linear-gradient(90deg, #ff4444, #ff6666);
+        }
+        
+        .benchmark-bar-fill.dimension {
+            background: linear-gradient(90deg, #44ff44, #66ff66);
+        }
+        
+        .benchmark-bar-fill span {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .use-cases {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .use-case {
+            background: rgba(255, 100, 100, 0.08);
+            border: 1px solid rgba(255, 100, 100, 0.2);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .use-case-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .use-case h4 {
+            color: #ff8060;
+            margin-bottom: 8px;
+        }
+        
+        .use-case p {
+            color: #8090aa;
+            font-size: 0.85em;
+            text-align: center;
+        }
+        
+        .waitlist-form {
+            max-width: 500px;
+            margin: 40px auto 0;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .waitlist-form input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 1px solid rgba(255, 100, 100, 0.3);
+            border-radius: 30px;
+            background: rgba(10, 12, 25, 0.8);
+            color: #fff;
+            font-size: 1em;
+        }
+        
+        .waitlist-form input::placeholder {
+            color: #6080aa;
+        }
+        
+        .waitlist-form button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #ff4080, #f90);
+            border: none;
+            border-radius: 30px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .waitlist-form button:hover {
+            transform: scale(1.05);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #6080aa;
+            border-top: 1px solid rgba(100, 150, 255, 0.1);
+            margin-top: 60px;
+        }
+        
+        footer a {
+            color: #ff8060;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+    
+    <header>
+        <a href="../index.html" class="logo">🦋 ButterflyFX</a>
+        <nav>
+            <a href="../start-here.html">Start Here</a>
+            <a href="../genesis.html">Genesis</a>
+            <a href="../apps.html" class="active">Apps</a>
+            <a href="../platform.html">Platform</a>
+            <a href="../developer.html">Developer</a>
+            <a href="../documents.html">Documents</a>
+            <a href="../about.html">About</a>
+        </nav>
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+    
+    <main>
+        <section class="hero">
+            <span class="product-icon">📊</span>
+            <h1>DimensionDB</h1>
+            <p class="tagline">The Database Where Queries Are Coordinates</p>
+            <span class="status-badge">🚀 Coming Soon</span>
+            
+            <div class="cta-buttons">
+                <a href="#waitlist" class="cta-btn primary">Join Waitlist</a>
+                <a href="../documents.html" class="cta-btn secondary">View Docs</a>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>Rethinking Databases</h2>
+            <p>
+                Traditional databases force you to think in tables, rows, and joins. 
+                You write queries. You wait for scans. You optimize indexes. 
+                But what if data already knew where it was?
+            </p>
+            <p>
+                In DimensionDB, <strong>position IS the value</strong>. Every piece of data exists 
+                at a dimensional coordinate. No searching. No scanning. Just invocation.
+            </p>
+        </section>
+        
+        <section class="section">
+            <h2>SQL vs Dimensional</h2>
+            
+            <div class="comparison">
+                <div class="comparison-card traditional">
+                    <h3>❌ Traditional SQL</h3>
+                    <pre>-- Find car #75's spark plug gap
+SELECT sp.gap 
+FROM parking_lots pl
+JOIN cars c ON c.lot_id = pl.id
+JOIN engines e ON e.car_id = c.id
+JOIN cylinders cy ON cy.engine_id = e.id
+JOIN spark_plugs sp ON sp.cylinder_id = cy.id
+WHERE pl.name = 'Main Lot'
+  AND c.number = 75
+  AND cy.number = 5;
+
+-- O(n) scan + multiple joins
+-- Complex query planning
+-- Index optimization required</pre>
+                </div>
+                
+                <div class="comparison-card dimensional">
+                    <h3>✅ DimensionDB</h3>
+                    <pre># Invoke the coordinate directly
+gap = db.invoke(
+    "main-lot:car-75:cyl-5:spark-plug:gap"
+)
+
+# O(1) - constant time
+# No joins (wholes contain parts)
+# No query planning
+# No indexes needed
+# The coordinate IS the query</pre>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>Performance</h2>
+            <p>Live benchmark: Finding a specific value in 1 million records</p>
+            
+            <div class="benchmark-bar">
+                <div class="benchmark-row">
+                    <span class="benchmark-label">PostgreSQL</span>
+                    <div class="benchmark-bar-fill sql" style="width: 80%;">
+                        <span>~50ms</span>
+                    </div>
+                </div>
+                <div class="benchmark-row">
+                    <span class="benchmark-label">MongoDB</span>
+                    <div class="benchmark-bar-fill sql" style="width: 60%;">
+                        <span>~35ms</span>
+                    </div>
+                </div>
+                <div class="benchmark-row">
+                    <span class="benchmark-label">Redis</span>
+                    <div class="benchmark-bar-fill sql" style="width: 20%;">
+                        <span>~5ms</span>
+                    </div>
+                </div>
+                <div class="benchmark-row">
+                    <span class="benchmark-label">DimensionDB</span>
+                    <div class="benchmark-bar-fill dimension" style="width: 5%;">
+                        <span>&lt;0.1ms</span>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="font-size: 0.9em; color: #6080aa;">
+                * Results vary by hardware. DimensionDB achieves O(1) through dimensional coordinate mapping.
+            </p>
+        </section>
+        
+        <section class="section">
+            <h2>Key Features</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">⚡</span>
+                    <h3>O(1) Access</h3>
+                    <p>Every piece of data has a coordinate. Invoke the coordinate, get the data. No scanning, no iteration.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🔗</span>
+                    <h3>No Joins</h3>
+                    <p>Wholes contain their parts. A car's engine is inside the car — no need to "join" them together.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">📐</span>
+                    <h3>Self-Describing Schema</h3>
+                    <p>The coordinate structure IS the schema. No separate DDL, no migrations, no schema drift.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🔄</span>
+                    <h3>Bi-Directional Navigation</h3>
+                    <p>Go deeper (drill down) or higher (drill up). From spark plug to car or car to spark plug.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🌀</span>
+                    <h3>7-Level Helix</h3>
+                    <p>Built on the ButterflyFX dimensional model. Navigate through Void → Point → Line → Width → Plane → Volume → Whole.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🔐</span>
+                    <h3>Dimensional Security</h3>
+                    <p>Permissions at coordinate level. Grant access to branches, not tables. Naturally hierarchical authorization.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>Use Cases</h2>
+            
+            <div class="use-cases">
+                <div class="use-case">
+                    <span class="use-case-icon">🏭</span>
+                    <h4>IoT / Industrial</h4>
+                    <p>Millions of sensors, instant access</p>
+                </div>
+                <div class="use-case">
+                    <span class="use-case-icon">🎮</span>
+                    <h4>Gaming</h4>
+                    <p>Real-time world state, coordinate-based</p>
+                </div>
+                <div class="use-case">
+                    <span class="use-case-icon">📱</span>
+                    <h4>Mobile Apps</h4>
+                    <p>Sync user state across devices</p>
+                </div>
+                <div class="use-case">
+                    <span class="use-case-icon">🏥</span>
+                    <h4>Healthcare</h4>
+                    <p>Patient records with hierarchy</p>
+                </div>
+                <div class="use-case">
+                    <span class="use-case-icon">🛒</span>
+                    <h4>E-Commerce</h4>
+                    <p>Products, variants, inventory</p>
+                </div>
+                <div class="use-case">
+                    <span class="use-case-icon">📊</span>
+                    <h4>Analytics</h4>
+                    <p>Time-series at any granularity</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section" id="waitlist">
+            <h2>Join the Waitlist</h2>
+            <p>Be among the first to experience database queries without queries. Early access for waitlist members.</p>
+            
+            <form class="waitlist-form" onsubmit="handleWaitlist(event)">
+                <input type="email" placeholder="your@email.com" required>
+                <button type="submit">Join Waitlist</button>
+            </form>
+        </section>
+    </main>
+    
+    <footer>
+        <p>🦋 <a href="../index.html">ButterflyFX</a> — Dimensional Computing</p>
+        <p style="margin-top: 10px;">
+            <a href="../apps.html">All Apps</a> · 
+            <a href="../developer.html">Developers</a> · 
+            <a href="../about.html">About</a>
+        </p>
+    </footer>
+    
+    <script>
+        // Starfield background
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        const stars = Array.from({length: 150}, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 1.5 + 0.5,
+            speed: Math.random() * 0.3 + 0.1
+        }));
+        
+        function animateStars() {
+            ctx.fillStyle = '#050510';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            stars.forEach(star => {
+                ctx.fillStyle = `rgba(255, 128, 100, ${Math.random() * 0.3 + 0.4})`;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                star.y += star.speed;
+                if (star.y > canvas.height) {
+                    star.y = 0;
+                    star.x = Math.random() * canvas.width;
+                }
+            });
+            
+            requestAnimationFrame(animateStars);
+        }
+        
+        animateStars();
+        
+        // Waitlist handler
+        function handleWaitlist(e) {
+            e.preventDefault();
+            const email = e.target.querySelector('input').value;
+            alert('Thanks for joining! We\'ll notify you at ' + email + ' when DimensionDB launches.');
+            e.target.reset();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ButterflyFX Helix Simulator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+        
+        .simulator {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            grid-template-rows: 1fr 200px;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        /* Main canvas area */
+        .canvas-area {
+            position: relative;
+            background: #111;
+        }
+        
+        #simCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Helix Control Panel */
+        .helix-panel {
+            background: linear-gradient(180deg, #141428, #0a0a1a);
+            border-left: 2px solid #333;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        
+        .helix-panel h2 {
+            color: #00d4ff;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        /* Big state display */
+        .state-display {
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .state-coords {
+            font-size: 3em;
+            font-family: monospace;
+            color: #00d4ff;
+        }
+        
+        .state-name {
+            font-size: 1.5em;
+            color: #ff6b35;
+            margin-top: 5px;
+        }
+        
+        /* Level selector */
+        .level-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #111;
+            border-radius: 25px;
+            padding: 8px;
+            margin: 15px 0;
+        }
+        
+        .level-pip {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.3em;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            z-index: 100;
+            pointer-events: auto;
+            user-select: none;
+        }
+        
+        .level-pip:hover {
+            transform: scale(1.15);
+            background: #333;
+        }
+        
+        .level-pip.active {
+            background: linear-gradient(135deg, #00d4ff, #0088aa);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+            border-color: #fff;
+        }
+        
+        /* Operation buttons */
+        .op-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .op-btn {
+            background: linear-gradient(180deg, #2a2a4a, #1a1a3a);
+            border: 1px solid #444;
+            color: #fff;
+            padding: 12px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+        
+        .op-btn:hover:not(:disabled) {
+            background: linear-gradient(180deg, #3a3a5a, #2a2a4a);
+            transform: translateY(-2px);
+        }
+        
+        .op-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .op-btn.spiral { border-color: #ff6b35; }
+        .op-btn.collapse { border-color: #ff3535; }
+        
+        /* Token visibility list */
+        .token-section {
+            background: #0a0a15;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .token-section h3 {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+        
+        .token-item {
+            font-family: monospace;
+            font-size: 0.75em;
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 3px;
+            border-left: 3px solid #333;
+        }
+        
+        .token-item.visible {
+            background: rgba(0, 255, 136, 0.1);
+            border-left-color: #00ff88;
+            color: #00ff88;
+        }
+        
+        .token-item.hidden {
+            background: rgba(255, 0, 0, 0.05);
+            border-left-color: #555;
+            color: #555;
+        }
+        
+        /* Telemetry Panel */
+        .telemetry-panel {
+            background: linear-gradient(180deg, #141428, #0a0a1a);
+            border-top: 2px solid #333;
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            padding: 15px;
+        }
+        
+        .telem-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .telem-card.disabled {
+            opacity: 0.3;
+            filter: grayscale(1);
+        }
+        
+        .telem-value {
+            font-size: 2em;
+            font-family: monospace;
+            color: #00ff88;
+        }
+        
+        .telem-label {
+            color: #888;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+        
+        .telem-sig {
+            font-size: 0.7em;
+            color: #555;
+        }
+        
+        /* Car selector */
+        select {
+            width: 100%;
+            background: #1a1a3a;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        /* Controls hint */
+        .controls-hint {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 0.75em;
+            color: #666;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="simulator">
+        <!-- Main Canvas -->
+        <div class="canvas-area">
+            <canvas id="simCanvas"></canvas>
+        </div>
+        
+        <!-- Helix Control Panel -->
+        <div class="helix-panel">
+            <h2>🦋 HELIX KERNEL</h2>
+            
+            <select id="carSelector">
+                <option value="camry">2024 Toyota Camry XSE V6</option>
+                <option value="mustang">2024 Ford Mustang GT</option>
+                <option value="corvette">2024 Chevrolet Corvette</option>
+                <option value="tesla">2024 Tesla Model 3</option>
+            </select>
+            
+            <div class="state-display">
+                <div class="state-coords" id="stateCoords">(0, 0)</div>
+                <div class="state-name" id="stateName">○ Potential</div>
+            </div>
+            
+            <div class="level-bar">
+                <div class="level-pip active" data-level="0" title="Potential" onclick="invokeLevel(0)">○</div>
+                <div class="level-pip" data-level="1" title="Point" onclick="invokeLevel(1)">•</div>
+                <div class="level-pip" data-level="2" title="Length" onclick="invokeLevel(2)">━</div>
+                <div class="level-pip" data-level="3" title="Width" onclick="invokeLevel(3)">▭</div>
+                <div class="level-pip" data-level="4" title="Plane" onclick="invokeLevel(4)">▦</div>
+                <div class="level-pip" data-level="5" title="Volume" onclick="invokeLevel(5)">▣</div>
+                <div class="level-pip" data-level="6" title="Whole" onclick="invokeLevel(6)">◉</div>
+            </div>
+            
+            <div class="op-buttons">
+                <button class="op-btn spiral" id="btnSpiralUp" onclick="spiralUp()">↑ SPIRAL UP</button>
+                <button class="op-btn spiral" id="btnSpiralDown" onclick="spiralDown()">↓ SPIRAL DOWN</button>
+                <button class="op-btn collapse" id="btnCollapse" onclick="collapse()">⊙ COLLAPSE</button>
+                <button class="op-btn" id="btnDrive" style="border-color: #00ff88;" onclick="toggleDrive()">▶ DRIVE</button>
+            </div>
+            
+            <div class="token-section">
+                <h3>TOKEN VISIBILITY AT LEVEL</h3>
+                <div id="tokenList"></div>
+            </div>
+            
+            <div class="controls-hint">
+                W/S = Throttle/Brake | A/D = Steer<br>
+                1-7 = INVOKE Level | 8/9 = SPIRAL | 0 = COLLAPSE
+            </div>
+        </div>
+        
+        <!-- Telemetry Panel -->
+        <div class="telemetry-panel">
+            <div class="telem-card" id="telemIdentity">
+                <div class="telem-value" id="tvMake">---</div>
+                <div class="telem-label">Make/Model</div>
+                <div class="telem-sig">σ: [1-6]</div>
+            </div>
+            <div class="telem-card" id="telemHP">
+                <div class="telem-value" id="tvHP">---</div>
+                <div class="telem-label">Horsepower</div>
+                <div class="telem-sig">σ: [2-6]</div>
+            </div>
+            <div class="telem-card" id="telemCylinders">
+                <div class="telem-value" id="tvCylinders">---</div>
+                <div class="telem-label">Cylinders</div>
+                <div class="telem-sig">σ: [5-6]</div>
+            </div>
+            <div class="telem-card" id="telemSpeed">
+                <div class="telem-value" id="tvSpeed">---</div>
+                <div class="telem-label">Speed (MPH)</div>
+                <div class="telem-sig">σ: [6]</div>
+            </div>
+            <div class="telem-card" id="telemRPM">
+                <div class="telem-value" id="tvRPM">---</div>
+                <div class="telem-label">Engine RPM</div>
+                <div class="telem-sig">σ: [6]</div>
+            </div>
+            <div class="telem-card" id="telemOperational">
+                <div class="telem-value" id="tvOp">---</div>
+                <div class="telem-label">Operational</div>
+                <div class="telem-sig">σ: [6] only</div>
+            </div>
+        </div>
+    </div>
+
+<script>
+console.log('Helix Simulator script loading...');
+
+// =============================================================================
+// HELIX KERNEL SIMULATOR
+// Demonstrates how helix level affects what can be measured and operated
+// =============================================================================
+
+const LEVEL_NAMES = ['Potential', 'Point', 'Length', 'Width', 'Plane', 'Volume', 'Whole'];
+const LEVEL_ICONS = ['○', '•', '━', '▭', '▦', '▣', '◉'];
+
+const CAR_DATABASE = {
+    camry: {
+        make: 'Toyota', model: 'Camry XSE', year: 2024,
+        engine: { cylinders: 6, displacement_L: 3.5, horsepower: 301, torque_lb_ft: 267, compression_ratio: 11.8 },
+        transmission: { type: 'automatic', speeds: 8 },
+        chassis: { weight_lbs: 3572, wheelbase_in: 111.2, width_in: 72.4 },
+        drivetrain: { type: 'FWD' },
+        performance: { top_speed_mph: 135, zero_to_sixty_s: 5.8 },
+        fuel: { capacity_gal: 15.8, mpg_combined: 26 },
+        color: '#c00'
+    },
+    mustang: {
+        make: 'Ford', model: 'Mustang GT', year: 2024,
+        engine: { cylinders: 8, displacement_L: 5.0, horsepower: 480, torque_lb_ft: 415, compression_ratio: 12.0 },
+        transmission: { type: 'manual', speeds: 6 },
+        chassis: { weight_lbs: 3832, wheelbase_in: 107.1, width_in: 75.4 },
+        drivetrain: { type: 'RWD' },
+        performance: { top_speed_mph: 168, zero_to_sixty_s: 4.3 },
+        fuel: { capacity_gal: 16.0, mpg_combined: 19 },
+        color: '#0066cc'
+    },
+    corvette: {
+        make: 'Chevrolet', model: 'Corvette', year: 2024,
+        engine: { cylinders: 8, displacement_L: 6.2, horsepower: 490, torque_lb_ft: 465, compression_ratio: 11.5 },
+        transmission: { type: 'automatic', speeds: 8 },
+        chassis: { weight_lbs: 3647, wheelbase_in: 107.2, width_in: 76.1 },
+        drivetrain: { type: 'RWD' },
+        performance: { top_speed_mph: 194, zero_to_sixty_s: 2.9 },
+        fuel: { capacity_gal: 18.5, mpg_combined: 19 },
+        color: '#ffcc00'
+    },
+    tesla: {
+        make: 'Tesla', model: 'Model 3', year: 2024,
+        engine: { cylinders: 0, displacement_L: 0, horsepower: 510, torque_lb_ft: 546, compression_ratio: 0 },
+        transmission: { type: 'single-speed', speeds: 1 },
+        chassis: { weight_lbs: 4065, wheelbase_in: 113.2, width_in: 72.8 },
+        drivetrain: { type: 'AWD' },
+        performance: { top_speed_mph: 162, zero_to_sixty_s: 3.1 },
+        fuel: { capacity_gal: 0, mpg_combined: 113 },
+        color: '#ffffff'
+    }
+};
+
+// Token signature definitions - which levels can see which tokens
+const TOKEN_SIGNATURES = {
+    'identity': [1,2,3,4,5,6],
+    'horsepower': [2,3,4,5,6],
+    'weight': [2,3,4,5,6],
+    'dimensions': [3,4,5,6],
+    'surface': [4,5,6],
+    'cylinders': [5,6],
+    'transmission': [5,6],
+    'speed': [6],
+    'rpm': [6],
+    'operational': [6]
+};
+
+// =============================================================================
+// SIMULATION STATE
+// =============================================================================
+
+let canvas, ctx;
+let carData = CAR_DATABASE.camry;
+let helixState = { spiral: 0, level: 0 };
+let driving = false;
+
+// Physics state
+let physics = {
+    distance_ft: 0,
+    speed_mph: 0,
+    rpm: 0,
+    throttle: 0,
+    brake: 0,
+    steering: 0,
+    lane_offset: 0
+};
+
+// Controls
+let keys = { w: false, s: false, a: false, d: false };
+
+// =============================================================================
+// HELIX OPERATIONS
+// =============================================================================
+
+function invokeLevel(level) {
+    console.log('invokeLevel called with:', level);
+    if (level < 0 || level > 6) return;
+    helixState.level = level;
+    console.log('helixState now:', helixState);
+    updateUI();
+}
+
+function spiralUp() {
+    console.log('spiralUp() called, current level:', helixState.level);
+    if (helixState.level !== 6) {
+        console.log('SPIRAL_UP requires level 6');
+        return;
+    }
+    helixState.spiral++;
+    helixState.level = 0;
+    updateUI();
+}
+
+function spiralDown() {
+    console.log('spiralDown() called, current level:', helixState.level);
+    if (helixState.level !== 0) {
+        console.log('SPIRAL_DOWN requires level 0');
+        return;
+    }
+    helixState.spiral--;
+    helixState.level = 6;
+    updateUI();
+}
+
+function collapse() {
+    console.log('collapse() called');
+    helixState.level = 0;
+    updateUI();
+}
+
+function toggleDrive() {
+    console.log('toggleDrive() called');
+    driving = !driving;
+    document.getElementById('btnDrive').textContent = driving ? '⏸ STOP' : '▶ DRIVE';
+}
+
+function canMaterialize(tokenName) {
+    const sig = TOKEN_SIGNATURES[tokenName];
+    return sig && sig.includes(helixState.level);
+}
+
+// =============================================================================
+// SIMULATION LOOP
+// =============================================================================
+
+function simulate(dt) {
+    // Can only operate car at level 6 (Whole)
+    if (helixState.level !== 6 || !driving) {
+        physics.throttle = 0;
+        physics.brake = 0;
+        // Car coasts to stop
+        if (physics.speed_mph > 0) {
+            physics.speed_mph = Math.max(0, physics.speed_mph - 5 * dt);
+        }
+    } else {
+        // Process controls
+        physics.throttle = keys.w ? 1 : 0;
+        physics.brake = keys.s ? 1 : 0;
+        physics.steering = (keys.a ? -1 : 0) + (keys.d ? 1 : 0);
+    }
+    
+    // Physics (only if operational)
+    if (canMaterialize('operational')) {
+        const mass_kg = carData.chassis.weight_lbs * 0.453592;
+        const hp = carData.engine.horsepower;
+        const topSpeed = carData.performance.top_speed_mph;
+        
+        const speed_mps = physics.speed_mph * 0.44704;
+        const power_watts = hp * 745.7;
+        const max_force = speed_mps > 0.1 ? Math.min(power_watts / speed_mps, 8000) : 8000;
+        
+        const engine_force = physics.throttle * max_force;
+        const brake_force = physics.brake * mass_kg * 8;
+        const drag = 0.5 * 1.225 * 0.32 * 2.2 * speed_mps * speed_mps;
+        const roll = mass_kg * 9.81 * 0.012;
+        
+        const net_force = engine_force - brake_force - drag - roll;
+        const accel_mps2 = net_force / mass_kg;
+        const accel_mph_s = accel_mps2 * 2.23694;
+        
+        physics.speed_mph = Math.max(0, Math.min(topSpeed, physics.speed_mph + accel_mph_s * dt));
+        physics.distance_ft += physics.speed_mph * 1.46667 * dt;
+        
+        // RPM
+        physics.rpm = 800 + (physics.speed_mph / topSpeed) * 6200;
+        
+        // Steering
+        physics.lane_offset += physics.steering * 0.02 * Math.min(physics.speed_mph / 30, 1);
+        physics.lane_offset = Math.max(-1, Math.min(1, physics.lane_offset));
+    }
+}
+
+// =============================================================================
+// RENDERING
+// =============================================================================
+
+function render() {
+    const w = canvas.width;
+    const h = canvas.height;
+    
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, 0, w, h);
+    
+    const horizon = h * 0.4;
+    
+    // Sky - always visible (no level requirement)
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, horizon);
+    skyGrad.addColorStop(0, '#001133');
+    skyGrad.addColorStop(1, '#003366');
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, w, horizon);
+    
+    // Ground - visible at level 2+ (Length)
+    if (helixState.level >= 2) {
+        ctx.fillStyle = '#1a3d1a';
+        ctx.fillRect(0, horizon, w, h - horizon);
+    } else {
+        ctx.fillStyle = '#222';
+        ctx.fillRect(0, horizon, w, h - horizon);
+    }
+    
+    // Road - visible at level 3+ (Width - 2D)
+    if (helixState.level >= 3) {
+        const roadWidth = 200;
+        ctx.fillStyle = '#333';
+        ctx.beginPath();
+        ctx.moveTo(w/2 - roadWidth, h);
+        ctx.lineTo(w/2 - 10, horizon);
+        ctx.lineTo(w/2 + 10, horizon);
+        ctx.lineTo(w/2 + roadWidth, h);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Road lines - level 4+ (Plane)
+        if (helixState.level >= 4) {
+            const lineOffset = (physics.distance_ft % 60) / 60;
+            ctx.strokeStyle = '#ffff00';
+            ctx.lineWidth = 3;
+            for (let i = 0; i < 20; i++) {
+                const t = (i / 20 + lineOffset * 0.05) % 1;
+                const y = horizon + (h - horizon) * t;
+                const x = w/2;
+                if (i % 2 === 0) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x, y + 10);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+    
+    // Trees - visible at level 5+ (Volume - 3D)
+    if (helixState.level >= 5) {
+        for (let i = 0; i < 10; i++) {
+            const dist = ((physics.distance_ft / 100 + i * 50) % 500);
+            const t = dist / 500;
+            const y = horizon + (h - horizon) * t * 0.8;
+            const scale = 0.2 + t * 0.8;
+            const side = i % 2 === 0 ? -1 : 1;
+            const x = w/2 + side * (150 + 200 * (1 - t));
+            
+            // Tree trunk
+            ctx.fillStyle = '#4a3020';
+            ctx.fillRect(x - 5 * scale, y - 40 * scale, 10 * scale, 40 * scale);
+            // Tree foliage
+            ctx.fillStyle = '#2d5a27';
+            ctx.beginPath();
+            ctx.arc(x, y - 50 * scale, 25 * scale, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+    
+    // Car - visible at level 6 (Whole - operational)
+    if (helixState.level >= 6) {
+        const carX = w/2 + physics.lane_offset * 100;
+        const carY = h - 80;
+        const carW = 80;
+        const carH = 30;
+        
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fillRect(carX - carW/2 + 5, carY + 5, carW, carH);
+        
+        // Car body
+        ctx.fillStyle = carData.color;
+        ctx.fillRect(carX - carW/2, carY - carH, carW, carH);
+        
+        // Roof
+        ctx.fillStyle = carData.color === '#ffffff' ? '#ddd' : adjustColor(carData.color, -30);
+        ctx.fillRect(carX - carW/3, carY - carH - 15, carW * 0.66, 15);
+        
+        // Windows
+        ctx.fillStyle = '#224';
+        ctx.fillRect(carX - carW/3 + 3, carY - carH - 12, carW * 0.66 - 6, 10);
+        
+        // Wheels
+        ctx.fillStyle = '#111';
+        ctx.fillRect(carX - carW/2 + 5, carY - 5, 15, 10);
+        ctx.fillRect(carX + carW/2 - 20, carY - 5, 15, 10);
+        
+        // Headlights
+        if (physics.speed_mph > 0) {
+            ctx.fillStyle = '#ffff88';
+            ctx.fillRect(carX - carW/2, carY - carH + 5, 5, 5);
+            ctx.fillRect(carX + carW/2 - 5, carY - carH + 5, 5, 5);
+        }
+    } else {
+        // Show placeholder at lower levels
+        ctx.fillStyle = '#333';
+        ctx.font = '20px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(`Car exists but not materialized at Level ${helixState.level}`, w/2, h - 80);
+        ctx.font = '14px Arial';
+        ctx.fillStyle = '#666';
+        ctx.fillText('INVOKE Level 6 (Whole) to materialize and operate', w/2, h - 55);
+    }
+    
+    // HUD overlay showing what's visible at current level
+    drawLevelHUD(w, h);
+}
+
+function drawLevelHUD(w, h) {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(10, 10, 220, 100);
+    ctx.strokeStyle = '#00d4ff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(10, 10, 220, 100);
+    
+    ctx.fillStyle = '#00d4ff';
+    ctx.font = 'bold 14px Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText(`HELIX STATE: (${helixState.spiral}, ${helixState.level})`, 20, 32);
+    
+    ctx.fillStyle = '#ff6b35';
+    ctx.font = '18px Arial';
+    ctx.fillText(`${LEVEL_ICONS[helixState.level]} ${LEVEL_NAMES[helixState.level]}`, 20, 55);
+    
+    ctx.fillStyle = '#888';
+    ctx.font = '11px Arial';
+    const visible = [];
+    if (helixState.level >= 1) visible.push('Identity');
+    if (helixState.level >= 2) visible.push('Length');
+    if (helixState.level >= 3) visible.push('Width');
+    if (helixState.level >= 4) visible.push('Surface');
+    if (helixState.level >= 5) visible.push('Volume');
+    if (helixState.level >= 6) visible.push('Operational');
+    ctx.fillText(`Visible: ${visible.join(', ') || 'Nothing'}`, 20, 75);
+    
+    if (driving && helixState.level === 6) {
+        ctx.fillStyle = '#0f0';
+        ctx.fillText('DRIVING - W/S/A/D to control', 20, 100);
+    } else if (driving) {
+        ctx.fillStyle = '#f80';
+        ctx.fillText('Cannot drive - need Level 6', 20, 100);
+    } else {
+        ctx.fillStyle = '#888';
+        ctx.fillText('Press DRIVE or D key to start', 20, 100);
+    }
+}
+
+function adjustColor(hex, amount) {
+    let c = hex.replace('#', '');
+    let r = Math.max(0, Math.min(255, parseInt(c.substr(0,2), 16) + amount));
+    let g = Math.max(0, Math.min(255, parseInt(c.substr(2,2), 16) + amount));
+    let b = Math.max(0, Math.min(255, parseInt(c.substr(4,2), 16) + amount));
+    return `rgb(${r},${g},${b})`;
+}
+
+// =============================================================================
+// UI UPDATES
+// =============================================================================
+
+function updateUI() {
+    // State display
+    document.getElementById('stateCoords').textContent = `(${helixState.spiral}, ${helixState.level})`;
+    document.getElementById('stateName').textContent = `${LEVEL_ICONS[helixState.level]} ${LEVEL_NAMES[helixState.level]}`;
+    
+    // Level pips
+    document.querySelectorAll('.level-pip').forEach((pip, i) => {
+        pip.classList.toggle('active', i === helixState.level);
+    });
+    
+    // Operation buttons
+    document.getElementById('btnSpiralUp').disabled = helixState.level !== 6;
+    document.getElementById('btnSpiralDown').disabled = helixState.level !== 0;
+    
+    // Token list
+    updateTokenList();
+    
+    // Telemetry cards
+    updateTelemetry();
+}
+
+function updateTokenList() {
+    const container = document.getElementById('tokenList');
+    let html = '';
+    
+    for (const [name, sig] of Object.entries(TOKEN_SIGNATURES)) {
+        const visible = sig.includes(helixState.level);
+        html += `<div class="token-item ${visible ? 'visible' : 'hidden'}">
+            ${name} <span style="float:right">σ:[${sig.join(',')}]</span>
+        </div>`;
+    }
+    
+    container.innerHTML = html;
+}
+
+function updateTelemetry() {
+    const level = helixState.level;
+    
+    // Identity (Level 1+)
+    const idCard = document.getElementById('telemIdentity');
+    if (canMaterialize('identity')) {
+        idCard.classList.remove('disabled');
+        document.getElementById('tvMake').textContent = carData.make;
+    } else {
+        idCard.classList.add('disabled');
+        document.getElementById('tvMake').textContent = '???';
+    }
+    
+    // Horsepower (Level 2+)
+    const hpCard = document.getElementById('telemHP');
+    if (canMaterialize('horsepower')) {
+        hpCard.classList.remove('disabled');
+        document.getElementById('tvHP').textContent = carData.engine.horsepower;
+    } else {
+        hpCard.classList.add('disabled');
+        document.getElementById('tvHP').textContent = '???';
+    }
+    
+    // Cylinders (Level 5+)
+    const cylCard = document.getElementById('telemCylinders');
+    if (canMaterialize('cylinders')) {
+        cylCard.classList.remove('disabled');
+        document.getElementById('tvCylinders').textContent = carData.engine.cylinders || 'EV';
+    } else {
+        cylCard.classList.add('disabled');
+        document.getElementById('tvCylinders').textContent = '???';
+    }
+    
+    // Speed (Level 6 only)
+    const speedCard = document.getElementById('telemSpeed');
+    if (canMaterialize('speed')) {
+        speedCard.classList.remove('disabled');
+        document.getElementById('tvSpeed').textContent = Math.round(physics.speed_mph);
+    } else {
+        speedCard.classList.add('disabled');
+        document.getElementById('tvSpeed').textContent = '???';
+    }
+    
+    // RPM (Level 6 only)
+    const rpmCard = document.getElementById('telemRPM');
+    if (canMaterialize('rpm')) {
+        rpmCard.classList.remove('disabled');
+        document.getElementById('tvRPM').textContent = Math.round(physics.rpm);
+    } else {
+        rpmCard.classList.add('disabled');
+        document.getElementById('tvRPM').textContent = '???';
+    }
+    
+    // Operational (Level 6 only)
+    const opCard = document.getElementById('telemOperational');
+    if (canMaterialize('operational')) {
+        opCard.classList.remove('disabled');
+        document.getElementById('tvOp').textContent = driving ? 'ACTIVE' : 'READY';
+        document.getElementById('tvOp').style.color = driving ? '#0f0' : '#ff0';
+    } else {
+        opCard.classList.add('disabled');
+        document.getElementById('tvOp').textContent = 'LOCKED';
+        document.getElementById('tvOp').style.color = '#888';
+    }
+}
+
+// =============================================================================
+// MAIN LOOP
+// =============================================================================
+
+let lastTime = 0;
+
+function gameLoop(timestamp) {
+    const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
+    lastTime = timestamp;
+    
+    simulate(dt);
+    render();
+    updateTelemetry();  // Update live values
+    
+    requestAnimationFrame(gameLoop);
+}
+
+// =============================================================================
+// INITIALIZATION
+// =============================================================================
+
+function init() {
+    console.log('init() starting...');
+    canvas = document.getElementById('simCanvas');
+    ctx = canvas.getContext('2d');
+    console.log('Canvas:', canvas, 'Context:', ctx);
+    
+    function resize() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    
+    // Level pip clicks
+    console.log('Setting up level pip listeners...');
+    document.querySelectorAll('.level-pip').forEach((pip, i) => {
+        console.log('Adding listener to pip', i, 'data-level:', pip.dataset.level);
+        pip.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const lvl = parseInt(pip.dataset.level);
+            console.log('Pip clicked, level:', lvl);
+            invokeLevel(lvl);
+        });
+    });
+    
+    // Operation buttons
+    document.getElementById('btnSpiralUp').addEventListener('click', spiralUp);
+    document.getElementById('btnSpiralDown').addEventListener('click', spiralDown);
+    document.getElementById('btnCollapse').addEventListener('click', collapse);
+    document.getElementById('btnDrive').addEventListener('click', () => {
+        driving = !driving;
+        document.getElementById('btnDrive').textContent = driving ? '⏸ STOP' : '▶ DRIVE';
+    });
+    
+    // Car selector
+    document.getElementById('carSelector').addEventListener('change', e => {
+        carData = CAR_DATABASE[e.target.value];
+        physics.speed_mph = 0;
+        physics.distance_ft = 0;
+        physics.lane_offset = 0;
+        updateUI();
+    });
+    
+    // Keyboard controls
+    document.addEventListener('keydown', e => {
+        switch (e.key.toLowerCase()) {
+            case 'w': keys.w = true; break;
+            case 's': keys.s = true; break;
+            case 'a': keys.a = true; break;
+            case 'd': 
+                if (!e.repeat) {
+                    if (!driving) {
+                        driving = true;
+                        document.getElementById('btnDrive').textContent = '⏸ STOP';
+                    }
+                }
+                keys.d = true; 
+                break;
+            case '1': invokeLevel(0); break;
+            case '2': invokeLevel(1); break;
+            case '3': invokeLevel(2); break;
+            case '4': invokeLevel(3); break;
+            case '5': invokeLevel(4); break;
+            case '6': invokeLevel(5); break;
+            case '7': invokeLevel(6); break;
+            case '8': spiralUp(); break;
+            case '9': spiralDown(); break;
+            case '0': collapse(); break;
+        }
+    });
+    
+    document.addEventListener('keyup', e => {
+        switch (e.key.toLowerCase()) {
+            case 'w': keys.w = false; break;
+            case 's': keys.s = false; break;
+            case 'a': keys.a = false; break;
+            case 'd': keys.d = false; break;
+        }
+    });
+    
+    updateUI();
+    console.log('Initialization complete, starting game loop');
+    requestAnimationFrame(gameLoop);
+}
+
+console.log('About to call init()');
+init();
+console.log('init() returned');
+</script>
+</body>
+</html>

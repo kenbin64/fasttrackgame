@@ -71,6 +71,54 @@ Built on **The Seven Dimensional Laws** and governed by the **Dimensional Safety
 
 ## Core Concepts
 
+### Objects (Not Classes)
+
+ButterflyFX uses **Objects**, not classes. An Object is complete — it possesses every conceivable attribute, property, and ability. Nothing is declared; everything exists latently and is revealed through invocation.
+
+**Structure:** Objects follow a **Schwarz Diamond Gyroid** topology — a spiral ribbon where every point is a dimension and every dimension contains points. This is NOT a tree or hierarchy.
+
+### Organic Growth vs Exponential Explosion
+
+Trees grow exponentially (nᵏ nodes at level k). Dimensional spirals grow **organically** through the 7 Creative Processes:
+
+| Level | Fib | Name | Process | Insight |
+|-------|-----|------|---------|--------|
+| 0 | 0 | VOID | The Pipeline | The zero — infinite space, never filled |
+| 1 | 1 | POINT | Emergence | Barrel view — line appears as single point |
+| 2 | 1 | LINE | DIVISION | Side view — same line, infinite potential points |
+| 3 | 2 | WIDTH | MULTIPLICATION | Multiply line points → plane |
+| 4 | 3 | PLANE | 2D Unity | Surface complete — one point of volume |
+| 5 | 5 | VOLUME | DEPTH | Stack planes → 3D space |
+| 6 | 8 | WHOLE | Completion | Collapses to POINT (Fib 13) of next spiral |
+
+**Levels 1 & 2:** Both Fib 1 — the SAME line from different perspectives (barrel view = point, side view = divided line).
+
+**Holy Grail Transition:** WHOLE (8) + VOLUME (5) = 13 = POINT of next spiral. Fibonacci encodes dimensional structure.
+
+### Developer-Friendly Access
+
+**Developers don't need to know dimensional placement.** The system handles it automatically.
+
+#### Direct Access (No Drill-Down)
+
+Unlike hierarchies, dimensional access is **direct** — jump to any point without traversing from root:
+
+```python
+# Direct dimensional access:
+car(toyota.corolla)           # Jump directly to specific car
+car(toyota.corolla.engine.hp) # Jump directly to horsepower
+
+# NOT hierarchical drill-down:
+# universe.fleet.toyota.corolla.engine.hp  ← NOT required
+```
+
+Notation: `spiral{level}` — e.g., `0{1}` = Spiral 0, Level 1 (single datapoint)
+
+```python
+# System auto-places dimensionally:
+#   car → 0{6} (whole), position → 0{5} (volume), x → 0{1} (point)
+```
+
 ### Substrates
 A substrate is a **complete mathematical identity** encoded in 64 bits.
 - Immutable and dimensionally complete
@@ -248,5 +296,22 @@ butterflyfx/
 ## Author
 Kenneth Bingham
 
+## Website
+**https://butterflyfx.us** - Introduction to the paradigm and open source components
+
 ## License
-Proprietary - ButterflyFx Dimensional Computation Model
+
+ButterflyFX uses a **dual licensing model**:
+
+### Mathematical Kernel (Open Source - For All Humanity)
+The `/helix/` directory containing the mathematical kernel is licensed under **[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)** (Creative Commons Attribution 4.0 International).
+
+- ✅ Free for anyone to use, modify, and distribute
+- ✅ Commercial use permitted
+- ✅ Attribution to **Kenneth Bingham** required
+- 🌍 **Belongs to all humanity** — too powerful to be owned by any single entity
+
+### Applications & Infrastructure (Proprietary)
+All other components (`/server/`, `/apps/`, `/web/`, etc.) are proprietary.
+
+See [LICENSE](LICENSE) and [helix/LICENSE](helix/LICENSE) for full terms.

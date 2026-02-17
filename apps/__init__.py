@@ -6,7 +6,7 @@ Built on the Helix Framework
 
 from .helix_database import HelixDatabase, HelixRecord, HelixCollection, HelixQuery
 from .universal_connector import UniversalConnector, APIConnection, ConnectionResult
-from .universal_harddrive import UniversalHardDrive, DimensionalItem, Collection, run_server
+from .universal_harddrive import UniversalHardDrive, SRL, VirtualDrive, FileNode, run_server
 from .dimensional_explorer import DimensionalExplorer, ExplorerNode, run_explorer
 
 __all__ = [
@@ -21,8 +21,9 @@ __all__ = [
     'ConnectionResult',
     # Hard Drive
     'UniversalHardDrive',
-    'DimensionalItem',
-    'Collection',
+    'SRL',
+    'VirtualDrive',
+    'FileNode',
     'run_server',
     # Explorer
     'DimensionalExplorer',
