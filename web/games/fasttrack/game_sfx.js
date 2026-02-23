@@ -39,7 +39,7 @@ const GameSFX = {
     masterGain: null,
     
     // Volume settings
-    volume: 0.5,
+    volume: 0.6,
     enabled: true,
     
     // Current theme affects sound character
@@ -679,6 +679,531 @@ const GameSFX = {
     },
     
     // ============================================================
+    // CROWD / AUDIENCE REACTION SYSTEM
+    // ============================================================
+    // Per-theme procedural crowd sounds that react to gameplay
+    // Roman: horns, stomping, chanting
+    // Space: synth whooshes, comm chatter
+    // Undersea: whale calls, bubble pops
+    // Default/Cosmic: stadium crowd
+    // Fibonacci: harmonic resonance swells
+    
+    /**
+     * Play crowd reaction sound matching current theme
+     * @param {string} reaction - roaring, cheering, excited, gasp, boo, anticipation
+     */
+    playCrowdReaction(reaction) {
+        if (!this.enabled || !this.activate()) return;
+        
+        const theme = this.currentTheme;
+        const now = this.audioContext.currentTime;
+        
+        // Route to theme-specific crowd generator
+        switch (theme) {
+            case 'ROMAN_COLISEUM':
+                this._romanCrowd(reaction, now);
+                break;
+            case 'SPACE_ACE':
+                this._spaceCrowd(reaction, now);
+                break;
+            case 'UNDERSEA':
+                this._underseaCrowd(reaction, now);
+                break;
+            case 'FIBONACCI':
+                this._fibonacciCrowd(reaction, now);
+                break;
+            default:
+                this._defaultCrowd(reaction, now);
+                break;
+        }
+        
+        console.log(`👥 [GameSFX] Crowd: ${reaction} (${theme})`);
+    },
+    
+    // --- ROMAN COLOSSEUM CROWD ---
+    // Horns, foot-stomping, chanting, shields clashing
+    _romanCrowd(reaction, now) {
+        const vol = this.volume;
+        
+        switch (reaction) {
+            case 'roaring': {
+                // Deep crowd roar with brass horns
+                this._noiseRoar(now, 1.8, vol * 0.3, 120, 300);
+                // Brass horn fanfare - cornu (Roman horn)
+                const hornNotes = [196, 261.63, 329.63, 392]; // G3 C4 E4 G4
+                hornNotes.forEach((freq, i) => {
+                    this._playTone('sawtooth', freq, now + i * 0.15, 0.6, vol * 0.18);
+                    this._playTone('square', freq * 1.005, now + i * 0.15, 0.5, vol * 0.08); // Detune for brass width
+                });
+                // Crowd stomping
+                this._rhythmicStomps(now + 0.2, 8, 0.12, vol * 0.2);
+                break;
+            }
+            case 'cheering': {
+                // Crowd cheer + shield clashing
+                this._noiseRoar(now, 1.5, vol * 0.25, 200, 500);
+                // Shield/sword clash metallic hits
+                for (let i = 0; i < 5; i++) {
+                    this._metalClash(now + 0.1 + i * 0.18, vol * 0.15);
+                }
+                // Trumpet blast
+                this._playTone('sawtooth', 392, now, 0.8, vol * 0.15);
+                this._playTone('sawtooth', 523.25, now + 0.08, 0.6, vol * 0.12);
+                break;
+            }
+            case 'excited': {
+                // Murmur building to excitement
+                this._noiseRoar(now, 1.2, vol * 0.15, 150, 400);
+                this._rhythmicStomps(now, 4, 0.2, vol * 0.15);
+                // Single horn call
+                this._playTone('sawtooth', 261.63, now + 0.3, 0.8, vol * 0.12);
+                break;
+            }
+            case 'gasp': {
+                // Sharp inhale noise burst
+                this._noiseRoar(now, 0.3, vol * 0.3, 400, 1200);
+                // Sudden silence then murmur
+                this._noiseRoar(now + 0.5, 1.0, vol * 0.08, 100, 300);
+                break;
+            }
+            case 'boo': {
+                // Low rumbling disapproval
+                this._noiseRoar(now, 2.0, vol * 0.25, 80, 200);
+                // Descending horn — thumbs down
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(80, now + 1.5);
+                gain.gain.setValueAtTime(vol * 0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+                osc.connect(gain); gain.connect(this.masterGain);
+                osc.start(now); osc.stop(now + 1.6);
+                // Stomping disapproval
+                this._rhythmicStomps(now + 0.3, 6, 0.15, vol * 0.2);
+                break;
+            }
+            case 'anticipation': {
+                // Quiet tension - low murmur
+                this._noiseRoar(now, 2.5, vol * 0.06, 80, 180);
+                // Sparse drum roll
+                for (let i = 0; i < 12; i++) {
+                    const t = now + i * 0.1;
+                    this._playTone('triangle', 60 + Math.random() * 20, t, 0.08, vol * 0.1);
+                }
+                break;
+            }
+        }
+    },
+    
+    // --- SPACE ACE CROWD ---
+    // Synth whooshes, comm chatter, energy pulses, sci-fi audience
+    _spaceCrowd(reaction, now) {
+        const vol = this.volume;
+        
+        switch (reaction) {
+            case 'roaring': {
+                // Massive synth swell
+                this._synthSwell(now, 2.0, vol * 0.25, 80, 600);
+                // Laser-like celebration bursts
+                for (let i = 0; i < 6; i++) {
+                    const t = now + i * 0.15 + Math.random() * 0.1;
+                    const startF = 1500 + Math.random() * 1000;
+                    this._laserSweep(t, startF, startF * 0.3, 0.2, vol * 0.1);
+                }
+                // Deep bass pulse
+                this._playTone('sine', 55, now, 1.5, vol * 0.2);
+                break;
+            }
+            case 'cheering': {
+                // Synth arpeggio celebration
+                const arp = [329.63, 440, 523.25, 659.25, 880];
+                arp.forEach((f, i) => {
+                    this._playTone('sine', f, now + i * 0.08, 0.4, vol * 0.12);
+                    this._playTone('triangle', f * 2, now + i * 0.08, 0.2, vol * 0.06);
+                });
+                // Comm chatter burst (filtered noise)
+                this._noiseRoar(now + 0.1, 0.8, vol * 0.1, 800, 2000);
+                break;
+            }
+            case 'excited': {
+                // Rising energy pulse
+                this._synthSwell(now, 1.0, vol * 0.15, 100, 400);
+                this._laserSweep(now + 0.3, 200, 800, 0.5, vol * 0.1);
+                break;
+            }
+            case 'gasp': {
+                // Sharp descending synth whoosh
+                this._laserSweep(now, 2000, 200, 0.25, vol * 0.2);
+                // Static burst
+                this._noiseRoar(now, 0.15, vol * 0.2, 1000, 4000);
+                break;
+            }
+            case 'boo': {
+                // Low ominous synth drone
+                this._playTone('sawtooth', 55, now, 2.0, vol * 0.15);
+                this._playTone('square', 58, now, 2.0, vol * 0.08); // Dissonant beat
+                // Warning alarm
+                for (let i = 0; i < 4; i++) {
+                    this._playTone('square', i % 2 === 0 ? 440 : 330, now + i * 0.25, 0.2, vol * 0.1);
+                }
+                break;
+            }
+            case 'anticipation': {
+                // Scanning radar-like pulse
+                for (let i = 0; i < 8; i++) {
+                    this._playTone('sine', 440, now + i * 0.3, 0.05, vol * 0.08);
+                    this._laserSweep(now + i * 0.3 + 0.05, 440, 445, 0.15, vol * 0.04);
+                }
+                break;
+            }
+        }
+    },
+    
+    // --- UNDERSEA CROWD ---
+    // Whale calls, dolphin clicks, bubble bursts, coral resonance
+    _underseaCrowd(reaction, now) {
+        const vol = this.volume;
+        
+        switch (reaction) {
+            case 'roaring': {
+                // Whale song celebration
+                const whaleNotes = [80, 120, 160, 200, 160, 120];
+                whaleNotes.forEach((f, i) => {
+                    this._playTone('sine', f, now + i * 0.3, 0.8, vol * 0.2);
+                    this._playTone('sine', f * 1.5, now + i * 0.3 + 0.1, 0.5, vol * 0.08);
+                });
+                // Bubble burst
+                this._bubbleBurst(now + 0.2, 20, vol * 0.15);
+                break;
+            }
+            case 'cheering': {
+                // Dolphin clicks + bubbles
+                this._dolphinClicks(now, 8, vol * 0.15);
+                this._bubbleBurst(now + 0.3, 12, vol * 0.12);
+                // Harmonic wave
+                this._playTone('sine', 261.63, now + 0.2, 1.0, vol * 0.1);
+                this._playTone('sine', 329.63, now + 0.3, 0.8, vol * 0.08);
+                break;
+            }
+            case 'excited': {
+                // Quick dolphin chirps
+                this._dolphinClicks(now, 5, vol * 0.12);
+                this._bubbleBurst(now + 0.1, 6, vol * 0.1);
+                break;
+            }
+            case 'gasp': {
+                // Big bubble pop
+                this._playTone('sine', 800, now, 0.15, vol * 0.25);
+                // Deep pressure wave
+                this._playTone('sine', 40, now + 0.05, 0.5, vol * 0.2);
+                break;
+            }
+            case 'boo': {
+                // Deep whale groan
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(100, now);
+                osc.frequency.linearRampToValueAtTime(50, now + 2.0);
+                gain.gain.setValueAtTime(vol * 0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 2.0);
+                osc.connect(gain); gain.connect(this.masterGain);
+                osc.start(now); osc.stop(now + 2.1);
+                break;
+            }
+            case 'anticipation': {
+                // Sonar pings
+                for (let i = 0; i < 5; i++) {
+                    this._playTone('sine', 1200, now + i * 0.5, 0.1, vol * 0.08);
+                }
+                // Ambient current
+                this._noiseRoar(now, 2.5, vol * 0.04, 50, 150);
+                break;
+            }
+        }
+    },
+    
+    // --- FIBONACCI CROWD ---
+    // Golden ratio harmonic resonance swells
+    _fibonacciCrowd(reaction, now) {
+        const vol = this.volume;
+        const PHI = 1.618033988749;
+        const base = 272; // 440/phi
+        
+        switch (reaction) {
+            case 'roaring': {
+                // Fibonacci overtone series building up
+                const fibs = [1, 1, 2, 3, 5, 8, 13];
+                fibs.forEach((n, i) => {
+                    const freq = base * n;
+                    if (freq < 4000) {
+                        this._playTone('sine', freq, now + i * 0.12, 1.5 - i * 0.15, vol * 0.12);
+                    }
+                });
+                // Golden ratio resonant sweep
+                this._laserSweep(now, base, base * PHI * PHI, 1.5, vol * 0.1);
+                break;
+            }
+            case 'cheering': {
+                // Phi-interval chord cascade
+                [base, base * PHI, base * PHI * PHI].forEach((f, i) => {
+                    this._playTone('triangle', f, now + i * 0.1, 0.8, vol * 0.12);
+                });
+                this._playSparkle(now + 0.3, 6);
+                break;
+            }
+            case 'excited': {
+                this._playTone('sine', base * PHI, now, 1.0, vol * 0.12);
+                this._playTone('triangle', base * PHI * 2, now + 0.15, 0.6, vol * 0.08);
+                break;
+            }
+            case 'gasp': {
+                // Sharp golden ratio interval
+                this._playTone('sine', base * PHI * PHI * PHI, now, 0.2, vol * 0.2);
+                this._playTone('sine', base, now + 0.1, 0.5, vol * 0.1);
+                break;
+            }
+            case 'boo': {
+                // Dissonant non-phi intervals
+                this._playTone('sawtooth', base * 1.414, now, 1.5, vol * 0.12); // sqrt(2) — anti-phi
+                this._playTone('sawtooth', base * 1.732, now, 1.5, vol * 0.08);
+                break;
+            }
+            case 'anticipation': {
+                // Fibonacci rhythm: gaps follow sequence
+                const fibRhythm = [1, 1, 2, 3, 5, 8];
+                let t = 0;
+                fibRhythm.forEach(n => {
+                    this._playTone('sine', base * PHI, now + t * 0.08, 0.1, vol * 0.06);
+                    t += n;
+                });
+                break;
+            }
+        }
+    },
+    
+    // --- DEFAULT / COSMIC CROWD ---
+    // Stadium-style noise-based crowd
+    _defaultCrowd(reaction, now) {
+        const vol = this.volume;
+        
+        switch (reaction) {
+            case 'roaring': {
+                this._noiseRoar(now, 2.0, vol * 0.25, 100, 400);
+                this._playSparkle(now + 0.5, 5);
+                // Cymbal-like crash
+                this._noiseRoar(now, 0.3, vol * 0.15, 3000, 8000);
+                break;
+            }
+            case 'cheering': {
+                this._noiseRoar(now, 1.5, vol * 0.2, 150, 500);
+                // Synth chord stab
+                [523.25, 659.25, 783.99].forEach(f => {
+                    this._playTone('triangle', f, now + 0.1, 0.5, vol * 0.1);
+                });
+                break;
+            }
+            case 'excited': {
+                this._noiseRoar(now, 1.0, vol * 0.12, 200, 600);
+                break;
+            }
+            case 'gasp': {
+                this._noiseRoar(now, 0.25, vol * 0.2, 500, 1500);
+                break;
+            }
+            case 'boo': {
+                this._noiseRoar(now, 2.0, vol * 0.18, 80, 180);
+                break;
+            }
+            case 'anticipation': {
+                this._noiseRoar(now, 2.0, vol * 0.05, 80, 200);
+                break;
+            }
+        }
+    },
+    
+    // ============================================================
+    // CROWD SOUND PRIMITIVES
+    // ============================================================
+    
+    /** Filtered noise roar (crowd ambience) */
+    _noiseRoar(startTime, duration, amplitude, lowFreq, highFreq) {
+        const ctx = this.audioContext;
+        const bufferSize = ctx.sampleRate * duration;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        
+        // Generate noise
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1);
+        }
+        
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        
+        // Bandpass filter for crowd frequency range
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = (lowFreq + highFreq) / 2;
+        filter.Q.value = (highFreq - lowFreq) > 200 ? 0.5 : 1.5;
+        
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(amplitude, startTime + duration * 0.15);
+        gain.gain.setValueAtTime(amplitude, startTime + duration * 0.6);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+        
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+        
+        source.start(startTime);
+        source.stop(startTime + duration);
+    },
+    
+    /** Simple tone helper */
+    _playTone(waveType, freq, startTime, duration, amplitude) {
+        const ctx = this.audioContext;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = waveType;
+        osc.frequency.value = freq;
+        
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(amplitude, startTime + 0.02);
+        gain.gain.setValueAtTime(amplitude * 0.8, startTime + duration * 0.7);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+        
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        
+        osc.start(startTime);
+        osc.stop(startTime + duration + 0.05);
+    },
+    
+    /** Rhythmic stomping/clapping pattern */
+    _rhythmicStomps(startTime, count, interval, amplitude) {
+        for (let i = 0; i < count; i++) {
+            const t = startTime + i * interval;
+            this._playImpact(t, amplitude / this.volume);
+        }
+    },
+    
+    /** Metallic clash (shields/swords) */
+    _metalClash(startTime, amplitude) {
+        const ctx = this.audioContext;
+        // High-frequency noise burst (metallic transient)
+        const bufLen = ctx.sampleRate * 0.08;
+        const buffer = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufLen; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufLen * 0.15));
+        }
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 2000;
+        
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(amplitude, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.1);
+        
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+        
+        source.start(startTime);
+        source.stop(startTime + 0.12);
+        
+        // Resonant ring
+        this._playTone('sine', 2400 + Math.random() * 800, startTime, 0.15, amplitude * 0.5);
+    },
+    
+    /** Rising synth swell (sci-fi crowd) */
+    _synthSwell(startTime, duration, amplitude, startFreq, endFreq) {
+        const ctx = this.audioContext;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(startFreq, startTime);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + duration * 0.7);
+        osc.frequency.exponentialRampToValueAtTime(startFreq * 1.2, startTime + duration);
+        
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(startFreq * 2, startTime);
+        filter.frequency.exponentialRampToValueAtTime(endFreq * 3, startTime + duration * 0.5);
+        filter.frequency.exponentialRampToValueAtTime(startFreq, startTime + duration);
+        
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(amplitude, startTime + duration * 0.3);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+        
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+        
+        osc.start(startTime);
+        osc.stop(startTime + duration + 0.05);
+    },
+    
+    /** Laser/energy sweep */
+    _laserSweep(startTime, startFreq, endFreq, duration, amplitude) {
+        const ctx = this.audioContext;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(startFreq, startTime);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(endFreq, 20), startTime + duration);
+        
+        gain.gain.setValueAtTime(amplitude, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+        
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        
+        osc.start(startTime);
+        osc.stop(startTime + duration + 0.05);
+    },
+    
+    /** Underwater bubble burst */
+    _bubbleBurst(startTime, count, amplitude) {
+        for (let i = 0; i < count; i++) {
+            const t = startTime + i * 0.04 + Math.random() * 0.06;
+            const freq = 800 + Math.random() * 2000;
+            const dur = 0.03 + Math.random() * 0.05;
+            this._playTone('sine', freq, t, dur, amplitude * (0.3 + Math.random() * 0.7));
+        }
+    },
+    
+    /** Dolphin-like clicks */
+    _dolphinClicks(startTime, count, amplitude) {
+        for (let i = 0; i < count; i++) {
+            const t = startTime + i * 0.08 + Math.random() * 0.04;
+            // Quick chirp: rising then falling
+            const ctx = this.audioContext;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            const baseF = 2000 + Math.random() * 2000;
+            osc.frequency.setValueAtTime(baseF, t);
+            osc.frequency.exponentialRampToValueAtTime(baseF * 2, t + 0.02);
+            osc.frequency.exponentialRampToValueAtTime(baseF * 0.5, t + 0.06);
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(amplitude, t + 0.005);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+            osc.connect(gain); gain.connect(this.masterGain);
+            osc.start(t); osc.stop(t + 0.08);
+        }
+    },
+    
+    // ============================================================
     // CONVENIENCE METHODS - Play by event name
     // ============================================================
     
@@ -728,6 +1253,10 @@ const GameSFX = {
             case 'pegEntry':
                 this.playPegEntry();
                 break;
+            case 'crowd':
+            case 'crowdReaction':
+                this.playCrowdReaction(options.reaction || 'cheering');
+                break;
             default:
                 console.warn(`[GameSFX] Unknown event: ${eventName}`);
         }
@@ -741,4 +1270,4 @@ GameSFX.init();
 window.GameSFX = GameSFX;
 
 console.log('🔊 [GameSFX] Module loaded');
-console.log('   Sound Events: step, arrive, fasttrack, bullseye, safezone, boot, victory, drawCard, extraTurn, pegEntry, royalExit');
+console.log('   Sound Events: step, arrive, fasttrack, bullseye, safezone, boot, victory, drawCard, extraTurn, pegEntry, royalExit, crowd');

@@ -5,6 +5,7 @@
 const FastTrackThemes = {
     currentTheme: null,
     backdropLayers: [],
+    _sceneObjects: [],  // All objects added to scene by themes
     spectators: [], // For interactive themes like Colosseum
     crowdState: 'idle', // idle, cheering, booing, excited
     eventIntensity: 0, // Current event reaction intensity (0-1)
@@ -28,8 +29,15 @@ const FastTrackThemes = {
             boardColor: 0x2a2a3e,
             boardRoughness: 0.3,
             boardMetalness: 0.5,
-            playerColors: [0xff0000, 0x00ff4a, 0x9400ff, 0xffdf00, 0x00d4ff, 0xff008a],
-            playerNames: ['Red', 'Teal', 'Violet', 'Gold', 'Azure', 'Pink'],
+            playerColors: [
+                0xff2d7b,  // Neon magenta
+                0x00ffcc,  // Cyber teal
+                0xb34dff,  // Plasma purple
+                0xffe633,  // Supernova yellow
+                0x33aaff,  // Nebula blue
+                0xff6633   // Nova orange
+            ],
+            playerNames: ['Magenta', 'Cyber', 'Plasma', 'Nova', 'Nebula', 'Blaze'],
             holeColor: 0x0a0a14,
             bullseyeColor: 0xffd700
         },
@@ -129,6 +137,23 @@ const FastTrackThemes = {
     
     // Clear current backdrop
     clearBackdrop: function(scene) {
+        // Remove ALL objects added by themes (ships, planets, coral, lights, etc.)
+        this._sceneObjects.forEach(obj => {
+            scene.remove(obj);
+            if (obj.traverse) {
+                obj.traverse(child => {
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) {
+                        if (Array.isArray(child.material)) {
+                            child.material.forEach(m => m.dispose());
+                        } else {
+                            child.material.dispose();
+                        }
+                    }
+                });
+            }
+        });
+        this._sceneObjects = [];
         this.backdropLayers.forEach(layer => {
             if (layer.mesh) {
                 scene.remove(layer.mesh);
@@ -161,6 +186,11 @@ const FastTrackThemes = {
             scene.remove(this.emperorBox);
             this.emperorBox = null;
         }
+        // Clear theme-specific references
+        if (this.ships) {
+            this.ships.forEach(s => { scene.remove(s); });
+            this.ships = null;
+        }
         this.backdropLayers = [];
         this.spectators = [];
         this.crowdState = 'idle';
@@ -179,9 +209,22 @@ const FastTrackThemes = {
         try {
             this.clearBackdrop(scene);
             this.currentTheme = themeName;
+            
+            // Intercept scene.add to track all theme objects
+            const origAdd = scene.add.bind(scene);
+            const tracked = this._sceneObjects;
+            scene.add = function(obj) {
+                tracked.push(obj);
+                return origAdd(obj);
+            };
+            
             console.log('[FastTrackThemes] Calling create for theme:', themeName);
             this.themes[themeName].create(scene, THREE, this);
-            console.log('[FastTrackThemes] Theme created successfully. Backdrop layers:', this.backdropLayers.length);
+            
+            // Restore original scene.add
+            scene.add = origAdd;
+            
+            console.log('[FastTrackThemes] Theme created successfully. Backdrop layers:', this.backdropLayers.length, 'Scene objects:', this._sceneObjects.length);
             
             // Trigger board retheming if function exists
             if (typeof window.applyBoardTheme === 'function') {
@@ -265,27 +308,32 @@ const FastTrackThemes = {
         console.log(`Game Event: ${eventType}`, data);
         this.eventIntensity = 1.0;
         
-        // Show appropriate banner
+        // Show appropriate banner + visual crowd + audio crowd
         switch(eventType) {
             case 'fasttrack':
                 this.showBanner('FAST TRACK!', '#FFD700', '#FF4500', data.playerColor);
                 this.triggerCrowdReaction('roaring');
+                if (window.GameSFX) GameSFX.playCrowdReaction('roaring');
                 break;
             case 'sendHome':
                 this.showBanner("SEND 'EM HOME!", '#FF4444', '#8B0000', data.playerColor);
                 this.triggerCrowdReaction('cheering');
+                if (window.GameSFX) GameSFX.playCrowdReaction('cheering');
                 break;
             case 'win':
                 this.showBanner('VICTORY!', '#FFD700', '#4B0082', data.playerColor);
                 this.triggerCrowdReaction('roaring');
+                if (window.GameSFX) GameSFX.playCrowdReaction('roaring');
                 break;
             case 'bullseye':
                 this.showBullseyeBanner(data.playerColor, data.playerName);
                 this.triggerCrowdReaction('excited');
+                if (window.GameSFX) GameSFX.playCrowdReaction('excited');
                 break;
             case 'royal':
                 this.showRoyalBanner(data.playerColor, data.playerName);
                 this.triggerCrowdReaction('roaring');
+                if (window.GameSFX) GameSFX.playCrowdReaction('roaring');
                 break;
         }
         
@@ -1142,6 +1190,117 @@ FastTrackThemes.register('colosseum', {
         scene.add(wall);
         manager.backdropLayers.push({ mesh: wall, parallaxFactor: 0.01, rotationSpeed: 0 });
         
+        // === ROMAN ART: Shields and laurel wreaths on arena wall ===
+        const artGroup = new THREE.Group();
+        const shieldCount = 16;
+        for (let i = 0; i < shieldCount; i++) {
+            const angle = (i / shieldCount) * Math.PI * 2;
+            const artX = Math.cos(angle) * (wallRadius - 2);
+            const artZ = Math.sin(angle) * (wallRadius - 2);
+            const artY = -100 + wallHeight * 0.6;
+            
+            if (i % 2 === 0) {
+                // Roman shield (scutum) — rectangular with boss
+                const shieldGroup = new THREE.Group();
+                const sBody = new THREE.Mesh(
+                    new THREE.BoxGeometry(18, 25, 2),
+                    new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.6, metalness: 0.3 })
+                );
+                shieldGroup.add(sBody);
+                // Gold boss (center circle)
+                const sBoss = new THREE.Mesh(
+                    new THREE.SphereGeometry(4, 12, 12, 0, Math.PI),
+                    new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.2, metalness: 0.8 })
+                );
+                sBoss.position.z = 1.5;
+                shieldGroup.add(sBoss);
+                // Gold rim
+                const sRim = new THREE.Mesh(
+                    new THREE.TorusGeometry(12, 1, 8, 16),
+                    new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.3, metalness: 0.7 })
+                );
+                sRim.position.z = 0.5;
+                shieldGroup.add(sRim);
+                
+                shieldGroup.position.set(artX, artY, artZ);
+                shieldGroup.lookAt(0, artY, 0);
+                artGroup.add(shieldGroup);
+            } else {
+                // Laurel wreath decoration
+                const wreathGroup = new THREE.Group();
+                const leafCount = 12;
+                for (let l = 0; l < leafCount; l++) {
+                    const la = (l / leafCount) * Math.PI * 2;
+                    const leaf = new THREE.Mesh(
+                        new THREE.SphereGeometry(2, 4, 4),
+                        new THREE.MeshStandardMaterial({ color: 0x228b22, roughness: 0.7 })
+                    );
+                    leaf.position.set(Math.cos(la) * 8, Math.sin(la) * 8, 0);
+                    leaf.scale.set(1.5, 0.6, 0.4);
+                    wreathGroup.add(leaf);
+                }
+                // Center medallion
+                const medal = new THREE.Mesh(
+                    new THREE.CylinderGeometry(3, 3, 1, 12),
+                    new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.2, metalness: 0.8 })
+                );
+                medal.rotation.x = Math.PI / 2;
+                wreathGroup.add(medal);
+                
+                wreathGroup.position.set(artX, artY, artZ);
+                wreathGroup.lookAt(0, artY, 0);
+                artGroup.add(wreathGroup);
+            }
+        }
+        scene.add(artGroup);
+        manager.backdropLayers.push({ mesh: artGroup, parallaxFactor: 0.01, rotationSpeed: 0 });
+        
+        // === ROMAN ART: Torch braziers on wall top ===
+        const torchGroup = new THREE.Group();
+        const torchCount = 12;
+        for (let i = 0; i < torchCount; i++) {
+            const angle = (i / torchCount) * Math.PI * 2;
+            const tx = Math.cos(angle) * (wallRadius + 5);
+            const tz = Math.sin(angle) * (wallRadius + 5);
+            
+            // Bronze brazier bowl
+            const bowl = new THREE.Mesh(
+                new THREE.ConeGeometry(6, 10, 8, 1, true),
+                new THREE.MeshStandardMaterial({ color: 0xcd7f32, roughness: 0.4, metalness: 0.6, side: THREE.DoubleSide })
+            );
+            bowl.rotation.x = Math.PI;
+            bowl.position.set(tx, -100 + wallHeight + 5, tz);
+            torchGroup.add(bowl);
+            
+            // Fire glow (emissive sphere)
+            const fire = new THREE.Mesh(
+                new THREE.SphereGeometry(4, 8, 8),
+                new THREE.MeshStandardMaterial({ 
+                    color: 0xff6600, emissive: 0xff4400, emissiveIntensity: 1.5,
+                    transparent: true, opacity: 0.8, roughness: 1 
+                })
+            );
+            fire.position.set(tx, -100 + wallHeight + 10, tz);
+            fire.userData.flickerOffset = i * 0.7;
+            torchGroup.add(fire);
+        }
+        scene.add(torchGroup);
+        manager.backdropLayers.push({ 
+            mesh: torchGroup, parallaxFactor: 0.01, rotationSpeed: 0,
+            update: function(mesh, time) {
+                // Flicker torch fires
+                mesh.children.forEach(child => {
+                    if (child.userData.flickerOffset !== undefined) {
+                        const flicker = 0.6 + Math.sin(time * 8 + child.userData.flickerOffset) * 0.2 
+                                        + Math.sin(time * 13 + child.userData.flickerOffset * 2) * 0.15;
+                        child.material.emissiveIntensity = flicker * 1.5;
+                        child.material.opacity = 0.6 + flicker * 0.3;
+                        child.scale.setScalar(0.8 + flicker * 0.3);
+                    }
+                });
+            }
+        });
+        
         // === LAYER 3-6: TIERED SEATING with spectators ===
         const tiers = [
             { radius: 400, height: 50, rows: 8, color: 0xc9b896 },
@@ -1202,6 +1361,35 @@ FastTrackThemes.register('colosseum', {
                 const head = new THREE.Mesh(headGeo, headMat);
                 head.position.y = 11;
                 spectatorGroup.add(head);
+                
+                // VIP senators in front rows get laurel wreaths or helmets
+                if (tierIndex === 0 && Math.random() > 0.5) {
+                    // Gold laurel wreath
+                    const wreath = new THREE.Mesh(
+                        new THREE.TorusGeometry(3, 0.6, 6, 12),
+                        new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.3, metalness: 0.7 })
+                    );
+                    wreath.position.y = 13;
+                    wreath.rotation.x = Math.PI / 2;
+                    spectatorGroup.add(wreath);
+                } else if (tierIndex >= 2 && Math.random() > 0.8) {
+                    // Some hold small flags/pennants
+                    const flagPole = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.3, 0.3, 8, 4),
+                        new THREE.MeshStandardMaterial({ color: 0x8b4513 })
+                    );
+                    flagPole.position.set(3, 12, 0);
+                    spectatorGroup.add(flagPole);
+                    const flag = new THREE.Mesh(
+                        new THREE.PlaneGeometry(4, 3),
+                        new THREE.MeshStandardMaterial({ 
+                            color: [0xc41e3a, 0xffd700, 0x4169e1][Math.floor(Math.random() * 3)],
+                            side: THREE.DoubleSide
+                        })
+                    );
+                    flag.position.set(5, 14, 0);
+                    spectatorGroup.add(flag);
+                }
                 
                 // Arms (for waving animation)
                 const armGeo = new THREE.CapsuleGeometry(1, 4, 4, 8);
@@ -1634,6 +1822,13 @@ FastTrackThemes.register('colosseum', {
                     // Color fade back to gold
                     const gold = new THREE.Color(0xffd700);
                     mgr.emperorThumb.material.color.lerp(gold, 0.02);
+                    
+                    // Emissive fade back to subtle glow
+                    if (mgr.emperorThumb.material.emissiveIntensity > 0.3) {
+                        mgr.emperorThumb.material.emissiveIntensity *= 0.98;
+                    }
+                    const emGold = new THREE.Color(0x332200);
+                    mgr.emperorThumb.material.emissive.lerp(emGold, 0.02);
                 }
             }
         });
@@ -1683,41 +1878,59 @@ FastTrackThemes.register('colosseum', {
         });
     },
     
-    // React to game events
+    // React to game events — Emperor reacts!
     onGameEvent: function(eventType, data, manager) {
         switch(eventType) {
             case 'fasttrack':
                 manager.triggerCrowdReaction('roaring');
-                // Emperor gives thumbs up
+                // Emperor stands and gives enthusiastic thumbs up
                 if (manager.emperorThumb) {
                     manager.emperorThumb.rotation.z = 0; // Thumbs up
                     manager.emperorThumb.material.color.setHex(0xffd700);
+                    manager.emperorThumb.material.emissive.setHex(0xffd700);
+                    manager.emperorThumb.material.emissiveIntensity = 0.8;
                 }
                 break;
             case 'sendHome':
                 manager.triggerCrowdReaction('cheering');
-                // Emperor gives dramatic thumbs down
+                // Emperor gives dramatic thumbs DOWN — the crowd goes wild!
                 if (manager.emperorThumb) {
                     manager.emperorThumb.rotation.z = Math.PI; // Thumbs down
                     manager.emperorThumb.material.color.setHex(0xc41e3a);
+                    manager.emperorThumb.material.emissive.setHex(0xc41e3a);
+                    manager.emperorThumb.material.emissiveIntensity = 1.0;
                 }
+                // Extra crowd intensity for boo
+                if (window.GameSFX) GameSFX.playCrowdReaction('boo');
                 break;
             case 'win':
                 manager.triggerCrowdReaction('roaring');
+                // Emperor rises — golden approval
+                if (manager.emperorThumb) {
+                    manager.emperorThumb.rotation.z = 0;
+                    manager.emperorThumb.material.color.setHex(0xffd700);
+                    manager.emperorThumb.material.emissive.setHex(0xffd700);
+                    manager.emperorThumb.material.emissiveIntensity = 1.2;
+                }
                 break;
             case 'bullseye':
                 manager.triggerCrowdReaction('excited');
+                // Emperor nods — green approval
                 if (manager.emperorThumb) {
-                    manager.emperorThumb.rotation.z = 0; // Thumbs up
+                    manager.emperorThumb.rotation.z = 0;
                     manager.emperorThumb.material.color.setHex(0x00ff00);
+                    manager.emperorThumb.material.emissive.setHex(0x00ff00);
+                    manager.emperorThumb.material.emissiveIntensity = 0.6;
                 }
                 break;
             case 'royal':
                 manager.triggerCrowdReaction('roaring');
                 // Emperor gives golden thumbs up for royal
                 if (manager.emperorThumb) {
-                    manager.emperorThumb.rotation.z = 0; // Thumbs up
+                    manager.emperorThumb.rotation.z = 0;
                     manager.emperorThumb.material.color.setHex(0xffd700);
+                    manager.emperorThumb.material.emissive.setHex(0xffd700);
+                    manager.emperorThumb.material.emissiveIntensity = 0.9;
                 }
                 break;
         }

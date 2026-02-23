@@ -1043,6 +1043,7 @@
     // References for theme color updates
     let boardMesh = null;
     let borderSegments = [];
+    let coloredMarkers = [];  // {mesh, playerIndex} for pentagons, diamonds, circles, rings
     let currentBoardPalette = null;
 
     // ============================================================
@@ -1718,6 +1719,7 @@
             pentagon.rotation.z = -cornerAngle + Math.PI / 2;
             pentagon.position.set(pentX, LINE_HEIGHT, pentZ);
             boardGroup.add(pentagon);
+            coloredMarkers.push({ mesh: pentagon, playerIndex: i });
             
             // Create hole (cylinder) at pentagon center
             const holeGeo = new THREE.CylinderGeometry(HOLE_RADIUS, HOLE_RADIUS, 5, 16);
@@ -1775,6 +1777,7 @@
             ring.rotation.x = -Math.PI / 2;
             ring.position.y = bullseyeY;
             boardGroup.add(ring);
+            coloredMarkers.push({ mesh: ring, playerIndex: r });
         }
         
         // Center hole
@@ -1909,6 +1912,7 @@
             diamond.rotation.x = -Math.PI / 2;
             diamond.position.set(outerHole5X, LINE_HEIGHT, outerHole5Z);
             boardGroup.add(diamond);
+            coloredMarkers.push({ mesh: diamond, playerIndex: i });
             
             // Draw 4 holes from fast track hole i to first outer hole (left side)
             for (let h = 1; h <= 4; h++) {
@@ -2086,6 +2090,7 @@
             holdingCircle.rotation.x = -Math.PI / 2;
             holdingCircle.position.set(holdX, LINE_HEIGHT, holdZ);
             boardGroup.add(holdingCircle);
+            coloredMarkers.push({ mesh: holdingCircle, playerIndex: i });
             
             // Create 4 holes in 2x2 grid - rotated to align with hexagon
             const cosA = Math.cos(holdingAngle);
@@ -2936,6 +2941,10 @@
         if (typeof GameSFX !== 'undefined') {
             GameSFX.setTheme(stadiumTheme);
         }
+        // Always sync music directly (StadiumController may not be wired)
+        if (typeof MusicSubstrate !== 'undefined') {
+            MusicSubstrate.setTheme(stadiumTheme);
+        }
     }
     
     // ============================================================
@@ -3623,6 +3632,16 @@
                 
                 // Update stored color
                 peg.color = newColor;
+            }
+        });
+        
+        // Update colored board markers (pentagons, diamonds, circles, bullseye rings)
+        coloredMarkers.forEach(({ mesh, playerIndex }) => {
+            if (palette.playerColors && palette.playerColors[playerIndex] && mesh.material) {
+                const newColor = palette.playerColors[playerIndex];
+                mesh.material.color.setHex(newColor);
+                if (mesh.material.emissive) mesh.material.emissive.setHex(newColor);
+                mesh.material.needsUpdate = true;
             }
         });
         
@@ -7952,8 +7971,13 @@
             }
             // Check if leaving FastTrack to perimeter
             else if (move.isLeaveFastTrack) {
-                icon = '🔄';
-                moveName = 'Leave FastTrack';
+                if (move.isForcedFTExit) {
+                    icon = '⚠️';
+                    moveName = 'Blocked — Exit FastTrack';
+                } else {
+                    icon = '🔄';
+                    moveName = 'Leave FastTrack';
+                }
             }
             // Check if bullseye/center
             else if (move.toHoleId === 'center') {
@@ -8126,6 +8150,10 @@
                 moveName = 'Enter FastTrack';
                 moveDesc = 'Traverse inner ring';
                 item.classList.add('fasttrack-move');
+            } else if (move.isLeaveFastTrack && move.isForcedFTExit) {
+                icon = '⚠️';
+                moveName = 'Blocked — Exit FastTrack';
+                moveDesc = 'Own peg blocking FT ring';
             } else if (move.isLeaveFastTrack) {
                 icon = '🔄';
                 moveName = 'Leave FastTrack';
