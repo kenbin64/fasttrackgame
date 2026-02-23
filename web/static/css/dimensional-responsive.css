@@ -1,0 +1,665 @@
+/**
+ * Dimensional Responsive System
+ * 
+ * A unified responsive framework applying Dimensional Computing principles:
+ * - Golden Ratio (φ = 1.618) scaled breakpoints
+ * - 7-Layer depth system for parallax and z-indexing
+ * - Fibonacci-based spacing scale
+ * - Device-adaptive touch/hover behaviors
+ * 
+ * @version 2.0.0
+ * @author ButterflyFX
+ */
+
+:root {
+    /* ============================================
+       GOLDEN RATIO SCALE (φ = 1.618033988749895)
+       Base: 16px → 26px → 42px → 68px → 110px
+       ============================================ */
+    --phi: 1.618033988749895;
+    --base-unit: 1rem;
+    --scale-1: calc(var(--base-unit) * 1);
+    --scale-2: calc(var(--base-unit) * 1.618);
+    --scale-3: calc(var(--base-unit) * 2.618);
+    --scale-4: calc(var(--base-unit) * 4.236);
+    --scale-5: calc(var(--base-unit) * 6.854);
+    --scale-6: calc(var(--base-unit) * 11.09);
+    --scale-7: calc(var(--base-unit) * 17.944);
+
+    /* ============================================
+       FIBONACCI SPACING (1, 1, 2, 3, 5, 8, 13, 21)
+       ============================================ */
+    --space-1: 0.25rem;   /* 4px  - F(1) */
+    --space-2: 0.25rem;   /* 4px  - F(1) */
+    --space-3: 0.5rem;    /* 8px  - F(2) */
+    --space-4: 0.75rem;   /* 12px - F(3) */
+    --space-5: 1.25rem;   /* 20px - F(5) */
+    --space-6: 2rem;      /* 32px - F(8) */
+    --space-7: 3.25rem;   /* 52px - F(13) */
+    --space-8: 5.25rem;   /* 84px - F(21) */
+
+    /* ============================================
+       7-LAYER DEPTH SYSTEM (z = x · y)
+       Parallax depth multipliers
+       ============================================ */
+    --depth-1-spark: 0.1;      /* Background - slowest */
+    --depth-2-mirror: 0.2;
+    --depth-3-relation: 0.35;
+    --depth-4-form: 0.5;       /* Middle layer */
+    --depth-5-life: 0.7;
+    --depth-6-mind: 0.85;
+    --depth-7-completion: 1.0; /* Foreground - fastest */
+
+    /* Z-index layers */
+    --z-background: -100;
+    --z-layer-1: 10;
+    --z-layer-2: 20;
+    --z-layer-3: 30;
+    --z-layer-4: 40;
+    --z-layer-5: 50;
+    --z-layer-6: 60;
+    --z-layer-7: 70;
+    --z-ui: 100;
+    --z-modal: 1000;
+    --z-overlay: 5000;
+    --z-toast: 9000;
+
+    /* ============================================
+       COLORS - Neon Dimensional Palette
+       ============================================ */
+    --bg-void: #050508;
+    --bg-space: #0a0a12;
+    --bg-depth: #12121e;
+    --bg-card: rgba(18, 18, 28, 0.85);
+    --bg-glass: rgba(255, 255, 255, 0.05);
+    
+    --neon-purple: #8855ff;
+    --neon-pink: #ff55aa;
+    --neon-cyan: #40ffff;
+    --neon-green: #60ff90;
+    --neon-orange: #ff8844;
+    --neon-gold: #ffd700;
+    --neon-red: #ff4466;
+    
+    --text-bright: #ffffff;
+    --text-normal: #e0e4f0;
+    --text-dim: #a0a8c0;
+    --text-muted: #606880;
+    
+    --border-glow: rgba(136, 85, 255, 0.4);
+    --border-subtle: rgba(255, 255, 255, 0.1);
+
+    /* ============================================
+       RESPONSIVE BREAKPOINTS (Golden Ratio)
+       ============================================ */
+    --bp-mobile: 480px;
+    --bp-tablet: 768px;
+    --bp-desktop: 1024px;
+    --bp-wide: 1440px;
+    --bp-ultra: 1920px;
+
+    /* ============================================
+       ANIMATION TIMING (Fibonacci-based ms)
+       ============================================ */
+    --timing-instant: 55ms;    /* F(10) */
+    --timing-fast: 89ms;       /* F(11) */
+    --timing-normal: 144ms;    /* F(12) */
+    --timing-smooth: 233ms;    /* F(13) */
+    --timing-slow: 377ms;      /* F(14) */
+    --timing-dramatic: 610ms;  /* F(15) */
+
+    /* ============================================
+       DEVICE-SPECIFIC (set by JS)
+       ============================================ */
+    --device-type: 'desktop';
+    --touch-enabled: 0;
+    --hover-enabled: 1;
+}
+
+/* ============================================
+   DEVICE DETECTION CLASSES
+   ============================================ */
+.touch-device {
+    --touch-enabled: 1;
+    --hover-enabled: 0;
+}
+
+.hover-device {
+    --touch-enabled: 0;
+    --hover-enabled: 1;
+}
+
+/* ============================================
+   RESPONSIVE CONTAINER
+   ============================================ */
+.dimensional-container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+}
+
+@media (max-width: 768px) {
+    .dimensional-container {
+        padding: 0 var(--space-4);
+    }
+}
+
+@media (max-width: 480px) {
+    .dimensional-container {
+        padding: 0 var(--space-3);
+    }
+}
+
+/* ============================================
+   RESPONSIVE GRID SYSTEM
+   ============================================ */
+.dimensional-grid {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: repeat(12, 1fr);
+}
+
+.dimensional-grid > * {
+    grid-column: span 12;
+}
+
+@media (min-width: 768px) {
+    .dimensional-grid.cols-2 > * { grid-column: span 6; }
+    .dimensional-grid.cols-3 > * { grid-column: span 4; }
+    .dimensional-grid.cols-4 > * { grid-column: span 3; }
+}
+
+@media (max-width: 767px) {
+    .dimensional-grid.stack-mobile > * {
+        grid-column: span 12;
+    }
+}
+
+/* ============================================
+   PARALLAX DEPTH LAYERS
+   ============================================ */
+.parallax-container {
+    position: relative;
+    overflow: hidden;
+    perspective: 1000px;
+    transform-style: preserve-3d;
+}
+
+.parallax-layer {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    will-change: transform;
+    pointer-events: none;
+}
+
+.parallax-layer[data-depth="1"] { --parallax-speed: var(--depth-1-spark); }
+.parallax-layer[data-depth="2"] { --parallax-speed: var(--depth-2-mirror); }
+.parallax-layer[data-depth="3"] { --parallax-speed: var(--depth-3-relation); }
+.parallax-layer[data-depth="4"] { --parallax-speed: var(--depth-4-form); }
+.parallax-layer[data-depth="5"] { --parallax-speed: var(--depth-5-life); }
+.parallax-layer[data-depth="6"] { --parallax-speed: var(--depth-6-mind); }
+.parallax-layer[data-depth="7"] { --parallax-speed: var(--depth-7-completion); }
+
+/* ============================================
+   HOLODECK 3D CARD EFFECT
+   ============================================ */
+.holodeck-card {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform var(--timing-smooth) ease-out;
+    will-change: transform;
+}
+
+/* Desktop hover - 3D tilt */
+@media (hover: hover) and (pointer: fine) {
+    .holodeck-card:hover {
+        transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateZ(20px);
+    }
+}
+
+/* Touch devices - tap to activate */
+@media (hover: none) {
+    .holodeck-card:active {
+        transform: perspective(1000px) translateZ(15px) scale(0.98);
+    }
+}
+
+.holodeck-card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, 
+        var(--neon-purple) 0%, 
+        var(--neon-cyan) 50%, 
+        var(--neon-pink) 100%
+    );
+    opacity: 0;
+    transition: opacity var(--timing-smooth);
+    z-index: -1;
+    filter: blur(15px);
+}
+
+.holodeck-card:hover::before,
+.holodeck-card:focus-within::before {
+    opacity: 0.6;
+}
+
+/* ============================================
+   GLASS MORPHISM
+   ============================================ */
+.glass {
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-subtle);
+}
+
+.glass-strong {
+    background: rgba(20, 20, 30, 0.8);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid var(--border-glow);
+}
+
+/* ============================================
+   RESPONSIVE TYPOGRAPHY
+   ============================================ */
+.text-hero {
+    font-size: clamp(2rem, 8vw, 4.5rem);
+    line-height: 1.1;
+    font-weight: 800;
+}
+
+.text-title {
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.text-subtitle {
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    line-height: 1.4;
+    font-weight: 400;
+}
+
+.text-body {
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
+    line-height: 1.6;
+}
+
+.text-small {
+    font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+    line-height: 1.5;
+}
+
+/* ============================================
+   GRADIENT TEXT
+   ============================================ */
+.gradient-text {
+    background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink), var(--neon-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.gradient-text-gold {
+    background: linear-gradient(135deg, var(--neon-gold), var(--neon-orange), var(--neon-gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ============================================
+   RESPONSIVE BUTTONS
+   ============================================ */
+.btn-dimensional {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-6);
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all var(--timing-smooth);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-dimensional.primary {
+    background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+    color: white;
+    box-shadow: 0 4px 20px rgba(136, 85, 255, 0.4);
+}
+
+.btn-dimensional.secondary {
+    background: transparent;
+    border: 2px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+}
+
+.btn-dimensional:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(136, 85, 255, 0.5);
+}
+
+.btn-dimensional:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+/* Touch-friendly size on mobile */
+@media (max-width: 480px) {
+    .btn-dimensional {
+        padding: var(--space-5) var(--space-6);
+        min-height: 48px; /* Touch target */
+        width: 100%;
+    }
+}
+
+/* ============================================
+   MOBILE NAVIGATION
+   ============================================ */
+.nav-mobile-toggle {
+    display: none;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.nav-mobile-toggle span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--text-bright);
+    position: relative;
+    transition: all var(--timing-normal);
+}
+
+.nav-mobile-toggle span::before,
+.nav-mobile-toggle span::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 2px;
+    background: var(--text-bright);
+    left: 0;
+    transition: all var(--timing-normal);
+}
+
+.nav-mobile-toggle span::before { top: -8px; }
+.nav-mobile-toggle span::after { bottom: -8px; }
+
+.nav-mobile-toggle.active span { background: transparent; }
+.nav-mobile-toggle.active span::before { top: 0; transform: rotate(45deg); }
+.nav-mobile-toggle.active span::after { bottom: 0; transform: rotate(-45deg); }
+
+@media (max-width: 768px) {
+    .nav-mobile-toggle {
+        display: flex;
+    }
+    
+    .nav-desktop {
+        display: none !important;
+    }
+}
+
+/* ============================================
+   MOBILE NAV DRAWER
+   ============================================ */
+.nav-drawer {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: min(85vw, 320px);
+    height: 100vh;
+    background: var(--bg-depth);
+    z-index: var(--z-modal);
+    transition: right var(--timing-smooth);
+    padding: var(--space-8) var(--space-5);
+    border-left: 1px solid var(--border-glow);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.nav-drawer.open {
+    right: 0;
+}
+
+.nav-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: calc(var(--z-modal) - 1);
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--timing-smooth);
+}
+
+.nav-drawer-backdrop.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.nav-drawer a {
+    display: block;
+    padding: var(--space-4);
+    color: var(--text-normal);
+    text-decoration: none;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    transition: all var(--timing-fast);
+}
+
+.nav-drawer a:hover,
+.nav-drawer a:focus {
+    background: var(--bg-glass);
+    color: var(--neon-cyan);
+}
+
+/* ============================================
+   DEPTH SHADOWS
+   ============================================ */
+.shadow-depth-1 {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.shadow-depth-2 {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.shadow-depth-3 {
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        0 0 60px rgba(136, 85, 255, 0.1);
+}
+
+.shadow-depth-4 {
+    box-shadow: 
+        0 16px 48px rgba(0, 0, 0, 0.6),
+        0 0 80px rgba(136, 85, 255, 0.15),
+        inset 0 0 30px rgba(255, 255, 255, 0.02);
+}
+
+/* ============================================
+   GLOW EFFECTS
+   ============================================ */
+.glow-purple { box-shadow: 0 0 30px var(--neon-purple); }
+.glow-pink { box-shadow: 0 0 30px var(--neon-pink); }
+.glow-cyan { box-shadow: 0 0 30px var(--neon-cyan); }
+.glow-green { box-shadow: 0 0 30px var(--neon-green); }
+.glow-gold { box-shadow: 0 0 30px var(--neon-gold); }
+
+.glow-pulse {
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.3); }
+}
+
+/* ============================================
+   HIDE/SHOW UTILITIES
+   ============================================ */
+.hide-mobile {
+    display: block;
+}
+
+.show-mobile {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .hide-mobile { display: none !important; }
+    .show-mobile { display: block !important; }
+}
+
+.hide-tablet {
+    display: block;
+}
+
+@media (min-width: 481px) and (max-width: 1023px) {
+    .hide-tablet { display: none !important; }
+}
+
+/* ============================================
+   SAFE AREAS (iOS Notch/Android Cutouts)
+   ============================================ */
+.safe-area-top {
+    padding-top: env(safe-area-inset-top, 0);
+}
+
+.safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.safe-area-left {
+    padding-left: env(safe-area-inset-left, 0);
+}
+
+.safe-area-right {
+    padding-right: env(safe-area-inset-right, 0);
+}
+
+/* ============================================
+   TOUCH-OPTIMIZED SCROLLING
+   ============================================ */
+.scroll-smooth {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.scroll-snap-x {
+    scroll-snap-type: x mandatory;
+    overflow-x: auto;
+    display: flex;
+    gap: var(--space-4);
+}
+
+.scroll-snap-x > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+}
+
+.scroll-snap-y {
+    scroll-snap-type: y mandatory;
+    overflow-y: auto;
+}
+
+.scroll-snap-y > * {
+    scroll-snap-align: start;
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+.skeleton {
+    background: linear-gradient(90deg, 
+        var(--bg-depth) 25%, 
+        var(--bg-glass) 50%, 
+        var(--bg-depth) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeletonShimmer 1.5s infinite;
+    border-radius: 8px;
+}
+
+@keyframes skeletonShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.focus-visible:focus-visible {
+    outline: 2px solid var(--neon-cyan);
+    outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    :root {
+        --bg-void: #000000;
+        --text-bright: #ffffff;
+        --border-glow: #ffffff;
+    }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+}

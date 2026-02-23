@@ -3615,6 +3615,72 @@ body {
     background: var(--text-muted);
 }
 
+/* Universal Connector Status */
+.uc-connected {
+    color: var(--success);
+    font-weight: 500;
+}
+
+.uc-disconnected {
+    color: var(--text-muted);
+}
+
+.uc-error {
+    color: var(--warning);
+}
+
+#connection-status {
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition-fast);
+}
+
+#connection-status:hover {
+    background: var(--depth-bg-3);
+}
+
+/* Loading state */
+.folder-content.loading {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.folder-content.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    margin: -16px 0 0 -16px;
+    border: 3px solid var(--depth-border);
+    border-top-color: var(--uhd-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Drive connection indicators */
+.folder-item[data-connected="true"] .item-name::after {
+    content: '●';
+    color: var(--success);
+    font-size: 0.6em;
+    margin-left: 4px;
+    vertical-align: super;
+}
+
+.folder-item[data-connected="false"] .item-name::after {
+    content: '○';
+    color: var(--text-muted);
+    font-size: 0.6em;
+    margin-left: 4px;
+    vertical-align: super;
+}
+
 /* Folder item cut state */
 .folder-item.cut {
     opacity: 0.5;

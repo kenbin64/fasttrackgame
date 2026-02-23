@@ -3,444 +3,762 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fast Track - ButterflyFX</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        header {
-            padding: 20px;
-            text-align: center;
-            width: 100%;
-            background: rgba(0,0,0,0.3);
-        }
-        
-        header h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(135deg, #ff6b9d, #c44569);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 5px;
-        }
-        
-        header p {
-            color: #888;
-            font-size: 0.9rem;
-        }
-        
-        .game-container {
-            display: flex;
-            gap: 30px;
-            padding: 20px;
-            max-width: 1400px;
-            width: 100%;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .board-wrapper {
-            position: relative;
-        }
-        
-        #gameBoard {
-            border-radius: 20px;
-            box-shadow: 0 0 40px rgba(0, 200, 255, 0.2);
-        }
-        
-        .sidebar {
-            background: rgba(20, 20, 40, 0.8);
-            border-radius: 15px;
-            padding: 20px;
-            min-width: 280px;
-            max-width: 320px;
-            border: 1px solid rgba(100, 100, 150, 0.3);
-        }
-        
-        .sidebar h2 {
-            color: #00d4ff;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-            border-bottom: 1px solid rgba(100, 100, 150, 0.3);
-            padding-bottom: 10px;
-        }
-        
-        .player-list {
-            list-style: none;
-            margin-bottom: 20px;
-        }
-        
-        .player-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            background: rgba(40, 40, 60, 0.5);
-            transition: all 0.3s;
-        }
-        
-        .player-item.active {
-            background: rgba(0, 200, 255, 0.15);
-            border: 1px solid rgba(0, 200, 255, 0.4);
-        }
-        
-        .player-item.winner {
-            background: rgba(255, 215, 0, 0.2);
-            border: 1px solid gold;
-        }
-        
-        .player-color {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-        
-        .player-name {
-            flex: 1;
-            font-weight: 500;
-        }
-        
-        .player-pegs {
-            font-size: 0.8rem;
-            color: #888;
-        }
-        
-        .dice-container {
-            text-align: center;
-            padding: 20px;
-            background: rgba(30, 30, 50, 0.6);
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .dice {
-            font-size: 4rem;
-            margin: 10px 0;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-        }
-        
-        .roll-btn {
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            border: none;
-            color: #fff;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-        }
-        
-        .roll-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(0, 200, 255, 0.5);
-        }
-        
-        .roll-btn:disabled {
-            background: #444;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .game-log {
-            max-height: 200px;
-            overflow-y: auto;
-            font-size: 0.85rem;
-            color: #aaa;
-        }
-        
-        .log-entry {
-            padding: 5px 0;
-            border-bottom: 1px solid rgba(100, 100, 150, 0.2);
-        }
-        
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .control-btn {
-            flex: 1;
-            padding: 10px 15px;
-            border: 1px solid rgba(100, 100, 150, 0.5);
-            background: rgba(40, 40, 60, 0.5);
-            color: #fff;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.85rem;
-        }
-        
-        .control-btn:hover {
-            background: rgba(60, 60, 80, 0.8);
-            border-color: #00d4ff;
-        }
-        
-        .lobby {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(10, 10, 26, 0.95);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-        }
-        
-        .lobby-content {
-            background: rgba(30, 30, 50, 0.9);
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 500px;
-            width: 90%;
-            border: 1px solid rgba(100, 100, 150, 0.3);
-        }
-        
-        .lobby h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #00d4ff;
-        }
-        
-        .lobby-option {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            align-items: center;
-        }
-        
-        .lobby-option label {
-            min-width: 120px;
-            color: #ccc;
-        }
-        
-        .lobby-option select,
-        .lobby-option input {
-            flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(100, 100, 150, 0.5);
-            background: rgba(20, 20, 40, 0.8);
-            color: #fff;
-            font-size: 1rem;
-        }
-        
-        .player-setup {
-            margin: 20px 0;
-            padding: 15px;
-            background: rgba(40, 40, 60, 0.5);
-            border-radius: 10px;
-        }
-        
-        .player-setup h3 {
-            margin-bottom: 15px;
-            color: #888;
-            font-size: 0.9rem;
-        }
-        
-        .player-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: center;
-        }
-        
-        .player-row select {
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid rgba(100, 100, 150, 0.5);
-            background: rgba(20, 20, 40, 0.8);
-            color: #fff;
-        }
-        
-        .player-row input {
-            flex: 1;
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid rgba(100, 100, 150, 0.5);
-            background: rgba(20, 20, 40, 0.8);
-            color: #fff;
-        }
-        
-        .start-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #ff6b9d, #c44569);
-            border: none;
-            color: #fff;
-            font-size: 1.2rem;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 20px;
-        }
-        
-        .start-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 25px rgba(255, 100, 150, 0.5);
-        }
-        
-        .hidden {
-            display: none !important;
-        }
-        
-        .connection-status {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .connection-status.connected {
-            background: rgba(0, 200, 100, 0.2);
-            border: 1px solid rgba(0, 200, 100, 0.5);
-            color: #0f8;
-        }
-        
-        .connection-status.disconnected {
-            background: rgba(200, 100, 0, 0.2);
-            border: 1px solid rgba(200, 100, 0, 0.5);
-            color: #f80;
-        }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: currentColor;
-        }
-        
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 15px 25px;
-            background: rgba(40, 40, 60, 0.95);
-            border-radius: 10px;
-            border: 1px solid rgba(0, 200, 255, 0.5);
-            color: #fff;
-            z-index: 200;
-            animation: slideUp 0.3s ease;
-        }
-        
-        @keyframes slideUp {
-            from { opacity: 0; transform: translate(-50%, 20px); }
-            to { opacity: 1; transform: translate(-50%, 0); }
-        }
-        
-        /* Peg selection highlight */
-        .peg-highlight {
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-    </style>
+    <title>FastTrack! - The Ultimate Card & Peg Racing Game | Ken's Games</title>
+    <meta name="description" content="FastTrack! - Race your pegs to victory in this strategic card game. Play solo vs AI, host private games, join guilds, compete in tournaments. FREE to play!">
+    <meta name="keywords" content="fast track, card game, board game, peg game, racing game, multiplayer, guilds, tournaments, free game">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="FastTrack! - The Ultimate Card & Peg Racing Game">
+    <meta property="og:description" content="Race your pegs around the board using strategic card plays. Join guilds, compete in tournaments, or play solo. Free online!">
+    <meta property="og:image" content="assets/images/ftpromo1.png">
+    <meta property="og:type" content="website">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="assets/images/ftLogo.png" type="image/png">
+    <link rel="apple-touch-icon" href="assets/images/ftLogo.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Three.js for 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <link rel="stylesheet" href="assets/css/index.css">
 </head>
 <body>
-    <div class="connection-status disconnected" id="connectionStatus">
-        <span class="status-dot"></span>
-        <span id="statusText">Offline</span>
-    </div>
+    <!-- 3D Background -->
+    <canvas id="bg-canvas"></canvas>
     
-    <header>
-        <h1>⚡ Fast Track</h1>
-        <p>Powered by ButterflyFX Dimensional Kernel</p>
-    </header>
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
     
-    <!-- Game Lobby -->
-    <div class="lobby" id="gameLobby">
-        <div class="lobby-content">
-            <h2>🎮 New Game</h2>
-            
-            <div class="lobby-option">
-                <label>Game Mode:</label>
-                <select id="gameMode">
-                    <option value="local">Local (Same Device)</option>
-                    <option value="online">Online Multiplayer</option>
-                    <option value="ai">vs AI</option>
-                </select>
-            </div>
-            
-            <div class="lobby-option">
-                <label>Players:</label>
-                <select id="playerCount">
-                    <option value="2">2 Players</option>
-                    <option value="3">3 Players</option>
-                    <option value="4">4 Players</option>
-                    <option value="5">5 Players</option>
-                    <option value="6">6 Players</option>
-                </select>
-            </div>
-            
-            <div class="lobby-option" id="roomOption" style="display: none;">
-                <label>Room Code:</label>
-                <input type="text" id="roomCode" placeholder="Enter or create room code">
-            </div>
-            
-            <div class="player-setup" id="playerSetup">
-                <h3>Player Configuration</h3>
-                <div id="playerSlots"></div>
-            </div>
-            
-            <button class="start-btn" id="startGameBtn">Start Game</button>
+    <!-- Navigation -->
+    <nav>
+        <a href="#" class="nav-logo">
+            <img src="assets/images/ftLogo.png" alt="FastTrack" onerror="this.style.display='none'">
+            <span class="nav-logo-text">FastTrack!</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#play">Play</a></li>
+            <li><a href="#rules">Rules</a></li>
+            <li><a href="#cards">Cards</a></li>
+            <li><a href="#features">Guilds</a></li>
+            <li><a href="#tutorials">Tutorials</a></li>
+            <li><a href="#about">About</a></li>
+        </ul>
+        <div class="nav-cta">
+            <a href="play.html" class="btn btn-primary">Play Free</a>
         </div>
-    </div>
+    </nav>
     
-    <!-- Main Game -->
-    <div class="game-container">
-        <div class="board-wrapper">
-            <canvas id="gameBoard" width="700" height="700"></canvas>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-badge">
+            <span>🎉</span> CURRENTLY FREE TO PLAY
+        </div>
+        <h1 class="hero-title">
+            <span class="line1">RACE TO</span>
+            <span class="line2">VICTORY!</span>
+        </h1>
+        <p class="hero-subtitle">
+            The ultimate strategic card & peg racing game. Outsmart opponents, 
+            join guilds, compete in tournaments, and become a champion!
+        </p>
+        <div class="hero-buttons">
+            <a href="ai_setup.html" class="btn btn-primary btn-lg">
+                🤖 Play vs AI
+            </a>
+            <a href="play.html" class="btn btn-accent btn-lg">
+                🎮 Multiplayer
+            </a>
+        </div>
+        <div class="hero-stats">
+            <div class="stat-item">
+                <div class="stat-value">2-6</div>
+                <div class="stat-label">Players</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">∞</div>
+                <div class="stat-label">Fun</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">FREE</div>
+                <div class="stat-label">To Play</div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>SCROLL</span>
+            <div class="scroll-arrow"></div>
+        </div>
+    </section>
+    
+    <!-- Play Options -->
+    <section id="play" class="play-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Choose Your Mode</span>
+                <h2 class="section-title">Ways to Play</h2>
+                <p class="section-subtitle">
+                    Jump right in - no account needed for solo or private games!
+                </p>
+            </div>
+            
+            <!-- Game Type Selection -->
+            <div class="play-category">
+                <h3>🎯 Choose Game Type</h3>
+                <div class="play-grid">
+                    <div class="play-card compact reveal">
+                        <span class="play-icon">🃏</span>
+                        <h3>Card Game</h3>
+                        <p>Classic FastTrack with playing cards. Draw cards to move your pegs!</p>
+                        <a href="ai_setup.html?type=cards" class="btn btn-primary">Play Cards</a>
+                    </div>
+                    
+                    <div class="play-card compact reveal">
+                        <span class="play-icon">🎲</span>
+                        <h3>Dice Game</h3>
+                        <p>Roll the dice for movement! Pure luck and strategy combined.</p>
+                        <a href="ai_setup.html?type=dice" class="btn btn-secondary">Play Dice</a>
+                    </div>
+                    
+                    <div class="play-card compact reveal coming-soon">
+                        <span class="play-icon">🎰</span>
+                        <span class="play-badge badge-soon">Coming Soon</span>
+                        <h3>5-Card Draw</h3>
+                        <p>Hold a hand of 5 cards. Choose which to play for strategic depth!</p>
+                        <span class="btn btn-accent">Coming Soon</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Play Mode Selection -->
+            <div class="play-category">
+                <h3>👥 Choose Play Mode</h3>
+                <div class="play-grid">
+                    <div class="play-card compact reveal">
+                        <span class="play-icon">🤖</span>
+                        <span class="play-badge badge-free">No Login</span>
+                        <h3>Play vs AI</h3>
+                        <p>Practice against smart AI. Choose difficulty and player count!</p>
+                        <a href="ai_setup.html" class="btn btn-primary">Solo Play</a>
+                    </div>
+                    
+                    <div class="play-card compact reveal">
+                        <span class="play-icon">🎮</span>
+                        <span class="play-badge badge-free">No Login</span>
+                        <h3>Multiplayer</h3>
+                        <p>Private rooms or public lobby. Play with friends online!</p>
+                        <a href="play.html" class="btn btn-secondary">Play Online</a>
+                    </div>
+                    
+                    <div class="play-card compact reveal coming-soon">
+                        <span class="play-icon">⚔️</span>
+                        <span class="play-badge badge-soon">Coming Soon</span>
+                        <h3>Teams 2v2</h3>
+                        <p>Partner up! Two teams of 2 players compete head-to-head.</p>
+                        <span class="btn btn-accent">Coming Soon</span>
+                    </div>
+                    
+                    <div class="play-card compact reveal coming-soon">
+                        <span class="play-icon">🏆</span>
+                        <span class="play-badge badge-soon">Coming Soon</span>
+                        <h3>Teams 3v3</h3>
+                        <p>Epic team battles! Three players per team for maximum chaos.</p>
+                        <span class="btn btn-accent">Coming Soon</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Screenshots Gallery -->
+    <section class="gallery-section">
+        <div class="section-header">
+            <span class="section-tag">Game Gallery</span>
+            <h2 class="section-title">See It In Action</h2>
+        </div>
+        <div class="gallery-scroll">
+            <div class="gallery-item" data-theme="Space Ace Theme">
+                <img src="assets/images/promoSpaceAceFT.png" alt="Space Ace Theme" onerror="this.parentElement.style.background='linear-gradient(135deg, #3498db, #2980b9)'">
+            </div>
+            <div class="gallery-item" data-theme="Gameplay">
+                <img src="assets/images/ftpromo1.png" alt="FastTrack Gameplay" onerror="this.parentElement.style.background='linear-gradient(135deg, #9b59b6, #8e44ad)'">
+            </div>
+            <div class="gallery-item" data-theme="ButterflyFX">
+                <img src="assets/images/butterflyLogo.png" alt="ButterflyFX Technology" onerror="this.parentElement.style.background='linear-gradient(135deg, #ff6b9d, #9b59b6)'">
+            </div>
+            <!-- Duplicate for infinite scroll -->
+            <div class="gallery-item" data-theme="Space Ace Theme">
+                <img src="assets/images/promoSpaceAceFT.png" alt="Space Ace Theme" onerror="this.parentElement.style.background='linear-gradient(135deg, #3498db, #2980b9)'">
+            </div>
+            <div class="gallery-item" data-theme="Gameplay">
+                <img src="assets/images/ftpromo1.png" alt="FastTrack Gameplay" onerror="this.parentElement.style.background='linear-gradient(135deg, #9b59b6, #8e44ad)'">
+            </div>
+            <div class="gallery-item" data-theme="ButterflyFX">
+                <img src="assets/images/butterflyLogo.png" alt="ButterflyFX Technology" onerror="this.parentElement.style.background='linear-gradient(135deg, #ff6b9d, #9b59b6)'">
+            </div>
+        </div>
+    </section>
+    
+    <!-- Rules Section -->
+    <section id="rules" class="rules-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Learn the Game</span>
+                <h2 class="section-title">How to Play</h2>
+                <p class="section-subtitle">
+                    Easy to learn, challenging to master. Here's everything you need to know!
+                </p>
+            </div>
+            
+            <div class="rules-grid">
+                <div class="rule-card reveal">
+                    <div class="rule-number">1</div>
+                    <h3>Setup</h3>
+                    <p>Each player has 4 pegs in their holding area. Your mission: race all 4 pegs around the hexagonal track and into your safe zone before anyone else!</p>
+                </div>
+                
+                <div class="rule-card reveal">
+                    <div class="rule-number">2</div>
+                    <h3>Draw & Play</h3>
+                    <p>On your turn, draw one card. Use it to move a peg. Royal cards (A, J, Q, K, Joker) and 6 grant an extra turn!</p>
+                </div>
+                
+                <div class="rule-card reveal">
+                    <div class="rule-number">3</div>
+                    <h3>Enter the Track</h3>
+                    <p>Pegs start in holding. Use an Ace, 6, or Joker to bring a peg onto your home hole and start racing!</p>
+                </div>
+                
+                <div class="rule-card reveal">
+                    <div class="rule-number">4</div>
+                    <h3>Cut Opponents</h3>
+                    <p>Land on an opponent's peg to "cut" them! Their peg goes back to holding. Strategic cutting is key to victory!</p>
+                </div>
+                
+                <div class="rule-card reveal">
+                    <div class="rule-number">5</div>
+                    <h3>Fast Track Shortcut</h3>
+                    <p>Take the inner ring for a shortcut! The Fast Track is dangerous but can give you a massive advantage.</p>
+                </div>
+                
+                <div class="rule-card reveal">
+                    <div class="rule-number">6</div>
+                    <h3>Win!</h3>
+                    <p>Get all 4 pegs into your safe zone. First player to finish all pegs wins! Use Royal cards (J, Q, K) to exit the bullseye.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Cards Reference -->
+    <section id="cards" class="cards-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Master Your Cards</span>
+                <h2 class="section-title">Card Reference</h2>
+                <p class="section-subtitle">
+                    Every card has power. Know them all!
+                </p>
+            </div>
+            
+            <div class="cards-grid">
+                <div class="card-item special reveal">
+                    <div class="card-value">A</div>
+                    <div class="card-name">Ace</div>
+                    <div class="card-desc">1 space • Enter track • Draw again</div>
+                </div>
+                <div class="card-item reveal">
+                    <div class="card-value">2</div>
+                    <div class="card-name">Two</div>
+                    <div class="card-desc">Move 2 spaces</div>
+                </div>
+                <div class="card-item reveal">
+                    <div class="card-value">3</div>
+                    <div class="card-name">Three</div>
+                    <div class="card-desc">Move 3 spaces</div>
+                </div>
+                <div class="card-item special reveal">
+                    <div class="card-value">4</div>
+                    <div class="card-name">Four</div>
+                    <div class="card-desc">Move 4 BACKWARD!</div>
+                </div>
+                <div class="card-item reveal">
+                    <div class="card-value">5</div>
+                    <div class="card-name">Five</div>
+                    <div class="card-desc">Move 5 spaces</div>
+                </div>
+                <div class="card-item special reveal">
+                    <div class="card-value">6</div>
+                    <div class="card-name">Six</div>
+                    <div class="card-desc">6 spaces • Enter track • Draw again</div>
+                </div>
+                <div class="card-item special reveal">
+                    <div class="card-value">7</div>
+                    <div class="card-name">Seven</div>
+                    <div class="card-desc">Split between 2 pegs!</div>
+                </div>
+                <div class="card-item reveal">
+                    <div class="card-value">8</div>
+                    <div class="card-name">Eight</div>
+                    <div class="card-desc">Move 8 spaces</div>
+                </div>
+                <div class="card-item reveal">
+                    <div class="card-value">9</div>
+                    <div class="card-name">Nine</div>
+                    <div class="card-desc">Move 9 spaces</div>
+                </div>
+                <div class="card-item reveal">
+                    <div class="card-value">10</div>
+                    <div class="card-name">Ten</div>
+                    <div class="card-desc">Move 10 spaces</div>
+                </div>
+                <div class="card-item special reveal">
+                    <div class="card-value">J</div>
+                    <div class="card-name">Jack</div>
+                    <div class="card-desc">1 space • Draw again • Exit bullseye</div>
+                </div>
+                <div class="card-item special reveal">
+                    <div class="card-value">Q</div>
+                    <div class="card-name">Queen</div>
+                    <div class="card-desc">1 space • Draw again • Exit bullseye</div>
+                </div>
+                <div class="card-item special reveal">
+                    <div class="card-value">K</div>
+                    <div class="card-name">King</div>
+                    <div class="card-desc">1 space • Draw again • Exit bullseye</div>
+                </div>
+                <div class="card-item special reveal">
+                    <div class="card-value">🃏</div>
+                    <div class="card-name">Joker</div>
+                    <div class="card-desc">1 space • Enter track • Draw again</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features: Guilds & Tournaments -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Compete & Connect</span>
+                <h2 class="section-title">Guilds & Tournaments</h2>
+                <p class="section-subtitle">
+                    Join the community. Build your legacy!
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card reveal">
+                    <div class="feature-icon">🏰</div>
+                    <h3>Join a Guild</h3>
+                    <p>Band together with fellow players. Guild games, exclusive chat, and friendly competition!</p>
+                    <ul class="feature-list">
+                        <li>Guild-only games (all humans, no bots)</li>
+                        <li>Private guild chat</li>
+                        <li>Invite members online</li>
+                        <li>2-6 player guild matches</li>
+                        <li>Guildmaster controls</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card reveal">
+                    <div class="feature-icon">🏆</div>
+                    <h3>Tournaments</h3>
+                    <p>Prove you're the best! Compete in guild-vs-guild tournaments for glory!</p>
+                    <ul class="feature-list">
+                        <li>Guildmaster-organized events</li>
+                        <li>Cross-guild competition</li>
+                        <li>Tournament chat access</li>
+                        <li>Track your wins</li>
+                        <li>Rise to the top</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 50px;">
+                <a href="lobby.html" class="btn btn-primary btn-lg">Enter Multiplayer Lobby</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Tutorial Videos -->
+    <section id="tutorials" class="videos-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Watch & Learn</span>
+                <h2 class="section-title">Tutorial Videos</h2>
+                <p class="section-subtitle">
+                    See the game in action. Master the strategies!
+                </p>
+            </div>
+            
+            <div class="videos-grid">
+                <div class="video-card reveal">
+                    <div class="video-thumb">
+                        <div class="play-button">▶</div>
+                        <span style="color: var(--text-muted);">Getting Started</span>
+                    </div>
+                    <div class="video-info">
+                        <h4>FastTrack Basics</h4>
+                        <p>Learn setup, drawing cards, entering the track, and making your first moves.</p>
+                    </div>
+                </div>
+                
+                <div class="video-card reveal">
+                    <div class="video-thumb">
+                        <div class="play-button">▶</div>
+                        <span style="color: var(--text-muted);">Pro Strategies</span>
+                    </div>
+                    <div class="video-info">
+                        <h4>Winning Strategies</h4>
+                        <p>When to cut, when to protect, Fast Track tactics, and bullseye mastery.</p>
+                    </div>
+                </div>
+                
+                <div class="video-card reveal">
+                    <div class="video-thumb">
+                        <div class="play-button">▶</div>
+                        <span style="color: var(--text-muted);">Multiplayer Guide</span>
+                    </div>
+                    <div class="video-info">
+                        <h4>Guilds & Tournaments</h4>
+                        <p>How to join guilds, compete in tournaments, and dominate the leaderboards.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ButterflyFX Section -->
+    <section id="about" class="butterflyfx-section">
+        <div class="container">
+            <div class="bfx-content">
+                <div class="bfx-visual reveal">
+                    <div class="helix-animation">
+                        <img src="assets/images/butterflyLogo.png" alt="ButterflyFX" style="max-width: 280px; height: auto; filter: drop-shadow(0 0 30px rgba(255,107,157,0.5));">
+                        <div class="helix-ring"></div>
+                        <div class="helix-ring"></div>
+                        <div class="helix-ring"></div>
+                        <div class="helix-ring"></div>
+                    </div>
+                </div>
+                
+                <div class="bfx-info reveal">
+                    <h3>Powered by ButterflyFX</h3>
+                    <p>
+                        FastTrack runs on ButterflyFX Dimensional Programming — a revolutionary 
+                        computing paradigm that replaces traditional hierarchical structures with 
+                        a 7-level dimensional helix model based on ordered growth (Fibonacci/Golden Ratio).
+                    </p>
+                    <p>
+                        Just as nature spirals through DNA, galaxies, and growth patterns, ButterflyFX 
+                        navigates through dimensional transitions instead of iterating through data. 
+                        The result? Faster, smarter, more elegant software.
+                    </p>
+                    
+                    <div class="dimension-list">
+                        <div class="dimension-item">
+                            <span>○</span> <span>D0: Void (Potential)</span>
+                        </div>
+                        <div class="dimension-item">
+                            <span>•</span> <span>D1: Point (Identity)</span>
+                        </div>
+                        <div class="dimension-item">
+                            <span>━</span> <span>D2: Line (Relationship)</span>
+                        </div>
+                        <div class="dimension-item">
+                            <span>▭</span> <span>D3: Width (Structure)</span>
+                        </div>
+                        <div class="dimension-item">
+                            <span>▦</span> <span>D4: Plane (Manifestation)</span>
+                        </div>
+                        <div class="dimension-item">
+                            <span>▣</span> <span>D5: Volume (Multiplicity)</span>
+                        </div>
+                        <div class="dimension-item">
+                            <span>◉</span> <span>D6: Whole (Meaning)</span>
+                        </div>
+                        <div class="dimension-item">
+                            <span>🦋</span> <span>→ Next Spiral</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <a href="https://butterflyfx.us" target="_blank" class="btn btn-secondary">
+                            Learn More About ButterflyFX
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>Ready to Race?</h2>
+            <p>No download. No credit card. Just pure strategic fun!</p>
+            <div class="cta-buttons">
+                <a href="ai_setup.html" class="btn btn-primary btn-lg">🤖 Play vs AI</a>
+                <a href="play.html" class="btn btn-secondary btn-lg">🎮 Multiplayer</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Legal Section -->
+    <section class="legal-section">
+        <div class="legal-content">
+            <h4>Terms of Service</h4>
+            <p>
+                By using FastTrack, you agree to play fair, respect other players, and have fun! 
+                Cheating, harassment, or abuse will result in account suspension. Guild masters 
+                have authority over their guilds and can remove members at their discretion.
+            </p>
+            
+            <h4>Disclaimer</h4>
+            <p>
+                FastTrack is provided "as is" without warranty of any kind. While we strive for 
+                a smooth experience, we cannot guarantee 100% uptime. Game progress and stats 
+                are stored online but are not guaranteed to be permanent. Play responsibly!
+            </p>
+            
+            <h4>Privacy</h4>
+            <p>
+                We collect minimal data: your chosen username, avatar, and game statistics. 
+                We do not sell your data. Chat messages in guilds are visible to guild members. 
+                For private games without login, no data is stored.
+            </p>
+            
+            <h4>Copyright</h4>
+            <p>
+                © 2026 Ken's Games. FastTrack is a ButterflyFX Production. All rights reserved.
+                FastTrack is inspired by classic marble racing board games and is an original 
+                digital implementation.
+            </p>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Play</h4>
+                <a href="ai_setup.html">Play vs AI</a>
+                <a href="play.html">Multiplayer</a>
+                <a href="lobby.html">Public Lobby</a>
+            </div>
+            <div class="footer-col">
+                <h4>Learn</h4>
+                <a href="#rules">Game Rules</a>
+                <a href="#cards">Card Reference</a>
+                <a href="#tutorials">Tutorials</a>
+            </div>
+            <div class="footer-col">
+                <h4>Community</h4>
+                <a href="lobby.html">Join a Guild</a>
+                <a href="lobby.html">Tournaments</a>
+                <a href="lobby.html">Leaderboards</a>
+            </div>
+            <div class="footer-col">
+                <h4>About</h4>
+                <a href="#about">ButterflyFX</a>
+                <a href="https://butterflyfx.us" target="_blank">Technology</a>
+                <a href="mailto:ken@kensgames.com">Contact</a>
+            </div>
         </div>
         
-        <div class="sidebar">
-            <h2>Players</h2>
-            <ul class="player-list" id="playerList"></ul>
-            
-            <div class="dice-container">
-                <div class="dice" id="diceDisplay">🎲</div>
-                <button class="roll-btn" id="rollBtn">Roll Dice</button>
-            </div>
-            
-            <h2>Game Log</h2>
-            <div class="game-log" id="gameLog"></div>
-            
-            <div class="controls">
-                <button class="control-btn" id="newGameBtn">New Game</button>
-                <button class="control-btn" id="rulesBtn">Rules</button>
-            </div>
+        <div class="footer-bottom">
+            <p>
+                © 2026 <a href="https://kensgames.com">Ken's Games</a>. 
+                Created by <a href="https://butterflyfx.us">Kenneth Bingham</a>.
+                Powered by <a href="https://butterflyfx.us">ButterflyFX</a> Dimensional Technology.
+            </p>
         </div>
-    </div>
+    </footer>
     
-    <script src="fasttrack.js"></script>
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const colors = ['#e74c3c', '#f39c12', '#3498db', '#9b59b6', '#27ae60'];
+            
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.width = (2 + Math.random() * 4) + 'px';
+                particle.style.height = particle.style.width;
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+        
+        // 3D Background with Three.js
+        function init3DBackground() {
+            const canvas = document.getElementById('bg-canvas');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            
+            // Create rotating hexagon wireframes
+            const hexagons = [];
+            const hexGeometry = new THREE.TorusGeometry(2, 0.02, 6, 6);
+            
+            for (let i = 0; i < 8; i++) {
+                const material = new THREE.MeshBasicMaterial({ 
+                    color: new THREE.Color().setHSL(i * 0.1, 0.7, 0.5),
+                    transparent: true,
+                    opacity: 0.3
+                });
+                const hex = new THREE.Mesh(hexGeometry, material);
+                hex.position.z = -5 - i * 2;
+                hex.rotation.x = Math.random() * Math.PI;
+                hex.userData = { speed: 0.002 + Math.random() * 0.005 };
+                hexagons.push(hex);
+                scene.add(hex);
+            }
+            
+            // Add some floating spheres
+            const spheres = [];
+            for (let i = 0; i < 20; i++) {
+                const geometry = new THREE.SphereGeometry(0.05 + Math.random() * 0.1, 8, 8);
+                const material = new THREE.MeshBasicMaterial({ 
+                    color: new THREE.Color().setHSL(Math.random(), 0.8, 0.6),
+                    transparent: true,
+                    opacity: 0.6
+                });
+                const sphere = new THREE.Mesh(geometry, material);
+                sphere.position.set(
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 10,
+                    -Math.random() * 10 - 2
+                );
+                sphere.userData = { 
+                    speedX: (Math.random() - 0.5) * 0.02,
+                    speedY: (Math.random() - 0.5) * 0.02
+                };
+                spheres.push(sphere);
+                scene.add(sphere);
+            }
+            
+            camera.position.z = 5;
+            
+            // Mouse interaction
+            let mouseX = 0, mouseY = 0;
+            document.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+                mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+            });
+            
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                // Rotate hexagons
+                hexagons.forEach((hex, i) => {
+                    hex.rotation.x += hex.userData.speed;
+                    hex.rotation.z += hex.userData.speed * 0.5;
+                });
+                
+                // Move spheres
+                spheres.forEach(sphere => {
+                    sphere.position.x += sphere.userData.speedX;
+                    sphere.position.y += sphere.userData.speedY;
+                    
+                    if (Math.abs(sphere.position.x) > 5) sphere.userData.speedX *= -1;
+                    if (Math.abs(sphere.position.y) > 5) sphere.userData.speedY *= -1;
+                });
+                
+                // Camera follows mouse slightly
+                camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.02;
+                camera.position.y += (-mouseY * 0.5 - camera.position.y) * 0.02;
+                camera.lookAt(scene.position);
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // Handle resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+        
+        // Initialize 3D
+        if (typeof THREE !== 'undefined') {
+            init3DBackground();
+        }
+        
+        // Reveal animations on scroll
+        function setupRevealAnimations() {
+            const reveals = document.querySelectorAll('.reveal');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+            
+            reveals.forEach(el => observer.observe(el));
+        }
+        setupRevealAnimations();
+        
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            });
+        });
+        
+        // Parallax on scroll
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.hero');
+            if (hero) {
+                hero.style.transform = `translateY(${scrolled * 0.3}px)`;
+            }
+        });
+
+        // Force clear old service worker caches & re-register latest SW
+        if ('serviceWorker' in navigator) {
+            // Clear ALL caches from old SW versions
+            caches.keys().then(names => {
+                names.forEach(name => {
+                    if (!name.includes('v2.0.0')) {
+                        caches.delete(name);
+                        console.log('[SW] Deleted old cache:', name);
+                    }
+                });
+            });
+            // Register latest SW (network-first for HTML)
+            navigator.serviceWorker.register('sw.js').then(reg => {
+                reg.update();
+                console.log('[SW] Registered & updated');
+            }).catch(err => console.warn('[SW] Registration failed:', err));
+        }
+    </script>
 </body>
 </html>

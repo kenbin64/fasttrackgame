@@ -1879,21 +1879,400 @@ function refresh() {
 }
 
 // ============================================================================
-// Content Loading
+// Content Loading - Connects to UHD Python Backend
 // ============================================================================
-function loadContent(path) {
-    // Simulate loading content based on path
-    const content = generateSampleContent(path);
-    renderFolderView(content);
-    renderTableView(content);
-    updateItemCount(content.length);
+
+// UHD API Base URL (same origin by default, or configurable)
+const UHD_API_BASE = window.UHD_API_BASE || '';
+
+async function loadContent(path) {
+    // Convert substrate:// path to UHD path format
+    const uhdPath = convertToUHDPath(path);
+    
+    try {
+        showLoading(true);
+        
+        // Call the real backend API
+        const response = await fetch(`${UHD_API_BASE}/api/ls?path=${encodeURIComponent(uhdPath)}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const items = await response.json();
+        
+        // Transform to our item format
+        const content = transformAPIResponse(items, uhdPath);
+        
+        renderFolderView(content);
+        renderTableView(content);
+        updateItemCount(content.length);
+        updateHelixCounts(content);
+        
+        // Update UC status if we're on root or API drive
+        if (uhdPath === '/' || uhdPath.startsWith('B:')) {
+            checkUniversalConnectorStatus();
+        }
+        
+    } catch (error) {
+        console.error('Failed to load content:', error);
+        // Fall back to sample data if API is not available
+        const content = generateSampleContent(path);
+        renderFolderView(content);
+        renderTableView(content);
+        updateItemCount(content.length);
+    } finally {
+        showLoading(false);
+    }
 }
 
+function convertToUHDPath(substratePath) {
+    // Convert substrate://local/ -> A:/
+    // Convert substrate://api/ -> B:/
+    // Convert substrate://database/ -> C:/
+    // etc.
+    
+    if (!substratePath) return '/';
+    
+    const pathMap = {
+        'local': 'A:',
+        'api': 'B:',
+        'database': 'C:',
+        'cloud': 'D:',
+        'cache': 'E:',
+        'saved': 'Z:',
+        'connections': 'B:'  // Connections map to API drive
+    };
+    
+    // Remove substrate:// prefix
+    let path = substratePath.replace(/^substrate:\/\//, '');
+    
+    // Handle root
+    if (!path || path === '/') return '/';
+    
+    // Parse first segment
+    const segments = path.split('/').filter(s => s);
+    if (segments.length === 0) return '/';
+    
+    const drive = pathMap[segments[0]] || segments[0];
+    const rest = segments.slice(1).join('/');
+    
+    return drive + '/' + rest;
+}
+
+function transformAPIResponse(items, currentPath) {
+    // Transform backend API response to frontend item format
+    if (!Array.isArray(items)) {
+        // If it's the root listing (drives)
+        if (items && typeof items === 'object') {
+            return Object.entries(items).map(([key, val], idx) => ({
+                id: idx + 1,
+                name: val.name || key,
+                type: 'folder',
+                icon: val.icon || '📁',
+                size: val.connected ? '●' : '○',
+                created: '',
+                path: `${key}:/`,
+                letter: key,
+                connected: val.connected
+            }));
+        }
+        return [];
+    }
+    
+    return items.map((item, idx) => ({
+        id: idx + 1,
+        name: item.name || 'Unknown',
+        type: item.type || (item.name?.endsWith('/') ? 'folder' : 'file'),
+        icon: item.icon || getIconForItem(item),
+        size: formatSize(item.size) || '-',
+        created: item.created_at || item.modified_at || '',
+        path: item.path || `${currentPath}${item.name}`,
+        materialized: item.materialized || false,
+        source: item.source_type || 'unknown'
+    }));
+}
+
+function getIconForItem(item) {
+    if (item.type === 'folder' || item.name?.endsWith('/')) return '📁';
+    if (item.type === 'api' || item.source_type === 'api') return '🌐';
+    if (item.type === 'database') return '🗄️';
+    
+    // By extension
+    const name = item.name || '';
+    if (name.endsWith('.json')) return '📋';
+    if (name.endsWith('.csv')) return '📊';
+    if (name.endsWith('.pdf')) return '📄';
+    if (name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.gif')) return '🖼️';
+    if (name.endsWith('.mp3') || name.endsWith('.wav')) return '🎵';
+    if (name.endsWith('.mp4') || name.endsWith('.mov')) return '🎬';
+    
+    return '📄';
+}
+
+function formatSize(bytes) {
+    if (!bytes || bytes === 0) return '-';
+    if (typeof bytes === 'string') return bytes;
+    
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let size = bytes;
+    let unitIndex = 0;
+    
+    while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex++;
+    }
+    
+    return `${size.toFixed(1)} ${units[unitIndex]}`;
+}
+
+function showLoading(show) {
+    const content = document.getElementById('folder-view');
+    if (content) {
+        content.classList.toggle('loading', show);
+    }
+}
+
+// ============================================================================
+// Universal Connector Integration
+// ============================================================================
+
+async function checkUniversalConnectorStatus() {
+    try {
+        const response = await fetch(`${UHD_API_BASE}/api/uc/status`);
+        const data = await response.json();
+        
+        if (data.running) {
+            updateUCStatus('connected', data.stats);
+        } else {
+            updateUCStatus('disconnected');
+        }
+    } catch (error) {
+        updateUCStatus('error');
+    }
+}
+
+async function syncWithUniversalConnector() {
+    try {
+        showLoading(true);
+        const response = await fetch(`${UHD_API_BASE}/api/uc/sync`);
+        const result = await response.json();
+        
+        if (result.success) {
+            console.log(`UC Sync: ${result.services_synced} services, ${result.srls_added} SRLs`);
+            refresh();
+        } else {
+            console.error('UC Sync failed:', result.error);
+        }
+    } catch (error) {
+        console.error('UC Sync error:', error);
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function loadUCServices() {
+    try {
+        const response = await fetch(`${UHD_API_BASE}/api/uc/services`);
+        const data = await response.json();
+        return data.services || [];
+    } catch (error) {
+        console.error('Failed to load UC services:', error);
+        return [];
+    }
+}
+
+async function loadUCCategories() {
+    try {
+        const response = await fetch(`${UHD_API_BASE}/api/uc/categories`);
+        const data = await response.json();
+        return data.categories || [];
+    } catch (error) {
+        console.error('Failed to load UC categories:', error);
+        return [];
+    }
+}
+
+function updateUCStatus(status, stats = null) {
+    const statusEl = document.getElementById('connection-status');
+    if (!statusEl) return;
+    
+    if (status === 'connected') {
+        const count = stats?.connected_services || 0;
+        statusEl.innerHTML = `🔗 UC Connected (${count} services)`;
+        statusEl.className = 'uc-connected';
+    } else if (status === 'disconnected') {
+        statusEl.innerHTML = '○ UC Not Running';
+        statusEl.className = 'uc-disconnected';
+    } else {
+        statusEl.innerHTML = '⚠️ UC Error';
+        statusEl.className = 'uc-error';
+    }
+}
+
+function updateHelixCounts(items) {
+    // Update helix level counts based on items
+    const counts = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+    
+    items.forEach(item => {
+        // Determine level based on item type
+        if (item.type === 'folder') {
+            counts[5]++;  // Volume level
+        } else if (item.type === 'file') {
+            counts[4]++;  // Plane level
+        } else if (item.source === 'api') {
+            counts[3]++;  // Width level
+        } else {
+            counts[1]++;  // Point level
+        }
+    });
+    
+    // Update UI
+    Object.entries(counts).forEach(([level, count]) => {
+        const countEl = document.querySelector(`[data-level-count="${level}"]`);
+        if (countEl) countEl.textContent = count;
+    });
+}
+
+// ============================================================================
+// Real File Operations
+// ============================================================================
+
+async function readFile(path) {
+    try {
+        const uhdPath = convertToUHDPath(path);
+        const response = await fetch(`${UHD_API_BASE}/api/read?path=${encodeURIComponent(uhdPath)}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to read file:', error);
+        return null;
+    }
+}
+
+async function getFileInfo(path) {
+    try {
+        const uhdPath = convertToUHDPath(path);
+        const response = await fetch(`${UHD_API_BASE}/api/info?path=${encodeURIComponent(uhdPath)}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to get file info:', error);
+        return null;
+    }
+}
+
+async function saveFile(srcPath, dstPath) {
+    try {
+        const src = convertToUHDPath(srcPath);
+        const dst = dstPath ? convertToUHDPath(dstPath) : null;
+        const url = dst 
+            ? `${UHD_API_BASE}/api/save?src=${encodeURIComponent(src)}&dst=${encodeURIComponent(dst)}`
+            : `${UHD_API_BASE}/api/save?src=${encodeURIComponent(src)}`;
+        const response = await fetch(url);
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to save file:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+async function queryFiles(query) {
+    try {
+        const response = await fetch(`${UHD_API_BASE}/api/query?q=${encodeURIComponent(query)}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Query failed:', error);
+        return { results: [] };
+    }
+}
+
+async function askQuestion(question) {
+    try {
+        const response = await fetch(`${UHD_API_BASE}/api/ask?q=${encodeURIComponent(question)}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Ask failed:', error);
+        return { error: error.message };
+    }
+}
+
+async function getMetrics() {
+    try {
+        const response = await fetch(`${UHD_API_BASE}/api/metrics`);
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to get metrics:', error);
+        return null;
+    }
+}
+
+// ============================================================================
+// Connection Management
+// ============================================================================
+
+async function connectService(provider, credentials, name) {
+    try {
+        const response = await fetch(`${UHD_API_BASE}/api/connect`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ provider, credentials, name })
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Connection failed:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+async function disconnectService(driveLetter) {
+    try {
+        const response = await fetch(`${UHD_API_BASE}/api/disconnect`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ drive: driveLetter })
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Disconnect failed:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+async function listConnections() {
+    try {
+        const response = await fetch(`${UHD_API_BASE}/api/connections`);
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to list connections:', error);
+        return [];
+    }
+}
+
+async function listAvailableServices() {
+    try {
+        const response = await fetch(`${UHD_API_BASE}/api/services`);
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to list services:', error);
+        return [];
+    }
+}
+
+// Initialize UC check on load
+document.addEventListener('DOMContentLoaded', () => {
+    checkUniversalConnectorStatus();
+    
+    // Add sync button handler if it exists
+    const syncBtn = document.getElementById('btn-uc-sync');
+    if (syncBtn) {
+        syncBtn.addEventListener('click', syncWithUniversalConnector);
+    }
+});
+
 function generateSampleContent(path) {
-    // Generate sample content based on current path
+    // Fallback sample content when API is not available
     const items = [];
     
-    if (path.includes('local')) {
+    if (path.includes('local') || path === 'substrate://local/') {
         items.push(
             { id: 1, name: 'Documents', type: 'folder', icon: '📁', size: '-', created: '2026-01-15' },
             { id: 2, name: 'Images', type: 'folder', icon: '🖼️', size: '-', created: '2026-01-10' },
@@ -1903,6 +2282,15 @@ function generateSampleContent(path) {
             { id: 6, name: 'report_2026.pdf', type: 'file', icon: '📄', size: '2.4 MB', created: '2026-02-10' },
             { id: 7, name: 'presentation.pptx', type: 'file', icon: '📊', size: '15.8 MB', created: '2026-02-08' },
             { id: 8, name: 'data_export.csv', type: 'file', icon: '📋', size: '458 KB', created: '2026-02-05' }
+        );
+    } else if (path === '/' || path === 'substrate://') {
+        // Show virtual drives
+        items.push(
+            { id: 1, name: 'Local (A:)', type: 'folder', icon: '💾', size: '●', created: '', letter: 'A' },
+            { id: 2, name: 'API (B:)', type: 'folder', icon: '🌐', size: '●', created: '', letter: 'B' },
+            { id: 3, name: 'Database (C:)', type: 'folder', icon: '🗄️', size: '○', created: '', letter: 'C' },
+            { id: 4, name: 'Cloud (D:)', type: 'folder', icon: '☁️', size: '○', created: '', letter: 'D' },
+            { id: 5, name: 'Saved (Z:)', type: 'folder', icon: '💎', size: '●', created: '', letter: 'Z' }
         );
     }
     

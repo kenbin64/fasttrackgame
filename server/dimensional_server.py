@@ -296,9 +296,14 @@ class DimensionalRequestHandler(BaseHTTPRequestHandler):
             self.send_header('X-XSS-Protection', '1; mode=block')
             # Referrer policy
             self.send_header('Referrer-Policy', 'strict-origin-when-cross-origin')
-            # Content Security Policy (strict but allows inline styles for demos)
+            # Content Security Policy (allows Three.js CDN for games)
             self.send_header('Content-Security-Policy', 
-                "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'")
+                "default-src 'self'; "
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com; "
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+                "img-src 'self' data: blob:; "
+                "font-src 'self' https://fonts.gstatic.com; "
+                "connect-src 'self' wss: ws:")
     
     def do_OPTIONS(self):
         self.send_response(200)

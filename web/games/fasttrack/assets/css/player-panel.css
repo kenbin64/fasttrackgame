@@ -1,0 +1,529 @@
+/**
+ * Fast Track - Player Panel Styles
+ * 
+ * ═══════════════════════════════════════════════════════════════════════════
+ *                        BUTTERFLYFX SUBSTRATE MODEL
+ * ═══════════════════════════════════════════════════════════════════════════
+ * 
+ * CSS as dimensional projection:
+ * - Layout follows Fibonacci ratios: 1, 1, 2, 3, 5, 8
+ * - Colors encode manifold position
+ * - Animations represent state transitions between levels
+ * 
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+/* ════════════════════════════════════════════════════════════════════════
+   Panel Container - Level 4 (Manifestation)
+   ════════════════════════════════════════════════════════════════════════ */
+
+.player-panel {
+    --panel-bg: rgba(20, 25, 35, 0.95);
+    --panel-border: rgba(255, 255, 255, 0.1);
+    --panel-accent: var(--player-color, #4a90d9);
+    --panel-text: #e8e8e8;
+    --panel-muted: #888;
+    
+    /* Fibonacci-based sizing */
+    --fib-1: 8px;
+    --fib-2: 13px;
+    --fib-3: 21px;
+    --fib-4: 34px;
+    --fib-5: 55px;
+    --fib-6: 89px;
+    
+    position: absolute;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--fib-2);
+    box-shadow: 
+        0 var(--fib-1) var(--fib-3) rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: var(--panel-text);
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+/* Position variants */
+.player-panel.panel-bottom {
+    bottom: var(--fib-3);
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(90%, 700px);
+}
+
+.player-panel.panel-top {
+    top: var(--fib-3);
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(90%, 600px);
+}
+
+.player-panel.panel-left {
+    left: var(--fib-3);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200px;
+}
+
+.player-panel.panel-right {
+    right: var(--fib-3);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200px;
+}
+
+.player-panel.panel-bottom-left {
+    bottom: var(--fib-3);
+    left: var(--fib-3);
+    width: 280px;
+}
+
+.player-panel.panel-bottom-right {
+    bottom: var(--fib-3);
+    right: var(--fib-3);
+    width: 280px;
+}
+
+/* Current turn highlight */
+.player-panel.current-turn {
+    border-color: var(--panel-accent);
+    box-shadow: 
+        0 0 var(--fib-3) var(--panel-accent),
+        0 var(--fib-1) var(--fib-3) rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Winner state - Level 6 (Whole) */
+.player-panel.winner {
+    background: linear-gradient(135deg, 
+        rgba(255, 215, 0, 0.1), 
+        var(--panel-bg),
+        rgba(255, 215, 0, 0.1));
+    border-color: gold;
+    animation: winner-glow 2s infinite alternate;
+}
+
+@keyframes winner-glow {
+    0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+    100% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Panel Header - Level 1 (Identity)
+   ════════════════════════════════════════════════════════════════════════ */
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    gap: var(--fib-2);
+    padding: var(--fib-2) var(--fib-3);
+    border-bottom: 1px solid var(--panel-border);
+}
+
+.player-avatar {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.avatar-frame {
+    width: var(--fib-5);
+    height: var(--fib-5);
+    border-radius: 50%;
+    border: 3px solid var(--player-color, var(--panel-accent));
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.avatar-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--fib-3);
+    font-weight: bold;
+    background: linear-gradient(135deg, var(--panel-accent), transparent);
+}
+
+.team-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    font-size: 16px;
+    background: var(--panel-bg);
+    border-radius: 50%;
+    padding: 2px;
+}
+
+.turn-indicator {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #333;
+    border: 2px solid var(--panel-bg);
+    transition: all 0.3s ease;
+}
+
+.turn-indicator.active {
+    background: #2ecc71;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+.player-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.player-name {
+    font-size: var(--fib-2);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-status {
+    display: flex;
+    gap: var(--fib-2);
+    font-size: 11px;
+    color: var(--panel-muted);
+    margin-top: 2px;
+}
+
+.player-status .icon {
+    margin-right: 2px;
+}
+
+.player-status .count {
+    color: var(--panel-text);
+    font-weight: 600;
+}
+
+.panel-actions {
+    display: flex;
+    gap: var(--fib-1);
+}
+
+.panel-actions button {
+    width: var(--fib-4);
+    height: var(--fib-4);
+    border: none;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--fib-1);
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.panel-actions button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Panel Body - Level 2-3 (Cards & Pegs)
+   ════════════════════════════════════════════════════════════════════════ */
+
+.panel-body {
+    padding: var(--fib-2);
+}
+
+/* Card Hand - Level 2 (Connection/Sequence) */
+.card-hand {
+    display: flex;
+    gap: var(--fib-1);
+    padding: var(--fib-1) 0;
+    overflow-x: auto;
+    min-height: var(--fib-6);
+}
+
+.card {
+    --card-accent: #4a90d9;
+    
+    flex-shrink: 0;
+    width: var(--fib-5);
+    height: calc(var(--fib-5) * 1.4);
+    border-radius: var(--fib-1);
+    background: linear-gradient(135deg, #fff, #f5f5f5);
+    border: 2px solid #ddd;
+    cursor: default;
+    transition: all 0.2s ease;
+    transform-origin: bottom center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.card.playable {
+    cursor: pointer;
+}
+
+.card.playable:hover {
+    transform: translateY(-var(--fib-1)) scale(1.05);
+    box-shadow: 0 var(--fib-1) var(--fib-2) rgba(0, 0, 0, 0.25);
+    border-color: var(--card-accent);
+}
+
+.card.selected {
+    transform: translateY(-var(--fib-2)) scale(1.1);
+    border-color: var(--card-accent);
+    box-shadow: 
+        0 var(--fib-2) var(--fib-3) rgba(0, 0, 0, 0.3),
+        0 0 var(--fib-2) var(--card-accent);
+}
+
+.card-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+    position: relative;
+}
+
+.card-corner {
+    font-size: 10px;
+    line-height: 1;
+    font-weight: bold;
+    color: var(--card-accent);
+}
+
+.card-corner.top-left {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+}
+
+.card-corner.bottom-right {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    transform: rotate(180deg);
+}
+
+.card-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-number {
+    font-size: var(--fib-3);
+    font-weight: bold;
+    color: var(--card-accent);
+}
+
+.card-special {
+    font-size: var(--fib-3);
+}
+
+.card-effect {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 7px;
+    color: var(--card-accent);
+    opacity: 0.8;
+}
+
+/* Peg Display - Level 3 (Width/Spatial) */
+.peg-display {
+    display: flex;
+    gap: var(--fib-2);
+    padding: var(--fib-1) 0;
+    border-top: 1px solid var(--panel-border);
+    margin-top: var(--fib-1);
+}
+
+.peg-zone {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+}
+
+.zone-label {
+    display: block;
+    font-size: 9px;
+    color: var(--panel-muted);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.peg-slots {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    min-height: var(--fib-3);
+    flex-wrap: wrap;
+}
+
+.peg-indicator {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.3),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+/* Zone highlighting */
+.zone-home .peg-indicator {
+    animation: home-glow 2s infinite alternate;
+}
+
+@keyframes home-glow {
+    0% { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 5px rgba(46, 204, 113, 0.3); }
+    100% { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 10px rgba(46, 204, 113, 0.6); }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Emote System - Level 5 (Multiplicity/Communication)
+   ════════════════════════════════════════════════════════════════════════ */
+
+.emote-bubble {
+    position: absolute;
+    top: -var(--fib-5);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 40px;
+    background: white;
+    border-radius: 50%;
+    width: var(--fib-5);
+    height: var(--fib-5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.emote-bubble.animate {
+    animation: emote-pop 0.3s ease-out;
+}
+
+@keyframes emote-pop {
+    0% { transform: translateX(-50%) scale(0); opacity: 0; }
+    50% { transform: translateX(-50%) scale(1.2); }
+    100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+.emote-picker {
+    position: absolute;
+    top: -var(--fib-5);
+    right: 0;
+    display: flex;
+    gap: 4px;
+    padding: var(--fib-1);
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--fib-1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 110;
+}
+
+.emote-picker button {
+    width: var(--fib-4);
+    height: var(--fib-4);
+    border: none;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--fib-1);
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.emote-picker button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.2);
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Responsive - Collapse for smaller screens
+   ════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    .player-panel {
+        width: calc(100% - var(--fib-3) * 2) !important;
+    }
+    
+    .player-panel.panel-left,
+    .player-panel.panel-right {
+        position: fixed;
+        top: auto;
+        bottom: var(--fib-3);
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+    }
+    
+    .card {
+        width: 45px;
+        height: 63px;
+    }
+    
+    .card-number, .card-special {
+        font-size: 18px;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Compact Panel Mode (for side positions)
+   ════════════════════════════════════════════════════════════════════════ */
+
+.player-panel.panel-left .panel-body,
+.player-panel.panel-right .panel-body {
+    flex-direction: column;
+}
+
+.player-panel.panel-left .card-hand,
+.player-panel.panel-right .card-hand {
+    flex-direction: column;
+    align-items: center;
+}
+
+.player-panel.panel-left .peg-display,
+.player-panel.panel-right .peg-display {
+    flex-direction: column;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Dark/Light Theme Support
+   ════════════════════════════════════════════════════════════════════════ */
+
+.theme-light .player-panel {
+    --panel-bg: rgba(255, 255, 255, 0.95);
+    --panel-border: rgba(0, 0, 0, 0.1);
+    --panel-text: #1a1a2e;
+    --panel-muted: #666;
+}
+
+.theme-light .card {
+    border-color: #ccc;
+}
+
+.theme-light .panel-actions button {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.theme-light .panel-actions button:hover {
+    background: rgba(0, 0, 0, 0.1);
+}

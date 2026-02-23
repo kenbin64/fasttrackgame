@@ -2644,6 +2644,89 @@ class UniversalHardDrive:
         self.logger.whole(f"Connected {display_name} as {drive_letter}:")
         return drive_letter
     
+    def test_service_connection(self, service_id: str, credentials: Dict) -> Dict:
+        """
+        Test a service connection without fully connecting.
+        
+        Args:
+            service_id: Provider ID to test
+            credentials: Credentials to validate
+            
+        Returns:
+            Dict with success/error status
+        """
+        import urllib.request
+        import urllib.error
+        
+        # Check if it's a known service
+        provider_info = CredentialVault.CANNED_CONNECTIONS.get(service_id)
+        
+        # Map of services to their test endpoints
+        test_endpoints = {
+            'wttr': 'https://wttr.in/?format=j1',
+            'coingecko': 'https://api.coingecko.com/api/v3/ping',
+            'exchangerate': 'https://api.exchangerate-api.com/v4/latest/USD',
+            'wikipedia': 'https://en.wikipedia.org/api/rest_v1/',
+            'hackernews': 'https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty',
+            'jsonplaceholder': 'https://jsonplaceholder.typicode.com/posts/1',
+            'restcountries': 'https://restcountries.com/v3.1/name/usa',
+            'open-meteo': 'https://api.open-meteo.com/v1/forecast?latitude=40&longitude=-74&current_weather=true',
+            'numbersapi': 'http://numbersapi.com/42',
+            'dictionaryapi': 'https://api.dictionaryapi.dev/api/v2/entries/en/test',
+            'openweather': 'https://api.openweathermap.org/data/2.5/weather?q=London&appid={}',
+            'newsapi': 'https://newsapi.org/v2/top-headlines?country=us&apiKey={}',
+            'alphavantage': 'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=AAPL&apikey={}',
+            'openai': 'https://api.openai.com/v1/models',
+            'anthropic': 'https://api.anthropic.com/v1/messages',
+            'github': 'https://api.github.com/user',
+        }
+        
+        try:
+            test_url = test_endpoints.get(service_id)
+            
+            if not test_url:
+                # Unknown service - check if credentials provided
+                if credentials and any(credentials.values()):
+                    return {'success': True, 'message': 'Credentials provided - ready to connect'}
+                else:
+                    return {'success': False, 'error': 'Unknown service'}
+            
+            # For API key services, substitute the key
+            api_key = credentials.get('api_key', credentials.get('token', ''))
+            if '{}' in test_url and api_key:
+                test_url = test_url.format(api_key)
+            elif '{}' in test_url:
+                return {'success': False, 'error': 'API key required'}
+            
+            # Build request with appropriate headers
+            req = urllib.request.Request(test_url)
+            req.add_header('User-Agent', 'ButterflyFX-UC/1.0')
+            
+            if service_id == 'openai' and api_key:
+                req.add_header('Authorization', f'Bearer {api_key}')
+            elif service_id == 'anthropic' and api_key:
+                req.add_header('x-api-key', api_key)
+                req.add_header('anthropic-version', '2023-06-01')
+            elif service_id == 'github' and api_key:
+                req.add_header('Authorization', f'token {api_key}')
+            
+            with urllib.request.urlopen(req, timeout=10) as response:
+                if response.status == 200:
+                    return {'success': True, 'message': 'Connection successful'}
+                else:
+                    return {'success': False, 'error': f'HTTP {response.status}'}
+                    
+        except urllib.error.HTTPError as e:
+            if e.code == 401:
+                return {'success': False, 'error': 'Invalid credentials'}
+            elif e.code == 403:
+                return {'success': False, 'error': 'Access forbidden - check API key permissions'}
+            return {'success': False, 'error': f'HTTP error {e.code}'}
+        except urllib.error.URLError as e:
+            return {'success': False, 'error': f'Network error: {e.reason}'}
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+
     def _ingest_service(self, drive: str, provider: str, info: Dict, creds: Dict):
         """
         Ingest ALL data from a service into SRLs.
@@ -5790,7 +5873,10 @@ class UHDHandler(BaseHTTPRequestHandler):
             except:
                 self.serve_json({'running': False, 'port': uc_port})
         elif parsed.path == '/connect':
-            # Serve connection wizard page
+            # Serve the new unified connection hub
+            self.serve_connect_hub()
+        elif parsed.path == '/connect/classic':
+            # Serve the original connection wizard page
             self.serve_connect_page()
         else:
             self.send_error(404)
@@ -5842,9 +5928,50 @@ class UHDHandler(BaseHTTPRequestHandler):
             
             success = self.uhd.disconnect_service(drive)
             self.serve_json({'success': success})
+        
+        elif parsed.path == '/api/uc/test':
+            # Test a service connection
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length).decode('utf-8')
+            data = json.loads(body)
+            service_id = data.get('service_id', '')
+            credentials = data.get('credentials', {})
+            
+            result = self.uhd.test_service_connection(service_id, credentials)
+            self.serve_json(result)
         else:
             self.send_error(404)
     
+    def serve_connect_hub(self):
+        """Serve the new unified connection hub page"""
+        import os
+        
+        # Try to find the static connect.html file
+        possible_paths = [
+            os.path.join(os.path.dirname(__file__), '..', 'web', 'connect.html'),
+            '/opt/butterflyfx/dimensionsos/web/connect.html',
+            os.path.join(os.getcwd(), 'web', 'connect.html'),
+        ]
+        
+        html_content = None
+        for path in possible_paths:
+            try:
+                with open(path, 'r') as f:
+                    html_content = f.read()
+                    break
+            except FileNotFoundError:
+                continue
+        
+        if html_content:
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html')
+            self._send_cors_headers()
+            self.end_headers()
+            self.wfile.write(html_content.encode())
+        else:
+            # Fallback to classic page
+            self.serve_connect_page()
+
     def serve_connect_page(self):
         """Serve the connection wizard HTML"""
         services = self.uhd.list_available_services()
@@ -6684,9 +6811,22 @@ class UHDHandler(BaseHTTPRequestHandler):
         
         return html
     
+    def _send_cors_headers(self):
+        """Send CORS headers for browser access"""
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+    
+    def do_OPTIONS(self):
+        """Handle CORS preflight requests"""
+        self.send_response(200)
+        self._send_cors_headers()
+        self.end_headers()
+    
     def serve_json(self, data):
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
+        self._send_cors_headers()
         self.end_headers()
         
         # Handle non-serializable objects

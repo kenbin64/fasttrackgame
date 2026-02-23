@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart 3D Viewer - Dimensional Computing | ButterflyFX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0a0a14;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+        
+        /* Main 3D Canvas */
+        #canvas-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        #canvas-container canvas {
+            display: block;
+        }
+        
+        /* Info overlay */
+        #info-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(10, 10, 20, 0.9);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 16px;
+            max-width: 300px;
+            backdrop-filter: blur(10px);
+        }
+        
+        #info-overlay h1 {
+            font-size: 18px;
+            color: #00ff88;
+            margin-bottom: 8px;
+        }
+        
+        #info-overlay p {
+            font-size: 12px;
+            color: #888;
+            line-height: 1.5;
+        }
+        
+        /* Layer indicator */
+        #layer-indicator {
+            position: absolute;
+            top: 20px;
+            right: 330px;
+            background: rgba(10, 10, 20, 0.9);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+        }
+        
+        #layer-indicator h3 {
+            font-size: 14px;
+            color: #00ff88;
+            margin-bottom: 12px;
+        }
+        
+        .layer-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .layer-row:hover {
+            color: #00ff88;
+        }
+        
+        .layer-row.active {
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        .layer-num {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+        
+        .layer-row.active .layer-num {
+            background: linear-gradient(135deg, #00ff88, #0088ff);
+            color: #000;
+        }
+        
+        .layer-fib {
+            color: #666;
+            font-size: 10px;
+        }
+        
+        /* Side Panel */
+        #side-panel {
+            width: 320px;
+            background: rgba(15, 15, 25, 0.98);
+            border-left: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .panel-section {
+            padding: 16px;
+            border-bottom: 1px solid #222;
+        }
+        
+        .panel-section h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #00ff88;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+        
+        /* AI Query Input */
+        #query-input-container {
+            padding: 16px;
+            background: #111;
+        }
+        
+        #query-input {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        #query-input:focus {
+            border-color: #00ff88;
+        }
+        
+        #query-input::placeholder {
+            color: #555;
+        }
+        
+        /* Query Response */
+        #query-response {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            font-family: 'Menlo', 'Consolas', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            color: #aaa;
+        }
+        
+        #query-response .response-item {
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+        
+        #query-response .query-label {
+            color: #0088ff;
+            font-weight: bold;
+        }
+        
+        #query-response .response-text {
+            color: #00ff88;
+            margin-top: 8px;
+        }
+        
+        /* Object List */
+        #object-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .object-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #1a1a2e;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .object-item:hover {
+            background: #252540;
+        }
+        
+        .object-item.selected {
+            border: 1px solid #00ff88;
+        }
+        
+        .object-name {
+            font-weight: 500;
+        }
+        
+        .object-layer {
+            font-size: 10px;
+            color: #666;
+        }
+        
+        /* Stats */
+        #stats {
+            font-size: 11px;
+            color: #555;
+        }
+        
+        #stats div {
+            margin-bottom: 4px;
+        }
+        
+        /* Controls */
+        .control-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .control-btn {
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #1a1a3e, #2a2a4e);
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .control-btn:hover {
+            background: linear-gradient(135deg, #2a2a4e, #3a3a5e);
+            border-color: #00ff88;
+        }
+        
+        .control-btn.active {
+            background: linear-gradient(135deg, #00ff88, #0088ff);
+            color: #000;
+        }
+        
+        /* Selected object details */
+        #selected-details {
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        
+        #selected-details h4 {
+            color: #00ff88;
+            margin-bottom: 8px;
+        }
+        
+        #selected-details .detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            padding: 4px 0;
+            border-bottom: 1px solid #222;
+        }
+        
+        #selected-details .detail-label {
+            color: #666;
+        }
+        
+        #selected-details .detail-value {
+            color: #fff;
+        }
+        
+        /* Relationship lines toggle */
+        #relation-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+        
+        /* FPS Counter */
+        #fps-counter {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 11px;
+            color: #555;
+        }
+        
+        /* Tooltip */
+        #tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff88;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 11px;
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
+        }
+        
+        /* Loading state */
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #111;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
+    </style>
+</head>
+<body>
+    <!-- 3D Canvas Area -->
+    <div id="canvas-container">
+        <!-- Info Overlay -->
+        <div id="info-overlay">
+            <h1>🦋 Smart 3D Viewer</h1>
+            <p>
+                Dimensional Computing meets Three.js. Each object "understands" itself:
+                identity, context, relations (z = x·y), intention, and lineage.
+            </p>
+            <p style="margin-top: 8px; color: #666;">
+                Click objects to select • Drag to rotate • Scroll to zoom
+            </p>
+        </div>
+        
+        <!-- Layer Indicator -->
+        <div id="layer-indicator">
+            <h3>7 Layers of Creation</h3>
+            <div class="layer-row" data-layer="1">
+                <span class="layer-num">1</span>
+                <span>Spark (Existence)</span>
+                <span class="layer-fib">Fib: 1</span>
+            </div>
+            <div class="layer-row" data-layer="2">
+                <span class="layer-num">2</span>
+                <span>Mirror (Direction)</span>
+                <span class="layer-fib">Fib: 1</span>
+            </div>
+            <div class="layer-row" data-layer="3">
+                <span class="layer-num">3</span>
+                <span>Relation (Structure)</span>
+                <span class="layer-fib">Fib: 2</span>
+            </div>
+            <div class="layer-row" data-layer="4">
+                <span class="layer-num">4</span>
+                <span>Form (Purpose)</span>
+                <span class="layer-fib">Fib: 3</span>
+            </div>
+            <div class="layer-row" data-layer="5">
+                <span class="layer-num">5</span>
+                <span>Life (Motion)</span>
+                <span class="layer-fib">Fib: 5</span>
+            </div>
+            <div class="layer-row" data-layer="6">
+                <span class="layer-num">6</span>
+                <span>Mind (Coherence)</span>
+                <span class="layer-fib">Fib: 8</span>
+            </div>
+            <div class="layer-row" data-layer="7">
+                <span class="layer-num">7</span>
+                <span>Completion (Conscious)</span>
+                <span class="layer-fib">Fib: 13</span>
+            </div>
+        </div>
+        
+        <!-- FPS Counter -->
+        <div id="fps-counter">FPS: --</div>
+        
+        <!-- Tooltip -->
+        <div id="tooltip"></div>
+    </div>
+    
+    <!-- Side Panel -->
+    <div id="side-panel">
+        <!-- AI Query Section -->
+        <div id="query-input-container">
+            <input type="text" id="query-input" placeholder="Ask about objects... (e.g., 'what is the red cube?')">
+        </div>
+        
+        <!-- Query Response -->
+        <div id="query-response">
+            <div class="response-item">
+                <span class="query-label">System:</span>
+                <div class="response-text">Smart 3D Viewer initialized. Try queries like:
+• "what objects are here?"
+• "describe the red cube"
+• "what layer is the helix on?"
+• "show relations"</div>
+            </div>
+        </div>
+        
+        <!-- Object List -->
+        <div class="panel-section">
+            <h3>Scene Objects</h3>
+            <div id="object-list">
+                <div class="loading">Loading scene...</div>
+            </div>
+        </div>
+        
+        <!-- Selected Object -->
+        <div class="panel-section">
+            <h3>Selected Object</h3>
+            <div id="selected-details">
+                <p style="color: #555; font-size: 11px;">Click an object to see details</p>
+            </div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="panel-section">
+            <h3>Controls</h3>
+            <div class="control-buttons">
+                <button class="control-btn" id="btn-add-cube">+ Cube</button>
+                <button class="control-btn" id="btn-add-sphere">+ Sphere</button>
+                <button class="control-btn" id="btn-add-helix">+ Helix</button>
+                <button class="control-btn" id="btn-relate">Create Relation</button>
+                <button class="control-btn" id="btn-show-relations">Show Relations</button>
+                <button class="control-btn" id="btn-reset">Reset Scene</button>
+            </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="panel-section">
+            <h3>Scene Stats</h3>
+            <div id="stats">
+                <div>Objects: <span id="stat-objects">0</span></div>
+                <div>Relations: <span id="stat-relations">0</span></div>
+                <div>Current Layer: <span id="stat-layer">-</span></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <!-- Dimensional 3D Library -->
+    <script src="dimensional_3d.js"></script>
+    
+    <script>
+    // ==========================================================================
+    // SMART 3D VIEWER - Dimensional Computing Demo
+    // ==========================================================================
+    
+    let scene, camera, renderer, controls;
+    let dimensionalScene;
+    let selectedObject = null;
+    let relationLines = [];
+    let showingRelations = false;
+    
+    // Raycaster for object selection
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    
+    // FPS tracking
+    let frameCount = 0;
+    let lastTime = performance.now();
+    
+    // Object counter for unique names
+    let objectCounter = { cube: 0, sphere: 0, helix: 0 };
+    
+    // ==========================================================================
+    // INITIALIZATION
+    // ==========================================================================
+    
+    function init() {
+        // Scene
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0a14);
+        
+        // Camera
+        const container = document.getElementById('canvas-container');
+        camera = new THREE.PerspectiveCamera(
+            60,
+            container.clientWidth / container.clientHeight,
+            0.1,
+            1000
+        );
+        camera.position.set(8, 6, 8);
+        camera.lookAt(0, 0, 0);
+        
+        // Renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+        
+        // Controls
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 3;
+        controls.maxDistance = 50;
+        
+        // Dimensional Scene wrapper
+        dimensionalScene = new DimensionalScene(scene);
+        
+        // Setup lighting
+        setupLighting();
+        
+        // Setup ground plane
+        setupGround();
+        
+        // Create initial scene objects
+        createInitialScene();
+        
+        // Event listeners
+        setupEventListeners();
+        
+        // Update UI
+        updateObjectList();
+        updateStats();
+        
+        // Start animation
+        animate();
+    }
+    
+    function setupLighting() {
+        // Ambient light (Layer 1 - Spark)
+        const ambient = DimensionalFactory.light('ambientLight', 'ambient', {
+            intensity: 0.4,
+            layer: 1,
+            intention: 'provide base illumination'
+        });
+        dimensionalScene.add(ambient);
+        
+        // Main directional light
+        const mainLight = new THREE.DirectionalLight(0xffffff, 1);
+        mainLight.position.set(5, 10, 5);
+        mainLight.castShadow = true;
+        mainLight.shadow.mapSize.width = 2048;
+        mainLight.shadow.mapSize.height = 2048;
+        scene.add(mainLight);
+        
+        // Fill light
+        const fillLight = new THREE.DirectionalLight(0x4488ff, 0.3);
+        fillLight.position.set(-5, 5, -5);
+        scene.add(fillLight);
+    }
+    
+    function setupGround() {
+        // Ground plane (Layer 2 - Mirror)
+        const ground = DimensionalFactory.plane('ground', 20, 20, 0x1a1a2e, {
+            layer: 2,
+            intention: 'provide surface for objects',
+            description: 'The ground plane reflects the space above'
+        });
+        ground.receiveShadow = true;
+        dimensionalScene.add(ground);
+        
+        // Grid helper
+        const grid = new THREE.GridHelper(20, 20, 0x333355, 0x222244);
+        grid.position.y = 0.01;
+        scene.add(grid);
+    }
+    
+    function createInitialScene() {
+        // Red Cube (Layer 3 - Relation)
+        const redCube = DimensionalFactory.cube('redCube', 1, 0xff4444, {
+            layer: 3,
+            intention: 'demonstrate relations',
+            description: 'A red cube that relates to other objects'
+        });
+        redCube.position.set(-2, 0.5, 0);
+        redCube.setAttribute('color', 'red');
+        redCube.addTag('red');
+        dimensionalScene.add(redCube);
+        
+        // Green Cube (Layer 3 - Relation)
+        const greenCube = DimensionalFactory.cube('greenCube', 1, 0x44ff44, {
+            layer: 3,
+            intention: 'demonstrate relations',
+            description: 'A green cube in relation to the red cube'
+        });
+        greenCube.position.set(2, 0.5, 0);
+        greenCube.setAttribute('color', 'green');
+        greenCube.addTag('green');
+        dimensionalScene.add(greenCube);
+        
+        // Blue Sphere (Layer 4 - Form)
+        const blueSphere = DimensionalFactory.sphere('blueSphere', 0.6, 0x4488ff, {
+            layer: 4,
+            intention: 'represent form',
+            description: 'A blue sphere demonstrating form at Layer 4'
+        });
+        blueSphere.position.set(0, 1.5, 2);
+        blueSphere.setAttribute('color', 'blue');
+        blueSphere.addTag('blue');
+        dimensionalScene.add(blueSphere);
+        
+        // Purple Helix (Layer 7 - Completion)
+        const helix = DimensionalFactory.helix('purpleHelix', 0.5, 2, 2, 0x8844ff, {
+            layer: 7,
+            intention: 'spiral to completion',
+            description: 'The ButterflyFX signature helix, representing the complete spiral of creation'
+        });
+        helix.position.set(0, 1, -2);
+        helix.setAttribute('color', 'purple');
+        helix.addTag('signature');
+        dimensionalScene.add(helix);
+        
+        // Yellow Light Orb (Layer 5 - Life)
+        const lightOrb = DimensionalFactory.sphere('lightOrb', 0.3, 0xffff00, {
+            layer: 5,
+            intention: 'bring life to scene',
+            description: 'A glowing orb representing life and motion'
+        });
+        lightOrb.position.set(0, 3, 0);
+        lightOrb.setAttribute('color', 'yellow');
+        lightOrb.addTag('glowing');
+        // Add emissive glow
+        if (lightOrb._primaryMesh) {
+            lightOrb._primaryMesh.material.emissive = new THREE.Color(0xffff00);
+            lightOrb._primaryMesh.material.emissiveIntensity = 0.5;
+        }
+        dimensionalScene.add(lightOrb);
+        
+        // Create some initial relations
+        dimensionalScene.relate('redCube', 'greenCube', 'multiplicative');
+        dimensionalScene.relate('greenCube', 'blueSphere', 'spatial');
+        dimensionalScene.relate('blueSphere', 'purpleHelix', 'hierarchical');
+        dimensionalScene.relate('lightOrb', 'redCube', 'illumination');
+        dimensionalScene.relate('lightOrb', 'greenCube', 'illumination');
+    }
+    
+    // ==========================================================================
+    // EVENT HANDLERS
+    // ==========================================================================
+    
+    function setupEventListeners() {
+        // Window resize
+        window.addEventListener('resize', onWindowResize);
+        
+        // Object selection
+        renderer.domElement.addEventListener('click', onCanvasClick);
+        renderer.domElement.addEventListener('mousemove', onCanvasMouseMove);
+        
+        // Query input
+        document.getElementById('query-input').addEventListener('keypress', onQueryInput);
+        
+        // Control buttons
+        document.getElementById('btn-add-cube').addEventListener('click', () => addObject('cube'));
+        document.getElementById('btn-add-sphere').addEventListener('click', () => addObject('sphere'));
+        document.getElementById('btn-add-helix').addEventListener('click', () => addObject('helix'));
+        document.getElementById('btn-relate').addEventListener('click', createRelationUI);
+        document.getElementById('btn-show-relations').addEventListener('click', toggleRelations);
+        document.getElementById('btn-reset').addEventListener('click', resetScene);
+        
+        // Layer selector
+        document.querySelectorAll('.layer-row').forEach(row => {
+            row.addEventListener('click', () => {
+                const layer = parseInt(row.dataset.layer);
+                if (selectedObject) {
+                    selectedObject.invoke(layer);
+                    updateSelectedDetails();
+                    updateStats();
+                    updateLayerIndicator();
+                    addQueryResponse('System', `Moved ${selectedObject.name} to Layer ${layer} (${DIMENSIONAL_GENESIS.LAYERS[layer].name})`);
+                }
+            });
+        });
+    }
+    
+    function onWindowResize() {
+        const container = document.getElementById('canvas-container');
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    }
+    
+    function onCanvasClick(event) {
+        const container = document.getElementById('canvas-container');
+        const rect = container.getBoundingClientRect();
+        
+        mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
+        
+        raycaster.setFromCamera(mouse, camera);
+        
+        // Get all dimensional objects
+        const dimensionalObjects = [...dimensionalScene.objects.values()];
+        const meshes = [];
+        const meshToObject = new Map();
+        
+        for (const obj of dimensionalObjects) {
+            obj.traverse(child => {
+                if (child.isMesh) {
+                    meshes.push(child);
+                    meshToObject.set(child, obj);
+                }
+            });
+        }
+        
+        const intersects = raycaster.intersectObjects(meshes);
+        
+        if (intersects.length > 0) {
+            const clickedMesh = intersects[0].object;
+            const dimensionalObj = meshToObject.get(clickedMesh);
+            
+            if (dimensionalObj && dimensionalObj.dimensionalType !== 'plane') {
+                selectObject(dimensionalObj);
+            }
+        } else {
+            deselectObject();
+        }
+    }
+    
+    function onCanvasMouseMove(event) {
+        const container = document.getElementById('canvas-container');
+        const rect = container.getBoundingClientRect();
+        
+        mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
+        
+        raycaster.setFromCamera(mouse, camera);
+        
+        const dimensionalObjects = [...dimensionalScene.objects.values()];
+        const meshes = [];
+        const meshToObject = new Map();
+        
+        for (const obj of dimensionalObjects) {
+            obj.traverse(child => {
+                if (child.isMesh) {
+                    meshes.push(child);
+                    meshToObject.set(child, obj);
+                }
+            });
+        }
+        
+        const intersects = raycaster.intersectObjects(meshes);
+        const tooltip = document.getElementById('tooltip');
+        
+        if (intersects.length > 0) {
+            const hoveredMesh = intersects[0].object;
+            const dimensionalObj = meshToObject.get(hoveredMesh);
+            
+            if (dimensionalObj && dimensionalObj.dimensionalType !== 'plane' && dimensionalObj.dimensionalType !== 'light') {
+                tooltip.style.display = 'block';
+                tooltip.style.left = (event.clientX + 10) + 'px';
+                tooltip.style.top = (event.clientY + 10) + 'px';
+                tooltip.innerHTML = `
+                    <strong>${dimensionalObj.name}</strong><br>
+                    Layer ${dimensionalObj.layer}: ${dimensionalObj.layerName}<br>
+                    Fib: ${dimensionalObj.fibonacci}
+                `;
+            } else {
+                tooltip.style.display = 'none';
+            }
+        } else {
+            tooltip.style.display = 'none';
+        }
+    }
+    
+    function onQueryInput(event) {
+        if (event.key === 'Enter') {
+            const input = document.getElementById('query-input');
+            const query = input.value.trim();
+            
+            if (query) {
+                processQuery(query);
+                input.value = '';
+            }
+        }
+    }
+    
+    // ==========================================================================
+    // SELECTION
+    // ==========================================================================
+    
+    function selectObject(obj) {
+        // Deselect previous
+        if (selectedObject) {
+            deselectObject();
+        }
+        
+        selectedObject = obj;
+        
+        // Highlight
+        obj.traverse(child => {
+            if (child.isMesh && child.material) {
+                child.material._originalEmissive = child.material.emissive?.clone();
+                child.material._originalEmissiveIntensity = child.material.emissiveIntensity;
+                child.material.emissive = new THREE.Color(0x00ff88);
+                child.material.emissiveIntensity = 0.3;
+            }
+        });
+        
+        updateSelectedDetails();
+        updateLayerIndicator();
+        
+        // Highlight in list
+        document.querySelectorAll('.object-item').forEach(item => {
+            item.classList.toggle('selected', item.dataset.name === obj.name);
+        });
+    }
+    
+    function deselectObject() {
+        if (selectedObject) {
+            selectedObject.traverse(child => {
+                if (child.isMesh && child.material) {
+                    if (child.material._originalEmissive) {
+                        child.material.emissive = child.material._originalEmissive;
+                        child.material.emissiveIntensity = child.material._originalEmissiveIntensity || 0;
+                    } else {
+                        child.material.emissive = new THREE.Color(0x000000);
+                        child.material.emissiveIntensity = 0;
+                    }
+                }
+            });
+        }
+        
+        selectedObject = null;
+        updateSelectedDetails();
+        updateLayerIndicator();
+        
+        document.querySelectorAll('.object-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+    }
+    
+    // ==========================================================================
+    // UI UPDATES
+    // ==========================================================================
+    
+    function updateObjectList() {
+        const list = document.getElementById('object-list');
+        const objects = [...dimensionalScene.objects.values()]
+            .filter(obj => obj.dimensionalType !== 'light' && obj.dimensionalType !== 'plane');
+        
+        if (objects.length === 0) {
+            list.innerHTML = '<div class="loading">No objects in scene</div>';
+            return;
+        }
+        
+        list.innerHTML = objects.map(obj => `
+            <div class="object-item ${selectedObject === obj ? 'selected' : ''}" 
+                 data-name="${obj.name}"
+                 onclick="selectObjectByName('${obj.name}')">
+                <span class="object-name">${obj.name}</span>
+                <span class="object-layer">L${obj.layer} • ${obj.layerName}</span>
+            </div>
+        `).join('');
+    }
+    
+    function updateSelectedDetails() {
+        const details = document.getElementById('selected-details');
+        
+        if (!selectedObject) {
+            details.innerHTML = '<p style="color: #555; font-size: 11px;">Click an object to see details</p>';
+            return;
+        }
+        
+        const obj = selectedObject;
+        const pos = obj.position;
+        
+        details.innerHTML = `
+            <h4>${obj.name}</h4>
+            <div class="detail-row">
+                <span class="detail-label">Type</span>
+                <span class="detail-value">${obj.dimensionalType}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Layer</span>
+                <span class="detail-value">${obj.layer} (${obj.layerName})</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Fibonacci</span>
+                <span class="detail-value">${obj.fibonacci}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Spiral</span>
+                <span class="detail-value">${obj.coordinate.spiral}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Intention</span>
+                <span class="detail-value">${obj.intention.primary}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Position</span>
+                <span class="detail-value">(${pos.x.toFixed(1)}, ${pos.y.toFixed(1)}, ${pos.z.toFixed(1)})</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Relations</span>
+                <span class="detail-value">${obj.relations.length} out / ${obj.relatedBy.length} in</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Tags</span>
+                <span class="detail-value">${[...obj.tags].join(', ') || 'none'}</span>
+            </div>
+        `;
+    }
+    
+    function updateStats() {
+        const stats = dimensionalScene.getStats();
+        document.getElementById('stat-objects').textContent = stats.totalObjects;
+        document.getElementById('stat-relations').textContent = stats.totalRelations;
+        document.getElementById('stat-layer').textContent = selectedObject 
+            ? `${selectedObject.layer} (${selectedObject.layerName})`
+            : '-';
+    }
+    
+    function updateLayerIndicator() {
+        document.querySelectorAll('.layer-row').forEach(row => {
+            const layer = parseInt(row.dataset.layer);
+            const isActive = selectedObject && selectedObject.layer === layer;
+            row.classList.toggle('active', isActive);
+        });
+    }
+    
+    // ==========================================================================
+    // ACTIONS
+    // ==========================================================================
+    
+    function addObject(type) {
+        objectCounter[type]++;
+        const name = `${type}${objectCounter[type]}`;
+        
+        // Random position near center
+        const x = (Math.random() - 0.5) * 6;
+        const z = (Math.random() - 0.5) * 6;
+        
+        // Random color
+        const colors = [0xff4444, 0x44ff44, 0x4488ff, 0xff44ff, 0xffff44, 0x44ffff];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        // Random layer (3-6)
+        const layer = 3 + Math.floor(Math.random() * 4);
+        
+        let obj;
+        switch (type) {
+            case 'cube':
+                obj = DimensionalFactory.cube(name, 0.8 + Math.random() * 0.4, color, {
+                    layer: layer,
+                    intention: 'user created'
+                });
+                obj.position.set(x, 0.5, z);
+                break;
+            case 'sphere':
+                obj = DimensionalFactory.sphere(name, 0.3 + Math.random() * 0.3, color, {
+                    layer: layer,
+                    intention: 'user created'
+                });
+                obj.position.set(x, 1, z);
+                break;
+            case 'helix':
+                obj = DimensionalFactory.helix(name, 0.3, 1.5, 2, color, {
+                    layer: 7,
+                    intention: 'spiral creation'
+                });
+                obj.position.set(x, 1, z);
+                break;
+        }
+        
+        dimensionalScene.add(obj);
+        updateObjectList();
+        updateStats();
+        selectObject(obj);
+        
+        addQueryResponse('System', `Created ${name} at Layer ${obj.layer} (${obj.layerName})`);
+    }
+    
+    function createRelationUI() {
+        if (!selectedObject) {
+            addQueryResponse('System', 'Select an object first to create a relation from it.');
+            return;
+        }
+        
+        const others = [...dimensionalScene.objects.values()]
+            .filter(obj => obj !== selectedObject && obj.dimensionalType !== 'light' && obj.dimensionalType !== 'plane');
+        
+        if (others.length === 0) {
+            addQueryResponse('System', 'No other objects to relate to.');
+            return;
+        }
+        
+        // For simplicity, relate to the nearest object
+        let nearest = null;
+        let minDist = Infinity;
+        
+        for (const obj of others) {
+            const dist = selectedObject.position.distanceTo(obj.position);
+            if (dist < minDist) {
+                minDist = dist;
+                nearest = obj;
+            }
+        }
+        
+        if (nearest) {
+            dimensionalScene.relate(selectedObject.name, nearest.name, 'multiplicative');
+            updateSelectedDetails();
+            updateStats();
+            
+            // Update relation visualization if showing
+            if (showingRelations) {
+                clearRelationLines();
+                relationLines = dimensionalScene.visualizeRelations();
+            }
+            
+            addQueryResponse('System', `Created relation: ${selectedObject.name} → ${nearest.name} (z = x·y)`);
+        }
+    }
+    
+    function toggleRelations() {
+        showingRelations = !showingRelations;
+        const btn = document.getElementById('btn-show-relations');
+        btn.classList.toggle('active', showingRelations);
+        
+        if (showingRelations) {
+            relationLines = dimensionalScene.visualizeRelations();
+            addQueryResponse('System', 'Showing relationship lines (z = x·y bindings)');
+        } else {
+            clearRelationLines();
+            addQueryResponse('System', 'Hiding relationship lines');
+        }
+    }
+    
+    function clearRelationLines() {
+        for (const line of relationLines) {
+            scene.remove(line);
+        }
+        relationLines = [];
+    }
+    
+    function resetScene() {
+        // Remove all objects except lights
+        const toRemove = [...dimensionalScene.objects.keys()]
+            .filter(name => {
+                const obj = dimensionalScene.get(name);
+                return obj.dimensionalType !== 'light';
+            });
+        
+        for (const name of toRemove) {
+            const obj = dimensionalScene.remove(name);
+            if (obj) scene.remove(obj);
+        }
+        
+        clearRelationLines();
+        selectedObject = null;
+        objectCounter = { cube: 0, sphere: 0, helix: 0 };
+        
+        // Recreate ground and initial scene
+        setupGround();
+        createInitialScene();
+        
+        updateObjectList();
+        updateSelectedDetails();
+        updateStats();
+        
+        addQueryResponse('System', 'Scene reset to initial state');
+    }
+    
+    // ==========================================================================
+    // AI QUERY PROCESSING
+    // ==========================================================================
+    
+    function processQuery(query) {
+        addQueryResponse('You', query);
+        
+        const response = dimensionalScene.query(query);
+        addQueryResponse('Scene', response);
+    }
+    
+    function addQueryResponse(label, text) {
+        const container = document.getElementById('query-response');
+        const item = document.createElement('div');
+        item.className = 'response-item';
+        item.innerHTML = `
+            <span class="query-label">${label}:</span>
+            <div class="response-text">${text}</div>
+        `;
+        container.appendChild(item);
+        container.scrollTop = container.scrollHeight;
+    }
+    
+    // Global function for object list clicks
+    window.selectObjectByName = function(name) {
+        const obj = dimensionalScene.get(name);
+        if (obj) {
+            selectObject(obj);
+        }
+    };
+    
+    // ==========================================================================
+    // ANIMATION LOOP
+    // ==========================================================================
+    
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        // Update controls
+        controls.update();
+        
+        // Render
+        renderer.render(scene, camera);
+        
+        // FPS counter
+        frameCount++;
+        const now = performance.now();
+        if (now - lastTime >= 1000) {
+            document.getElementById('fps-counter').textContent = `FPS: ${frameCount}`;
+            frameCount = 0;
+            lastTime = now;
+        }
+        
+        // Update relation lines if showing
+        if (showingRelations && relationLines.length > 0) {
+            // Lines follow objects
+            const relations = dimensionalScene.relationGraph;
+            for (let i = 0; i < relations.length && i < relationLines.length; i++) {
+                const rel = relations[i];
+                const line = relationLines[i];
+                const positions = line.geometry.attributes.position;
+                
+                positions.setXYZ(0, rel.source.position.x, rel.source.position.y, rel.source.position.z);
+                positions.setXYZ(1, rel.target.position.x, rel.target.position.y, rel.target.position.z);
+                positions.needsUpdate = true;
+            }
+        }
+    }
+    
+    // ==========================================================================
+    // START
+    // ==========================================================================
+    
+    init();
+    </script>
+</body>
+</html>

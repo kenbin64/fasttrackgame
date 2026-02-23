@@ -9,12 +9,39 @@ You are an AI assistant working with **ButterflyFX**, a dimensional computing fr
 
 ---
 
+## Canonical Doctrine
+
+> **IMPORTANT:** The `DIMENSIONAL_GENESIS.md` document is the **canonical reference** for all dimensional and manifold computing. It defines the **7 Layers of Creation (1-7)** aligned with Fibonacci and OVERRIDES any conflicting documentation.
+
+**THE FUNDAMENTAL INSIGHT:**
+> 1 becomes the bridge across the void.  
+> 1 on each side makes traversal possible.  
+> Traversal creates dimension.
+
+**Fibonacci Law of Creation:**
+> 1 (spark) → 1 (mirror) → 2 (relation) → 3 (form) → 5 (life) → 8 (mind) → 13 (completion)
+
+```
+Layer 7 — COMPLETION:   Consciousness, Golden Spiral (Fib 13)
+Layer 6 — MIND:         Intelligence, Gyroid (Fib 8)
+Layer 5 — LIFE:         Meaning m=x·y·z (Fib 5)
+Layer 4 — FORM:         Shape z=x·y² (Fib 3)
+Layer 3 — RELATION:     z=x·y CANONICAL BASE (Fib 2)
+Layer 2 — MIRROR:       Direction, duality (Fib 1)
+Layer 1 — SPARK:        First Point, existence (Fib 1)
+```
+
+> **NOTE:** The old 0-6 level model (DIMENSIONAL_STACK.md) is DEPRECATED. Use layers 1-7.
+
+---
+
 ## Related Documentation
 
 For detailed instructions on specific subsystems, see:
 
 | Document | Purpose |
 |----------|---------|
+| [DIMENSIONAL_GENESIS.md](DIMENSIONAL_GENESIS.md) | **CANONICAL DOCTRINE** — The 7-Layer Creation Model |
 | [AI_INSTRUCTIONS_UNIVERSAL_CONNECTOR.md](AI_INSTRUCTIONS_UNIVERSAL_CONNECTOR.md) | Universal Connector architecture, UI, daemon, API |
 | [AI_INSTRUCTIONS_UNIVERSAL_HDD.md](AI_INSTRUCTIONS_UNIVERSAL_HDD.md) | Universal Dimensional Drive views, metrics, file ops |
 | [AI_INSTRUCTIONS_DIMENSIONAL_DOM_CSS.md](AI_INSTRUCTIONS_DIMENSIONAL_DOM_CSS.md) | D-DOM elements, D-CSS properties, field-based layouts |

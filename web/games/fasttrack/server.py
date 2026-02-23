@@ -12,7 +12,7 @@ from dataclasses import dataclass, field, asdict
 from enum import Enum
 
 try:
-    from helix import Helix, DimensionalEntity, EntityType
+    from helix import HelixKernel
     HELIX_AVAILABLE = True
 except ImportError:
     HELIX_AVAILABLE = False
@@ -384,15 +384,9 @@ class FastTrackServer:
     
     def __init__(self):
         self.rooms: Dict[str, FastTrackRoom] = {}
-        
-        # Register with Helix kernel if available
+        # Register with HelixKernel if available
         if HELIX_AVAILABLE:
-            self.helix = Helix()
-            self.helix.register_entity(
-                name="FastTrack",
-                entity_type=EntityType.GAME,
-                data={"type": "board_game", "players": "2-6", "multiplayer": True}
-            )
+            self.helix_kernel = HelixKernel()
     
     def generate_room_code(self) -> str:
         """Generate a unique room code."""

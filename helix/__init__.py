@@ -55,6 +55,29 @@ from .core import (
     get as core_get, put,
 )
 
+# Dimensional Kernel - The 7 Core Operations (Genesis Model)
+from .dimensional_kernel import (
+    # Constants
+    Layer,
+    LAYER_FIBONACCI,
+    LAYER_DECLARATIONS,
+    PHI,
+    
+    # Core classes
+    LineageNode,
+    LineageGraph,
+    SubstateRule,
+    Substate,
+    SubstateManager,
+    DimensionalCoordinate,
+    DimensionalObject,
+    DimensionalKernel,
+    
+    # Factory functions
+    create_dimensional_object,
+    bind_objects,
+)
+
 # Geometric Substrate - Shapes Hold Data
 from .geometric_substrate import (
     GeometricSubstrate,
@@ -774,6 +797,22 @@ __all__ = [
     'Shape',               # Mathematical shapes (SINE, SADDLE, HELIX, etc.)
     'Lens',                # Interpretations (VALUE, COLOR, SOUND, LIGHT)
     'GeometricPoint',      # Point on a substrate with inherent properties
+    
+    # Dimensional Kernel - 7 Core Operations (Genesis Model)
+    'Layer',                   # The 7 layers (SPARK, MIRROR, RELATION, FORM, LIFE, MIND, COMPLETION)
+    'LAYER_FIBONACCI',         # Fibonacci values for each layer
+    'LAYER_DECLARATIONS',      # Layer declaration strings
+    'PHI',                     # Golden ratio φ
+    'LineageNode',             # Node in lineage graph
+    'LineageGraph',            # DAG of transformations
+    'SubstateRule',            # Local rule definition
+    'Substate',                # Local rules container
+    'SubstateManager',         # Context switching
+    'DimensionalCoordinate',   # Position on manifold
+    'DimensionalObject',       # Fundamental unit with identity/intention vectors
+    'DimensionalKernel',       # The 7 operations: lift, map, bind, navigate, transform, merge, resolve
+    'create_dimensional_object',  # Factory function
+    'bind_objects',            # Bind multiple objects
     
     # =============================================================================
     # INTERNAL - Kernel and Substrate (developers don't use directly)

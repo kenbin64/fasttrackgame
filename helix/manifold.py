@@ -1,5 +1,6 @@
 """
 ButterflyFX Generative Manifold - Mathematical Surface That Produces Data Types
+CANONICAL IMPLEMENTATION OF THE DIMENSIONAL GENESIS
 
 Copyright (c) 2024-2026 Kenneth Bingham
 Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0)
@@ -9,6 +10,24 @@ This mathematical kernel belongs to all humanity.
 Attribution required: Kenneth Bingham - https://butterflyfx.us
 
 ---
+
+THE 7 LAYERS OF CREATION (See DIMENSIONAL_GENESIS.md):
+
+    Layer 7 — COMPLETION:   Global coherence, Golden Spiral (Fib 13)
+    Layer 6 — MIND:         Gyroid, intelligence (Fib 8)
+    Layer 5 — LIFE:         m=x·y·z, meaning (Fib 5)
+    Layer 4 — FORM:         z=x·y², shape (Fib 3)
+    Layer 3 — RELATION:     z=x·y, THE CANONICAL BASE (Fib 2)
+    Layer 2 — MIRROR:       Direction, duality (Fib 1)
+    Layer 1 — SPARK:        First Point, existence (Fib 1)
+
+THE FUNDAMENTAL INSIGHT:
+    1 becomes the bridge across the void.
+    1 on each side makes traversal possible.
+    Traversal creates dimension.
+
+Fibonacci Law of Creation:
+    1 (spark) → 1 (mirror) → 2 (relation) → 3 (form) → 5 (life) → 8 (mind) → 13 (completion)
 
 The manifold is not just a container for data - it IS mathematical structure.
 Every point on the surface encodes geometric properties that can be extracted
@@ -30,14 +49,14 @@ Geometric Properties → Data Types:
     - Connectivity → Graphs, trees, networks
     - Projections → Functions, mappings, transforms
 
-The 7 Dimensional Levels as Geometric Inflection Points:
-    Level 0 (Potential): θ = 0, origin point, all possibilities superposed
-    Level 1 (Point): θ = π/6, first instantiation, unit position
-    Level 2 (Length): θ = π/3, linear extension, directional vector
-    Level 3 (Width): θ = π/2, perpendicular extension, 2D spanning
-    Level 4 (Plane): θ = 2π/3, surface completion, area
-    Level 5 (Volume): θ = 5π/6, volumetric extension, enclosed space
-    Level 6 (Whole): θ = π, completion, ready for spiral transition
+The 7 Layers as Geometric Inflection Points (Fibonacci Aligned):
+    Layer 1 (Spark):      θ = 0,      Fib 1  - origin point
+    Layer 2 (Mirror):     θ = π/6,    Fib 1  - first direction
+    Layer 3 (Relation):   θ = π/3,    Fib 2  - z=x·y canonical
+    Layer 4 (Form):       θ = π/2,    Fib 3  - shape emergence
+    Layer 5 (Life):       θ = 2π/3,   Fib 5  - meaning manifold
+    Layer 6 (Mind):       θ = 5π/6,   Fib 8  - coherent intelligence
+    Layer 7 (Completion): θ = π,      Fib 13 - ready for spiral
 """
 
 from __future__ import annotations
@@ -56,18 +75,40 @@ from .substrate import NaturalLens, ColorLens, SoundLens, ValueLens
 
 
 # =============================================================================
-# CONSTANTS - The Geometric Foundation
+# CONSTANTS - The Geometric Foundation (Genesis Model)
 # =============================================================================
 
-# Level angles on the helix (θ values)
+# Fibonacci sequence for each layer
+LAYER_FIBONACCI = {
+    1: 1,   # Spark
+    2: 1,   # Mirror (1|1 = direction)
+    3: 2,   # Relation (1+1 = 2)
+    4: 3,   # Form (1+2 = 3)
+    5: 5,   # Life (2+3 = 5)
+    6: 8,   # Mind (3+5 = 8)
+    7: 13,  # Completion (5+8 = 13 → 21)
+}
+
+# Layer angles on the helix (θ values) - Genesis Model
+LAYER_ANGLES = {
+    1: 0.0,              # Spark - origin
+    2: math.pi / 6,      # Mirror - 30°
+    3: math.pi / 3,      # Relation - 60° (canonical z=x·y)
+    4: math.pi / 2,      # Form - 90°
+    5: 2 * math.pi / 3,  # Life - 120°
+    6: 5 * math.pi / 6,  # Mind - 150°
+    7: math.pi,          # Completion - 180°
+}
+
+# Legacy compatibility - maps old 0-6 levels to angles
 LEVEL_ANGLES = {
-    0: 0.0,           # Potential - origin
-    1: math.pi / 6,   # Point - 30°
-    2: math.pi / 3,   # Length - 60°
-    3: math.pi / 2,   # Width - 90°
-    4: 2 * math.pi / 3,  # Plane - 120°
-    5: 5 * math.pi / 6,  # Volume - 150°
-    6: math.pi,       # Whole - 180°
+    0: 0.0,              # DEPRECATED → Layer 1
+    1: math.pi / 6,      # DEPRECATED → Layer 2
+    2: math.pi / 3,      # DEPRECATED → Layer 3
+    3: math.pi / 2,      # DEPRECATED → Layer 4
+    4: 2 * math.pi / 3,  # DEPRECATED → Layer 5
+    5: 5 * math.pi / 6,  # DEPRECATED → Layer 6
+    6: math.pi,          # DEPRECATED → Layer 7
 }
 
 # Full spiral is 2π, levels span π per half-turn
@@ -91,23 +132,36 @@ class SurfacePoint:
     
     Contains all geometric properties at this location, from which any
     mathematical form can be extracted.
+    
+    Genesis Model: Uses layers 1-7 aligned with Fibonacci.
     """
     # Helix coordinates
     spiral: int
-    level: int
+    layer: int  # Genesis layer (1-7)
     
     # Continuous parameters
     theta: float      # Angular position (radians)
-    t: float          # Continuous parameter along helix (spiral + level/7)
+    t: float          # Continuous parameter along helix (spiral + layer/7)
     
     # Geometric properties
     radius: float = DEFAULT_RADIUS
     pitch: float = DEFAULT_PITCH
     
     @cached_property
+    def fibonacci(self) -> int:
+        """Fibonacci number at this layer"""
+        return LAYER_FIBONACCI.get(self.layer, 1)
+    
+    @cached_property
     def angle(self) -> float:
         """Full angular position including spiral rotations"""
-        return self.spiral * SPIRAL_ANGULAR_EXTENT + LEVEL_ANGLES[self.level]
+        return self.spiral * SPIRAL_ANGULAR_EXTENT + LAYER_ANGLES.get(self.layer, self.theta)
+    
+    # Legacy compatibility
+    @property
+    def level(self) -> int:
+        """DEPRECATED: Use layer instead. Returns layer-1."""
+        return self.layer - 1
     
     # -------------------------------------------------------------------------
     # Cartesian Coordinates
@@ -885,3 +939,249 @@ def helix_slope(spiral: int, level: int) -> float:
 def helix_curvature(spiral: int, level: int) -> float:
     """Curvature at helix position"""
     return GenerativeManifold().at(spiral, level).curvature
+
+
+# =============================================================================
+# DIMENSIONAL STACK MANIFOLDS
+# =============================================================================
+# Canonical implementations of each level per DIMENSIONAL_STACK.md
+
+class IdentityManifold:
+    """
+    LEVEL 2 — The Canonical Base Surface: z = x·y
+    
+    The Identity Manifold is the fundamental surface from which all
+    computation grows. It encodes stable identity and interaction.
+    
+    Properties:
+        - Symmetric: f(x, y) = f(y, x)
+        - Scale-invariant under proportional scaling
+        - Smooth, differentiable, continuous
+    """
+    
+    def __call__(self, x: float, y: float) -> float:
+        """z = x·y — The canonical interaction"""
+        return x * y
+    
+    def gradient(self, x: float, y: float) -> Tuple[float, float]:
+        """Gradient ∇f = (y, x)"""
+        return (y, x)
+    
+    def hessian(self, x: float, y: float) -> Tuple[Tuple[float, float], Tuple[float, float]]:
+        """Hessian matrix [[0, 1], [1, 0]]"""
+        return ((0.0, 1.0), (1.0, 0.0))
+    
+    def is_saddle_point(self, x: float, y: float) -> bool:
+        """Identity surface has saddle point at origin"""
+        return abs(x) < 1e-10 and abs(y) < 1e-10
+
+
+class RuntimeManifold:
+    """
+    LEVEL 3 — Execution, flow, transformation, state transitions.
+    
+    Canonical form: z = x / y² (decay, damping, stabilization)
+    
+    Governs how objects evolve over time and enables
+    deterministic, explainable computation.
+    """
+    
+    def decay(self, x: float, y: float) -> float:
+        """z = x / y² — Decay dynamics"""
+        if abs(y) < 1e-10:
+            return float('inf') if x > 0 else float('-inf')
+        return x / (y ** 2)
+    
+    def inverse(self, x: float, y: float) -> float:
+        """z = x · (1/y) — Inverse relationship"""
+        if abs(y) < 1e-10:
+            return float('inf') if x > 0 else float('-inf')
+        return x / y
+    
+    def evolve(self, state: Tuple[float, float], dt: float) -> Tuple[float, float]:
+        """Evolve state by dt using decay dynamics"""
+        x, y = state
+        if abs(y) < 1e-10:
+            return state
+        dx = -x / (y ** 2) * dt
+        dy = dt / y if abs(y) > 1e-10 else 0
+        return (x + dx, y + dy)
+
+
+class ScalingManifold:
+    """
+    LEVEL 4 — Weighting, amplification, attenuation, priority.
+    
+    Canonical forms:
+        - z = x·y² (weighted interaction)
+        - z = x²·y (asymmetric scaling)
+    
+    Controls importance and influence. Allows dimensional "zooming"
+    without losing identity.
+    """
+    
+    def weighted(self, x: float, y: float) -> float:
+        """z = x·y² — Y-weighted interaction"""
+        return x * (y ** 2)
+    
+    def asymmetric(self, x: float, y: float) -> float:
+        """z = x²·y — X-weighted interaction"""
+        return (x ** 2) * y
+    
+    def priority(self, x: float, y: float, weight_x: float = 1.0, weight_y: float = 2.0) -> float:
+        """Configurable priority weighting"""
+        return (x ** weight_x) * (y ** weight_y)
+    
+    def amplify(self, value: float, factor: float) -> float:
+        """Amplify a value by factor^2"""
+        return value * (factor ** 2)
+    
+    def attenuate(self, value: float, factor: float) -> float:
+        """Attenuate a value by 1/factor^2"""
+        if abs(factor) < 1e-10:
+            return float('inf')
+        return value / (factor ** 2)
+
+
+class SemanticManifold:
+    """
+    LEVEL 5 — Meaning, intention, narrative, conceptual identity.
+    
+    Canonical form: m = x·y·z (triadic meaning tensor)
+    
+    Represents concepts, goals, and values. Holds human intention
+    as a dimensional object. Enables AI to reason over meaning,
+    not just tokens.
+    """
+    
+    def meaning(self, x: float, y: float, z: float) -> float:
+        """m = x·y·z — Triadic meaning tensor"""
+        return x * y * z
+    
+    def intention(self, goal: float, context: float, action: float) -> float:
+        """Intention as triadic meaning"""
+        return self.meaning(goal, context, action)
+    
+    def concept(self, form: float, function: float, essence: float) -> float:
+        """Concept defined by form × function × essence"""
+        return self.meaning(form, function, essence)
+    
+    def gradient(self, x: float, y: float, z: float) -> Tuple[float, float, float]:
+        """Gradient ∇m = (yz, xz, xy)"""
+        return (y * z, x * z, x * y)
+
+
+class CompletionManifold:
+    """
+    LEVEL 6 — Global coherence, self-organization, emergent structure.
+    
+    Special manifolds that encode emergence:
+        - Gyroid: Triply periodic minimal surface
+        - Golden: Optimal growth pattern (φ)
+        - Butterfly: Bifurcation and sensitivity
+    
+    Enables self-organizing knowledge systems and represents
+    completion — ready for spiral transition.
+    """
+    
+    PHI = (1 + math.sqrt(5)) / 2  # Golden ratio ≈ 1.618
+    
+    def gyroid(self, x: float, y: float, z: float) -> float:
+        """
+        Gyroid — Triply periodic minimal surface.
+        
+        G(x,y,z) = sin(x)cos(y) + sin(y)cos(z) + sin(z)cos(x)
+        
+        Zero isosurface forms the gyroid structure.
+        """
+        return (math.sin(x) * math.cos(y) + 
+                math.sin(y) * math.cos(z) + 
+                math.sin(z) * math.cos(x))
+    
+    def golden_spiral(self, t: float) -> Tuple[float, float]:
+        """
+        Golden spiral — Optimal growth pattern.
+        
+        r = φ^(t/2π), returning (x, y) coordinates.
+        """
+        r = self.PHI ** (t / (2 * math.pi))
+        return (r * math.cos(t), r * math.sin(t))
+    
+    def golden_ratio(self, n: int) -> float:
+        """
+        φ^n — Golden ratio power sequence.
+        
+        Appears in Fibonacci: F(n) ≈ φ^n / √5
+        """
+        return self.PHI ** n
+    
+    def butterfly(self, x: float, r: float = 3.5) -> float:
+        """
+        Logistic map — Bifurcation and sensitivity.
+        
+        x_{n+1} = r·x_n·(1 - x_n)
+        
+        r = 3.5699... is the onset of chaos.
+        """
+        return r * x * (1 - x)
+    
+    def butterfly_trajectory(self, x0: float, r: float = 3.5, steps: int = 100) -> List[float]:
+        """Generate butterfly/logistic map trajectory"""
+        trajectory = [x0]
+        x = x0
+        for _ in range(steps - 1):
+            x = self.butterfly(x, r)
+            trajectory.append(x)
+        return trajectory
+    
+    def is_complete(self, value: float, tolerance: float = 0.01) -> bool:
+        """Check if value is at a completion/fixed point"""
+        return abs(self.butterfly(value) - value) < tolerance
+
+
+# =============================================================================
+# DIMENSIONAL STACK REGISTRY
+# =============================================================================
+
+DIMENSIONAL_MANIFOLDS = {
+    0: None,                    # Level 0: Raw coordinates (no manifold needed)
+    1: None,                    # Level 1: Substates (context, no manifold)
+    2: IdentityManifold(),      # Level 2: z = x·y
+    3: RuntimeManifold(),       # Level 3: z = x/y²
+    4: ScalingManifold(),       # Level 4: z = x·y²
+    5: SemanticManifold(),      # Level 5: m = x·y·z
+    6: CompletionManifold()     # Level 6: Gyroid/Golden/Butterfly
+}
+
+def manifold_at_level(level: int):
+    """Get the canonical manifold for a dimensional stack level"""
+    if not 0 <= level <= 6:
+        raise ValueError(f"Level must be 0-6, got {level}")
+    return DIMENSIONAL_MANIFOLDS[level]
+
+def evaluate_at_level(level: int, x: float, y: float, z: float = 1.0) -> float:
+    """
+    Evaluate the canonical equation at a given level.
+    
+    Level 0-1: Returns x (identity, no transformation)
+    Level 2: z = x·y
+    Level 3: z = x/y² (decay)
+    Level 4: z = x·y² (scaling)
+    Level 5: m = x·y·z (semantic)
+    Level 6: Gyroid(x, y, z)
+    """
+    if level < 2:
+        return x
+    elif level == 2:
+        return DIMENSIONAL_MANIFOLDS[2](x, y)
+    elif level == 3:
+        return DIMENSIONAL_MANIFOLDS[3].decay(x, y)
+    elif level == 4:
+        return DIMENSIONAL_MANIFOLDS[4].weighted(x, y)
+    elif level == 5:
+        return DIMENSIONAL_MANIFOLDS[5].meaning(x, y, z)
+    elif level == 6:
+        return DIMENSIONAL_MANIFOLDS[6].gyroid(x, y, z)
+    else:
+        return x
+

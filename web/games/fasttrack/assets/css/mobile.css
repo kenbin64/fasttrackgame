@@ -1,0 +1,802 @@
+/**
+ * Fast Track Mobile PWA Styles
+ * Touch-optimized, minimal UI, maximum board visibility
+ */
+
+/* ============================================================
+   PWA FULLSCREEN STYLES
+   ============================================================ */
+
+/* Remove all browser chrome feeling */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0a0a14;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  /* Prevent pull-to-refresh on mobile */
+  overscroll-behavior: none;
+}
+
+/* Safe area padding for notched phones */
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Game canvas fills entire screen */
+#game-canvas, #three-container, canvas {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: none;
+}
+
+/* ============================================================
+   MOBILE HEADER BAR (Slim, Transparent)
+   ============================================================ */
+
+#mobile-app-header {
+  position: fixed;
+  top: env(safe-area-inset-top, 0);
+  left: 0;
+  right: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+  z-index: 10000;
+  pointer-events: none;
+}
+
+#mobile-app-header > * {
+  pointer-events: auto;
+}
+
+.mobile-player-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-avatar-small {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border: 2px solid currentColor;
+}
+
+.mobile-turn-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+.mobile-menu-icon {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(0,0,0,0.5);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.mobile-menu-icon:active {
+  background: rgba(255,255,255,0.2);
+}
+
+/* ============================================================
+   FLOATING ACTION BUTTONS (FABs)
+   ============================================================ */
+
+#mobile-fab-container {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0) + 80px);
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10000;
+}
+
+.mobile-fab {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.mobile-fab:active {
+  transform: scale(0.95);
+}
+
+.mobile-fab-primary {
+  background: linear-gradient(135deg, #4a4a6e 0%, #6a6a9e 100%);
+  color: #fff;
+}
+
+.mobile-fab-secondary {
+  background: rgba(30, 30, 50, 0.9);
+  color: #aaa;
+  border: 1px solid #444;
+}
+
+/* ============================================================
+   BOTTOM ACTION BAR (Current Card + Actions)
+   ============================================================ */
+
+#mobile-action-bar {
+  position: fixed;
+  bottom: env(safe-area-inset-bottom, 0);
+  left: 0;
+  right: 0;
+  height: 72px;
+  background: linear-gradient(0deg, rgba(15,15,30,0.95) 0%, rgba(15,15,30,0.85) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 16px;
+  box-sizing: border-box;
+  z-index: 10001;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.mobile-card-display {
+  width: 50px;
+  height: 68px;
+  background: linear-gradient(145deg, #fff 0%, #e8e8f0 100%);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #1a1a2e;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.mobile-card-display.card-red {
+  color: #cc0000;
+}
+
+.mobile-card-display.card-black {
+  color: #1a1a1a;
+}
+
+.mobile-card-suit {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  font-size: 12px;
+}
+
+.mobile-action-btn {
+  flex: 1;
+  max-width: 140px;
+  height: 48px;
+  border: none;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: transform 0.1s, opacity 0.1s;
+}
+
+.mobile-action-btn:active {
+  transform: scale(0.97);
+}
+
+.mobile-action-btn.primary {
+  background: linear-gradient(135deg, #00aa66 0%, #00cc77 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,170,102,0.4);
+}
+
+.mobile-action-btn.secondary {
+  background: rgba(255,255,255,0.1);
+  color: #ccc;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.mobile-action-btn:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ============================================================
+   MOVE SELECTION SHEET (Bottom Sheet Style)
+   ============================================================ */
+
+#mobile-move-sheet {
+  position: fixed;
+  bottom: -100%;
+  left: 0;
+  right: 0;
+  max-height: 60vh;
+  background: rgba(20, 20, 40, 0.98);
+  border-radius: 24px 24px 0 0;
+  z-index: 10010;
+  transition: bottom 0.3s ease-out;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  overflow: hidden;
+}
+
+#mobile-move-sheet.active {
+  bottom: 0;
+}
+
+.move-sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 2px;
+  margin: 12px auto 8px;
+}
+
+.move-sheet-title {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  padding: 8px 16px 16px;
+}
+
+.move-sheet-list {
+  max-height: calc(60vh - 80px);
+  overflow-y: auto;
+  padding: 0 16px 24px;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0) + 24px);
+}
+
+.move-sheet-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.move-sheet-item:active {
+  background: rgba(255,255,255,0.12);
+  transform: scale(0.98);
+}
+
+.move-sheet-item.cut-move {
+  background: rgba(255, 60, 60, 0.15);
+  border: 1px solid rgba(255, 60, 60, 0.3);
+}
+
+.move-sheet-item.ft-move {
+  background: rgba(100, 100, 255, 0.15);
+  border: 1px solid rgba(100, 100, 255, 0.3);
+}
+
+.move-sheet-item.safe-move {
+  background: rgba(60, 220, 120, 0.15);
+  border: 1px solid rgba(60, 220, 120, 0.3);
+}
+
+.move-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.move-item-text {
+  flex: 1;
+}
+
+.move-item-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.move-item-subtitle {
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.move-item-arrow {
+  color: #666;
+  font-size: 18px;
+}
+
+/* ============================================================
+   OVERLAY BACKDROP
+   ============================================================ */
+
+#mobile-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 10005;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+
+#mobile-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ============================================================
+   SETTINGS SLIDE-IN PANEL
+   ============================================================ */
+
+#mobile-settings-panel {
+  position: fixed;
+  top: 0;
+  right: -280px;
+  width: 280px;
+  height: 100%;
+  background: rgba(20, 20, 40, 0.98);
+  z-index: 10020;
+  transition: right 0.3s ease-out;
+  padding: 60px 16px 24px;
+  padding-top: calc(env(safe-area-inset-top, 0) + 60px);
+  box-sizing: border-box;
+  overflow-y: auto;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+#mobile-settings-panel.active {
+  right: 0;
+}
+
+.settings-close-btn {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0) + 12px);
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.settings-section {
+  margin-bottom: 24px;
+}
+
+.settings-section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-label {
+  font-size: 14px;
+  color: #ccc;
+}
+
+.settings-toggle {
+  width: 48px;
+  height: 28px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.settings-toggle.active {
+  background: #00aa66;
+}
+
+.settings-toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  transition: left 0.2s;
+}
+
+.settings-toggle.active::after {
+  left: 23px;
+}
+
+/* ============================================================
+   TOAST NOTIFICATIONS
+   ============================================================ */
+
+#mobile-toast {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0) + 90px);
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(40, 40, 60, 0.95);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 14px;
+  z-index: 10030;
+  opacity: 0;
+  transition: transform 0.3s, opacity 0.3s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+#mobile-toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ============================================================
+   HIDE DESKTOP ELEMENTS ON MOBILE
+   ============================================================ */
+
+@media (max-width: 768px) {
+  /* Hide desktop UI elements */
+  #players-panel,
+  #game-controls,
+  #settings-panel-container,
+  #settings-toggle-btn,
+  #card-display-area,
+  #deck-display,
+  #discard-display,
+  .desktop-only,
+  #move-choice-modal,
+  #move-dropdown {
+    display: none !important;
+  }
+  
+  /* Show mobile elements */
+  #mobile-app-header,
+  #mobile-action-bar,
+  #mobile-fab-container {
+    display: flex !important;
+  }
+}
+
+/* ============================================================
+   LANDSCAPE ORIENTATION ADJUSTMENTS
+   ============================================================ */
+
+@media (max-height: 500px) and (orientation: landscape) {
+  #mobile-action-bar {
+    height: 56px;
+    padding: 4px 16px;
+  }
+  
+  .mobile-card-display {
+    width: 40px;
+    height: 54px;
+    font-size: 18px;
+  }
+  
+  #mobile-app-header {
+    height: 40px;
+  }
+  
+  #mobile-fab-container {
+    bottom: 65px;
+  }
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 170, 102, 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(0, 170, 102, 0); }
+}
+
+.pulse-action {
+  animation: pulse-glow 1.5s infinite;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.slide-up-enter {
+  animation: slide-up 0.3s ease-out;
+}
+
+/* ============================================================
+   INSTALL PROMPT BANNER
+   ============================================================ */
+
+#pwa-install-banner {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0) + 80px);
+  left: 12px;
+  right: 12px;
+  background: linear-gradient(135deg, #2a2a4e 0%, #3a3a6e 100%);
+  border-radius: 16px;
+  padding: 16px;
+  display: none;
+  align-items: center;
+  gap: 12px;
+  z-index: 10040;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+#pwa-install-banner.show {
+  display: flex;
+}
+
+.install-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.install-text {
+  flex: 1;
+}
+
+.install-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.install-subtitle {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+.install-btn {
+  padding: 10px 20px;
+  background: #00aa66;
+  border: none;
+  border-radius: 20px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.install-dismiss {
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* ============================================================
+   SMART AUTO-HIDE SYSTEM
+   Controls fade out during animations for unobstructed view
+   ============================================================ */
+
+/* Transition timing for smooth hide/show */
+#mobile-header,
+#mobile-action-bar,
+#mobile-floating-card,
+#reaction-bar {
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out, height 0.2s ease-out;
+}
+
+/* Hidden state - fully invisible and non-interactive */
+#mobile-header.auto-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(-100%);
+}
+
+#mobile-action-bar.auto-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(100%);
+}
+
+#mobile-floating-card.auto-hidden,
+#reaction-bar.auto-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateX(-100%);
+}
+
+/* Mini mode for header - compact version */
+#mobile-header.mini-mode {
+  height: 36px;
+  padding: 4px 12px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+#mobile-header.mini-mode .mobile-avatar {
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+}
+
+#mobile-header.mini-mode .mobile-player-name {
+  font-size: 12px;
+}
+
+#mobile-header.mini-mode .mobile-deck {
+  padding: 4px 8px;
+  min-width: 45px;
+  font-size: 12px;
+}
+
+#mobile-header.mini-mode .mobile-menu-btn {
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+}
+
+/* ============================================================
+   GESTURE TOUCH ZONE
+   Invisible swipe-up area at bottom of screen
+   ============================================================ */
+
+#mobile-gesture-overlay {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  z-index: 9999;
+  /* Visual indicator when debugging - normally invisible */
+  /* background: rgba(255, 0, 0, 0.1); */
+}
+
+/* When controls are hidden, expand the gesture zone */
+body.controls-hidden #mobile-gesture-overlay {
+  height: 120px;
+}
+
+/* ============================================================
+   IMPROVED ACTION BAR - Glass morphism effect
+   ============================================================ */
+
+#mobile-action-bar {
+  background: linear-gradient(0deg, 
+    rgba(15, 15, 30, 0.95) 0%, 
+    rgba(15, 15, 30, 0.85) 100%
+  );
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Require input state - make controls more prominent */
+#mobile-action-bar.require-input {
+  border-top: 2px solid rgba(255, 215, 0, 0.6);
+  box-shadow: 0 -4px 30px rgba(255, 215, 0, 0.2);
+}
+
+/* Quick action hint when controls are hidden */
+.tap-hint {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0) + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+body.controls-hidden .tap-hint {
+  opacity: 1;
+}
+
+/* ============================================================
+   SAFE AREA AWARE SPACING
+   ============================================================ */
+
+/* Extra padding for devices with home indicator */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  #mobile-action-bar {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0) + 8px);
+  }
+  
+  #mobile-gesture-overlay {
+    height: calc(80px + env(safe-area-inset-bottom, 0));
+  }
+}
+
+/* ============================================================
+   HAPTIC FEEDBACK VISUAL INDICATOR
+   ============================================================ */
+
+.action-button:active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: inherit;
+  animation: tapFeedback 0.2s ease-out;
+}
+
+@keyframes tapFeedback {
+  0% { opacity: 0; transform: scale(0.95); }
+  50% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.02); }
+}

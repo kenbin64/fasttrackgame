@@ -4,13 +4,13 @@ Integrates Fast Track board game into the dimensional kernel
 """
 
 from helix import (
-    Helix, 
-    DimensionalEntity, 
-    EntityType,
-    Manifold,
+    HelixKernel,
+    manifold,
     Dimension
 )
-from helix.primitives import Shape, Color, Sound
+from helix.geometric_substrate import Shape
+from helix.enhanced_primitives import Color
+from helix.substrates import Frequency, Amplitude, Waveform, Duration, TimePoint
 from .server import FastTrackRoom, FastTrackServer, fasttrack_server
 
 # Game metadata as dimensional entity
@@ -50,26 +50,24 @@ class FastTrackKernel:
     Registers the game as a dimensional entity with full helix support.
     """
     
-    def __init__(self, helix: Helix = None):
-        self.helix = helix or Helix()
+    def __init__(self, helix_kernel: HelixKernel = None):
+        self.helix_kernel = helix_kernel or HelixKernel()
         self.server = fasttrack_server
         self._register_entity()
     
     def _register_entity(self):
-        """Register Fast Track as a dimensional entity."""
-        entity = DimensionalEntity(
-            name="FastTrack",
-            entity_type=EntityType.GAME,
-            dimensions={
-                Dimension.VISUAL: self._create_visual_dimension(),
-                Dimension.AUDIO: self._create_audio_dimension(),
-                Dimension.LOGIC: self._create_logic_dimension(),
-                Dimension.NETWORK: self._create_network_dimension(),
-                Dimension.DATA: self._create_data_dimension()
+        """Register Fast Track as a dimensional entity (stub, no registration)."""
+        entity = {
+            "name": "FastTrack",
+            "type": "game",
+            "dimensions": {
+                "visual": self._create_visual_dimension(),
+                "audio": self._create_audio_dimension(),
+                "logic": self._create_logic_dimension(),
+                "network": self._create_network_dimension(),
+                "data": self._create_data_dimension()
             }
-        )
-        
-        self.helix.register(entity)
+        }
         return entity
     
     def _create_visual_dimension(self) -> dict:
@@ -219,15 +217,15 @@ class FastTrackKernel:
 # Global kernel instance
 fasttrack_kernel = None
 
-def init_fasttrack(helix: Helix = None) -> FastTrackKernel:
+def init_fasttrack(helix_kernel: HelixKernel = None) -> FastTrackKernel:
     """Initialize Fast Track kernel integration."""
     global fasttrack_kernel
-    fasttrack_kernel = FastTrackKernel(helix)
+    fasttrack_kernel = FastTrackKernel(helix_kernel)
     return fasttrack_kernel
 
 def get_fasttrack() -> FastTrackKernel:
     """Get the Fast Track kernel instance."""
     global fasttrack_kernel
     if fasttrack_kernel is None:
-        fasttrack_kernel = FastTrackKernel()
+        fasttrack_kernel = FastTrackKernel(HelixKernel())
     return fasttrack_kernel

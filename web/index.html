@@ -2,8 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#050508">
     <title>ButterflyFX — Dimensional Computing | Shapes Hold Data</title>
+    
+    <!-- Dimensional Responsive Framework -->
+    <link rel="stylesheet" href="static/css/dimensional-responsive.css">
     
     <!-- SEO Meta Tags -->
     <meta name="description" content="ButterflyFX introduces Dimensional Computing — a revolutionary paradigm where geometric shapes inherently contain data. Objects exist with all their properties the moment they're defined.">
@@ -49,6 +56,98 @@
             z-index: 0;
             pointer-events: none;
         }
+        
+        /* ===== WIREFRAME GEOMETRY ===== */
+        #wireframeGeometry {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        /* ===== FLOATING 3D SHAPES ===== */
+        .floating-shapes {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .float-shape {
+            position: absolute;
+            opacity: 0.15;
+            animation: floatShape 20s ease-in-out infinite;
+            will-change: transform;
+        }
+        
+        .float-shape.circle {
+            border: 2px solid var(--neon-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(64, 255, 255, 0.3);
+        }
+        
+        .float-shape.triangle {
+            width: 0 !important;
+            height: 0 !important;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 70px solid rgba(136, 85, 255, 0.3);
+            filter: drop-shadow(0 0 20px rgba(136, 85, 255, 0.5));
+        }
+        
+        .float-shape.square {
+            border: 2px solid var(--neon-pink);
+            box-shadow: 0 0 30px rgba(255, 85, 170, 0.3);
+        }
+        
+        .float-shape.hexagon {
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            background: linear-gradient(135deg, rgba(96, 255, 144, 0.2), rgba(64, 255, 255, 0.2));
+        }
+        
+        /* Multiple shapes with different positions and animations */
+        .float-shape:nth-child(1) { top: 10%; left: 5%; width: 80px; height: 80px; animation-delay: 0s; animation-duration: 25s; }
+        .float-shape:nth-child(2) { top: 20%; right: 10%; width: 60px; height: 60px; animation-delay: -5s; animation-duration: 22s; }
+        .float-shape:nth-child(3) { top: 60%; left: 8%; width: 100px; height: 100px; animation-delay: -10s; animation-duration: 30s; }
+        .float-shape:nth-child(4) { top: 70%; right: 15%; width: 50px; height: 50px; animation-delay: -7s; animation-duration: 18s; }
+        .float-shape:nth-child(5) { top: 40%; left: 3%; width: 70px; height: 70px; animation-delay: -3s; animation-duration: 28s; }
+        .float-shape:nth-child(6) { top: 85%; right: 5%; width: 90px; height: 90px; animation-delay: -12s; animation-duration: 24s; }
+        .float-shape:nth-child(7) { top: 30%; right: 3%; width: 55px; height: 55px; animation-delay: -8s; animation-duration: 20s; }
+        .float-shape:nth-child(8) { top: 5%; right: 25%; width: 45px; height: 45px; animation-delay: -15s; animation-duration: 26s; }
+        
+        @keyframes floatShape {
+            0%, 100% { 
+                transform: translateY(0) rotate(0deg) scale(1);
+                opacity: 0.08;
+            }
+            25% { 
+                transform: translateY(-30px) rotate(45deg) scale(1.1);
+                opacity: 0.15;
+            }
+            50% { 
+                transform: translateY(-20px) rotate(90deg) scale(1);
+                opacity: 0.12;
+            }
+            75% { 
+                transform: translateY(-40px) rotate(135deg) scale(0.95);
+                opacity: 0.18;
+            }
+        }
+        
+        /* Parallax depth effect on scroll */
+        .parallax-layer {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .parallax-layer.far { transform: translateZ(-200px) scale(1.4); }
+        .parallax-layer.mid { transform: translateZ(-100px) scale(1.2); }
+        .parallax-layer.near { transform: translateZ(0); }
         
         /* ===== HEADER ===== */
         header {
@@ -137,8 +236,180 @@
         .hero-subtitle {
             font-size: 1.6em;
             color: var(--text);
-            margin-bottom: 50px;
+            margin-bottom: 15px;
             font-weight: 300;
+        }
+        
+        .hero-tagline {
+            font-size: 1.2em;
+            color: var(--neon-cyan);
+            margin-bottom: 40px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+        
+        /* ===== HERO STATS ===== */
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto 50px;
+            padding: 0 20px;
+        }
+        
+        .hero-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 15px;
+            background: rgba(136, 85, 255, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            transition: all 0.3s;
+        }
+        
+        .hero-stat:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: var(--neon-purple);
+            box-shadow: 0 15px 40px rgba(136, 85, 255, 0.3);
+        }
+        
+        .hero-stat .stat-icon {
+            font-size: 1.8em;
+            margin-bottom: 8px;
+        }
+        
+        .hero-stat .stat-value {
+            font-size: 2.2em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+        }
+        
+        .hero-stat .stat-label {
+            font-size: 0.85em;
+            color: var(--text-dim);
+            text-align: center;
+            margin-top: 5px;
+        }
+        
+        /* ===== WHY DIMENSIONAL SECTION ===== */
+        .why-dimensional-section {
+            padding: 80px 20px;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .why-dimensional-section h2 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-top: 50px;
+        }
+        
+        .benefit-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 35px 30px;
+            text-align: left;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .benefit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 0%, var(--card-glow, rgba(136, 85, 255, 0.1)), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        
+        .benefit-card:hover::before { opacity: 1; }
+        
+        .benefit-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(136, 85, 255, 0.25);
+        }
+        
+        .benefit-card.efficiency {
+            border-color: rgba(96, 255, 144, 0.4);
+            --card-glow: rgba(96, 255, 144, 0.15);
+        }
+        
+        .benefit-card.security {
+            border-color: rgba(64, 255, 255, 0.4);
+            --card-glow: rgba(64, 255, 255, 0.15);
+        }
+        
+        .benefit-card.scalability {
+            border-color: rgba(136, 85, 255, 0.4);
+            --card-glow: rgba(136, 85, 255, 0.15);
+        }
+        
+        .benefit-card.possibility {
+            border-color: rgba(255, 85, 170, 0.4);
+            --card-glow: rgba(255, 85, 170, 0.15);
+        }
+        
+        .benefit-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .benefit-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+        
+        .benefit-card p {
+            color: var(--text-dim);
+            line-height: 1.7;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        
+        .benefit-stat {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .benefit-number {
+            font-size: 2.5em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .benefit-metric {
+            font-size: 0.95em;
+            color: var(--text-dim);
         }
         
         /* ===== 3D EMANATING MANIFOLD ===== */
@@ -584,6 +855,82 @@
         
         .traditional .compare-result { color: #ff6666; }
         .dimensional .compare-result { color: var(--neon-green); }
+        
+        /* ===== MANIFOLD EXPLAINER ===== */
+        .manifold-explainer {
+            margin: 60px 0;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(136, 85, 255, 0.08), rgba(64, 255, 255, 0.05));
+            border: 1px solid rgba(136, 85, 255, 0.3);
+            border-radius: 24px;
+            text-align: center;
+        }
+        
+        .manifold-explainer h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .manifold-intro {
+            font-size: 1.2em;
+            color: var(--text-dim);
+            max-width: 700px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+        }
+        
+        .manifold-concept-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .concept-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px 25px;
+            text-align: left;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .concept-card:hover {
+            border-color: var(--neon-cyan);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(64, 255, 255, 0.15);
+        }
+        
+        .concept-icon {
+            font-size: 2.2em;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .concept-card h4 {
+            font-size: 1.2em;
+            margin-bottom: 12px;
+            color: var(--neon-cyan);
+        }
+        
+        .concept-card p {
+            color: var(--text-dim);
+            line-height: 1.7;
+            font-size: 0.95em;
+        }
+        
+        .concept-card code {
+            background: rgba(136, 85, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: var(--neon-green);
+            font-size: 0.9em;
+        }
         
         .principle-cards {
             display: grid;
@@ -1480,6 +1827,123 @@
             font-size: 0.9em;
         }
         
+        /* ===== DESKTOP ENHANCEMENTS ===== */
+        @media (min-width: 1024px) {
+            /* Magnetic card hover effect */
+            .benefit-card, .app-card, .suite-card, .use-case {
+                perspective: 1000px;
+            }
+            
+            /* Pulsing glow on CTAs */
+            .cta-primary {
+                animation: ctaPulse 3s ease-in-out infinite;
+            }
+            
+            @keyframes ctaPulse {
+                0%, 100% { box-shadow: 0 5px 30px rgba(136, 85, 255, 0.4); }
+                50% { box-shadow: 0 5px 50px rgba(136, 85, 255, 0.7), 0 0 80px rgba(255, 85, 170, 0.3); }
+            }
+            
+            /* Enhanced hero stats on desktop */
+            .hero-stats {
+                max-width: 900px;
+            }
+            
+            .hero-stat {
+                padding: 25px 20px;
+            }
+            
+            .hero-stat:hover {
+                transform: translateY(-10px) scale(1.05) rotateX(5deg);
+                box-shadow: 0 25px 60px rgba(136, 85, 255, 0.4);
+            }
+            
+            /* Floating label animation boost */
+            .data-label {
+                transition: all 0.3s;
+            }
+            
+            .manifold-showcase:hover .data-label {
+                transform: translateX(10px);
+                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            }
+            
+            .manifold-showcase:hover .floating-data.left .data-label {
+                transform: translateX(-10px);
+            }
+            
+            /* Benefit cards 3D tilt on hover */
+            .benefit-card:hover {
+                transform: translateY(-12px) rotateX(5deg) rotateY(-2deg) scale(1.02);
+            }
+            
+            /* App card glow intensity */
+            .app-card:hover {
+                box-shadow: 0 20px 60px rgba(136, 85, 255, 0.35), 
+                            0 0 100px rgba(136, 85, 255, 0.1);
+            }
+            
+            .app-card.turbo-card:hover {
+                box-shadow: 0 20px 60px rgba(96, 255, 144, 0.35),
+                            0 0 100px rgba(96, 255, 144, 0.1);
+            }
+            
+            /* Path choice buttons enhanced */
+            .path-btn {
+                min-width: 280px;
+                padding: 40px 60px;
+            }
+            
+            .path-btn:hover {
+                transform: translateY(-10px) scale(1.03);
+                box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+            }
+            
+            .path-btn:hover .path-icon {
+                animation: iconBounce 0.6s ease;
+            }
+            
+            @keyframes iconBounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
+            
+            /* Carousel enhanced depth */
+            .carousel-container {
+                perspective: 2000px;
+            }
+            
+            /* Section entry animations */
+            .why-dimensional-section,
+            .how-it-works-section,
+            .featured-apps,
+            .use-cases {
+                opacity: 0;
+                transform: translateY(30px);
+                animation: sectionFadeIn 0.8s ease forwards;
+            }
+            
+            .why-dimensional-section { animation-delay: 0.2s; }
+            .how-it-works-section { animation-delay: 0.4s; }
+            .featured-apps { animation-delay: 0.6s; }
+            .use-cases { animation-delay: 0.8s; }
+            
+            @keyframes sectionFadeIn {
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            /* Dimensional text shimmer */
+            .hero-title, .why-dimensional-section h2 {
+                background-size: 200% auto;
+                animation: textShimmer 4s linear infinite;
+            }
+            
+            @keyframes textShimmer {
+                0% { background-position: 0% center; }
+                100% { background-position: 200% center; }
+            }
+        }
+        
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             nav { display: none; }
@@ -1508,19 +1972,229 @@
             .shape-visual.circle { width: 90px; height: 90px; font-size: 0.7em; }
             .shape-visual.square { width: 90px; height: 90px; font-size: 0.7em; }
         }
+        
+        /* ===== MOBILE NAVIGATION ===== */
+        .mobile-nav-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: transparent;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 101;
+        }
+        
+        .mobile-nav-toggle .nav-bar {
+            width: 24px;
+            height: 2px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-drawer {
+            position: fixed;
+            top: 0;
+            right: -280px;
+            width: 280px;
+            height: 100vh;
+            background: rgba(18, 18, 28, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            transition: right 0.3s ease;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .nav-drawer.open { right: 0; }
+        
+        .nav-drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        
+        .nav-drawer-close {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        
+        .nav-drawer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        
+        .nav-drawer-links a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 15px 0;
+            font-size: 1.1em;
+            border-bottom: 1px solid rgba(136, 85, 255, 0.15);
+            transition: color 0.3s, padding-left 0.3s;
+        }
+        
+        .nav-drawer-links a:hover {
+            color: var(--neon-cyan);
+            padding-left: 10px;
+        }
+        
+        .nav-drawer-links .nav-cta {
+            margin-top: 20px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            border-radius: 25px;
+            text-align: center;
+            border: none;
+        }
+        
+        .nav-drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            visibility: hidden;
+            z-index: 199;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .nav-drawer-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-nav-toggle { display: flex; }
+            header nav { display: none; }
+            .hero-title { font-size: 2.2em; }
+            .hero-subtitle { font-size: 1.1em; }
+            .hero-tagline { font-size: 1em; margin-bottom: 30px; }
+            .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 10px; }
+            .hero-stat { padding: 15px 10px; }
+            .hero-stat .stat-value { font-size: 1.8em; }
+            .hero-stat .stat-label { font-size: 0.75em; }
+            .manifold-showcase { flex-direction: column; gap: 20px; padding: 0; }
+            .floating-data { display: none; }
+            .manifold-box { width: calc(100% - 20px); max-width: 380px; margin: 0 auto; }
+            #manifoldCanvas { width: 100% !important; height: auto !important; }
+            .shape-meanings { flex-direction: column; gap: 15px; margin-bottom: 25px; }
+            .philosophy-text { font-size: 1.1em; padding: 0 15px; }
+            .philosophy-question { font-size: 1.2em; padding: 0 15px; }
+            .path-choice { flex-direction: column; gap: 15px; padding: 0 20px; }
+            .path-btn { width: 100%; min-width: unset; padding: 25px; }
+            
+            /* Why Dimensional - Full Width */
+            .why-dimensional-section { padding: 60px 15px; }
+            .why-dimensional-section h2 { font-size: 1.8em; }
+            .benefits-grid { grid-template-columns: 1fr; gap: 20px; }
+            .benefit-card { padding: 25px 20px; margin: 0; width: 100%; }
+            .benefit-icon { font-size: 2.5em; }
+            .benefit-card h3 { font-size: 1.3em; }
+            .benefit-number { font-size: 2em; }
+            
+            /* How It Works - Full Width */
+            .how-it-works-section { padding: 60px 15px; }
+            .comparison-grid { grid-template-columns: 1fr; gap: 20px; }
+            .compare-box { width: 100%; margin: 0; padding: 20px 15px; }
+            .compare-box pre { font-size: 0.7em; padding: 15px; overflow-x: auto; }
+            .principle-cards { grid-template-columns: 1fr; gap: 15px; }
+            .principle-card { width: 100%; }
+            
+            /* Manifold Explainer - Full Width */
+            .manifold-explainer { padding: 30px 20px; margin: 40px 0; }
+            .manifold-explainer h3 { font-size: 1.4em; }
+            .manifold-intro { font-size: 1em; margin-bottom: 30px; }
+            .manifold-concept-grid { grid-template-columns: 1fr; gap: 15px; }
+            .concept-card { padding: 25px 20px; }
+            .concept-icon { font-size: 1.8em; }
+            .concept-card h4 { font-size: 1.1em; }
+            .concept-card p { font-size: 0.9em; }
+            
+            /* App Grid - Full Width */
+            .featured-apps { padding: 60px 15px; }
+            .app-grid { grid-template-columns: 1fr; gap: 15px; }
+            .app-card { width: 100%; margin: 0; }
+            .suite-grid { grid-template-columns: 1fr; gap: 12px; }
+            .suite-card { width: 100%; }
+            
+            /* Use Cases - Full Width */
+            .use-cases { padding: 60px 15px; }
+            .use-case-grid { grid-template-columns: 1fr; gap: 15px; }
+            .use-case { width: 100%; }
+            
+            /* Pricing - Full Width */
+            .pricing-hook { padding: 60px 15px; }
+            
+            /* Carousel - Full Width */
+            .carousel-container { height: 450px; padding: 0 10px; }
+            .carousel-3d { width: calc(100vw - 40px); max-width: 340px; height: 420px; }
+            .product-card { width: calc(100vw - 40px); max-width: 340px; height: 420px; padding: 25px 20px; }
+        }
+        
+        @media (max-width: 480px) {
+            header { padding: 12px 15px; }
+            .logo-text { font-size: 1.1em; }
+            .logo-img { height: 28px; }
+            .hero-title { font-size: 1.6em; }
+            .hero-subtitle { font-size: 0.95em; }
+            .hero-tagline { font-size: 0.9em; }
+            .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .hero-stat { padding: 12px 8px; }
+            .hero-stat .stat-icon { font-size: 1.4em; }
+            .hero-stat .stat-value { font-size: 1.5em; }
+            .hero-stat .stat-label { font-size: 0.7em; }
+            .manifold-box { height: 280px; }
+            .why-dimensional-section h2 { font-size: 1.5em; }
+            .benefit-card { padding: 20px 15px; }
+            .benefit-card h3 { font-size: 1.2em; }
+            .benefit-card p { font-size: 0.9em; }
+            .benefit-number { font-size: 1.8em; }
+            .path-btn { padding: 20px 15px; }
+            .path-label { font-size: 1.1em; }
+        }
     </style>
 </head>
 <body>
     <!-- Hyperspace Starfield Background -->
     <canvas id="hyperspace"></canvas>
     
+    <!-- 3D Wireframe Geometry Canvas -->
+    <canvas id="wireframeGeometry"></canvas>
+    
+    <!-- Floating 3D Geometric Shapes -->
+    <div class="floating-shapes" aria-hidden="true">
+        <div class="float-shape triangle"></div>
+        <div class="float-shape hexagon"></div>
+        <div class="float-shape triangle"></div>
+        <div class="float-shape hexagon"></div>
+    </div>
+    
     <!-- Header -->
-    <header>
+    <header class="dimensional-header">
         <a href="index.html" class="logo">
             <img src="/static/image/butterflyLogo.png" alt="ButterflyFX" class="logo-img">
             <span class="logo-text">ButterflyFX</span>
         </a>
-        <nav>
+        
+        <!-- Mobile Navigation Toggle -->
+        <button class="mobile-nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <span class="nav-bar"></span>
+            <span class="nav-bar"></span>
+            <span class="nav-bar"></span>
+        </button>
+        
+        <nav id="mainNav">
             <a href="apps.html">Apps</a>
             <a href="games/fasttrack.html">Games</a>
             <a href="platform.html">Platform</a>
@@ -1531,12 +2205,55 @@
         </nav>
     </header>
     
+    <!-- Mobile Navigation Drawer -->
+    <div class="nav-drawer" id="navDrawer">
+        <div class="nav-drawer-header">
+            <img src="/static/image/butterflyLogo.png" alt="ButterflyFX" style="height: 32px;">
+            <button class="nav-drawer-close" id="navClose" aria-label="Close navigation">✕</button>
+        </div>
+        <nav class="nav-drawer-links">
+            <a href="apps.html">Apps</a>
+            <a href="games/fasttrack.html">Games</a>
+            <a href="platform.html">Platform</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="developer.html">Developers</a>
+            <a href="login.html">Log In</a>
+            <a href="register.html" class="nav-cta">Get Started</a>
+        </nav>
+    </div>
+    <div class="nav-drawer-overlay" id="navOverlay"></div>
+    
     <!-- Main Content -->
     <main>
-        <!-- HERO - DIMENSIONAL PHILOSOPHY -->
+        <!-- HERO - DIMENSIONAL APP ENHANCEMENT -->
         <section class="hero-philosophy">
             <h1 class="hero-title"><img src="/static/image/butterflyLogo.png" alt="" class="hero-logo"> ButterflyFX</h1>
-            <p class="hero-subtitle">A new way to deal with data — as old as creation.</p>
+            <p class="hero-subtitle">Transform Your Apps with Dimensional Computing</p>
+            <p class="hero-tagline">Where geometric shapes hold data — not bits and bytes</p>
+            
+            <!-- Core Value Stats -->
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="stat-icon">⚡</span>
+                    <span class="stat-value">100×</span>
+                    <span class="stat-label">Faster Processing</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="stat-icon">🔒</span>
+                    <span class="stat-value">∞</span>
+                    <span class="stat-label">Intrinsic Security</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="stat-icon">📈</span>
+                    <span class="stat-value">7D</span>
+                    <span class="stat-label">Scalability</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="stat-icon">✨</span>
+                    <span class="stat-value">∞</span>
+                    <span class="stat-label">Possibilities</span>
+                </div>
+            </div>
             
             <!-- Manifold Visualization with Floating Data Labels -->
             <div class="manifold-showcase">
@@ -1563,97 +2280,176 @@
                 <span class="shape-meaning">□ Square → Calculus</span>
             </div>
             
-            <p class="philosophy-text">Data has always lived in shapes. Color, sound, motion — it's in everything around us.</p>
-            <p class="philosophy-question">Why store your data in megabytes when it already lives inside a <a href="#how-it-works" class="manifold-link" style="color: #ffffff !important;" title="A mathematical expression as a geometric shape.">manifold</a>?</p>
+            <p class="philosophy-text">Shapes already contain data. A circle knows Pi. A triangle holds sin, cos, tan. A square embodies area.</p>
+            <p class="philosophy-question">Why encode data as bits when it <em>already exists</em> inside <a href="#how-it-works" class="manifold-link">geometric dimensions</a>?</p>
             
             <div class="path-choice">
-                <a href="#turbo" class="path-btn app-path">
-                    <span class="path-icon">⚡</span>
-                    <span class="path-label">See the Apps</span>
-                    <span class="path-hint">50+ working superchargers</span>
+                <a href="#enhanced-apps" class="path-btn app-path">
+                    <span class="path-icon">🚀</span>
+                    <span class="path-label">Enhanced Apps</span>
+                    <span class="path-hint">50+ dimensional superchargers</span>
                 </a>
-                <a href="#how-it-works" class="path-btn learn-path">
-                    <span class="path-icon">🔬</span>
-                    <span class="path-label">How It Works</span>
-                    <span class="path-hint">The dimensional paradigm</span>
+                <a href="#why-dimensional" class="path-btn learn-path">
+                    <span class="path-icon">💎</span>
+                    <span class="path-label">Why Dimensional?</span>
+                    <span class="path-hint">Efficiency • Security • Scale</span>
                 </a>
             </div>
         </section>
         
-        <!-- HOW IT WORKS SECTION -->
-        <section class="how-it-works-section" id="how-it-works">
-            <h2>🔬 How Dimensional Computing Works</h2>
-            <p class="section-sub">Traditional computing stores data in flat files. We store it in shapes.</p>
+        <!-- WHY DIMENSIONAL SECTION -->
+        <section class="why-dimensional-section" id="why-dimensional">
+            <h2>🔮 Why Dimensional Computing?</h2>
+            <p class="section-sub">The old way: translate everything into bits. The new way: let shapes be data.</p>
             
-            <div class="comparison-grid">
-                <div class="compare-box traditional">
-                    <h3>❌ Traditional Way</h3>
-                    <pre><code>// 47 lines of boilerplate
-class Car {
-  constructor() {
-    this.wheels = 4;
-    this.color = "red";
-    this.speed = 0;
-  }
-  accelerate() { ... }
-  brake() { ... }
-  turn() { ... }
-}
-// + database schema
-// + API endpoints
-// + state management</code></pre>
-                    <p class="compare-result">Hours of setup before you can drive</p>
+            <div class="benefits-grid">
+                <div class="benefit-card efficiency">
+                    <div class="benefit-icon">⚡</div>
+                    <h3>Extreme Efficiency</h3>
+                    <p>No encoding overhead. No parsing. No serialization loops. Data IS the shape — computed at the speed of geometry.</p>
+                    <div class="benefit-stat">
+                        <span class="benefit-number">100×</span>
+                        <span class="benefit-metric">faster than JSON</span>
+                    </div>
                 </div>
                 
-                <div class="compare-box dimensional">
-                    <h3>✅ Dimensional Way</h3>
-                    <pre><code>// 1 line — it just exists
-car = manifold.spawn("car")
+                <div class="benefit-card security">
+                    <div class="benefit-icon">🔒</div>
+                    <h3>Intrinsic Security</h3>
+                    <p>Data locked in dimensional manifolds. Can't be intercepted because it's not transmitted as bits — it exists as mathematical truth.</p>
+                    <div class="benefit-stat">
+                        <span class="benefit-number">∞</span>
+                        <span class="benefit-metric">encryption dimensions</span>
+                    </div>
+                </div>
+                
+                <div class="benefit-card scalability">
+                    <div class="benefit-icon">📈</div>
+                    <h3>Infinite Scalability</h3>
+                    <p>Add dimensions, not servers. Each new dimension multiplies capacity exponentially. 7D = millions of parallel state-spaces.</p>
+                    <div class="benefit-stat">
+                        <span class="benefit-number">7D</span>
+                        <span class="benefit-metric">dimensional depth</span>
+                    </div>
+                </div>
+                
+                <div class="benefit-card possibility">
+                    <div class="benefit-icon">✨</div>
+                    <h3>Limitless Possibility</h3>
+                    <p>Build apps impossible with traditional computing. Simulate physics, parallel universes, morphing data — all native to shapes.</p>
+                    <div class="benefit-stat">
+                        <span class="benefit-number">∞</span>
+                        <span class="benefit-metric">creative freedom</span>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-// Already has everything:
-car.wheels    // 4
-car.color     // "red"
-car.drive()   // works
-car.save()    // persists
-car.sync()    // real-time</code></pre>
-                    <p class="compare-result">Instant. The shape contains the data.</p>
+        <!-- HOW IT WORKS SECTION -->
+        <section class="how-it-works-section" id="how-it-works">
+            <h2>🌀 The Principles of Dimensional Creation</h2>
+            <p class="section-sub">Everything created — in nature, art, code, or thought — follows the same <strong>7 levels of becoming</strong>.</p>
+            
+            <!-- THE 7 FIBONACCI LEVELS -->
+            <div class="manifold-explainer">
+                <h3>📐 The 7 Fibonacci Levels of Creation</h3>
+                <p class="manifold-intro">From a single spark to complete integration. This is how <strong>everything</strong> comes into being — whether you're building software, writing a symphony, designing a building, or growing a tree. The pattern is universal.</p>
+                
+                <div class="manifold-concept-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
+                    <div class="concept-card" style="padding: 16px 12px;">
+                        <div class="concept-icon" style="font-size: 1.5em;">1</div>
+                        <h4 style="font-size: 0.9em; margin: 8px 0 4px;">The Spark</h4>
+                        <p style="font-size: 0.75em; margin: 0;">Origin. A single point of existence.</p>
+                    </div>
+                    
+                    <div class="concept-card" style="padding: 16px 12px;">
+                        <div class="concept-icon" style="font-size: 1.5em;">1</div>
+                        <h4 style="font-size: 0.9em; margin: 8px 0 4px;">The Mirror</h4>
+                        <p style="font-size: 0.75em; margin: 0;">Duality. A second point creates direction.</p>
+                    </div>
+                    
+                    <div class="concept-card" style="padding: 16px 12px;">
+                        <div class="concept-icon" style="font-size: 1.5em;">2</div>
+                        <h4 style="font-size: 0.9em; margin: 8px 0 4px;">The Relation</h4>
+                        <p style="font-size: 0.75em; margin: 0;">Interaction. Points form structure.</p>
+                    </div>
+                    
+                    <div class="concept-card" style="padding: 16px 12px;">
+                        <div class="concept-icon" style="font-size: 1.5em;">3</div>
+                        <h4 style="font-size: 0.9em; margin: 8px 0 4px;">The Form</h4>
+                        <p style="font-size: 0.75em; margin: 0;">Shape. Structure becomes tangible.</p>
+                    </div>
+                    
+                    <div class="concept-card" style="padding: 16px 12px;">
+                        <div class="concept-icon" style="font-size: 1.5em;">5</div>
+                        <h4 style="font-size: 0.9em; margin: 8px 0 4px;">The Life</h4>
+                        <p style="font-size: 0.75em; margin: 0;">Meaning. Form gains intention.</p>
+                    </div>
+                    
+                    <div class="concept-card" style="padding: 16px 12px;">
+                        <div class="concept-icon" style="font-size: 1.5em;">8</div>
+                        <h4 style="font-size: 0.9em; margin: 8px 0 4px;">The Mind</h4>
+                        <p style="font-size: 0.75em; margin: 0;">Coherence. Meaning self-organizes.</p>
+                    </div>
+                    
+                    <div class="concept-card" style="padding: 16px 12px;">
+                        <div class="concept-icon" style="font-size: 1.5em;">13</div>
+                        <h4 style="font-size: 0.9em; margin: 8px 0 4px;">The Completion</h4>
+                        <p style="font-size: 0.75em; margin: 0;">Whole. The spiral returns to one.</p>
+                    </div>
+                </div>
+                
+                <p style="text-align: center; color: #aaa; margin-top: 20px; font-style: italic;">
+                    1, 1, 2, 3, 5, 8, 13 — The Fibonacci sequence encodes the geometry of creation itself.
+                </p>
+            </div>
+            
+            <!-- UNIVERSAL CREATIVE PROCESS -->
+            <div class="principle-cards">
+                <div class="principle-card">
+                    <span class="principle-icon">🎨</span>
+                    <h4>The Artist's Path</h4>
+                    <p>Spark of inspiration → Explore duality → Find relationships → Shape emerges → Meaning flows → Coherence develops → Masterpiece complete.</p>
+                </div>
+                <div class="principle-card">
+                    <span class="principle-icon">🏗️</span>
+                    <h4>The Builder's Journey</h4>
+                    <p>Foundation point → Opposite wall → Structural relation → Form takes shape → Purpose fills space → Systems harmonize → Home complete.</p>
+                </div>
+                <div class="principle-card">
+                    <span class="principle-icon">💻</span>
+                    <h4>The Creator's Code</h4>
+                    <p>Idea spark → Define scope → Build structure → Shape behaviors → Inject meaning → Self-organizing → Application complete.</p>
                 </div>
             </div>
             
-            <div class="principle-cards">
-                <div class="principle-card">
-                    <span class="principle-icon">🧬</span>
-                    <h4>Identity-First</h4>
-                    <p>Every object gets a universal ID at birth. No configuration.</p>
-                </div>
-                <div class="principle-card">
-                    <span class="principle-icon">📦</span>
-                    <h4>Data Lives in Shape</h4>
-                    <p>A circle knows π. A car knows wheels. The shape IS the schema.</p>
-                </div>
-                <div class="principle-card">
-                    <span class="principle-icon">🔄</span>
-                    <h4>Born Connected</h4>
-                    <p>Objects sync, persist, and API themselves. Zero setup.</p>
-                </div>
+            <!-- CORE PRINCIPLE -->
+            <div class="manifold-explainer" style="margin-top: 40px;">
+                <h3>✨ The Core Principle</h3>
+                <p class="manifold-intro" style="font-size: 1.2em; max-width: 800px; margin: 0 auto;">
+                    Every dimension contains <strong>everything it is</strong> — not as stored data, but as inherent truth. 
+                    A length contains all its widths. A wall contains its paint. You don't build completeness — you <strong>invoke</strong> what was always there.
+                    <br><br>
+                    This applies to software. To art. To thought. To life itself.
+                </p>
             </div>
             
             <div class="cta-buttons" style="margin-top: 40px;">
-                <a href="#turbo" class="cta-primary">See It In Action →</a>
+                <a href="#enhanced-apps" class="cta-primary">See It In Action →</a>
             </div>
         </section>
         
-        <!-- SUPERCHARGER SUITES -->
-        <section class="featured-apps" id="turbo">
-            <h2>⚡ 50+ Superchargers</h2>
-            <p class="section-sub">Tools that 10x your data, AI, career, finances, and life. <strong>All with proof.</strong></p>
+        <!-- DIMENSIONAL ENHANCED APPS -->
+        <section class="featured-apps" id="enhanced-apps">
+            <h2>🚀 Dimensionally Enhanced Apps</h2>
+            <p class="section-sub">Apps powered by geometric data — 100× faster, infinitely more capable. <strong>See the proof.</strong></p>
             
             <div class="suite-grid">
                 <a href="superchargers.html#data" class="suite-card">
                     <span class="suite-icon">💾</span>
                     <div class="suite-info">
                         <h3>Data Suite</h3>
-                        <p>Compress 95% • Convert any format • Process 10k files</p>
+                        <p>95% compression • Any format conversion • 10k file processing</p>
                     </div>
                     <span class="suite-count">6 apps</span>
                 </a>
@@ -1662,7 +2458,7 @@ car.sync()    // real-time</code></pre>
                     <span class="suite-icon">🤖</span>
                     <div class="suite-info">
                         <h3>AI Suite</h3>
-                        <p>10x better prompts • Train on your docs • Amplify writing</p>
+                        <p>10× better prompts • Custom training • Amplified writing</p>
                     </div>
                     <span class="suite-count">4 apps</span>
                 </a>
@@ -2062,6 +2858,328 @@ car.sync()    // real-time</code></pre>
     animateHyperspace();
     
     // ============================================
+    // WIREFRAME MANIFOLD - ENVELOPING GEOMETRY
+    // ============================================
+    (function() {
+        const canvas = document.getElementById('wireframeGeometry');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let mouseX = 0, mouseY = 0;
+        let targetMouseX = 0, targetMouseY = 0;
+        let shapes = [];
+        let time = 0;
+        
+        // Smooth mouse tracking
+        function updateMouseSmooth() {
+            mouseX += (targetMouseX - mouseX) * 0.05;
+            mouseY += (targetMouseY - mouseY) * 0.05;
+        }
+        
+        // 3D Vector helpers
+        function vec3(x, y, z) { return { x, y, z }; }
+        
+        function rotateX(v, angle) {
+            const cos = Math.cos(angle), sin = Math.sin(angle);
+            return vec3(v.x, v.y * cos - v.z * sin, v.y * sin + v.z * cos);
+        }
+        
+        function rotateY(v, angle) {
+            const cos = Math.cos(angle), sin = Math.sin(angle);
+            return vec3(v.x * cos + v.z * sin, v.y, -v.x * sin + v.z * cos);
+        }
+        
+        function rotateZ(v, angle) {
+            const cos = Math.cos(angle), sin = Math.sin(angle);
+            return vec3(v.x * cos - v.y * sin, v.x * sin + v.y * cos, v.z);
+        }
+        
+        function project(v, cx, cy, fov, distance) {
+            const factor = fov / (fov + v.z + distance);
+            return { x: v.x * factor + cx, y: v.y * factor + cy, scale: factor };
+        }
+        
+        // Shape definitions - LARGER manifold-style shapes
+        const shapeTypes = {
+            // Dodecahedron - 12 faces representing manifold dimensions
+            dodecahedron: {
+                vertices: (function() {
+                    const phi = (1 + Math.sqrt(5)) / 2;
+                    const invPhi = 1 / phi;
+                    return [
+                        vec3(1, 1, 1), vec3(1, 1, -1), vec3(1, -1, 1), vec3(1, -1, -1),
+                        vec3(-1, 1, 1), vec3(-1, 1, -1), vec3(-1, -1, 1), vec3(-1, -1, -1),
+                        vec3(0, invPhi, phi), vec3(0, invPhi, -phi), vec3(0, -invPhi, phi), vec3(0, -invPhi, -phi),
+                        vec3(invPhi, phi, 0), vec3(invPhi, -phi, 0), vec3(-invPhi, phi, 0), vec3(-invPhi, -phi, 0),
+                        vec3(phi, 0, invPhi), vec3(phi, 0, -invPhi), vec3(-phi, 0, invPhi), vec3(-phi, 0, -invPhi)
+                    ];
+                })(),
+                edges: [[0,8],[8,4],[4,14],[14,12],[12,0],[0,16],[16,2],[2,10],[10,8],[4,18],[18,6],[6,10],[14,5],[5,19],[19,18],[12,1],[1,17],[17,16],[2,13],[13,3],[3,17],[6,15],[15,7],[7,19],[5,9],[9,1],[3,11],[11,9],[7,11],[13,15]]
+            },
+            cube: {
+                vertices: [
+                    vec3(-1, -1, -1), vec3(1, -1, -1), vec3(1, 1, -1), vec3(-1, 1, -1),
+                    vec3(-1, -1, 1), vec3(1, -1, 1), vec3(1, 1, 1), vec3(-1, 1, 1)
+                ],
+                edges: [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]]
+            },
+            octahedron: {
+                vertices: [
+                    vec3(0, -1.5, 0), vec3(0, 1.5, 0),
+                    vec3(-1.5, 0, 0), vec3(1.5, 0, 0),
+                    vec3(0, 0, -1.5), vec3(0, 0, 1.5)
+                ],
+                edges: [[0,2],[0,3],[0,4],[0,5],[1,2],[1,3],[1,4],[1,5],[2,4],[4,3],[3,5],[5,2]]
+            },
+            icosahedron: {
+                vertices: (function() {
+                    const phi = (1 + Math.sqrt(5)) / 2;
+                    return [
+                        vec3(0, 1, phi), vec3(0, -1, phi), vec3(0, 1, -phi), vec3(0, -1, -phi),
+                        vec3(1, phi, 0), vec3(-1, phi, 0), vec3(1, -phi, 0), vec3(-1, -phi, 0),
+                        vec3(phi, 0, 1), vec3(-phi, 0, 1), vec3(phi, 0, -1), vec3(-phi, 0, -1)
+                    ];
+                })(),
+                edges: [[0,1],[0,4],[0,5],[0,8],[0,9],[1,6],[1,7],[1,8],[1,9],[2,3],[2,4],[2,5],[2,10],[2,11],[3,6],[3,7],[3,10],[3,11],[4,5],[4,8],[4,10],[5,9],[5,11],[6,7],[6,8],[6,10],[7,9],[7,11],[8,10],[9,11]]
+            },
+            // Tesseract projection (4D hypercube)
+            tesseract: {
+                vertices: (function() {
+                    const v = [];
+                    for (let i = 0; i < 16; i++) {
+                        const x = (i & 1) ? 1 : -1;
+                        const y = (i & 2) ? 1 : -1;
+                        const z = (i & 4) ? 1 : -1;
+                        const w = (i & 8) ? 0.6 : -0.6;
+                        v.push(vec3(x + w * 0.3, y + w * 0.3, z + w * 0.3));
+                    }
+                    return v;
+                })(),
+                edges: [[0,1],[0,2],[0,4],[1,3],[1,5],[2,3],[2,6],[3,7],[4,5],[4,6],[5,7],[6,7],[8,9],[8,10],[8,12],[9,11],[9,13],[10,11],[10,14],[11,15],[12,13],[12,14],[13,15],[14,15],[0,8],[1,9],[2,10],[3,11],[4,12],[5,13],[6,14],[7,15]]
+            }
+        };
+        
+        // Manifold colors - ethereal, dimensional
+        const colors = [
+            { r: 100, g: 60, b: 200 },   // deep purple
+            { r: 40, g: 180, b: 200 },   // ocean cyan
+            { r: 180, g: 60, b: 140 },   // magenta
+            { r: 60, g: 200, b: 120 },   // emerald
+            { r: 80, g: 100, b: 220 }    // royal blue
+        ];
+        
+        // Create large enveloping shapes
+        function createShape(type, x, y, size, color, layer) {
+            const def = shapeTypes[type];
+            return {
+                type: type,
+                vertices: def.vertices.map(v => vec3(v.x * size, v.y * size, v.z * size)),
+                edges: def.edges,
+                x: x,
+                y: y,
+                z: layer * 150,
+                originX: x,
+                originY: y,
+                vx: 0,
+                vy: 0,
+                vz: 0,
+                rotX: Math.random() * Math.PI * 2,
+                rotY: Math.random() * Math.PI * 2,
+                rotZ: Math.random() * Math.PI * 2,
+                rotVelX: (Math.random() - 0.5) * 0.003,
+                rotVelY: (Math.random() - 0.5) * 0.003,
+                rotVelZ: (Math.random() - 0.5) * 0.002,
+                size: size,
+                color: color,
+                baseOpacity: 0.15 + layer * 0.05,
+                layer: layer,
+                breathePhase: Math.random() * Math.PI * 2,
+                breatheSpeed: 0.005 + Math.random() * 0.003
+            };
+        }
+        
+        function initWireframe() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            mouseX = targetMouseX = width / 2;
+            mouseY = targetMouseY = height / 2;
+            
+            shapes = [];
+            const types = ['dodecahedron', 'tesseract', 'icosahedron', 'octahedron', 'cube'];
+            
+            // Create layered enveloping shapes - large in corners and edges
+            const positions = [
+                { x: -0.15, y: -0.1, size: 280, layer: 0 },
+                { x: 1.15, y: -0.1, size: 320, layer: 0 },
+                { x: -0.1, y: 1.1, size: 260, layer: 0 },
+                { x: 1.1, y: 1.1, size: 300, layer: 0 },
+                { x: 0.5, y: -0.15, size: 200, layer: 1 },
+                { x: -0.12, y: 0.5, size: 240, layer: 1 },
+                { x: 1.12, y: 0.5, size: 220, layer: 1 },
+                { x: 0.5, y: 1.12, size: 180, layer: 1 },
+                { x: 0.25, y: 0.3, size: 150, layer: 2 },
+                { x: 0.75, y: 0.7, size: 160, layer: 2 }
+            ];
+            
+            positions.forEach((pos, i) => {
+                const type = types[i % types.length];
+                const color = colors[i % colors.length];
+                const x = pos.x * width;
+                const y = pos.y * height;
+                shapes.push(createShape(type, x, y, pos.size, color, pos.layer));
+            });
+        }
+        
+        function updateShapes() {
+            time += 0.01;
+            updateMouseSmooth();
+            
+            const gravityStrength = 0.02;  // Gentle gravity
+            const returnStrength = 0.008;  // Return to origin
+            const friction = 0.96;
+            const maxSpeed = 1.5;  // Slow movement
+            
+            for (let shape of shapes) {
+                // Gentle breathing/pulsing
+                shape.breathePhase += shape.breatheSpeed;
+                const breathe = 1 + Math.sin(shape.breathePhase) * 0.05;
+                
+                // Calculate distance to mouse
+                const dx = mouseX - shape.x;
+                const dy = mouseY - shape.y;
+                const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                
+                // Gentle attraction toward cursor
+                const gravityFactor = Math.min(1, 400 / dist) * (1 - shape.layer * 0.2);
+                const ax = (dx / dist) * gravityStrength * gravityFactor;
+                const ay = (dy / dist) * gravityStrength * gravityFactor;
+                
+                // Return to origin force (keeps shapes in position)
+                const returnDx = shape.originX - shape.x;
+                const returnDy = shape.originY - shape.y;
+                const returnAx = returnDx * returnStrength;
+                const returnAy = returnDy * returnStrength;
+                
+                // Apply forces
+                shape.vx += ax + returnAx;
+                shape.vy += ay + returnAy;
+                
+                // Apply friction
+                shape.vx *= friction;
+                shape.vy *= friction;
+                
+                // Clamp speed
+                const speed = Math.sqrt(shape.vx * shape.vx + shape.vy * shape.vy);
+                if (speed > maxSpeed) {
+                    shape.vx = (shape.vx / speed) * maxSpeed;
+                    shape.vy = (shape.vy / speed) * maxSpeed;
+                }
+                
+                // Update position
+                shape.x += shape.vx;
+                shape.y += shape.vy;
+                
+                // Slow, meditative rotation - faster when closer to cursor
+                const rotMultiplier = 1 + gravityFactor * 0.5;
+                shape.rotX += shape.rotVelX * rotMultiplier;
+                shape.rotY += shape.rotVelY * rotMultiplier;
+                shape.rotZ += shape.rotVelZ * rotMultiplier;
+            }
+        }
+        
+        function drawWireframe() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Sort by layer (back to front)
+            shapes.sort((a, b) => a.layer - b.layer);
+            
+            for (let shape of shapes) {
+                const breathe = 1 + Math.sin(shape.breathePhase) * 0.03;
+                
+                // Transform vertices with breathing scale
+                const transformed = shape.vertices.map(v => {
+                    let tv = vec3(v.x * breathe, v.y * breathe, v.z * breathe);
+                    tv = rotateX(tv, shape.rotX);
+                    tv = rotateY(tv, shape.rotY);
+                    tv = rotateZ(tv, shape.rotZ);
+                    return vec3(tv.x + shape.x - width/2, tv.y + shape.y - height/2, tv.z + shape.z);
+                });
+                
+                // Project to 2D with large FOV for enveloping feel
+                const projected = transformed.map(v => project(v, width/2, height/2, 800, 100));
+                
+                // Calculate opacity based on distance to mouse
+                const dx = mouseX - shape.x;
+                const dy = mouseY - shape.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const proximityBoost = Math.max(0, 1 - dist / 500) * 0.3;
+                const layerOpacity = shape.baseOpacity * (1 - shape.layer * 0.15);
+                const opacity = layerOpacity + proximityBoost;
+                
+                // Draw edges with glow
+                ctx.strokeStyle = `rgba(${shape.color.r}, ${shape.color.g}, ${shape.color.b}, ${opacity})`;
+                ctx.lineWidth = 1 + (2 - shape.layer) * 0.5;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                
+                // Add subtle glow
+                ctx.shadowColor = `rgba(${shape.color.r}, ${shape.color.g}, ${shape.color.b}, ${opacity * 0.5})`;
+                ctx.shadowBlur = 10 + proximityBoost * 20;
+                
+                for (let edge of shape.edges) {
+                    if (edge[0] < projected.length && edge[1] < projected.length) {
+                        const p1 = projected[edge[0]];
+                        const p2 = projected[edge[1]];
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+                
+                // Draw vertices as small glowing points
+                ctx.shadowBlur = 5;
+                ctx.fillStyle = `rgba(${shape.color.r}, ${shape.color.g}, ${shape.color.b}, ${opacity * 0.8})`;
+                for (let p of projected) {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 1.5 + proximityBoost * 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            ctx.shadowBlur = 0;
+        }
+        
+        function animateWireframe() {
+            updateShapes();
+            drawWireframe();
+            requestAnimationFrame(animateWireframe);
+        }
+        
+        // Smooth mouse tracking
+        document.addEventListener('mousemove', (e) => {
+            targetMouseX = e.clientX;
+            targetMouseY = e.clientY;
+        });
+        
+        // Touch support
+        document.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                targetMouseX = e.touches[0].clientX;
+                targetMouseY = e.touches[0].clientY;
+            }
+        });
+        
+        // Handle resize
+        window.addEventListener('resize', initWireframe);
+        
+        // Initialize
+        initWireframe();
+        animateWireframe();
+    })();
+    
+    // ============================================
     // PRODUCT CAROUSEL (3D)
     // ============================================
     const carousel = document.getElementById('productCarousel');
@@ -2411,6 +3529,125 @@ car.sync()    // real-time</code></pre>
         }
         
         drawFrame();
+    })();
+    </script>
+    
+    <!-- Dimensional Parallax Engine -->
+    <script src="static/js/dimensional-parallax.js"></script>
+    
+    <!-- Mobile Navigation Controller -->
+    <script>
+    (function() {
+        const navToggle = document.getElementById('navToggle');
+        const navDrawer = document.getElementById('navDrawer');
+        const navOverlay = document.getElementById('navOverlay');
+        const navClose = document.getElementById('navClose');
+        
+        function openDrawer() {
+            navDrawer.classList.add('open');
+            navOverlay.classList.add('visible');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeDrawer() {
+            navDrawer.classList.remove('open');
+            navOverlay.classList.remove('visible');
+            document.body.style.overflow = '';
+        }
+        
+        if (navToggle) navToggle.addEventListener('click', openDrawer);
+        if (navClose) navClose.addEventListener('click', closeDrawer);
+        if (navOverlay) navOverlay.addEventListener('click', closeDrawer);
+        
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDrawer();
+        });
+        
+        // Close drawer when link clicked
+        navDrawer?.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', closeDrawer);
+        });
+        
+        // Initialize parallax effects
+        if (typeof DimensionalParallax !== 'undefined') {
+            new DimensionalParallax();
+        }
+        
+        // Add holodeck effects to cards
+        document.querySelectorAll('.app-card, .use-case-item, .price-card, .benefit-card, .suite-card').forEach(card => {
+            if (typeof HolodeckCard !== 'undefined') {
+                new HolodeckCard(card);
+            }
+        });
+        
+        // ============================================
+        // SCROLL PARALLAX FOR FLOATING SHAPES
+        // ============================================
+        const floatingShapes = document.querySelectorAll('.float-shape');
+        let scrollY = 0;
+        let mouseX = 0, mouseY = 0;
+        
+        // Scroll parallax
+        window.addEventListener('scroll', () => {
+            scrollY = window.scrollY;
+            floatingShapes.forEach((shape, i) => {
+                const speed = 0.05 + (i * 0.02);
+                const yOffset = scrollY * speed;
+                const rotation = scrollY * 0.02 * (i % 2 === 0 ? 1 : -1);
+                shape.style.transform = `translateY(${yOffset}px) rotate(${rotation}deg)`;
+            });
+        });
+        
+        // Mouse parallax for desktop
+        if (window.innerWidth > 768) {
+            document.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+                mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+                
+                floatingShapes.forEach((shape, i) => {
+                    const intensity = 15 + (i * 5);
+                    const xOffset = mouseX * intensity;
+                    const yOffset = mouseY * intensity;
+                    const scrollOffset = scrollY * (0.05 + i * 0.02);
+                    shape.style.transform = `translate(${xOffset}px, ${yOffset + scrollOffset}px) rotate(${mouseX * 10}deg)`;
+                });
+            });
+        }
+        
+        // ============================================
+        // INTERSECTION OBSERVER FOR ANIMATIONS
+        // ============================================
+        const animateOnScroll = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('.benefit-card, .app-card, .suite-card, .use-case, .principle-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            animateOnScroll.observe(el);
+        });
+        
+        // Add animate-in class handler
+        document.addEventListener('scroll', () => {
+            document.querySelectorAll('.benefit-card, .app-card, .suite-card, .use-case, .principle-card').forEach((el, i) => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.85) {
+                    setTimeout(() => {
+                        el.style.opacity = '1';
+                        el.style.transform = 'translateY(0)';
+                    }, i * 100);
+                }
+            });
+        });
+        
+        // Trigger initial check
+        window.dispatchEvent(new Event('scroll'));
     })();
     </script>
 </body>

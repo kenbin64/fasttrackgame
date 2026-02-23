@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastTrack! - Play vs AI Setup</title>
+    <link rel="icon" href="assets/images/ftLogo.png" type="image/png">
+    <link rel="apple-touch-icon" href="assets/images/ftLogo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/ai-setup.css">
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <header class="header">
+        <h1 class="logo">FastTrack!</h1>
+        <p class="tagline">Play Against AI</p>
+    </header>
+    
+    <main class="container">
+        <div class="card">
+            <h2 class="card-title">🤖 Set Up Your Game</h2>
+            
+            <!-- Username -->
+            <div class="form-group">
+                <label>Your Name</label>
+                <input type="text" id="player-name" placeholder="Enter your name..." maxlength="20" value="">
+            </div>
+            
+            <!-- Avatar Selection -->
+            <div class="avatar-section">
+                <label style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 1.1em;">
+                    Choose Your Avatar
+                </label>
+                <div class="avatar-preview">
+                    <div class="avatar-preview-large" id="avatar-preview">🎮</div>
+                    <div>
+                        <div style="font-weight: 600;" id="avatar-name">Select an avatar</div>
+                        <div style="font-size: 0.85em; color: var(--text-muted);">100+ to choose from!</div>
+                    </div>
+                </div>
+                <div class="avatar-categories" id="avatar-categories"></div>
+                <div class="avatar-grid" id="avatar-grid"></div>
+            </div>
+            
+            <!-- Difficulty -->
+            <div class="form-group">
+                <label>AI Difficulty</label>
+                <div class="difficulty-grid">
+                    <div class="difficulty-option" data-difficulty="easy" onclick="selectDifficulty('easy')">
+                        <div class="difficulty-icon">😊</div>
+                        <div class="difficulty-name">Easy</div>
+                        <div class="difficulty-desc">Casual play</div>
+                    </div>
+                    <div class="difficulty-option selected" data-difficulty="normal" onclick="selectDifficulty('normal')">
+                        <div class="difficulty-icon">🎯</div>
+                        <div class="difficulty-name">Normal</div>
+                        <div class="difficulty-desc">Balanced challenge</div>
+                    </div>
+                    <div class="difficulty-option" data-difficulty="hard" onclick="selectDifficulty('hard')">
+                        <div class="difficulty-icon">🔥</div>
+                        <div class="difficulty-name">Hard</div>
+                        <div class="difficulty-desc">Strategic AI</div>
+                    </div>
+                    <div class="difficulty-option" data-difficulty="expert" onclick="selectDifficulty('expert')">
+                        <div class="difficulty-icon">🏆</div>
+                        <div class="difficulty-name">Expert</div>
+                        <div class="difficulty-desc">For pros only</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Number of Players -->
+            <div class="form-group">
+                <label>Number of Players</label>
+                <div class="players-grid">
+                    <div class="players-option selected" data-players="2" onclick="selectPlayers(2)">
+                        <div class="players-count">2</div>
+                        <div class="players-label">vs 1 AI</div>
+                    </div>
+                    <div class="players-option" data-players="3" onclick="selectPlayers(3)">
+                        <div class="players-count">3</div>
+                        <div class="players-label">vs 2 AI</div>
+                    </div>
+                    <div class="players-option" data-players="4" onclick="selectPlayers(4)">
+                        <div class="players-count">4</div>
+                        <div class="players-label">vs 3 AI</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Start Button -->
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="startGame()">
+                    🚀 Start Game
+                </button>
+            </div>
+        </div>
+        
+        <div class="back-link">
+            <a href="index.html">← Back to Home</a>
+        </div>
+    </main>
+    
+    <script>
+        // Avatar data
+        const AVATARS = {
+            people: {
+                label: '👥 People',
+                items: [
+                    '👨🏻', '👨🏼', '👨🏽', '👨🏾', '👨🏿', '👩🏻', '👩🏼', '👩🏽', '👩🏾', '👩🏿',
+                    '🧑🏻', '🧑🏼', '🧑🏽', '🧑🏾', '🧑🏿', '👦🏻', '👦🏽', '👦🏿', '👧🏻', '👧🏽', '👧🏿',
+                    '👴🏻', '👴🏽', '👴🏿', '👵🏻', '👵🏽', '👵🏿', '🧓🏻', '🧓🏽', '🧓🏿',
+                    '👨🏻‍🦰', '👨🏽‍🦰', '👨🏿‍🦰', '👩🏼‍🦰', '👩🏾‍🦰', '👩🏿‍🦰',
+                    '👨🏻‍🦱', '👨🏽‍🦱', '👨🏿‍🦱', '👩🏼‍🦱', '👩🏾‍🦱', '👩🏿‍🦱',
+                    '🥷', '🥷🏻', '🥷🏽', '🥷🏿', '🦸🏻‍♂️', '🦸🏽‍♀️', '🦸🏿‍♂️',
+                    '🦹🏻‍♀️', '🦹🏽‍♂️', '🦹🏿‍♀️', '🧙🏻‍♂️', '🧙🏽‍♀️', '🧙🏿‍♂️',
+                    '💃🏻', '💃🏽', '💃🏿', '🕺🏻', '🕺🏽', '🕺🏿', '🤴🏻', '🤴🏽', '🤴🏿', '👸🏻', '👸🏽', '👸🏿'
+                ]
+            },
+            animals: {
+                label: '🐾 Animals',
+                items: [
+                    '🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐻‍❄️',
+                    '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🙈', '🙉', '🙊',
+                    '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇',
+                    '🐺', '🐗', '🐴', '🦄', '🐝', '🦋', '🐌',
+                    '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞',
+                    '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊'
+                ]
+            },
+            fantasy: {
+                label: '🦄 Fantasy',
+                items: [
+                    '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😈', '👿',
+                    '👹', '👺', '🧠', '👁️', '🌟', '⭐', '💫',
+                    '✨', '🔥', '💧', '🌊', '🌈', '☀️', '🌙', '⚡', '❄️',
+                    '🌸', '🌺', '🌻', '🌹', '🍀', '🌴', '🌵', '🎄', '🌲',
+                    '🍄', '💎', '🔮', '🪄', '🛸', '🚀', '🌍', '🌎', '🌏'
+                ]
+            },
+            food: {
+                label: '🍕 Food',
+                items: [
+                    '🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍒',
+                    '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🥑', '🥦', '🥬',
+                    '🍕', '🍔', '🍟', '🌭', '🍿', '🥪', '🌮', '🌯',
+                    '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟',
+                    '🍦', '🍩', '🍪', '🎂', '🍰', '🧁', '🍫', '🍬', '🍭'
+                ]
+            },
+            objects: {
+                label: '🎮 Objects',
+                items: [
+                    '⚽', '🏀', '🏈', '⚾', '🎾', '🏐', '🎱', '🏓', '🏸',
+                    '🥊', '🥋', '🎽', '🛹', '⛸️', '🎿', '🏂',
+                    '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷',
+                    '🎺', '🎸', '🎻', '🎲', '♟️', '🎯', '🎳',
+                    '🎮', '🕹️', '🧩', '🎰', '🧸'
+                ]
+            }
+        };
+        
+        // State
+        let selectedAvatar = '🎮';
+        let selectedDifficulty = 'normal';
+        let selectedPlayers = 2;
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAvatarGrid();
+            loadSavedPreferences();
+        });
+        
+        function renderAvatarGrid() {
+            const categoriesContainer = document.getElementById('avatar-categories');
+            const gridContainer = document.getElementById('avatar-grid');
+            
+            // Render category buttons
+            categoriesContainer.innerHTML = Object.entries(AVATARS).map(([key, cat], i) => 
+                `<button class="avatar-category-btn ${i === 0 ? 'active' : ''}" 
+                         onclick="switchCategory('${key}')">${cat.label}</button>`
+            ).join('');
+            
+            // Render first category
+            switchCategory(Object.keys(AVATARS)[0]);
+        }
+        
+        function switchCategory(category) {
+            // Update active button
+            document.querySelectorAll('.avatar-category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Render avatars
+            const gridContainer = document.getElementById('avatar-grid');
+            gridContainer.innerHTML = AVATARS[category].items.map(avatar => 
+                `<div class="avatar-option ${avatar === selectedAvatar ? 'selected' : ''}" 
+                      onclick="selectAvatar('${avatar}')">${avatar}</div>`
+            ).join('');
+        }
+        
+        function selectAvatar(avatar) {
+            selectedAvatar = avatar;
+            document.getElementById('avatar-preview').textContent = avatar;
+            document.getElementById('avatar-name').textContent = 'Looking good!';
+            
+            // Update selected state
+            document.querySelectorAll('.avatar-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.textContent === avatar) {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+        
+        function selectDifficulty(difficulty) {
+            selectedDifficulty = difficulty;
+            document.querySelectorAll('.difficulty-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.querySelector(`[data-difficulty="${difficulty}"]`).classList.add('selected');
+        }
+        
+        function selectPlayers(count) {
+            selectedPlayers = count;
+            document.querySelectorAll('.players-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.querySelector(`[data-players="${count}"]`).classList.add('selected');
+        }
+        
+        function loadSavedPreferences() {
+            // Load saved name if available
+            const savedName = localStorage.getItem('fasttrack_player_name');
+            if (savedName) {
+                document.getElementById('player-name').value = savedName;
+            }
+            
+            // Load saved avatar
+            const savedAvatar = localStorage.getItem('fasttrack_player_avatar');
+            if (savedAvatar) {
+                selectAvatar(savedAvatar);
+            }
+        }
+        
+        function startGame() {
+            const playerName = document.getElementById('player-name').value.trim() || 'Player';
+            
+            // Save preferences
+            localStorage.setItem('fasttrack_player_name', playerName);
+            localStorage.setItem('fasttrack_player_avatar', selectedAvatar);
+            
+            // Build URL with parameters
+            const params = new URLSearchParams({
+                quickplay: '1',
+                name: playerName,
+                avatar: selectedAvatar,
+                difficulty: selectedDifficulty,
+                players: selectedPlayers
+            });
+            
+            // Navigate to game
+            window.location.href = `board_3d.html?${params.toString()}`;
+        }
+    </script>
+</body>
+</html>

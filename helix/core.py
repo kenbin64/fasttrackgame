@@ -1,8 +1,24 @@
 """
 Core - The only layer that talks to the Kernel.
+CANONICAL IMPLEMENTATION OF THE DIMENSIONAL GENESIS
 
 Copyright (c) 2024-2026 Kenneth Bingham
 Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+THE 7 LAYERS OF CREATION (See DIMENSIONAL_GENESIS.md):
+
+    Layer 7 — COMPLETION:   Consciousness, Golden Spiral (Fib 13)
+    Layer 6 — MIND:         Intelligence, Gyroid (Fib 8)
+    Layer 5 — LIFE:         Meaning m=x·y·z (Fib 5)
+    Layer 4 — FORM:         Shape z=x·y² (Fib 3)
+    Layer 3 — RELATION:     z=x·y CANONICAL BASE (Fib 2)
+    Layer 2 — MIRROR:       Direction, duality (Fib 1)
+    Layer 1 — SPARK:        First Point, existence (Fib 1)
+
+THE FUNDAMENTAL INSIGHT:
+    1 becomes the bridge across the void.
+    1 on each side makes traversal possible.
+    Traversal creates dimension.
 
 ARCHITECTURE (Simple):
     ┌─────────────────────────────────┐
@@ -24,7 +40,7 @@ ARCHITECTURE (Simple):
     ┌─────────────▼───────────────────┐
     │  KERNEL                         │
     │  - Mathematical substrate       │
-    │  - 7 levels, Fibonacci          │
+    │  - 7 layers, Genesis Model      │
     └─────────────────────────────────┘
 
 Developers never see this. They just use simple syntax:
@@ -43,6 +59,57 @@ import threading
 import time
 
 from .srl import SRL, Level, srl
+
+
+# =============================================================================
+# GENESIS LAYER CONSTANTS (7 Layers of Creation)
+# =============================================================================
+# Canonical layer definitions per DIMENSIONAL_GENESIS.md
+
+GENESIS_LAYERS = {
+    1: "Spark",       # Let there be the First Point (Fib 1)
+    2: "Mirror",      # Let there be a second point (Fib 1)
+    3: "Relation",    # Let the two interact (Fib 2) - CANONICAL BASE
+    4: "Form",        # Let structure become shape (Fib 3)
+    5: "Life",        # Let form become meaning (Fib 5)
+    6: "Mind",        # Let meaning become coherence (Fib 8)
+    7: "Completion"   # Let the whole become one again (Fib 13)
+}
+
+GENESIS_FIBONACCI = {
+    1: 1, 2: 1, 3: 2, 4: 3, 5: 5, 6: 8, 7: 13
+}
+
+GENESIS_EQUATIONS = {
+    1: "P₀ = {1}",          # The seed
+    2: "d(a,b) = |b-a|",    # First distance
+    3: "z = x * y",         # Identity interaction (CANONICAL)
+    4: "z = x * y**2",      # Weighted form
+    5: "m = x * y * z",     # Triadic meaning
+    6: "Gyroid",            # Minimal surface
+    7: "φ = (1+√5)/2"       # Golden ratio
+}
+
+# Legacy compatibility - maps old 0-6 to new 1-7
+STACK_LEVELS = {
+    0: "Coordinates",   # DEPRECATED → Layer 1 (Spark)
+    1: "Substates",     # DEPRECATED → Layer 2 (Mirror)
+    2: "Identity",      # DEPRECATED → Layer 3 (Relation)
+    3: "Runtime",       # DEPRECATED → Layer 4 (Form)
+    4: "Scaling",       # DEPRECATED → Layer 5 (Life)
+    5: "Semantic",      # DEPRECATED → Layer 6 (Mind)
+    6: "Completion"     # DEPRECATED → Layer 7 (Completion)
+}
+
+STACK_EQUATIONS = {
+    0: "(x, y, z, t)",      # DEPRECATED
+    1: "{id, mode, rules}", # DEPRECATED
+    2: "z = x·y",           # DEPRECATED
+    3: "z = x/y²",          # DEPRECATED
+    4: "z = x·y²",          # DEPRECATED
+    5: "m = x·y·z",         # DEPRECATED
+    6: "Gyroid|Golden|Butterfly"  # DEPRECATED
+}
 
 
 # =============================================================================
@@ -137,6 +204,66 @@ class Core:
     def get_object(self, obj_id: str) -> Optional['Interface']:
         """Get interface by ID."""
         return self._objects.get(obj_id)
+    
+    # =========================================================================
+    # DIMENSIONAL STACK OPERATIONS
+    # =========================================================================
+    
+    def stack_level_name(self, level: int) -> str:
+        """Get the dimensional stack name for a level (0-6)."""
+        if not 0 <= level <= 6:
+            raise ValueError(f"Level must be 0-6, got {level}")
+        return STACK_LEVELS[level]
+    
+    def stack_equation(self, level: int) -> str:
+        """Get the canonical equation for a level."""
+        if not 0 <= level <= 6:
+            raise ValueError(f"Level must be 0-6, got {level}")
+        return STACK_EQUATIONS[level]
+    
+    def lift_to_level(self, value: Any, target_level: int) -> Any:
+        """
+        Lift a value to a higher dimensional stack level.
+        
+        Level 0→1: Raw value becomes substate context
+        Level 1→2: Substate becomes identity (placed on z=x·y surface)
+        Level 2→3: Identity enters runtime (can evolve)
+        Level 3→4: Runtime gains scaling/priority
+        Level 4→5: Scaling gains semantic meaning
+        Level 5→6: Semantics reach completion
+        """
+        if target_level < 0 or target_level > 6:
+            raise ValueError(f"Target level must be 0-6, got {target_level}")
+        
+        # Wrap value with level metadata
+        return {
+            'value': value,
+            'level': target_level,
+            'level_name': STACK_LEVELS[target_level],
+            'equation': STACK_EQUATIONS[target_level]
+        }
+    
+    def project_to_level(self, lifted_value: Dict, target_level: int) -> Any:
+        """
+        Project a lifted value down to a lower level.
+        
+        Returns the raw value at Level 0, or wrapped value at higher levels.
+        """
+        if target_level < 0 or target_level > 6:
+            raise ValueError(f"Target level must be 0-6, got {target_level}")
+        
+        if target_level == 0:
+            # Project to raw coordinates - just return the value
+            return lifted_value.get('value', lifted_value)
+        
+        # Otherwise return with new level metadata
+        raw = lifted_value.get('value', lifted_value)
+        return {
+            'value': raw,
+            'level': target_level,
+            'level_name': STACK_LEVELS[target_level],
+            'equation': STACK_EQUATIONS[target_level]
+        }
     
     # =========================================================================
     # SPIRAL MANAGEMENT

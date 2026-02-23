@@ -1,0 +1,139 @@
+{
+  "name": "dimensional-vps-optimizer",
+  "displayName": "Dimensional VPS Optimizer",
+  "description": "Applies Dimensional Computing paradigm (z = x·y manifold, Fibonacci layers, intention vectors) to optimize VPS efficiency",
+  "version": "0.1.0",
+  "publisher": "butterflyfx",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Machine Learning",
+    "Data Science"
+  ],
+  "keywords": [
+    "dimensional computing",
+    "vps",
+    "optimization",
+    "manifold",
+    "fibonacci"
+  ],
+  "activationEvents": [
+    "onCommand:dimensionalVPS.liftData",
+    "onCommand:dimensionalVPS.optimize",
+    "onCommand:dimensionalVPS.showDashboard"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "dimensionalVPS.liftData",
+        "title": "Dimensional: Lift VPS Data",
+        "category": "Dimensional VPS"
+      },
+      {
+        "command": "dimensionalVPS.optimize",
+        "title": "Dimensional: Optimize Resources",
+        "category": "Dimensional VPS"
+      },
+      {
+        "command": "dimensionalVPS.showDashboard",
+        "title": "Dimensional: Show Dashboard",
+        "category": "Dimensional VPS"
+      },
+      {
+        "command": "dimensionalVPS.bindProcesses",
+        "title": "Dimensional: Bind Processes",
+        "category": "Dimensional VPS"
+      },
+      {
+        "command": "dimensionalVPS.navigateLayers",
+        "title": "Dimensional: Navigate Layers",
+        "category": "Dimensional VPS"
+      },
+      {
+        "command": "dimensionalVPS.resolveLineage",
+        "title": "Dimensional: Resolve Lineage",
+        "category": "Dimensional VPS"
+      },
+      {
+        "command": "dimensionalVPS.monitorResources",
+        "title": "Dimensional: Start Resource Monitor",
+        "category": "Dimensional VPS"
+      }
+    ],
+    "configuration": {
+      "title": "Dimensional VPS Optimizer",
+      "properties": {
+        "dimensionalVPS.pythonPath": {
+          "type": "string",
+          "default": "python3",
+          "description": "Path to Python interpreter with helix package"
+        },
+        "dimensionalVPS.helixPath": {
+          "type": "string",
+          "default": "/opt/butterflyfx/dimensionsos",
+          "description": "Path to DimensionsOS with helix package"
+        },
+        "dimensionalVPS.refreshInterval": {
+          "type": "number",
+          "default": 5000,
+          "description": "Resource monitor refresh interval in milliseconds"
+        },
+        "dimensionalVPS.intentionPriority": {
+          "type": "string",
+          "enum": ["energy", "performance", "balanced"],
+          "default": "balanced",
+          "description": "Default intention priority for optimizations"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "dimensional-vps",
+          "title": "Dimensional VPS",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "dimensional-vps": [
+        {
+          "id": "dimensionalVPS.layers",
+          "name": "7 Layers (Genesis)"
+        },
+        {
+          "id": "dimensionalVPS.resources",
+          "name": "VPS Resources"
+        },
+        {
+          "id": "dimensionalVPS.lineage",
+          "name": "Lineage Graph"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^2.22.0"
+  },
+  "dependencies": {
+    "mathjs": "^12.2.0"
+  }
+}
