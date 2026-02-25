@@ -5,7 +5,8 @@
  * 
  * Clean, minimal interface:
  * - Top left: Current player only (avatar, name, deck info)
- * - Right side: Retractable settings panel (hamburger on mobile)
+ * - Right side: Retractable settings panel (cog icon)
+ * - Dimensional drill-down navigation (ButterflyFX standard)
  * 
  * ButterflyFX Dimensional Programming Standard
  */
@@ -23,6 +24,10 @@ const GameUIMinimal = {
     isMobile: false,
     players: [],  // All players for indicator bar
     currentPlayerIndex: 0,
+    
+    // Dimensional navigation state
+    dimensionStack: [],       // navigation history for back-traversal
+    currentDimension: 'root', // currently displayed dimension level
     
     // DOM Elements
     elements: {
@@ -330,7 +335,7 @@ const GameUIMinimal = {
                 display: inline-flex;
             }
             
-            /* ===== MENU TOGGLE BUTTON ===== */
+            /* ===== MENU COG BUTTON ===== */
             #menu-toggle-btn {
                 position: fixed;
                 top: 15px;
@@ -343,10 +348,8 @@ const GameUIMinimal = {
                 border-radius: 12px;
                 cursor: pointer;
                 display: flex;
-                flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                gap: 5px;
                 transition: all 0.3s;
                 backdrop-filter: blur(10px);
             }
@@ -360,32 +363,28 @@ const GameUIMinimal = {
                 border-color: #e74c3c;
             }
             
-            .menu-bar {
-                width: 24px;
-                height: 3px;
-                background: #fff;
-                border-radius: 2px;
-                transition: all 0.3s;
+            .menu-cog {
+                width: 26px;
+                height: 26px;
+                fill: #fff;
+                transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
             }
             
-            #menu-toggle-btn.open .menu-bar:nth-child(1) {
-                transform: rotate(45deg) translate(5px, 5px);
+            #menu-toggle-btn:hover .menu-cog {
+                transform: rotate(45deg);
             }
             
-            #menu-toggle-btn.open .menu-bar:nth-child(2) {
-                opacity: 0;
-            }
-            
-            #menu-toggle-btn.open .menu-bar:nth-child(3) {
-                transform: rotate(-45deg) translate(6px, -6px);
+            #menu-toggle-btn.open .menu-cog {
+                transform: rotate(180deg);
+                fill: #e74c3c;
             }
             
             /* ===== SIDE MENU PANEL ===== */
             #game-menu-panel {
                 position: fixed;
                 top: 0;
-                right: -320px;
-                width: 300px;
+                right: -400px;
+                width: 380px;
                 height: 100vh;
                 z-index: 10008;
                 background: rgba(15, 20, 30, 0.95);
@@ -434,150 +433,175 @@ const GameUIMinimal = {
                 border-bottom: 1px solid #333;
             }
 
-            /* ===== DIMENSIONAL ACCORDION CATEGORIES ===== */
-            .menu-category {
-                margin-bottom: 6px;
-                border-radius: 12px;
+            /* ===== DIMENSIONAL NAVIGATION ===== */
+            .dim-viewport {
+                position: relative;
                 overflow: hidden;
-                border: 1px solid rgba(255,255,255,0.06);
-                background: rgba(255,255,255,0.02);
-                transition: border-color 0.3s, box-shadow 0.3s;
             }
-            .menu-category:hover {
-                border-color: rgba(52,152,219,0.25);
+            .dim-layer {
+                animation: dimSlideIn 0.28s cubic-bezier(0.4,0,0.2,1) forwards;
             }
-            .menu-category.expanded {
-                border-color: rgba(52,152,219,0.35);
-                box-shadow: 0 0 12px rgba(52,152,219,0.08), inset 0 0 20px rgba(52,152,219,0.03);
+            .dim-layer.slide-out {
+                animation: dimSlideOut 0.22s cubic-bezier(0.4,0,0.2,1) forwards;
             }
-            .menu-category-header {
+            @keyframes dimSlideIn {
+                from { opacity: 0; transform: translateX(30px); }
+                to   { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes dimSlideOut {
+                from { opacity: 1; transform: translateX(0); }
+                to   { opacity: 0; transform: translateX(-30px); }
+            }
+            /* Back-arrow row */
+            .dim-back {
                 display: flex;
                 align-items: center;
                 gap: 10px;
-                padding: 13px 14px;
+                padding: 12px 14px;
+                margin-bottom: 8px;
                 cursor: pointer;
+                border-radius: 10px;
+                background: rgba(52,152,219,0.08);
+                border: 1px solid rgba(52,152,219,0.15);
+                transition: all 0.2s;
                 user-select: none;
                 -webkit-user-select: none;
-                background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
-                transition: background 0.2s;
-                position: relative;
             }
-            .menu-category-header::after {
-                content: '';
-                position: absolute;
-                bottom: 0; left: 14px; right: 14px;
-                height: 1px;
-                background: rgba(255,255,255,0.05);
-                opacity: 0;
-                transition: opacity 0.3s;
+            .dim-back:hover {
+                background: rgba(52,152,219,0.18);
+                border-color: rgba(52,152,219,0.35);
             }
-            .menu-category.expanded .menu-category-header::after {
-                opacity: 1;
+            .dim-back:active {
+                transform: translateX(-3px);
             }
-            .menu-category-header:active {
-                background: rgba(52,152,219,0.15);
+            .dim-back-arrow {
+                font-size: 1.2em;
+                color: #3498db;
             }
-            .cat-icon {
-                font-size: 1.15em;
-                width: 24px;
+            .dim-back-label {
+                color: #aaa;
+                font-size: 0.85em;
+                font-family: 'Orbitron', 'Rajdhani', sans-serif;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            /* Dimension items — categories & actions */
+            .dim-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 16px 16px;
+                margin-bottom: 6px;
+                border-radius: 12px;
+                cursor: pointer;
+                border: 1px solid rgba(255,255,255,0.06);
+                background: rgba(255,255,255,0.02);
+                transition: all 0.2s;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .dim-item:hover {
+                border-color: rgba(52,152,219,0.3);
+                background: rgba(52,152,219,0.12);
+                transform: translateX(4px);
+            }
+            .dim-item:active {
+                background: rgba(52,152,219,0.2);
+            }
+            .dim-item-icon {
+                font-size: 1.3em;
+                width: 28px;
                 text-align: center;
                 filter: drop-shadow(0 0 3px rgba(255,255,255,0.15));
             }
-            .cat-title {
+            .dim-item-text {
                 flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+            .dim-item-label {
                 color: #ddd;
-                font-size: 0.92em;
+                font-size: 0.95em;
                 font-weight: 600;
                 letter-spacing: 0.5px;
                 text-transform: uppercase;
                 font-family: 'Orbitron', 'Rajdhani', sans-serif;
             }
-            .menu-category.expanded .cat-title {
+            .dim-item-about {
+                color: #777;
+                font-size: 0.75em;
+                font-weight: 400;
+                letter-spacing: 0;
+                text-transform: none;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                line-height: 1.3;
+            }
+            .dim-item-arrow {
+                font-size: 0.85em;
+                color: #555;
+                transition: transform 0.2s, color 0.2s;
+            }
+            .dim-item:hover .dim-item-arrow {
+                color: #3498db;
+                transform: translateX(3px);
+            }
+            /* Active state for themes / cameras */
+            .dim-item.active-item {
+                border-color: rgba(52,152,219,0.4);
+                background: rgba(52,152,219,0.15);
+                box-shadow: 0 0 12px rgba(52,152,219,0.1);
+            }
+            .dim-item.active-item .dim-item-label {
                 color: #fff;
                 text-shadow: 0 0 8px rgba(52,152,219,0.4);
             }
-            .cat-chevron {
-                font-size: 0.85em;
-                color: #666;
-                transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), color 0.3s;
+            /* Toggle rows inside dimensions */
+            .dim-toggle-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 14px 16px;
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 12px;
+                margin-bottom: 6px;
             }
-            .menu-category.expanded .cat-chevron {
-                transform: rotate(90deg);
-                color: #3498db;
-            }
-            .menu-category-body {
-                max-height: 0;
-                overflow: hidden;
-                transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), padding 0.35s;
-                padding: 0 12px;
-            }
-            .menu-category.expanded .menu-category-body {
-                max-height: 600px;
-                padding: 10px 12px 14px;
-            }
-            /* Dimensional glow line at top of expanded body */
-            .menu-category.expanded .menu-category-body::before {
-                content: '';
-                display: block;
-                height: 1px;
-                margin-bottom: 8px;
-                background: linear-gradient(90deg, transparent, rgba(52,152,219,0.4), rgba(155,89,182,0.3), transparent);
-            }
-            /* Theme button grid */
-            .theme-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 6px;
-            }
-            .theme-grid .menu-btn {
-                padding: 10px 10px;
-                font-size: 0.85em;
-                justify-content: center;
-                text-align: center;
-                gap: 6px;
-            }
-            .theme-grid .menu-btn.active-theme {
-                border-color: #3498db;
-                background: rgba(52,152,219,0.2);
-                box-shadow: 0 0 10px rgba(52,152,219,0.15);
-            }
-            /* Camera view grid */
-            .camera-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr 1fr;
-                gap: 6px;
-                margin-bottom: 10px;
-            }
-            .camera-grid .menu-btn {
-                padding: 10px 8px;
-                font-size: 0.82em;
-                justify-content: center;
-                text-align: center;
-                gap: 5px;
-            }
-            .camera-grid .menu-btn.active-cam {
-                border-color: #e67e22;
-                background: rgba(230,126,34,0.18);
-                box-shadow: 0 0 8px rgba(230,126,34,0.12);
-            }
-            .cam-speed-row {
+            .dim-toggle-label {
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                padding: 6px 4px;
+                gap: 10px;
+                color: #ccc;
+                font-size: 0.9em;
             }
-            .cam-speed-row .cam-speed-label {
-                font-size: 0.75em;
+            .dim-toggle-label-icon {
+                font-size: 1.15em;
+            }
+            /* Slider rows inside dimensions */
+            .dim-slider-row {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 16px 14px;
+                margin-top: -4px;
+            }
+            .dim-slider-icon {
+                font-size: 0.8em;
                 color: #888;
+                width: 18px;
+                text-align: center;
             }
-            .cam-speed-row .menu-volume-slider {
-                flex: 1;
-            }
-            .cam-speed-row .cam-speed-val {
+            .dim-slider-val {
                 font-size: 0.72em;
                 color: #aaa;
-                width: 50px;
+                width: 40px;
                 text-align: right;
+            }
+            /* Section divider inside a dimension */
+            .dim-divider {
+                height: 1px;
+                margin: 12px 0;
+                background: linear-gradient(90deg, transparent, rgba(52,152,219,0.3), rgba(155,89,182,0.2), transparent);
             }
             
             .menu-btn {
@@ -946,8 +970,8 @@ const GameUIMinimal = {
                 }
                 
                 #game-menu-panel {
-                    width: 280px;
-                    right: -290px;
+                    width: 320px;
+                    right: -340px;
                 }
             }
             
@@ -1253,19 +1277,19 @@ const GameUIMinimal = {
         document.body.appendChild(overlay);
         this.elements.overlay = overlay;
         
-        // Create toggle button
+        // Create cog toggle button
         const toggle = document.createElement('button');
         toggle.id = 'menu-toggle-btn';
         toggle.innerHTML = `
-            <div class="menu-bar"></div>
-            <div class="menu-bar"></div>
-            <div class="menu-bar"></div>
+            <svg class="menu-cog" viewBox="0 0 24 24">
+                <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/>
+            </svg>
         `;
         toggle.addEventListener('click', () => this.toggleMenu());
         document.body.appendChild(toggle);
         this.elements.menuToggle = toggle;
         
-        // Create menu panel
+        // Create menu panel (dimensional shell)
         const menu = document.createElement('div');
         menu.id = 'game-menu-panel';
         menu.innerHTML = `
@@ -1273,168 +1297,17 @@ const GameUIMinimal = {
                 <h3>⚡ FastTrack</h3>
             </div>
             <div class="menu-content">
-                <!-- Players bar — always visible -->
-                <div class="menu-section">
-                    <div class="menu-section-title">Players</div>
-                    <div class="players-list" id="menu-players-list"></div>
-                </div>
-
-                <!-- ═══ THEME ═══ -->
-                <div class="menu-category" data-cat="theme">
-                    <div class="menu-category-header" onclick="GameUIMinimal.toggleCategory('theme')">
-                        <span class="cat-icon">🎨</span>
-                        <span class="cat-title">Theme</span>
-                        <span class="cat-chevron">▸</span>
-                    </div>
-                    <div class="menu-category-body">
-                        <div class="theme-grid">
-                            <button class="menu-btn" data-theme="cosmic" onclick="GameUIMinimal.setTheme('cosmic')">
-                                <span class="menu-btn-icon">🌌</span> Cosmic
-                            </button>
-                            <button class="menu-btn" data-theme="spaceace" onclick="GameUIMinimal.setTheme('spaceace')">
-                                <span class="menu-btn-icon">🚀</span> Space Ace ✦
-                            </button>
-                            <button class="menu-btn" data-theme="undersea" onclick="GameUIMinimal.setTheme('undersea')">
-                                <span class="menu-btn-icon">🌊</span> Undersea
-                            </button>
-                            <button class="menu-btn" data-theme="colosseum" onclick="GameUIMinimal.setTheme('colosseum')">
-                                <span class="menu-btn-icon">⚔️</span> Colosseum
-                            </button>
-                            <button class="menu-btn" data-theme="highcontrast" onclick="GameUIMinimal.setTheme('highcontrast')">
-                                <span class="menu-btn-icon">👁️</span> Clean
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ═══ SOUNDS ═══ -->
-                <div class="menu-category" data-cat="sounds">
-                    <div class="menu-category-header" onclick="GameUIMinimal.toggleCategory('sounds')">
-                        <span class="cat-icon">🔊</span>
-                        <span class="cat-title">Sounds</span>
-                        <span class="cat-chevron">▸</span>
-                    </div>
-                    <div class="menu-category-body">
-                        <div class="menu-toggle-row">
-                            <span class="menu-toggle-label">🎵 Music</span>
-                            <div class="menu-toggle active" id="toggle-music" onclick="GameUIMinimal.toggleMusic()"></div>
-                        </div>
-                        <div class="menu-volume-row">
-                            <span class="vol-icon">🔈</span>
-                            <input type="range" class="menu-volume-slider" id="slider-music" min="0" max="100" value="20" oninput="GameUIMinimal.setMusicVolume(this.value)">
-                            <span class="menu-volume-pct" id="pct-music">20%</span>
-                        </div>
-                        <div class="menu-toggle-row">
-                            <span class="menu-toggle-label">🔊 Sound FX</span>
-                            <div class="menu-toggle active" id="toggle-sfx" onclick="GameUIMinimal.toggleSFX()"></div>
-                        </div>
-                        <div class="menu-volume-row">
-                            <span class="vol-icon">🔈</span>
-                            <input type="range" class="menu-volume-slider" id="slider-sfx" min="0" max="100" value="60" oninput="GameUIMinimal.setSfxVolume(this.value)">
-                            <span class="menu-volume-pct" id="pct-sfx">60%</span>
-                        </div>
-                        <div class="menu-toggle-row">
-                            <span class="menu-toggle-label">🎤 Commentary</span>
-                            <div class="menu-toggle" id="toggle-commentary" onclick="GameUIMinimal.toggleCommentary()"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ═══ CONTROLS ═══ -->
-                <div class="menu-category" data-cat="controls">
-                    <div class="menu-category-header" onclick="GameUIMinimal.toggleCategory('controls')">
-                        <span class="cat-icon">🎮</span>
-                        <span class="cat-title">Controls</span>
-                        <span class="cat-chevron">▸</span>
-                    </div>
-                    <div class="menu-category-body">
-                        <button class="menu-btn" onclick="GameUIMinimal.askMom()">
-                            <span class="menu-btn-icon">👩‍👧</span> Ask Mom for Help
-                        </button>
-                        <button class="menu-btn" onclick="GameUIMinimal.restartGame()">
-                            <span class="menu-btn-icon">🔄</span> Restart Game
-                        </button>
-                        <button class="menu-btn" onclick="GameUIMinimal.exitGame()">
-                            <span class="menu-btn-icon">🚪</span> Exit to Menu
-                        </button>
-                    </div>
-                </div>
-
-                <!-- ═══ CAMERA ═══ -->
-                <div class="menu-category" data-cat="camera">
-                    <div class="menu-category-header" onclick="GameUIMinimal.toggleCategory('camera')">
-                        <span class="cat-icon">📹</span>
-                        <span class="cat-title">Camera</span>
-                        <span class="cat-chevron">▸</span>
-                    </div>
-                    <div class="menu-category-body">
-                        <div class="camera-grid">
-                            <button class="menu-btn active-cam" data-cam="board" onclick="GameUIMinimal.setCameraView('board')">
-                                <span class="menu-btn-icon">🎯</span> Board
-                            </button>
-                            <button class="menu-btn" data-cam="ground" onclick="GameUIMinimal.setCameraView('ground')">
-                                <span class="menu-btn-icon">🏃</span> Ground
-                            </button>
-                            <button class="menu-btn" data-cam="chase" onclick="GameUIMinimal.setCameraView('chase')">
-                                <span class="menu-btn-icon">🎬</span> Chase
-                            </button>
-                            <button class="menu-btn" data-cam="orbit" onclick="GameUIMinimal.setCameraView('orbit')">
-                                <span class="menu-btn-icon">🌀</span> Orbit
-                            </button>
-                            <button class="menu-btn" data-cam="manual" onclick="GameUIMinimal.setCameraView('manual')">
-                                <span class="menu-btn-icon">✋</span> Manual
-                            </button>
-                            <button class="menu-btn" data-cam="pegeye" onclick="GameUIMinimal.enterPegEyeView()">
-                                <span class="menu-btn-icon">👁️</span> Peg's Eye
-                            </button>
-                        </div>
-                        <div class="cam-speed-row">
-                            <span class="cam-speed-label">🐢</span>
-                            <input type="range" class="menu-volume-slider" id="menu-cam-speed" min="0.2" max="2.0" step="0.1" value="0.6" oninput="GameUIMinimal.setCameraSpeed(this.value)">
-                            <span class="cam-speed-val" id="menu-cam-speed-val">Smooth</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ═══ RULES ═══ -->
-                <div class="menu-category" data-cat="rules">
-                    <div class="menu-category-header" onclick="GameUIMinimal.toggleCategory('rules')">
-                        <span class="cat-icon">📖</span>
-                        <span class="cat-title">Rules</span>
-                        <span class="cat-chevron">▸</span>
-                    </div>
-                    <div class="menu-category-body">
-                        <button class="menu-btn" onclick="GameUIMinimal.showRules()">
-                            <span class="menu-btn-icon">📜</span> Quick Rules
-                        </button>
-                        <button class="menu-btn" onclick="window.open('docs.html','_blank')">
-                            <span class="menu-btn-icon">📘</span> Full Guide
-                        </button>
-                    </div>
-                </div>
-
-                <!-- ═══ TUTORIAL ═══ -->
-                <div class="menu-category" data-cat="tutorial">
-                    <div class="menu-category-header" onclick="GameUIMinimal.toggleCategory('tutorial')">
-                        <span class="cat-icon">🎓</span>
-                        <span class="cat-title">Tutorial</span>
-                        <span class="cat-chevron">▸</span>
-                    </div>
-                    <div class="menu-category-body">
-                        <button class="menu-btn" onclick="GameUIMinimal.startTutorial()">
-                            <span class="menu-btn-icon">▶️</span> Start Tutorial
-                        </button>
-                        <button class="menu-btn" onclick="GameUIMinimal.showBoardTooltips()">
-                            <span class="menu-btn-icon">💡</span> Board Tooltips
-                        </button>
-                    </div>
-                </div>
-
+                <div class="dim-viewport" id="dim-viewport"></div>
             </div>
         `;
         
         document.body.appendChild(menu);
         this.elements.menuPanel = menu;
+        
+        // Render root dimension
+        this.dimensionStack = [];
+        this.currentDimension = 'root';
+        this.renderDimension('root');
     },
     
     // ============================================================
@@ -1628,6 +1501,13 @@ const GameUIMinimal = {
         this.elements.menuPanel?.classList.toggle('open', this.menuOpen);
         this.elements.menuToggle?.classList.toggle('open', this.menuOpen);
         this.elements.overlay?.classList.toggle('visible', this.menuOpen);
+        
+        // Reset to root dimension when opening
+        if (this.menuOpen) {
+            this.dimensionStack = [];
+            this.currentDimension = 'root';
+            this.renderDimension('root');
+        }
     },
     
     updateLayout() {
@@ -1658,28 +1538,286 @@ const GameUIMinimal = {
             console.warn('[GameUIMinimal] window.setTheme not found, theme may not apply correctly');
             window.FastTrackThemes.apply(themeName);
         }
-        // Highlight active theme button
-        document.querySelectorAll('.theme-grid .menu-btn').forEach(btn => {
-            btn.classList.toggle('active-theme', btn.dataset.theme === themeName);
-        });
+        // Re-render current dimension to update active state
+        if (this.currentDimension === 'theme') {
+            this.renderDimension('theme');
+        }
     },
 
     // ============================================================
-    // ACCORDION CATEGORY TOGGLE
+    // DIMENSIONAL NAVIGATION
     // ============================================================
 
-    toggleCategory(catName) {
-        const cat = document.querySelector(`.menu-category[data-cat="${catName}"]`);
-        if (!cat) return;
-        const wasExpanded = cat.classList.contains('expanded');
-        // Collapse all categories first (accordion behavior — one open at a time)
-        document.querySelectorAll('.menu-category.expanded').forEach(el => {
-            el.classList.remove('expanded');
-        });
-        // Toggle the selected one
-        if (!wasExpanded) {
-            cat.classList.add('expanded');
+    /**
+     * Theme metadata — name, icon, about description
+     */
+    themeInfo: {
+        cosmic:       { icon: '🌌', label: 'Cosmic',       about: 'Deep space nebulae, floating shapes and stardust particles' },
+        spaceace:     { icon: '🚀', label: 'Space Ace ✦',  about: 'Retro arcade adventure with asteroids and cosmic dust' },
+        undersea:     { icon: '🌊', label: 'Undersea',     about: 'Ocean depths with jellyfish, sea turtles and coral' },
+        colosseum:    { icon: '⚔️', label: 'Colosseum',    about: 'Ancient Rome — toga-clad spectators and golden thrones' },
+        fibonacci:    { icon: '🔢', label: 'Fibonacci',    about: 'Mathematical beauty with golden spirals and sacred ratios' },
+        highcontrast: { icon: '👁️', label: 'Clean',        about: 'High contrast, minimal distractions for focused play' }
+    },
+
+    /**
+     * Drill down into a sub-dimension
+     */
+    drillDown(dimensionId) {
+        this.dimensionStack.push(this.currentDimension);
+        this.currentDimension = dimensionId;
+        this.renderDimension(dimensionId);
+    },
+
+    /**
+     * Navigate back up one dimension level
+     */
+    drillUp() {
+        if (this.dimensionStack.length === 0) return;
+        this.currentDimension = this.dimensionStack.pop();
+        this.renderDimension(this.currentDimension, true);
+    },
+
+    /**
+     * Render a specific dimension into the viewport
+     */
+    renderDimension(dimensionId, isBack = false) {
+        const vp = document.getElementById('dim-viewport');
+        if (!vp) return;
+
+        let html = '';
+        switch (dimensionId) {
+            case 'root':    html = this._renderRoot(); break;
+            case 'theme':   html = this._renderTheme(); break;
+            case 'sounds':  html = this._renderSounds(); break;
+            case 'controls': html = this._renderControls(); break;
+            case 'camera':  html = this._renderCamera(); break;
+            case 'rules':   html = this._renderRules(); break;
+            case 'tutorial': html = this._renderTutorial(); break;
+            default:        html = this._renderRoot(); break;
         }
+
+        // Wrap in animated layer
+        const dir = isBack ? 'back' : 'forward';
+        vp.innerHTML = `<div class="dim-layer" style="animation-name: ${isBack ? 'dimSlideInBack' : 'dimSlideIn'}">${html}</div>`;
+
+        // Add reverse animation keyframes if back
+        if (isBack) {
+            // Inject back-animation if not present
+            if (!document.getElementById('dim-back-anim')) {
+                const s = document.createElement('style');
+                s.id = 'dim-back-anim';
+                s.textContent = `
+                    @keyframes dimSlideInBack {
+                        from { opacity: 0; transform: translateX(-30px); }
+                        to   { opacity: 1; transform: translateX(0); }
+                    }
+                `;
+                document.head.appendChild(s);
+            }
+        }
+    },
+
+    _renderRoot() {
+        const categories = [
+            { id: 'theme',    icon: '🎨', label: 'Theme' },
+            { id: 'sounds',   icon: '🔊', label: 'Sounds' },
+            { id: 'controls', icon: '🎮', label: 'Controls' },
+            { id: 'camera',   icon: '📹', label: 'Camera' },
+            { id: 'rules',    icon: '📖', label: 'Rules' },
+            { id: 'tutorial', icon: '🎓', label: 'Tutorial' }
+        ];
+
+        return categories.map(c => `
+            <div class="dim-item" onclick="GameUIMinimal.drillDown('${c.id}')">
+                <span class="dim-item-icon">${c.icon}</span>
+                <div class="dim-item-text">
+                    <span class="dim-item-label">${c.label}</span>
+                </div>
+                <span class="dim-item-arrow">▸</span>
+            </div>
+        `).join('');
+    },
+
+    _renderTheme() {
+        const currentTheme = window.currentThemeName || 'spaceace';
+        const themes = Object.entries(this.themeInfo);
+
+        return `
+            <div class="dim-back" onclick="GameUIMinimal.drillUp()">
+                <span class="dim-back-arrow">◂</span>
+                <span class="dim-back-label">Back</span>
+            </div>
+            ${themes.map(([key, t]) => `
+                <div class="dim-item ${key === currentTheme ? 'active-item' : ''}" onclick="GameUIMinimal.setTheme('${key}')">
+                    <span class="dim-item-icon">${t.icon}</span>
+                    <div class="dim-item-text">
+                        <span class="dim-item-label">${t.label}</span>
+                        <span class="dim-item-about">${t.about}</span>
+                    </div>
+                </div>
+            `).join('')}
+        `;
+    },
+
+    _renderSounds() {
+        // Read current states
+        const musicActive = document.getElementById('toggle-music')?.classList.contains('active') ?? true;
+        const sfxActive = document.getElementById('toggle-sfx')?.classList.contains('active') ?? true;
+        const commActive = document.getElementById('toggle-commentary')?.classList.contains('active') ?? false;
+        const musicVol = document.getElementById('slider-music')?.value ?? 20;
+        const sfxVol = document.getElementById('slider-sfx')?.value ?? 60;
+
+        return `
+            <div class="dim-back" onclick="GameUIMinimal.drillUp()">
+                <span class="dim-back-arrow">◂</span>
+                <span class="dim-back-label">Back</span>
+            </div>
+            <div class="dim-toggle-row">
+                <span class="dim-toggle-label"><span class="dim-toggle-label-icon">🎵</span> Music</span>
+                <div class="menu-toggle ${musicActive ? 'active' : ''}" id="toggle-music" onclick="GameUIMinimal.toggleMusic()"></div>
+            </div>
+            <div class="dim-slider-row">
+                <span class="dim-slider-icon">🔈</span>
+                <input type="range" class="menu-volume-slider" id="slider-music" min="0" max="100" value="${musicVol}" oninput="GameUIMinimal.setMusicVolume(this.value)">
+                <span class="menu-volume-pct" id="pct-music">${musicVol}%</span>
+            </div>
+            <div class="dim-toggle-row">
+                <span class="dim-toggle-label"><span class="dim-toggle-label-icon">🔊</span> Sound FX</span>
+                <div class="menu-toggle ${sfxActive ? 'active' : ''}" id="toggle-sfx" onclick="GameUIMinimal.toggleSFX()"></div>
+            </div>
+            <div class="dim-slider-row">
+                <span class="dim-slider-icon">🔈</span>
+                <input type="range" class="menu-volume-slider" id="slider-sfx" min="0" max="100" value="${sfxVol}" oninput="GameUIMinimal.setSfxVolume(this.value)">
+                <span class="menu-volume-pct" id="pct-sfx">${sfxVol}%</span>
+            </div>
+            <div class="dim-toggle-row">
+                <span class="dim-toggle-label"><span class="dim-toggle-label-icon">🎤</span> Commentary</span>
+                <div class="menu-toggle ${commActive ? 'active' : ''}" id="toggle-commentary" onclick="GameUIMinimal.toggleCommentary()"></div>
+            </div>
+        `;
+    },
+
+    _renderControls() {
+        return `
+            <div class="dim-back" onclick="GameUIMinimal.drillUp()">
+                <span class="dim-back-arrow">◂</span>
+                <span class="dim-back-label">Back</span>
+            </div>
+            <div class="dim-item" onclick="GameUIMinimal.askMom()">
+                <span class="dim-item-icon">👩‍👧</span>
+                <div class="dim-item-text">
+                    <span class="dim-item-label">Ask Mom</span>
+                    <span class="dim-item-about">Get helpful hints for your next move</span>
+                </div>
+            </div>
+            <div class="dim-item" onclick="GameUIMinimal.restartGame()">
+                <span class="dim-item-icon">🔄</span>
+                <div class="dim-item-text">
+                    <span class="dim-item-label">Restart</span>
+                    <span class="dim-item-about">Start a new game from scratch</span>
+                </div>
+            </div>
+            <div class="dim-item" onclick="GameUIMinimal.exitGame()">
+                <span class="dim-item-icon">🚪</span>
+                <div class="dim-item-text">
+                    <span class="dim-item-label">Exit</span>
+                    <span class="dim-item-about">Return to the main menu</span>
+                </div>
+            </div>
+        `;
+    },
+
+    _renderCamera() {
+        const currentCam = window.currentCameraMode || 'board';
+        const cams = [
+            { id: 'board',  icon: '🎯', label: 'Board',     about: 'Classic overhead view of the entire board' },
+            { id: 'ground', icon: '🏃', label: 'Ground',    about: 'Low-angle view from table level' },
+            { id: 'chase',  icon: '🎬', label: 'Chase',     about: 'Follows the action dynamically' },
+            { id: 'orbit',  icon: '🌀', label: 'Orbit',     about: 'Slowly circles the board' },
+            { id: 'manual', icon: '✋', label: 'Manual',    about: 'Free camera — drag to look around' },
+            { id: 'pegeye', icon: '👁️', label: "Peg's Eye", about: 'See the board from your peg\'s perspective' }
+        ];
+        const speedVal = document.getElementById('menu-cam-speed')?.value ?? 0.6;
+        const v = parseFloat(speedVal);
+        let speedLabel = 'Smooth';
+        if (v <= 0.4) speedLabel = 'Slow';
+        else if (v <= 0.8) speedLabel = 'Smooth';
+        else if (v <= 1.3) speedLabel = 'Fast';
+        else speedLabel = 'Blazing';
+
+        return `
+            <div class="dim-back" onclick="GameUIMinimal.drillUp()">
+                <span class="dim-back-arrow">◂</span>
+                <span class="dim-back-label">Back</span>
+            </div>
+            ${cams.map(c => {
+                const action = c.id === 'pegeye' 
+                    ? 'GameUIMinimal.enterPegEyeView()' 
+                    : `GameUIMinimal.setCameraView('${c.id}')`;
+                return `
+                <div class="dim-item ${c.id === currentCam ? 'active-item' : ''}" 
+                     onclick="${action}">
+                    <span class="dim-item-icon">${c.icon}</span>
+                    <div class="dim-item-text">
+                        <span class="dim-item-label">${c.label}</span>
+                        <span class="dim-item-about">${c.about}</span>
+                    </div>
+                </div>
+            `}).join('')}
+            <div class="dim-divider"></div>
+            <div class="dim-slider-row">
+                <span class="dim-slider-icon">🐢</span>
+                <input type="range" class="menu-volume-slider" id="menu-cam-speed" min="0.2" max="2.0" step="0.1" value="${speedVal}" oninput="GameUIMinimal.setCameraSpeed(this.value)">
+                <span class="dim-slider-val" id="menu-cam-speed-val">${speedLabel}</span>
+            </div>
+        `;
+    },
+
+    _renderRules() {
+        return `
+            <div class="dim-back" onclick="GameUIMinimal.drillUp()">
+                <span class="dim-back-arrow">◂</span>
+                <span class="dim-back-label">Back</span>
+            </div>
+            <div class="dim-item" onclick="GameUIMinimal.showRules()">
+                <span class="dim-item-icon">📜</span>
+                <div class="dim-item-text">
+                    <span class="dim-item-label">Quick Rules</span>
+                    <span class="dim-item-about">Essential rules at a glance</span>
+                </div>
+            </div>
+            <div class="dim-item" onclick="window.open('docs.html','_blank')">
+                <span class="dim-item-icon">📘</span>
+                <div class="dim-item-text">
+                    <span class="dim-item-label">Full Guide</span>
+                    <span class="dim-item-about">Complete rules and strategy guide</span>
+                </div>
+            </div>
+        `;
+    },
+
+    _renderTutorial() {
+        return `
+            <div class="dim-back" onclick="GameUIMinimal.drillUp()">
+                <span class="dim-back-arrow">◂</span>
+                <span class="dim-back-label">Back</span>
+            </div>
+            <div class="dim-item" onclick="GameUIMinimal.startTutorial()">
+                <span class="dim-item-icon">▶️</span>
+                <div class="dim-item-text">
+                    <span class="dim-item-label">Start Tutorial</span>
+                    <span class="dim-item-about">Learn how to play step by step</span>
+                </div>
+            </div>
+            <div class="dim-item" onclick="GameUIMinimal.showBoardTooltips()">
+                <span class="dim-item-icon">💡</span>
+                <div class="dim-item-text">
+                    <span class="dim-item-label">Board Tooltips</span>
+                    <span class="dim-item-about">Hover hints explaining board spaces</span>
+                </div>
+            </div>
+        `;
     },
 
     // ============================================================
@@ -1690,10 +1828,10 @@ const GameUIMinimal = {
         if (typeof window.setCameraViewMode === 'function') {
             window.setCameraViewMode(viewName);
         }
-        // Highlight active camera button
-        document.querySelectorAll('.camera-grid .menu-btn').forEach(btn => {
-            btn.classList.toggle('active-cam', btn.dataset.cam === viewName);
-        });
+        // Re-render camera dimension to update active state
+        if (this.currentDimension === 'camera') {
+            this.renderDimension('camera');
+        }
     },
 
     setCameraSpeed(val) {

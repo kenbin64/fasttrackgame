@@ -970,7 +970,7 @@ FastTrackThemes.register('cosmic', {
             
             const shape = new THREE.Mesh(shapeGeo, shapeMat);
             const angle = Math.random() * Math.PI * 2;
-            const distance = 350 + Math.random() * 400;
+            const distance = 450 + Math.random() * 400;
             const height = -150 + Math.random() * 350;
             
             shape.position.set(
@@ -994,7 +994,7 @@ FastTrackThemes.register('cosmic', {
         
         for (let i = 0; i < dustCount; i++) {
             const angle = Math.random() * Math.PI * 2;
-            const distance = 200 + Math.random() * 250;
+            const distance = 420 + Math.random() * 250;
             dustPositions[i * 3] = Math.cos(angle) * distance;
             dustPositions[i * 3 + 1] = -50 + Math.random() * 200;
             dustPositions[i * 3 + 2] = Math.sin(angle) * distance;
@@ -1812,7 +1812,7 @@ FastTrackThemes.register('colosseum', {
         const dPos = new Float32Array(dustN * 3);
         for (let i = 0; i < dustN; i++) {
             const da = Math.random() * Math.PI * 2;
-            const dd = Math.random() * 400;
+            const dd = 420 + Math.random() * 300;
             dPos[i * 3]     = Math.cos(da) * dd;
             dPos[i * 3 + 1] = FLOOR_Y + 5 + Math.random() * 180;
             dPos[i * 3 + 2] = Math.sin(da) * dd;
@@ -2542,11 +2542,11 @@ FastTrackThemes.register('spaceace', {
             const asteroid = new THREE.Mesh(asteroidGeo, asteroidMat);
             
             const angle = Math.random() * Math.PI * 2;
-            const dist = 400 + Math.random() * 300;
+            const dist = 500 + Math.random() * 400;
             asteroid.position.set(
                 Math.cos(angle) * dist,
                 -150 + Math.random() * 300,
-                Math.sin(angle) * dist - 400
+                Math.sin(angle) * dist
             );
             asteroid.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
             asteroid.userData.rotSpeed = (Math.random() - 0.5) * 0.01;
@@ -2573,7 +2573,7 @@ FastTrackThemes.register('spaceace', {
         
         for (let i = 0; i < dustCount; i++) {
             const angle = Math.random() * Math.PI * 2;
-            const dist = 150 + Math.random() * 400;
+            const dist = 420 + Math.random() * 350;
             dustPositions[i * 3] = Math.cos(angle) * dist;
             dustPositions[i * 3 + 1] = -100 + Math.random() * 250;
             dustPositions[i * 3 + 2] = Math.sin(angle) * dist;
@@ -2704,7 +2704,7 @@ FastTrackThemes.register('undersea', {
             });
             const beam = new THREE.Mesh(beamGeo, beamMat);
             const angle = (i / beamCount) * Math.PI * 2;
-            const dist = 200 + Math.random() * 300;
+            const dist = 420 + Math.random() * 300;
             beam.position.set(
                 Math.cos(angle) * dist,
                 400,
@@ -2745,7 +2745,7 @@ FastTrackThemes.register('undersea', {
             const bubble = new THREE.Mesh(bubbleGeo, bubbleMat);
             
             const angle = Math.random() * Math.PI * 2;
-            const dist = 100 + Math.random() * 500;
+            const dist = 420 + Math.random() * 300;
             bubble.position.set(
                 Math.cos(angle) * dist,
                 -200 + Math.random() * 600,
@@ -3538,7 +3538,7 @@ FastTrackThemes.register('undersea', {
             const turtle = createSeaTurtle(tData.shell, tData.skin);
             
             const angle = (i / 6) * Math.PI * 2 + Math.random() * 0.5;
-            const dist = 300 + Math.random() * 250;
+            const dist = 420 + Math.random() * 250;
             const height = 50 + Math.random() * 150;
             
             turtle.position.set(
@@ -3659,7 +3659,7 @@ FastTrackThemes.register('undersea', {
             }
             
             const angle = (school / 6) * Math.PI * 2 + Math.random() * 0.5;
-            const dist = 300 + Math.random() * 200;
+            const dist = 450 + Math.random() * 200;
             schoolGroup.position.set(
                 Math.cos(angle) * dist,
                 -50 + Math.random() * 200,
@@ -3757,7 +3757,7 @@ FastTrackThemes.register('undersea', {
                 10 + Math.random() * 15
             );
             const angle = Math.random() * Math.PI * 2;
-            const dist = 200 + Math.random() * 400;
+            const dist = 420 + Math.random() * 350;
             jelly.position.set(
                 Math.cos(angle) * dist,
                 50 + Math.random() * 200,
@@ -3851,7 +3851,7 @@ FastTrackThemes.register('undersea', {
         
         for (let i = 0; i < particleCount; i++) {
             const angle = Math.random() * Math.PI * 2;
-            const dist = 100 + Math.random() * 500;
+            const dist = 420 + Math.random() * 350;
             particlePositions[i * 3] = Math.cos(angle) * dist;
             particlePositions[i * 3 + 1] = -150 + Math.random() * 500;
             particlePositions[i * 3 + 2] = Math.sin(angle) * dist;
@@ -4093,7 +4093,7 @@ FastTrackThemes.register('fibonacci', {
         });
         
         const spiralPoints = new THREE.Points(spiralGeo, spiralMat);
-        spiralPoints.position.set(0, 0, -300);
+        spiralPoints.position.set(0, 0, -700);
         scene.add(spiralPoints);
         manager.backdropLayers.push({ 
             mesh: spiralPoints, 
@@ -4162,7 +4162,7 @@ FastTrackThemes.register('fibonacci', {
             wireframe: true
         });
         const shellMesh = new THREE.Mesh(shellTubeGeo, shellMat);
-        shellMesh.position.set(400, 100, -400);
+        shellMesh.position.set(600, 150, -600);
         shellMesh.scale.setScalar(3);
         scene.add(shellMesh);
         manager.backdropLayers.push({ mesh: shellMesh, parallaxFactor: 0.08, rotationSpeed: 0.0002 });
@@ -4179,14 +4179,14 @@ FastTrackThemes.register('fibonacci', {
             });
             const sphere = new THREE.Mesh(sphereGeo, sphereMat);
             
-            // Position at golden angle intervals
+            // Position at golden angle intervals — outside the board (min radius 450)
             const goldenAngle = 2.399;
             const angle = idx * goldenAngle;
-            const dist = fib * 30;
+            const dist = 450 + fib * 25;
             sphere.position.set(
                 Math.cos(angle) * dist,
                 Math.sin(angle * PHI) * 100,
-                Math.sin(angle) * dist - 200
+                Math.sin(angle) * dist
             );
             sphere.userData = { baseY: sphere.position.y, phase: idx * 0.5 };
             sphereGroup.add(sphere);
