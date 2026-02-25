@@ -308,6 +308,10 @@ D-DOM elements can bind to specific substrate levels:
 ```html
 <d-substrate srl="data://item/123">
   <!-- Level 0: Potential (not rendered, exists as possibility) -->
+  <!-- Every d-substrate carries the totality of existence as potential. -->
+  <!-- Each d-node, when rendered, is a complete object carrying the same -->
+  <!-- totality. Dimensions are not hierarchy — they carry all lower -->
+  <!-- dimensions. Every point IS an entire lower dimension. -->
   
   <d-node level="1">
     <!-- Level 1: Identity -->

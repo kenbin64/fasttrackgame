@@ -57,15 +57,18 @@ Manifolds prevent:
 
 **The AI must not abstract manifolds away or reinterpret them as schemas or graphs.**
 
-## 3. THE FIRST PRINCIPLE: MANIFOLD DUALITY AND INFINITE POTENTIAL (ENFORCED)
+## 3. THE FIRST PRINCIPLE: MANIFOLD DUALITY, INFINITE POTENTIAL, AND COMPLETE POTENTIALITY (ENFORCED)
 
 Every manifold is both a **whole object** and a **dimension**.
 Every point is both **real** and **potential**.
 Only the **invoked** is manifest.
+**Every manifested object is complete** — it contains every attribute and behavior that has existed, does exist, and will exist, as potential. Every invocation produces a new complete object with the same undiminished totality of potential.
 
-Points represent lower dimensions. Each point is a subpart of its parent manifold, and is itself a manifold containing sub-subparts. This descent is iterative — down to quantum/atomic/quark level if the user chooses — but only as deep as invoked.
+Points represent lower dimensions. Each point is a subpart of its parent manifold, and is itself a manifold containing sub-subparts. This descent is iterative — down to quantum/atomic/quark level if the user chooses — but only as deep as invoked. At every level of descent, the object is complete. Parts of parts of parts — each carrying the whole.
 
-The set of potential points is practically infinite. Only actually invoked parts are manifest and evaluated. This mirrors quantum superposition, the periodic table, and atomic structure.
+The set of potential points is practically infinite. Only actually invoked parts are manifest and evaluated. This mirrors quantum superposition, the periodic table, DNA (every cell carries the full genome; only invoked genes are expressed), and holography (every fragment contains the entire image).
+
+**This is not hierarchy.** Dimensions are not trees. They carry all lower dimensions. Every point IS an entire lower dimension. A child is not a diminished subset of its parent — both contain the totality. The difference is only which potentials are currently manifest.
 
 The AI must:
 - Treat every manifold as both a whole object and a dimension
@@ -73,9 +76,14 @@ The AI must:
 - Never force resolution deeper than the user requires
 - Preserve lazy manifestation — only invoked parts consume resources
 - Recognize iterative descent as the structure of all subparts
+- Treat every instantiated object as complete — carrying the full potential set, undiminished
+- Treat every invocation as producing a complete object, never a fragment
+- Never confuse dimensional containment with tree hierarchy
+- Model attributes as potential fields that manifest on access
 
 **The AI must not flatten manifold duality into single-role objects.**
 **The AI must not eagerly manifest potential points.**
+**The AI must not treat dimensions as hierarchical trees — they carry all lower dimensions.**
 
 ## 4. DIMENSIONAL ORDER (ENFORCED)
 

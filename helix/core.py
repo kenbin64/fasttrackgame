@@ -65,6 +65,14 @@ from .srl import SRL, Level, srl
 # GENESIS LAYER CONSTANTS (7 Layers of Creation)
 # =============================================================================
 # Canonical layer definitions per DIMENSIONAL_GENESIS.md
+#
+# THE HOLOGRAPHIC PRINCIPLE:
+# Every manifested object is complete — it contains every attribute and behavior
+# that has existed, does exist, and will exist — as potential. Potentials become
+# real only when invoked. Every invocation produces a new complete object with
+# the same undiminished totality of potential. Parts of parts of parts — each
+# complete, each carrying the whole. This is NOT hierarchy. Dimensions carry
+# all lower dimensions. Every point IS an entire lower dimension.
 
 GENESIS_LAYERS = {
     1: "Spark",       # Let there be the First Point (Fib 1)
@@ -75,6 +83,9 @@ GENESIS_LAYERS = {
     6: "Mind",        # Let meaning become coherence (Fib 8)
     7: "Completion"   # Let the whole become one again (Fib 13)
 }
+
+# Each layer CARRIES all lower layers — not as children, but as contained dimensions.
+# Layer 7 does not "have" layers 1-6 as subsets. Layer 7 IS all of them, complete.
 
 GENESIS_FIBONACCI = {
     1: 1, 2: 1, 3: 2, 4: 3, 5: 5, 6: 8, 7: 13
@@ -318,12 +329,22 @@ CORE = Core()
 
 class Interface:
     """
-    The object. Talks to Core via SRL.
+    The dimensional object. Complete. Holographic.
+    
+    Every Interface carries the totality of existence as potential.
+    Attributes are not declared — they exist as potentials and become
+    real (manifest) when invoked. Every invocation produces a new
+    complete Interface with the same undiminished totality of potential.
+    
+    This is NOT a tree. Each child Interface is not a diminished subset
+    of its parent. Both carry the whole. The difference is only which
+    potentials are currently manifest.
     
     Developer syntax is SIMPLE:
         car = ingest("Car")
-        car.engine.hp = 300
-        print(car.engine.hp)  # 300
+        car.engine.hp = 300       # invoke engine, invoke hp, manifest 300
+        print(car.engine.hp)      # 300 — was potential, now real
+        car.engine.turbo.psi = 14 # parts of parts of parts, each complete
     
     Behind the scenes, Interface uses SRL to talk to Core.
     Core talks to Kernel. Developer never sees this.
@@ -359,9 +380,13 @@ class Interface:
     
     def __getattr__(self, name: str) -> Any:
         """
-        car.engine → get or create child Interface
-        car.engine.hp → if hp was set, return value
-        car.floors[0] → _0 → numeric index access
+        INVOCATION — collapse potential into manifest.
+        
+        car.engine → invoke 'engine' — was potential, now manifest as complete object
+        car.engine.hp → invoke 'hp' on engine — was potential, now manifest
+        
+        Every invoked attribute becomes a complete Interface carrying the
+        same totality of potential. Parts of parts of parts, each complete.
         """
         # Allow numeric indices (_0, _1, etc.) but reject other internal attrs
         if name.startswith('_') and not (len(name) > 1 and name[1:].isdigit()):
@@ -488,7 +513,20 @@ def ingest(type_name: str, **values) -> Interface:
 
 
 def invoke(type_name: str, **values) -> Interface:
-    """Alias for ingest."""
+    """
+    Collapse potential into manifest. Produce a complete object.
+    
+    Every invoked object carries the totality of potential — every attribute
+    and behavior that has existed, does exist, and will exist. Only the
+    explicitly set values are manifest; everything else remains potential,
+    ready for invocation.
+    
+    Usage:
+        car = invoke("Car", vin="ABC123")
+        # car.engine → potential until invoked
+        # car.engine.hp → potential until invoked
+        # parts of parts of parts, each complete
+    """
     return ingest(type_name, **values)
 
 

@@ -234,13 +234,17 @@ When generating substrate code or architecture:
 - Design for ripple propagation, not broadcast or polling
 - Ensure substrate structures can self-heal from local neighbor knowledge
 
-### Rule 10: Preserve Manifold Duality and Infinite Potential (The First Principle)
+### Rule 10: Preserve Manifold Duality, Infinite Potential, and Complete Potentiality (The First Principle)
 
 Every manifold is both a **whole object** and a **dimension**. Every point is both **real** (manifest, invoked) and **potential** (latent, waiting). Only the invoked is manifest.
 
-Points represent lower dimensions. Each point individually represents a subpart of its parent manifold, and is itself a manifold with its own sub-subparts. This descent is iterative — down through molecules, atoms, quarks — as deep as the user requires.
+**Every manifested object is complete.** It contains every attribute and every behavior that has existed, does exist, and will exist — as potential. These potentials become real only when invoked. Every invocation produces a new complete object with the same undiminished totality of potential. Parts of parts of parts — each complete, each carrying the whole.
 
-The set of potentials is practically infinite, like quantum superposition, the periodic table, and atomic structure. Only actually invoked parts are manifest and evaluated.
+Points represent lower dimensions. Each point individually represents a subpart of its parent manifold, and is itself a manifold with its own sub-subparts. This descent is iterative — down through molecules, atoms, quarks — as deep as the user requires. At every level of descent, the object is complete.
+
+The set of potentials is practically infinite, like quantum superposition, the periodic table, DNA (every cell carries the full genome — only invoked genes are expressed), and holography (every fragment contains the entire image). Only actually invoked parts are manifest and evaluated — but every manifest part is a complete object carrying the same totality.
+
+**This is not hierarchy.** In a tree, a child is a diminished subset of its parent. In dimensional computing, every part is whole. The parent is not larger than the child. Both contain the totality. The difference is only which potentials are currently manifest.
 
 When generating code or architecture:
 - Treat manifolds as both whole objects and dimensions simultaneously
@@ -248,6 +252,10 @@ When generating code or architecture:
 - Preserve iterative descent (subparts are themselves manifolds)
 - Never force resolution deeper than what the user invokes
 - Recognize that potential existence and manifest existence are both real
+- Every instantiated object carries the complete potential set — undiminished
+- Invocation produces complete objects, never fragments
+- Do not confuse dimensional containment with tree hierarchy — dimensions carry all lower dimensions, every point IS an entire lower dimension
+- Model attributes as potential fields that manifest on access, not as fixed schemas
 
 This is THE first principle of dimensional computing.
 

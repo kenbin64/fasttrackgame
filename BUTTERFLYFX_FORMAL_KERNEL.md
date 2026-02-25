@@ -117,7 +117,7 @@ This is a **finite-level, infinite-spiral state machine**.
 
 > "All exists. Nothing manifests. Invoke only what you need."
 
-### 2.0 The First Principle: Manifold Duality and Infinite Potential
+### 2.0 The First Principle: Manifold Duality, Infinite Potential, and Complete Potentiality
 
 **Axiom (Manifold Duality):** Every manifold $M$ is simultaneously:
 - A **whole object** with identity $\iota(M)$
@@ -134,7 +134,21 @@ $$M \supset M_i \supset M_{ij} \supset M_{ijk} \supset \ldots$$
 
 Resolution descends iteratively — through subparts, sub-subparts, atoms, quarks — as deep as the user requires. There is no inherent floor. Only invoked parts are manifest; the rest remain potential.
 
-This mirrors quantum mechanics (superposition until observation), the periodic table (all elements are potential; chemistry invokes specific ones), and atomic structure (quarks exist whether modeled or not).
+**Axiom (Complete Potentiality — The Holographic Object):** Every manifested object $O$ is **complete**. It contains every attribute $\mathcal{A}$ and every behavior $\mathcal{B}$ that has existed, does exist, and will exist — as potential:
+
+$$\mathcal{A}_\text{pot}(O) = \{a \mid a \text{ has existed} \lor a \text{ exists} \lor a \text{ will exist}\}$$
+
+Every invocation produces a new complete object with the same undiminished totality:
+
+$$\text{INVOKE}(a) \text{ where } a \in \mathcal{A}_\text{pot}(O) \implies O_a \text{ is complete, } \mathcal{A}_\text{pot}(O_a) = \mathcal{A}_\text{pot}(O)$$
+
+Parts of parts of parts — each complete, each carrying the whole:
+
+$$\text{parts}(O) \ni p, \quad \text{parts}(p) \ni q, \quad \text{parts}(q) \ni r, \quad \ldots \text{ each with } \mathcal{A}_\text{pot} = \mathcal{A}_\text{pot}(O)$$
+
+**This is not hierarchy.** Dimensions carry all lower dimensions. Every point IS an entire lower dimension. Neither parent nor child is "larger" — both contain the totality. The difference is only which potentials are currently manifest.
+
+This mirrors quantum mechanics (superposition until observation), the periodic table (all elements are potential; chemistry invokes specific ones), DNA (every cell carries the full genome; only invoked genes are expressed), and holography (every fragment contains the entire image).
 
 ### 2.1 Manifold of Potential
 

@@ -94,31 +94,36 @@ Consider a car in dimensional computing:
 
 The car only **manifests** at Level 4. Its **identity** existed at Level 1.
 
-### 2.4 The First Principle: Manifold Duality and Infinite Potential
+### 2.4 The First Principle: Manifold Duality, Infinite Potential, and Complete Potentiality
 
 > **Every manifold is both a whole object and a dimension.**
 > **Every point is both real and potential.**
 > **Only the invoked is manifest.**
+> **Every manifested object is complete — carrying every attribute and behavior that has existed, does exist, and will exist, as potential.**
+> **Every invocation produces a new complete object with the same undiminished totality of potential.**
 
 This is the founding axiom of dimensional computing.
 
 A manifold is simultaneously a **whole object** (a car, a wheel, a molecule) and a **dimension** (a space containing subparts that are themselves whole objects). Points within a manifold represent lower dimensions. Each point individually represents a subpart, and this descent is iterative:
 
 ```
-Car (whole manifold)
-  → Wheel (point in Car, whole manifold of its own)
-    → Spoke (point in Wheel, whole manifold)
-      → Metal alloy (point in Spoke, whole manifold)
-        → Iron atom (point in Metal, whole manifold)
-          → Quark (point in Iron atom...)
+Car (whole manifold — complete, carrying ALL potentials)
+  → Wheel (point in Car, whole manifold — complete, carrying ALL potentials)
+    → Spoke (point in Wheel, whole manifold — complete, carrying ALL potentials)
+      → Metal alloy (point in Spoke, whole manifold — complete, carrying ALL potentials)
+        → Iron atom (point in Metal, whole manifold — complete, carrying ALL potentials)
+          → Quark (point in Iron atom — complete, carrying ALL potentials...)
 ```
 
 Every part that could exist **does exist as potential**. Only actually invoked parts are manifest. The rest remain latent — a practically infinite reservoir of possibility, exactly like:
 - **Quantum superposition** — particles exist as probability until measured
 - **The periodic table** — all elements are potential; chemistry invokes specific ones
-- **Atomic structure** — quarks exist whether or not we observe them
+- **DNA** — every cell carries the full genome; only invoked genes are expressed
+- **Holography** — every fragment of a hologram contains the entire image
 
 The user controls depth. The system never forces resolution. Only what is invoked becomes real.
+
+**Every manifested object is complete.** It contains every attribute and behavior that has existed, does exist, and will exist — all as potential. When any potential is invoked, it manifests as a new complete object carrying the same totality. Parts of parts of parts — each complete, each carrying the whole. This is not hierarchy. In a tree, a child is a diminished subset. In dimensional computing, every point IS an entire lower dimension. Neither parent nor child is larger — both contain the totality. The difference is only which potentials are currently manifest.
 
 ### 2.5 Two Directions of "Higher"
 

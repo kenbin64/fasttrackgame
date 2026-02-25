@@ -169,7 +169,7 @@ $$O(levels\ per\ spiral) = O(7) = O(1)$$
 
 ---
 
-### 1.4 The First Principle: Manifold Duality and Infinite Potential
+### 1.4 The First Principle: Manifold Duality, Infinite Potential, and Complete Potentiality
 
 This is the founding axiom of all dimensional computing.
 
@@ -188,9 +188,18 @@ Points represent lower dimensions. Each point is a subpart of its parent manifol
 
 $$M \supset M_i \supset M_{ij} \supset \ldots \text{ (to quantum/atomic/quark level if desired)}$$
 
-The user controls depth. The system does not force resolution. This mirrors quantum superposition (particles exist as probability until measured), the periodic table (all elements are potential; only invoked ones are present), and atomic structure (quarks exist whether observed or not).
+The user controls depth. The system does not force resolution. This mirrors quantum superposition (particles exist as probability until measured), the periodic table (all elements are potential; only invoked ones are present), DNA (every cell carries the full genome; only invoked genes are expressed), and holography (every fragment contains the entire image).
 
-Any conforming implementation MUST preserve this duality: manifolds as wholes AND dimensions, points as real AND potential, resolution as user-controlled.
+**PROPERTY M4 — Complete Potentiality (The Holographic Object):**
+Every manifested object is **complete**. It contains every attribute and every behavior that has existed, does exist, and will exist — as potential. These potentials are not fragments or subsets. They are the totality of possible existence for that object.
+
+Every invocation produces a **new complete object** with the same undiminished totality of potential. Parts of parts of parts — each complete, each carrying the whole. Formally:
+
+$$\text{INVOKE}(a) \text{ where } a \in \mathcal{A}_\text{pot}(O) \implies O_a \text{ is complete with } \mathcal{A}_\text{pot}(O_a) = \mathcal{A}_\text{pot}(O)$$
+
+**This is not hierarchy.** In a tree, a child is a diminished subset of its parent. In dimensional computing, every point IS an entire lower dimension. Dimensions carry all lower dimensions within them. Neither parent nor child is "larger" — both contain the totality. The difference is only which potentials are currently manifest.
+
+Any conforming implementation MUST preserve this duality: manifolds as wholes AND dimensions, points as real AND potential, resolution as user-controlled, every manifest object complete and carrying the undiminished totality of potential.
 
 ---
 
