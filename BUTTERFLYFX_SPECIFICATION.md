@@ -176,12 +176,13 @@ This is the founding axiom of all dimensional computing.
 **PROPERTY M1 — Manifold Duality:**
 Every manifold is simultaneously a **whole object** (a complete thing with identity) and a **dimension** (a space containing points that are themselves whole objects/manifolds).
 
-**PROPERTY M2 — Infinite Potential:**
-Every part of a manifold that could exist **does exist as potential**. Points are partitioned into:
-- **Manifest** ($\mathcal{P}_\text{real}$) — invoked, evaluated, consuming resources
-- **Potential** ($\mathcal{P}_\text{pot}$) — latent, waiting for invocation, practically infinite in number
+**PROPERTY M2 — Three States (Potential, Null, Manifest):**
+Every point in a manifold exists in one of three states:
+- **Potential** ($\mathcal{P}_\text{pot}$) — unaddressed, no location, no identity. Pure possibility that has not even been given a position.
+- **Null** ($\mathcal{P}_\text{null}$) — addressed but valueless. Has a location (0D) but carries no value, no context. A position without extent. An identified but empty cell.
+- **Manifest** ($\mathcal{P}_\text{real}$) — addressed and valued. Has location AND payload — "one point of something."
 
-Only `INVOKE` transitions a point from potential to manifest.
+$\text{ADDRESS}$ transitions a point from potential to null. $\text{VALUE}$ transitions from null to manifest. $\text{INVOKE}$ may perform both.
 
 **PROPERTY M3 — Iterative Descent:**
 Points represent lower dimensions. Each point is a subpart of its parent manifold. Subparts contain sub-subparts. This descent is iterative:
@@ -199,7 +200,7 @@ $$\text{INVOKE}(a) \text{ where } a \in \mathcal{A}_\text{pot}(O) \implies O_a \
 
 **This is not hierarchy.** In a tree, a child is a diminished subset of its parent. In dimensional computing, every point IS an entire lower dimension. Dimensions carry all lower dimensions within them. Neither parent nor child is "larger" — both contain the totality. The difference is only which potentials are currently manifest.
 
-Any conforming implementation MUST preserve this duality: manifolds as wholes AND dimensions, points as real AND potential, resolution as user-controlled, every manifest object complete and carrying the undiminished totality of potential.
+Any conforming implementation MUST preserve this duality: manifolds as wholes AND dimensions, the three states (potential/null/manifest), resolution as user-controlled, every manifest object complete and carrying the undiminished totality of potential. A potential has no location. A null point has location but no value (0D). A manifest point has both.
 
 ---
 

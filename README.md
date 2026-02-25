@@ -75,6 +75,11 @@ Built on **The Seven Dimensional Laws** and governed by the **Dimensional Safety
 
 ButterflyFX uses **Objects**, not classes. An Object is complete — it possesses every conceivable attribute, property, behavior, and ability that has existed, does exist, and will exist — all as **potential**. Nothing is declared; everything exists latently and is revealed through invocation.
 
+Every point in a manifold exists in one of **three states**:
+- **Potential** — unaddressed, no location, no identity. Pure possibility that has not even been given a position.
+- **Null (0D)** — addressed but valueless. The point has been identified — it has a location — but carries no value. A position without extent. An empty cell.
+- **Manifest** — addressed and valued. "One point of something." It participates in the system.
+
 When a potential is invoked, it does not produce a fragment. It produces a **complete object** — carrying the same totality of potential as the object that spawned it. Parts contain parts which contain parts, each complete, each carrying the whole. This is holographic: the whole is in every part. Not as a copy, but as potential. Not as data, but as the capacity for data.
 
 **This is not hierarchy.** In a tree, a child is a diminished subset. In dimensional computing, every part is whole. Every point IS an entire lower dimension. Dimensions carry all lower dimensions within them.

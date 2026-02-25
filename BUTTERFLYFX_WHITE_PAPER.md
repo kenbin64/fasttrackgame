@@ -97,7 +97,7 @@ The car only **manifests** at Level 4. Its **identity** existed at Level 1.
 ### 2.4 The First Principle: Manifold Duality, Infinite Potential, and Complete Potentiality
 
 > **Every manifold is both a whole object and a dimension.**
-> **Every point is both real and potential.**
+> **Every point exists in one of three states: potential (unaddressed, no location), null (addressed but empty, 0D), or manifest (addressed and valued).**
 > **Only the invoked is manifest.**
 > **Every manifested object is complete — carrying every attribute and behavior that has existed, does exist, and will exist, as potential.**
 > **Every invocation produces a new complete object with the same undiminished totality of potential.**
@@ -115,7 +115,7 @@ Car (whole manifold — complete, carrying ALL potentials)
           → Quark (point in Iron atom — complete, carrying ALL potentials...)
 ```
 
-Every part that could exist **does exist as potential**. Only actually invoked parts are manifest. The rest remain latent — a practically infinite reservoir of possibility, exactly like:
+Every part that could exist **does exist as potential** — unaddressed, without even a location. When a potential is addressed, it becomes **null** — a 0D point with a position but no value (an empty cell). When valued, it becomes **manifest**. Only actually invoked parts are manifest. The rest remain either potential (unaddressed) or null (addressed but empty) — a practically infinite reservoir of possibility, exactly like:
 - **Quantum superposition** — particles exist as probability until measured
 - **The periodic table** — all elements are potential; chemistry invokes specific ones
 - **DNA** — every cell carries the full genome; only invoked genes are expressed

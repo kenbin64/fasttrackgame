@@ -234,9 +234,15 @@ When generating substrate code or architecture:
 - Design for ripple propagation, not broadcast or polling
 - Ensure substrate structures can self-heal from local neighbor knowledge
 
-### Rule 10: Preserve Manifold Duality, Infinite Potential, and Complete Potentiality (The First Principle)
+### Rule 10: Preserve Manifold Duality, Infinite Potential, the Three States, and Complete Potentiality (The First Principle)
 
-Every manifold is both a **whole object** and a **dimension**. Every point is both **real** (manifest, invoked) and **potential** (latent, waiting). Only the invoked is manifest.
+Every manifold is both a **whole object** and a **dimension**. Every point exists in one of **three states**:
+
+1. **Potential** — unaddressed. No location, no identity, no position. Not a point. Pure possibility that has not even been given a location.
+2. **Null (0D)** — addressed but valueless. The point has been identified and given a location, but carries no value, no context, no measurement. It is zero-dimensional: a location without length, width, or height. It simply *is* a position. An empty cell in a grid.
+3. **Manifest** — addressed and valued. The point has location AND payload: actual data, behavior, substance. "One point of something."
+
+The transitions are: ADDRESS (Potential → Null) and VALUE (Null → Manifest). INVOKE may perform both stages at once.
 
 **Every manifested object is complete.** It contains every attribute and every behavior that has existed, does exist, and will exist — as potential. These potentials become real only when invoked. Every invocation produces a new complete object with the same undiminished totality of potential. Parts of parts of parts — each complete, each carrying the whole.
 
@@ -251,7 +257,9 @@ When generating code or architecture:
 - Never eagerly manifest all potential points — use lazy invocation
 - Preserve iterative descent (subparts are themselves manifolds)
 - Never force resolution deeper than what the user invokes
-- Recognize that potential existence and manifest existence are both real
+- Recognize three states: potential (no location), null (0D — location, no value), manifest (location + value)
+- A potential has not even been given a location — it is pre-existence
+- A null point is identified but empty — 0D, dimensionless, a location without context
 - Every instantiated object carries the complete potential set — undiminished
 - Invocation produces complete objects, never fragments
 - Do not confuse dimensional containment with tree hierarchy — dimensions carry all lower dimensions, every point IS an entire lower dimension

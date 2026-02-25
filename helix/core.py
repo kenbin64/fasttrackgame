@@ -66,7 +66,11 @@ from .srl import SRL, Level, srl
 # =============================================================================
 # Canonical layer definitions per DIMENSIONAL_GENESIS.md
 #
-# THE HOLOGRAPHIC PRINCIPLE:
+# THE HOLOGRAPHIC PRINCIPLE & THREE STATES:
+# Every point exists in one of three states:
+#   POTENTIAL — unaddressed, no location, no identity. Pure possibility.
+#   NULL (0D) — addressed but valueless. Has location, no value. Dimensionless.
+#   MANIFEST — addressed and valued. "One point of something."
 # Every manifested object is complete — it contains every attribute and behavior
 # that has existed, does exist, and will exist — as potential. Potentials become
 # real only when invoked. Every invocation produces a new complete object with
@@ -332,9 +336,16 @@ class Interface:
     The dimensional object. Complete. Holographic.
     
     Every Interface carries the totality of existence as potential.
+    
+    Points exist in THREE STATES:
+        POTENTIAL — unaddressed. No location, no identity. Not even a point.
+        NULL (0D) — addressed but valueless. Has location, no value. An empty cell.
+        MANIFEST — addressed and valued. "One point of something."
+    
     Attributes are not declared — they exist as potentials and become
-    real (manifest) when invoked. Every invocation produces a new
-    complete Interface with the same undiminished totality of potential.
+    null (when addressed) then manifest (when valued). Every invocation
+    produces a new complete Interface with the same undiminished totality
+    of potential.
     
     This is NOT a tree. Each child Interface is not a diminished subset
     of its parent. Both carry the whole. The difference is only which
@@ -342,8 +353,8 @@ class Interface:
     
     Developer syntax is SIMPLE:
         car = ingest("Car")
-        car.engine.hp = 300       # invoke engine, invoke hp, manifest 300
-        print(car.engine.hp)      # 300 — was potential, now real
+        car.engine.hp = 300       # address engine (null→manifest), address hp, manifest 300
+        print(car.engine.hp)      # 300 — was potential, addressed to null, valued to manifest
         car.engine.turbo.psi = 14 # parts of parts of parts, each complete
     
     Behind the scenes, Interface uses SRL to talk to Core.
@@ -380,10 +391,13 @@ class Interface:
     
     def __getattr__(self, name: str) -> Any:
         """
-        INVOCATION — collapse potential into manifest.
+        INVOCATION — collapse potential through null into manifest.
         
-        car.engine → invoke 'engine' — was potential, now manifest as complete object
-        car.engine.hp → invoke 'hp' on engine — was potential, now manifest
+        car.engine → address 'engine' (potential→null), then manifest as complete object
+        car.engine.hp → address 'hp' on engine, manifest on access
+        
+        Stage 1 (ADDRESS): potential→null — the attribute gains a location (0D)
+        Stage 2 (VALUE): null→manifest — the attribute gains a value
         
         Every invoked attribute becomes a complete Interface carrying the
         same totality of potential. Parts of parts of parts, each complete.

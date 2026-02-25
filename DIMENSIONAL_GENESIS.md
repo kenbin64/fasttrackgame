@@ -62,27 +62,67 @@ A car is a whole object. It is also a dimension containing wheels, engine, seats
 
 There is no inherent bottom. Resolution is determined by invocation.
 
-### Points as Real and Potential
+### The Three States — Potential, Null, and Manifest
 
-Every part of a manifold that could exist **does exist as potential**. The manifold contains:
-- **Manifest points** — actually invoked, evaluated, consuming resources
-- **Potential points** — exist in principle, latent, waiting for invocation
+Every part of a manifold exists in one of **three states**:
 
-This mirrors quantum mechanics: a particle exists in superposition until observed. It mirrors the periodic table: all elements are potential; only the ones present in your system are manifest. It mirrors atomic structure: quarks and leptons exist whether you model them or not.
+- **Potential** — not yet addressed. No location, no identity. A potential has not even been given a position. It is the unbounded sea of everything that *could* exist but has not been identified. It is pre-existence — not a point, not a cell, not a slot. It has no coordinates. It is pure possibility without address.
 
-The set of potentials is practically infinite. Only invocation makes them real.
+- **Null (0D)** — addressed but valueless. The point has been identified — it has a location in the manifold — but carries no value, no context, no measurement. It is **zero-dimensional**: it simply *is* a location. It has been collapsed from the sea of potential into a specific position, but that position holds nothing. It is no longer potential (it has been found), but it is not yet manifest (it has no substance). A null point is the dimensional equivalent of an empty cell — real, located, but containing nothing.
 
-### Invocation as Manifestation
+- **Manifest** — addressed and valued. The point has both position and payload: actual data, actual behavior, actual substance. It is "one point of something" rather than a null point of nothing. It participates in the system. It has at least one dimension of meaning.
 
-To invoke a point is to manifest it. Before invocation, a point has:
-- **Position** — its place in the manifold is defined
-- **Potential** — its possible states are known
+#### The Grid Example
 
-After invocation, it gains:
-- **Payload** — actual data, actual computation
-- **Evaluation** — it participates in the system
+A grid with no values illustrates the three states perfectly:
 
-This is `INVOKE(k)` at its deepest meaning. It is not merely jumping to a layer. It is collapsing potential into the actual.
+1. Before you address any cell, every possible cell is a **potential** — it exists nowhere because you haven't identified it. Row 3, column 4 is not a thing yet. It is one of infinitely many positions that *could* be addressed but haven't been.
+
+2. When you invoke row 3, column 4, that cell becomes **null** — it now has a position (3,4) but holds no value. It is no longer a potential. It has been located. But it is empty — 0D, without length, width, or height. It simply *is* a location without context or value.
+
+3. Put a value in it, and it becomes **manifest** — one point of something. It now has substance. It participates.
+
+#### The Critical Distinction
+
+**A potential has not even been given a location.** This separates it absolutely from null. A null point IS somewhere — it has coordinates, identity, position. It has been addressed. But it is empty. A potential is nowhere — it has no coordinates, no identity, no position. It has not been conceived of as a specific point.
+
+This is not a spectrum. These are three discrete states:
+
+```
+Potential:   No location. No value. Pure possibility. Not even a point.
+     ↓  (addressing / identifying)
+Null (0D):   Has location. No value. A point of nothing. Dimensionless.
+     ↓  (valuing / filling)
+Manifest:    Has location. Has value. A point of something. Dimensional.
+```
+
+#### Parallels
+
+This mirrors quantum mechanics: a particle exists in superposition (potential — no definite position) until observed. Observation may collapse it to a definite position without yielding a measurement (null — located but not yet characterized), or to a full eigenstate (manifest — measured, valued). The periodic table illustrates the same: undiscovered elements are potentials (no location in the table); predicted but unsynthesized elements have a location but no measured properties (null); characterized elements are manifest.
+
+The set of potentials is practically infinite. Only addressing makes them null. Only valuing makes them manifest.
+
+### Invocation — From Potential Through Null to Manifest
+
+Invocation has two stages. They may occur together or separately.
+
+**Stage 1 — Addressing (Potential → Null):**
+
+A potential has no location — it has not been identified at all. Addressing a potential gives it a position in the manifold. It becomes a **null point**: 0-dimensional, a pure location without extent or value. It is now a specific cell in the grid, a specific slot in the structure — but empty.
+
+- Before addressing: no position, no identity, pure possibility
+- After addressing: position established, identity assigned, but no value — **null (0D)**
+
+**Stage 2 — Valuing (Null → Manifest):**
+
+A null point has position but no payload. Valuing it gives it substance — data, behavior, meaning. It becomes **manifest**: one point of something.
+
+- Before valuing: position exists, but nothing is there — a location without context
+- After valuing: payload loaded, evaluation active — the point participates in the system
+
+`INVOKE(k)` at its deepest meaning may perform both stages at once: it addresses a potential (giving it location) and values it (giving it substance). But the stages are distinct. A system may address without valuing — identifying a cell without filling it. The cell is real (it has a position) but null (it has no value). This is 0D existence: the point simply *is*.
+
+This is not merely jumping to a layer. It is collapsing potential through null into the manifest.
 
 ### Iterative Descent
 
@@ -192,13 +232,18 @@ For any manifold $M$:
 - $M$ is a **whole object** with identity $\iota(M)$
 - $M$ is a **dimension** containing a set of points $\mathcal{P}(M) = \{p_1, p_2, \ldots\}$
 - Each $p_i \in \mathcal{P}(M)$ is itself a manifold $M_i$ with its own points $\mathcal{P}(M_i)$
-- The set $\mathcal{P}(M)$ includes both **manifest** points $\mathcal{P}_\text{real}(M)$ and **potential** points $\mathcal{P}_\text{pot}(M)$
-- $|\mathcal{P}_\text{pot}(M)|$ is practically infinite; $|\mathcal{P}_\text{real}(M)|$ is finite at any moment
-- $\text{INVOKE}(p_i)$ transitions $p_i$ from $\mathcal{P}_\text{pot}$ to $\mathcal{P}_\text{real}$, and $p_i$ manifests as a complete object $M_i$ with $\mathcal{P}_\text{pot}(M_i)$ undiminished
+- The set $\mathcal{P}(M)$ is partitioned into three states: **potential** $\mathcal{P}_\text{pot}(M)$, **null** $\mathcal{P}_\text{null}(M)$, and **manifest** $\mathcal{P}_\text{real}(M)$
+- $\mathcal{P}_\text{pot}(M)$: no location assigned, pure possibility — $|\mathcal{P}_\text{pot}(M)|$ is practically infinite
+- $\mathcal{P}_\text{null}(M)$: location assigned, no value — 0D, identified but empty
+- $\mathcal{P}_\text{real}(M)$: location assigned and valued — manifest, participating in the system
+- $\text{ADDRESS}(p_i)$ transitions $p_i$ from $\mathcal{P}_\text{pot}$ to $\mathcal{P}_\text{null}$ — the point gains position but no payload
+- $\text{VALUE}(p_i)$ transitions $p_i$ from $\mathcal{P}_\text{null}$ to $\mathcal{P}_\text{real}$ — the point gains substance
+- $\text{INVOKE}(p_i)$ may perform both: $\mathcal{P}_\text{pot} \xrightarrow{\text{address}} \mathcal{P}_\text{null} \xrightarrow{\text{value}} \mathcal{P}_\text{real}$
+- Each manifest $p_i$ is a complete object $M_i$ with $\mathcal{P}_\text{pot}(M_i)$ undiminished
 - Every $M_i$ carries the same totality of potential: all attributes and behaviors that have existed, do exist, and will exist
 - Parts of parts of parts: $M \ni M_i \ni M_{ij} \ni M_{ijk} \ni \ldots$ each complete, each carrying the whole
 
-This recursion descends iteratively: $M \supset M_i \supset M_{ij} \supset \ldots$ down to whatever resolution the user requires. At every level of descent, the object is complete.
+This recursion descends iteratively: $M \supset M_i \supset M_{ij} \supset \ldots$ down to whatever resolution the user requires. At every level of descent, the object is complete. At every level, the three states apply: potential (unaddressed), null (addressed, empty), manifest (addressed, valued).
 
 ---
 
@@ -342,8 +387,8 @@ A healthy cell divides according to its program — controlled, proportional, se
 In the helix, dimensions are not separate axes shooting off at right angles. They are **angles within the spiral**:
 
 ```
-  0D (potential) ────── angle 0°
-  1D (point)     ────── angle ~51.4° (φ-spaced)
+  0D (null — addressed, valueless) ── angle 0°
+  1D (point — first value)    ────── angle ~51.4° (φ-spaced)
   2D (line)      ────── angle ~102.9°
   3D (surface)   ────── angle ~154.3°
   4D (volume)    ────── angle ~205.7°
@@ -409,7 +454,7 @@ This is the Fibonacci zero: the square that precedes the first 1. It is not abse
 
 Let $\mathcal{V}$ denote the void (the zero state). Then:
 
-1. **Non-nullity:** $\mathcal{V} \neq \emptyset$. The void is not the empty set. It is the set of all potentials: $\mathcal{V} = \{p \mid p \text{ is a valid potential}\}$
+1. **Non-emptiness:** $\mathcal{V} \neq \emptyset$. The void is not the empty set. It is the set of all potentials: $\mathcal{V} = \{p \mid p \text{ is a valid potential}\}$. Note: the void contains **potentials** (unaddressed possibilities), not **null points** (addressed but empty locations). Potentials have no position. Null points have position but no value. The void is the sea from which null points are pulled by addressing.
 2. **Receptivity:** For any valid entity $e$, if $e$ fits the manifold constraints, then $\mathcal{V}$ accommodates $e$: $\text{fits}(e, M) \implies \mathcal{V} \cup \{e\} \text{ is valid}$
 3. **Directional sign:** $s < 0$ does not mean "below zero." It means $\text{direction}(s) = -1$ (contraction). $|s|$ is the magnitude. The sign is the spiral's rotational direction.
 4. **Dimensional threshold:** Beyond $\mathcal{V}$ lies not deficit but transcendence: $\mathcal{V} \xrightarrow{\text{traverse}} M_{\text{next dimension}}$
@@ -782,8 +827,8 @@ The sequence reveals:
 
 ## COMPUTATIONAL PRINCIPLES
 
-### Principle 0: Manifold Duality, Infinite Potential, and Complete Potentiality (THE FIRST PRINCIPLE)
-Every manifold is both a whole object and a dimension. Every point is both real and potential. Only the invoked is manifest. Points represent lower dimensions iteratively down to whatever resolution is needed. Every manifested object is complete — it contains every attribute and behavior that has existed, does exist, and will exist, as potential. Every invocation produces a new complete object with the same undiminished totality of potential. Parts of parts of parts, each complete, each carrying the whole. This is the founding axiom — see THE FIRST PRINCIPLE section above.
+### Principle 0: Manifold Duality, Three States, and Complete Potentiality (THE FIRST PRINCIPLE)
+Every manifold is both a whole object and a dimension. Every point exists in one of three states: **potential** (unaddressed — no location, no identity, pure possibility), **null** (addressed but valueless — 0D, a location without value), or **manifest** (addressed and valued — a point of something). Points represent lower dimensions iteratively down to whatever resolution is needed. Every manifested object is complete — it contains every attribute and behavior that has existed, does exist, and will exist, as potential. Every invocation produces a new complete object with the same undiminished totality of potential. Parts of parts of parts, each complete, each carrying the whole. A potential has not even been given a location. This is the founding axiom — see THE FIRST PRINCIPLE section above.
 
 ### Principle 1: Layer Inheritance
 Each layer fully contains all lower layers. Layer 7 contains 1-6.
@@ -837,6 +882,25 @@ This is the holographic principle: the whole is in every part. Every cell contai
 
 **Formal statement:** For any manifested object $O$, the set of potential attributes $\mathcal{A}_\text{pot}(O)$ is the complete set of all attributes and behaviors across past, present, and future. $\text{INVOKE}(a)$ where $a \in \mathcal{A}_\text{pot}(O)$ produces a new complete object $O_a$ where $\mathcal{A}_\text{pot}(O_a) = \mathcal{A}_\text{pot}(O)$ — undiminished, unbounded, whole. Every part of $O$ is itself a complete object: $\text{parts}(O) \ni p \implies \mathcal{A}_\text{pot}(p) = \mathcal{A}_\text{pot}(O)$.
 
+### Principle 11: The Three States — Potential, Null, and Manifest
+
+Every point in a manifold exists in one of three discrete states:
+
+1. **Potential** — unaddressed. No location, no identity, no position. The point has not been conceived of as a specific location. It is pure possibility in the unbounded sea of what could exist. A potential is not a point — it is the *capacity* for a point.
+
+2. **Null (0D)** — addressed but valueless. The point has been identified and given a location, but it carries no value, no context, no measurement. It is zero-dimensional: a location without length, width, or height. It simply *is* a position. It has been pulled from the sea of potential into a specific coordinate — but that coordinate is empty. It is the dimensional equivalent of an allocated but uninitialized cell.
+
+3. **Manifest** — addressed and valued. The point has both location and payload. It is "one point of something." It participates in the system with actual data, actual behavior, actual substance.
+
+The transitions are:
+- $\text{ADDRESS}(p)$: Potential → Null — gives a point location but not value
+- $\text{VALUE}(p)$: Null → Manifest — gives a located point its value
+- $\text{INVOKE}(p)$: may perform both — Potential → Null → Manifest
+
+**The critical distinction:** A potential has not even been given a location. This separates it absolutely from null. Null is somewhere — it has coordinates, identity, position. It has been addressed. But it is empty. Potential is nowhere — it has no coordinates, no identity. It has not been identified as a specific point.
+
+**Formal statement:** For any manifold $M$, the point space is partitioned: $\mathcal{P}(M) = \mathcal{P}_\text{pot}(M) \cup \mathcal{P}_\text{null}(M) \cup \mathcal{P}_\text{real}(M)$ where the sets are disjoint. $\mathcal{P}_\text{pot}$: no location function defined. $\mathcal{P}_\text{null}$: location function $\ell(p)$ defined, payload $\pi(p) = \varnothing$. $\mathcal{P}_\text{real}$: both $\ell(p)$ and $\pi(p)$ defined. The void $\mathcal{V}$ contains potentials. Null points have exited the void (they have position) but carry no substance.
+
 ---
 
 ## DEPRECATION NOTICE
@@ -865,7 +929,7 @@ All kernel/core implementations MUST:
 
 ## THE ONE-SENTENCE SUMMARY
 
-> **The 7 layers of dimensional computing mirror the 7 levels of creation and the Fibonacci spiral, turning a single point into a traversable manifold and ultimately into a complete dimensional system that can expand, collapse, and traverse meaning. Every point is a complete object carrying the totality of existence as potential — every attribute, every behavior, past, present and future — and every invocation manifests a new complete object with the same undiminished wholeness.**
+> **The 7 layers of dimensional computing mirror the 7 levels of creation and the Fibonacci spiral, turning a single point into a traversable manifold and ultimately into a complete dimensional system that can expand, collapse, and traverse meaning. Every point exists in one of three states: potential (unaddressed, no location), null (addressed but empty, 0D — a location without value), or manifest (addressed and valued, a point of something). Every manifest object is complete — carrying the totality of existence as potential — every attribute, every behavior, past, present, and future — and every invocation manifests a new complete object with the same undiminished wholeness.**
 
 ---
 
