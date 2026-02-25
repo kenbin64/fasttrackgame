@@ -9,7 +9,7 @@
   <!-- Fonts: Orbitron (arcade headers) + Rajdhani (body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Press+Start+2P&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Manifold substrate: pure CSS, zero inline styles -->
   <link rel="stylesheet" href="substrate.css">
@@ -96,15 +96,118 @@
     </section>
 
 
+    <!-- ── ARCADE FLOOR — People Playing ── -->
+    <section id="arcade-floor">
+      <div class="neon-sign reveal">
+        <span class="neon-sign-text flicker">ARCADE</span>
+      </div>
+
+      <div class="arcade-floor-scene reveal">
+        <div class="arcade-people">
+
+          <!-- Station 1: Person playing Fast Track -->
+          <div class="arcade-station">
+            <div class="cabinet-sil cab-1">
+              <div class="cabinet-screen"></div>
+              <div class="cabinet-controls"></div>
+              <span class="cabinet-label">Fast Track</span>
+            </div>
+            <div class="arcade-person">
+              <div class="person-head"></div>
+              <div class="person-arms"></div>
+              <div class="person-body"></div>
+              <div class="person-legs"><span></span><span></span></div>
+            </div>
+          </div>
+
+          <!-- Station 2: Empty cabinet -->
+          <div class="arcade-station">
+            <div class="cabinet-sil cab-2">
+              <div class="cabinet-screen"></div>
+              <div class="cabinet-controls"></div>
+              <span class="cabinet-label">Neon Racer</span>
+            </div>
+          </div>
+
+          <!-- Station 3: Two people at one cabinet -->
+          <div class="arcade-station">
+            <div class="cabinet-sil cab-3">
+              <div class="cabinet-screen"></div>
+              <div class="cabinet-controls"></div>
+              <span class="cabinet-label">Helix Puzzle</span>
+            </div>
+            <div class="arcade-person">
+              <div class="person-head"></div>
+              <div class="person-arms"></div>
+              <div class="person-body"></div>
+              <div class="person-legs"><span></span><span></span></div>
+            </div>
+          </div>
+
+          <!-- Station 4: Person playing -->
+          <div class="arcade-station">
+            <div class="cabinet-sil cab-4">
+              <div class="cabinet-screen"></div>
+              <div class="cabinet-controls"></div>
+              <span class="cabinet-label">Dim Chess</span>
+            </div>
+            <div class="arcade-person">
+              <div class="person-head"></div>
+              <div class="person-arms"></div>
+              <div class="person-body"></div>
+              <div class="person-legs"><span></span><span></span></div>
+            </div>
+          </div>
+
+          <!-- Station 5: Empty cabinet -->
+          <div class="arcade-station">
+            <div class="cabinet-sil cab-5">
+              <div class="cabinet-screen"></div>
+              <div class="cabinet-controls"></div>
+              <span class="cabinet-label">Star Forge</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="score-ticker reveal">
+        <div class="score-item">
+          <span class="score-value">1</span>
+          <span class="score-label">Game Live</span>
+        </div>
+        <div class="score-item">
+          <span class="score-value">5</span>
+          <span class="score-label">Coming Soon</span>
+        </div>
+        <div class="score-item">
+          <span class="score-value">∞</span>
+          <span class="score-label">High Scores</span>
+        </div>
+      </div>
+    </section>
+
+
+    <hr class="neon-divider">
+
+
     <!-- ── FEATURED: FastTrack ── -->
     <section id="featured">
+      <div class="section-head reveal">
+        <span class="section-tag">★ Featured</span>
+        <h2>Fast Track</h2>
+        <p class="sub">The flagship game of Ken's Arcade.</p>
+      </div>
+
       <div class="featured-card reveal">
-        <span class="game-badge">★ Featured Game</span>
+        <span class="game-badge">★ Now Playing</span>
         <img src="/fasttrack/assets/images/ftLogo.png"
              alt="FastTrack Logo" class="game-logo" loading="lazy">
-        <h2 style="color: var(--neon-pink);">FastTrack</h2>
-        <p>A strategic board game of speed, wit, and dimensional mastery.
-           Race your pieces around the board — but watch your back.</p>
+        <h2 class="fire-text">Fast Track</h2>
+        <p>A neon-soaked strategic board game where speed meets strategy.
+           Race your pieces around the track, dodge your rivals, take
+           the fast lanes, and be the first to bring all four tokens home.
+           Inspired by classic board games but built for the digital arcade age.</p>
 
         <div class="stats">
           <div class="stat">
@@ -119,11 +222,34 @@
             <span class="stat-value">φ</span>
             <span class="stat-label">Balance</span>
           </div>
+          <div class="stat">
+            <span class="stat-value">7</span>
+            <span class="stat-label">Themes</span>
+          </div>
         </div>
 
         <div class="play-buttons">
-          <a href="/fasttrack/" class="btn btn-fire btn-lg">Play Now</a>
-          <a href="/fasttrack/?mode=private" class="btn btn-gold btn-lg">Private Game</a>
+          <a href="/fasttrack/" class="btn btn-fire btn-lg">▶ Play Now</a>
+          <a href="/fasttrack/?mode=private" class="btn btn-gold btn-lg">🔒 Private Game</a>
+          <a href="/fasttrack/?tutorial=1" class="btn btn-glass btn-lg">📖 Tutorial</a>
+        </div>
+      </div>
+
+      <!-- Fast Track Story -->
+      <div class="grid grid-2 reveal" style="margin-top: var(--f34);">
+        <div class="story-block">
+          <h3>⚡ What is Fast Track?</h3>
+          <p>Fast Track is a multiplayer board game built for the browser.
+             Play online with friends or strangers, challenge the AI,
+             or learn through the interactive tutorial. Every game plays
+             different — roll the dice, pick your moves, and race to the center.</p>
+        </div>
+        <div class="story-block">
+          <h3>🎨 7 Dimensional Themes</h3>
+          <p>Switch between stunning visual themes — from Space Ace to
+             Synthwave to Woody to Neon Night. Each theme transforms the
+             board with unique colors, animations, and atmosphere.
+             Unlock new themes as you play.</p>
         </div>
       </div>
     </section>
@@ -193,82 +319,149 @@
     </section>
 
 
+    <hr class="neon-divider">
+
+
+    <!-- ── NEON SIGN: GAMES ── -->
+    <div class="neon-sign reveal">
+      <span class="neon-sign-text">GAMES</span>
+    </div>
+
+
     <!-- ── ALL GAMES ── -->
     <section id="games">
       <div class="section-head reveal">
-        <span class="section-tag">Arcade</span>
+        <span class="section-tag">Arcade Cabinet</span>
         <h2>All Games</h2>
-        <p class="sub">FastTrack is live. More cabinets loading...</p>
+        <p class="sub">Fast Track is live and playable now. More cabinets are being
+           built in the back room — watch the screens light up soon.</p>
       </div>
 
       <div class="grid grid-3">
+
+        <!-- LIVE: Fast Track -->
         <a href="/fasttrack/" class="game-card reveal">
-          <h3>FastTrack</h3>
-          <p>Strategic board racing for 2–4 players. Online multiplayer, private rooms, AI opponents.</p>
-          <span class="mode-badge">Live</span>
+          <span class="game-icon">🏁</span>
+          <h3>Fast Track</h3>
+          <p>The original. Strategic board racing for 2–4 players with
+             online multiplayer, private rooms, AI opponents, and 7
+             stunning visual themes. Roll, race, capture, win.</p>
+          <span class="game-status status-live">● Live</span>
         </a>
+
+        <!-- COMING SOON: Dimensional Chess -->
         <div class="game-card coming-soon reveal">
+          <span class="game-icon">♟️</span>
           <h3>Dimensional Chess</h3>
-          <p>Chess across three parallel boards. Your move echoes through dimensions.</p>
+          <p>Chess reimagined across three parallel boards. Move a
+             piece on one board and its shadow echoes through the
+             other two dimensions. Strategy just went 3D. Think
+             three moves ahead — on three boards.</p>
+          <span class="game-status status-dev">In Development</span>
         </div>
+
+        <!-- COMING SOON: Neon Racer -->
         <div class="game-card coming-soon reveal">
+          <span class="game-icon">🏎️</span>
           <h3>Neon Racer</h3>
-          <p>Synthwave speed. Fibonacci curves. Pure velocity.</p>
+          <p>Synthwave street racing at breakneck speed. Drift
+             through Fibonacci curves on a glowing grid highway.
+             Collect power-ups, dodge obstacles, and outrun the
+             ghost of your best lap. Pure neon velocity.</p>
+          <span class="game-status status-concept">Concept</span>
         </div>
+
+        <!-- COMING SOON: Helix Puzzle -->
         <div class="game-card coming-soon reveal">
+          <span class="game-icon">🧬</span>
           <h3>Helix Puzzle</h3>
-          <p>Rotate the helix. Match the patterns. Find the golden ratio.</p>
+          <p>Rotate the double helix. Match color patterns as
+             they spiral through seven layers. Each level gets
+             faster, the patterns get deeper. Find the golden
+             ratio hidden in every solution. Meditative yet intense.</p>
+          <span class="game-status status-dev">In Development</span>
         </div>
+
+        <!-- COMING SOON: Void Breaker -->
         <div class="game-card coming-soon reveal">
+          <span class="game-icon">💥</span>
           <h3>Void Breaker</h3>
-          <p>Brick-breaking at the edge of reality. 7 genesis levels.</p>
+          <p>Classic brick-breaking at the edge of reality.
+             Shatter neon bricks across 7 genesis levels — each
+             level warps the physics. Gravity shifts, paddles
+             multiply, and the void fights back. 80s arcade
+             pure and simple.</p>
+          <span class="game-status status-concept">Concept</span>
         </div>
+
+        <!-- COMING SOON: Star Forge -->
         <div class="game-card coming-soon reveal">
+          <span class="game-icon">✨</span>
           <h3>Star Forge</h3>
-          <p>Build constellations. Connect stars. Create universes.</p>
+          <p>Connect stars to form constellations in a procedurally
+             generated night sky. Each constellation unlocks a story
+             fragment. Build your own universe one star at a time.
+             Relaxing, beautiful, infinite.</p>
+          <span class="game-status status-concept">Concept</span>
         </div>
+
       </div>
     </section>
+
+
+    <hr class="neon-divider">
 
 
     <!-- ── HOW TO PLAY ── -->
     <section id="howto">
       <div class="section-head reveal">
         <span class="section-tag">Guide</span>
-        <h2>How to Play FastTrack</h2>
-        <p class="sub">Six steps to mastery.</p>
+        <h2>How to Play Fast Track</h2>
+        <p class="sub">Six steps. One champion. Let's go.</p>
       </div>
 
       <div class="grid grid-3">
         <div class="info-card reveal">
           <span class="info-number">1</span>
+          <span class="game-icon">🚪</span>
           <h4>Enter the Arcade</h4>
-          <p>Click Play Now or create a private room with a code.</p>
+          <p>Click Play Now to join an online game instantly,
+             or create a private room and share the code with friends.</p>
         </div>
         <div class="info-card reveal">
           <span class="info-number">2</span>
+          <span class="game-icon">🎨</span>
           <h4>Choose Your Color</h4>
-          <p>Pick a piece color. Each player gets 4 tokens.</p>
+          <p>Pick your piece color. Each player gets 4 tokens.
+             Choose wisely — your color is your identity on the board.</p>
         </div>
         <div class="info-card reveal">
           <span class="info-number">3</span>
+          <span class="game-icon">🎲</span>
           <h4>Roll &amp; Move</h4>
-          <p>Roll the dice, move your pieces around the track.</p>
+          <p>Roll the dice and move your pieces around the track.
+             Strategic choices determine which piece to advance.</p>
         </div>
         <div class="info-card reveal">
           <span class="info-number">4</span>
-          <h4>Fast Lanes</h4>
-          <p>Land on special tiles to leap ahead on the fast lane.</p>
+          <span class="game-icon">⚡</span>
+          <h4>Take the Fast Lanes</h4>
+          <p>Land on special tiles to leap ahead on the fast lane.
+             These shortcuts can change the entire game in one move.</p>
         </div>
         <div class="info-card reveal">
           <span class="info-number">5</span>
+          <span class="game-icon">💥</span>
           <h4>Capture Rivals</h4>
-          <p>Land on an opponent's piece to send them back to start.</p>
+          <p>Land on an opponent's piece to send them back to start.
+             Offense is the best defense. Show no mercy.</p>
         </div>
         <div class="info-card reveal">
           <span class="info-number">6</span>
+          <span class="game-icon">🏆</span>
           <h4>Win the Race</h4>
-          <p>Get all your pieces to the center first. Victory is golden.</p>
+          <p>Get all four pieces to the center first. The board
+             lights up. The crowd goes wild. You are the champion.</p>
         </div>
       </div>
     </section>
@@ -276,11 +469,14 @@
 
     <!-- ── CTA ── -->
     <section class="cta-final">
-      <h2 class="reveal">Ready to Play?</h2>
-      <p class="sub reveal">The arcade never sleeps.</p>
+      <div class="neon-sign reveal">
+        <span class="neon-sign-text">PLAY NOW</span>
+      </div>
+      <p class="sub reveal">The arcade never closes. The leaderboard never sleeps.</p>
       <div class="play-buttons reveal">
-        <a href="/fasttrack/" class="btn btn-fire btn-lg">Start Game</a>
-        <a href="/fasttrack/?mode=private" class="btn btn-gold btn-lg">Private Room</a>
+        <a href="/fasttrack/" class="btn btn-fire btn-lg">▶ Start Game</a>
+        <a href="/fasttrack/?mode=private" class="btn btn-gold btn-lg">🔒 Private Room</a>
+        <a href="/fasttrack/?mode=ai" class="btn btn-glass btn-lg">🤖 vs. AI</a>
       </div>
       <p class="insert-coin reveal">Insert Coin to Continue</p>
     </section>
@@ -293,8 +489,16 @@
     <div class="footer-grid">
       <div class="footer-col">
         <h4>Games</h4>
-        <a href="/fasttrack/">FastTrack</a>
+        <a href="/fasttrack/">Fast Track</a>
         <a href="#games">All Games</a>
+        <a href="#arcade-floor">The Arcade</a>
+      </div>
+      <div class="footer-col">
+        <h4>Play</h4>
+        <a href="/fasttrack/">Quick Play</a>
+        <a href="/fasttrack/?mode=private">Private Room</a>
+        <a href="/fasttrack/?mode=ai">vs. AI</a>
+        <a href="/fasttrack/?tutorial=1">Tutorial</a>
       </div>
       <div class="footer-col">
         <h4>Community</h4>
@@ -305,7 +509,7 @@
         <a href="https://butterflyfx.us">ButterflyFX</a>
       </div>
     </div>
-    <p>&copy; 2025 Ken's Games — Dimensional gaming,
+    <p>&copy; 2026 Ken's Games — Dimensional gaming,
        powered by <a href="https://butterflyfx.us">ButterflyFX</a>.</p>
   </footer>
 

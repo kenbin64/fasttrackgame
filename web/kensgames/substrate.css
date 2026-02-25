@@ -582,6 +582,311 @@
     margin-bottom: var(--f13);
     box-shadow: 0 0 var(--f13) var(--neon-pink-glow);
   }
+
+  /* ── Arcade Floor Scene — people at cabinets ── */
+  .arcade-floor-scene {
+    position: relative;
+    border-radius: var(--f13);
+    overflow: hidden;
+    padding: var(--f55) var(--f21);
+    background:
+      linear-gradient(180deg,
+        rgba(3,0,8,0.2) 0%,
+        rgba(15,5,30,0.5) 40%,
+        rgba(3,0,8,0.85) 100%
+      );
+    border: var(--f1) solid var(--border);
+  }
+
+  /* Checkerboard floor reflection */
+  .arcade-floor-scene::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40%;
+    background:
+      repeating-conic-gradient(
+        rgba(178,77,255,0.03) 0% 25%,
+        transparent 0% 50%
+      ) 0 0 / 34px 34px;
+    mask-image: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+    -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+    pointer-events: none;
+  }
+
+  .arcade-people {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: var(--f8);
+    min-height: 200px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .arcade-station {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--f5);
+    position: relative;
+  }
+
+  /* Cabinet silhouette */
+  .cabinet-sil {
+    width: 60px;
+    height: 140px;
+    background: linear-gradient(180deg, #15152a 0%, #0d0d1a 100%);
+    border: var(--f1) solid var(--border);
+    border-radius: var(--f5) var(--f5) 0 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: var(--f8);
+    position: relative;
+    box-shadow: 0 var(--f5) var(--f21) rgba(0,0,0,0.6);
+  }
+
+  .cabinet-screen {
+    width: 42px;
+    height: 36px;
+    border-radius: var(--f3);
+    animation: screenFlicker 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes screenFlicker {
+    0%, 90% { opacity: 0.85; }
+    92% { opacity: 0.4; }
+    95% { opacity: 0.95; }
+    100% { opacity: 0.75; }
+  }
+
+  .cab-1 .cabinet-screen {
+    background: linear-gradient(135deg, var(--neon-pink), #ff00aa);
+    box-shadow: 0 0 var(--f21) var(--neon-pink-glow), 0 0 var(--f55) rgba(255,0,170,0.3);
+  }
+  .cab-2 .cabinet-screen {
+    background: linear-gradient(135deg, var(--neon-blue), #00e5ff);
+    box-shadow: 0 0 var(--f21) var(--neon-blue-glow), 0 0 var(--f55) rgba(0,229,255,0.3);
+  }
+  .cab-3 .cabinet-screen {
+    background: linear-gradient(135deg, var(--neon-green), #22dd44);
+    box-shadow: 0 0 var(--f21) var(--neon-green-glow), 0 0 var(--f55) rgba(57,255,20,0.3);
+  }
+  .cab-4 .cabinet-screen {
+    background: linear-gradient(135deg, var(--neon-purple), #9944ff);
+    box-shadow: 0 0 var(--f21) var(--neon-purple-glow), 0 0 var(--f55) rgba(153,68,255,0.3);
+  }
+  .cab-5 .cabinet-screen {
+    background: linear-gradient(135deg, var(--neon-yellow), var(--neon-orange));
+    box-shadow: 0 0 var(--f21) var(--neon-yellow-glow), 0 0 var(--f55) rgba(255,230,0,0.3);
+  }
+
+  .cabinet-controls {
+    width: 36px;
+    height: var(--f13);
+    margin-top: var(--f8);
+    border-radius: var(--f2);
+    background: #1a1a2a;
+    border: var(--f1) solid rgba(255,255,255,0.06);
+    position: relative;
+  }
+  .cabinet-controls::before {
+    content: '';
+    position: absolute;
+    left: 6px; top: 3px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--neon-red);
+    box-shadow: 14px 0 0 var(--neon-blue), 7px -1px 0 var(--neon-green);
+  }
+
+  .cabinet-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.4rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: var(--f3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Person CSS silhouette */
+  .arcade-person {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    margin-top: auto;
+  }
+
+  .person-head {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--border);
+    box-shadow: 0 0 var(--f8) rgba(178,77,255,0.15);
+  }
+
+  .person-body {
+    width: 20px;
+    height: 36px;
+    border-radius: var(--f3) var(--f3) 0 0;
+    margin-top: var(--f2);
+    background: linear-gradient(180deg, #1a1a3a, #111128);
+    border: var(--f1) solid rgba(178,77,255,0.12);
+  }
+
+  .person-arms {
+    width: 36px;
+    height: 6px;
+    border-radius: var(--f3);
+    margin-top: -24px;
+    background: #1a1a3a;
+    border: var(--f1) solid rgba(178,77,255,0.1);
+    position: relative;
+    z-index: 1;
+  }
+
+  .person-legs {
+    display: flex;
+    gap: var(--f3);
+  }
+  .person-legs span {
+    width: 7px;
+    height: 28px;
+    background: #15152a;
+    border: var(--f1) solid rgba(178,77,255,0.08);
+    border-radius: 0 0 var(--f2) var(--f2);
+  }
+
+  /* Neon Sign */
+  .neon-sign {
+    text-align: center;
+    padding: var(--f21) 0;
+  }
+
+  .neon-sign-text {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: var(--t-3xl);
+    color: #fff;
+    text-shadow:
+      0 0 5px #fff,
+      0 0 var(--f13) var(--neon-pink),
+      0 0 var(--f34) var(--neon-pink),
+      0 0 var(--f55) var(--neon-pink),
+      0 0 var(--f89) rgba(255,45,149,0.3);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  @keyframes signFlicker {
+    0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; }
+    20%, 24%, 55% { opacity: 0.5; }
+  }
+  .flicker { animation: signFlicker 3s linear infinite; }
+
+  /* Neon Divider */
+  .neon-divider {
+    width: 200px;
+    height: var(--f2);
+    margin: var(--f55) auto;
+    background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-pink), transparent);
+    box-shadow: 0 0 var(--f8) var(--neon-blue-glow), 0 0 var(--f21) rgba(255,45,149,0.2);
+    border: none;
+  }
+
+  /* About / Story Block */
+  .story-block {
+    background: rgba(15,5,30,0.5);
+    border: var(--f1) solid var(--border);
+    border-left: var(--f3) solid var(--neon-pink);
+    border-radius: 0 var(--f8) var(--f8) 0;
+    padding: var(--f34);
+    margin-bottom: var(--f21);
+    position: relative;
+  }
+  .story-block::before {
+    content: '';
+    position: absolute;
+    left: calc(-1 * var(--f3)); top: 0; bottom: 0;
+    width: var(--f3);
+    background: var(--neon-pink);
+    box-shadow: 0 0 var(--f13) var(--neon-pink-glow), 0 0 var(--f34) rgba(255,45,149,0.25);
+  }
+
+  .story-block h3 {
+    color: var(--neon-blue);
+    text-shadow: 0 0 var(--f8) var(--neon-blue-glow);
+    margin-bottom: var(--f13);
+    font-size: var(--t-md);
+  }
+
+  /* Score Ticker */
+  .score-ticker {
+    display: flex;
+    justify-content: center;
+    gap: var(--f55);
+    padding: var(--f34) 0;
+    flex-wrap: wrap;
+  }
+  .score-item { text-align: center; }
+  .score-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: var(--t-2xl);
+    font-weight: 900;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 var(--f13) var(--neon-yellow-glow);
+    display: block;
+  }
+  .score-label {
+    font-size: var(--t-xs);
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: var(--f3);
+  }
+
+  /* Game card icons */
+  .game-icon {
+    font-size: var(--t-3xl);
+    display: block;
+    margin-bottom: var(--f13);
+    filter: drop-shadow(0 0 var(--f8) currentColor);
+  }
+
+  .game-status {
+    display: inline-block;
+    padding: var(--f3) var(--f8);
+    border-radius: var(--f5);
+    font-size: var(--t-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .status-live {
+    color: var(--neon-green);
+    border: var(--f1) solid var(--neon-green);
+    text-shadow: 0 0 var(--f8) var(--neon-green-glow);
+    box-shadow: 0 0 var(--f8) rgba(57,255,20,0.15);
+  }
+  .status-dev {
+    color: var(--neon-purple);
+    border: var(--f1) solid var(--neon-purple);
+    text-shadow: 0 0 var(--f8) var(--neon-purple-glow);
+  }
+  .status-concept {
+    color: var(--neon-yellow);
+    border: var(--f1) solid var(--neon-yellow);
+    text-shadow: 0 0 var(--f8) var(--neon-yellow-glow);
+  }
+
+  @media (max-width: 610px) {
+    .arcade-people { flex-wrap: wrap; gap: var(--f13); min-height: auto; }
+    .neon-sign-text { font-size: var(--t-2xl); }
+    .score-ticker { flex-direction: column; gap: var(--f21); }
+  }
 }
 
 
