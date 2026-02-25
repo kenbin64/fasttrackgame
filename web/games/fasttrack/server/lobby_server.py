@@ -554,6 +554,8 @@ class LobbyServer:
             
             # Profile
             "update_profile": self.handle_update_profile,
+            "update_username": self.handle_update_username,
+            "update_avatar": self.handle_update_avatar,
             "get_profile": self.handle_get_profile,
             "search_users": self.handle_search_users,
             
@@ -568,6 +570,7 @@ class LobbyServer:
             "approve_player": self.handle_approve_player,
             "reject_player": self.handle_reject_player,
             "kick_player": self.handle_kick_player,
+            "update_player_info": self.handle_update_player_info,
             "update_session_settings": self.handle_update_session_settings,
             "cancel_join_request": self.handle_cancel_join_request,
             "toggle_ready": self.handle_toggle_ready,
@@ -705,6 +708,78 @@ class LobbyServer:
     # =========================================================================
     # Profile Handlers
     # =========================================================================
+    
+    async def handle_update_username(self, websocket, client: ConnectedClient, data: dict):
+        """Update username (works for guests and logged-in users)"""
+        new_name = data.get("username", "").strip()
+        if not new_name or len(new_name) < 1:
+            return await self.send_error(websocket, "Username cannot be empty")
+        if len(new_name) > 20:
+            new_name = new_name[:20]
+        
+        old_name = client.username
+        client.username = new_name
+        
+        # Update in session player list if in a session
+        if client.session_id:
+            session = self.db.get_session(client.session_id)
+            if session:
+                for p in session.players:
+                    if p["user_id"] == client.user_id:
+                        p["username"] = new_name
+                        break
+                # Also update host_username if this is the host
+                if session.host_id == client.user_id:
+                    session.host_username = new_name
+                self.db.save_sessions()
+                await self.broadcast_to_session(session.session_id, {
+                    "type": "player_updated",
+                    "user_id": client.user_id,
+                    "username": new_name,
+                    "players": session.players
+                })
+        
+        # Update stored user if not guest
+        if not client.is_guest:
+            user = self.db.get_user(client.user_id)
+            if user:
+                user.username = new_name
+                self.db.update_user(user)
+        
+        await self.send(websocket, {"type": "username_updated", "username": new_name})
+        logger.info(f"Username updated: {old_name} -> {new_name}")
+    
+    async def handle_update_avatar(self, websocket, client: ConnectedClient, data: dict):
+        """Update avatar (works for guests and logged-in users)"""
+        avatar_id = data.get("avatar_id", "person_smile")
+        
+        client.avatar_id = avatar_id
+        
+        # Update in session player list if in a session
+        if client.session_id:
+            session = self.db.get_session(client.session_id)
+            if session:
+                for p in session.players:
+                    if p["user_id"] == client.user_id:
+                        p["avatar_id"] = avatar_id
+                        break
+                self.db.save_sessions()
+                await self.broadcast_to_session(session.session_id, {
+                    "type": "player_updated",
+                    "user_id": client.user_id,
+                    "avatar_id": avatar_id,
+                    "players": session.players
+                })
+        
+        # Update stored user if not guest
+        if not client.is_guest:
+            user = self.db.get_user(client.user_id)
+            if user:
+                user.avatar_id = avatar_id
+                self.db.update_user(user)
+        
+        await self.send(websocket, {"type": "avatar_updated", "avatar_id": avatar_id})
+        logger.info(f"Avatar updated for {client.username}: {avatar_id}")
     
     async def handle_update_profile(self, websocket, client: ConnectedClient, data: dict):
         if client.is_guest:
@@ -1235,6 +1310,53 @@ class LobbyServer:
         
         logger.info(f"Host {client.username} kicked {kicked_name} from {session.session_code}")
     
+    async def handle_update_player_info(self, websocket, client: ConnectedClient, data: dict):
+        """Update username/avatar for a player in their current session (works for guests)"""
+        new_username = data.get("username", "").strip()
+        new_avatar = data.get("avatar_id", "")
+        
+        if new_username:
+            client.username = new_username
+            if client.guest_name:
+                client.guest_name = new_username
+        if new_avatar:
+            client.avatar_id = new_avatar
+        
+        # Update in session player list
+        session = self.db.get_session(client.session_id) if client.session_id else None
+        if session:
+            for p in session.players:
+                if p["user_id"] == client.user_id:
+                    if new_username:
+                        p["username"] = new_username
+                    if new_avatar:
+                        p["avatar_id"] = new_avatar
+                    break
+            if session.host_id == client.user_id and new_username:
+                session.host_username = new_username
+            self.db.save_sessions()
+            
+            # Broadcast updated player list
+            await self.broadcast_to_session(session.session_id, {
+                "type": "player_update",
+                "players": session.players,
+                "session": session.to_dict()
+            })
+        
+        # Also update for non-guest registered users
+        if not client.is_guest:
+            user = self.db.get_user(client.user_id)
+            if user:
+                if new_avatar:
+                    user.avatar_id = new_avatar
+                self.db.update_user(user)
+        
+        await self.send(websocket, {
+            "type": "player_info_updated",
+            "username": client.username,
+            "avatar_id": client.avatar_id
+        })
+
     async def handle_update_session_settings(self, websocket, client: ConnectedClient, data: dict):
         """Host updates session settings (music, max_players, allow_bots, etc.)"""
         session = self.db.get_session(client.session_id)
@@ -1251,10 +1373,21 @@ class LobbyServer:
         if "allow_bots" in settings:
             session.settings["allow_bots"] = bool(settings["allow_bots"])
         if "max_players" in settings:
-            new_max = min(4, max(2, int(settings["max_players"])))
+            new_max = min(6, max(2, int(settings["max_players"])))
+            session.max_players = new_max
+        if "max_players" in data:
+            new_max = min(6, max(2, int(data["max_players"])))
             session.max_players = new_max
         if "difficulty" in settings:
             session.settings["difficulty"] = settings["difficulty"]
+        if "turn_timer" in settings:
+            session.settings["turn_timer"] = bool(settings["turn_timer"])
+        if "turn_timer_seconds" in settings:
+            session.settings["turn_timer_seconds"] = int(settings["turn_timer_seconds"])
+        if "late_arrivals" in settings:
+            session.settings["allow_late_join"] = bool(settings["late_arrivals"])
+        if "music" in settings:
+            session.settings["music_enabled"] = bool(settings["music"])
         
         self.db.save_sessions()
         

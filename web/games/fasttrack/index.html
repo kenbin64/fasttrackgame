@@ -3,16 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastTrack! - The Ultimate Card & Peg Racing Game | Ken's Games</title>
-    <meta name="description" content="FastTrack! - Race your pegs to victory in this strategic card game. Play solo vs AI, host private games, join guilds, compete in tournaments. FREE to play!">
-    <meta name="keywords" content="fast track, card game, board game, peg game, racing game, multiplayer, guilds, tournaments, free game">
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="FastTrack! - The Ultimate Card & Peg Racing Game">
-    <meta property="og:description" content="Race your pegs around the board using strategic card plays. Join guilds, compete in tournaments, or play solo. Free online!">
-    <meta property="og:image" content="assets/images/ftpromo1.png">
+    <title>Fast Track — Free Online Board Game | Card & Peg Racing | Ken's Games</title>
+    <meta name="description" content="Play Fast Track free online — a strategic card & peg racing board game for 2-4 players. Race around a stunning 3D board, take shortcuts, capture opponents. 7 themes, smart AI bots, multiplayer.">
+    <meta name="keywords" content="fast track, board game online, free board game, card game, peg game, racing game, multiplayer board game, family game, strategy game, 3D board game, play online free">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://kensgames.com/fasttrack/">
+
+    <!-- ButterflyFX Analytics Substrate (GA4 + Dimensional Journey) -->
+    <script src="analytics_substrate.js"></script>
+
+    <!-- Open Graph (Facebook, LinkedIn, iMessage) -->
     <meta property="og:type" content="website">
-    
+    <meta property="og:site_name" content="Ken's Games">
+    <meta property="og:title" content="Fast Track — Free Online Board Game">
+    <meta property="og:description" content="Race your pegs around a stunning 3D board. Take shortcuts, capture opponents, outsmart AI bots. Free to play — no download!">
+    <meta property="og:url" content="https://kensgames.com/fasttrack/">
+    <meta property="og:image" content="https://kensgames.com/fasttrack/assets/images/og-preview.png">
+    <meta property="og:image:width" content="1527">
+    <meta property="og:image:height" content="1024">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Fast Track — Free Online Board Game">
+    <meta name="twitter:description" content="Strategic card & peg racing for 2-4 players. 7 stunning 3D themes. Play free now!">
+    <meta name="twitter:image" content="https://kensgames.com/fasttrack/assets/images/og-preview.png">
+
+    <!-- ButterflyFX SEO Substrate (JSON-LD + Breadcrumbs — replaces inline schema) -->
+    <script src="seo_substrate.js"></script>
+
     <!-- Favicon -->
     <link rel="icon" href="assets/images/ftLogo.png" type="image/png">
     <link rel="apple-touch-icon" href="assets/images/ftLogo.png">
@@ -42,11 +61,13 @@
         </a>
         <ul class="nav-links">
             <li><a href="#play">Play</a></li>
+            <li><a href="docs.html">Guide</a></li>
             <li><a href="#rules">Rules</a></li>
             <li><a href="#cards">Cards</a></li>
             <li><a href="#features">Guilds</a></li>
             <li><a href="#tutorials">Tutorials</a></li>
-            <li><a href="#about">About</a></li>
+            <li><a href="#music">Music</a></li>
+            <li><a href="#credits">Credits</a></li>
         </ul>
         <div class="nav-cta">
             <a href="play.html" class="btn btn-primary">Play Free</a>
@@ -69,6 +90,12 @@
         <div class="hero-buttons">
             <a href="ai_setup.html" class="btn btn-primary btn-lg">
                 🤖 Play vs AI
+            </a>
+            <a href="lobby.html?action=private" class="btn btn-private btn-lg">
+                🔒 Private Game
+            </a>
+            <a href="lobby.html?action=join" class="btn btn-join btn-lg">
+                🎟️ Join by Code
             </a>
             <a href="play.html" class="btn btn-accent btn-lg">
                 🎮 Multiplayer
@@ -146,10 +173,26 @@
                     </div>
                     
                     <div class="play-card compact reveal">
+                        <span class="play-icon">🔒</span>
+                        <span class="play-badge badge-free">No Login</span>
+                        <h3>Private Game</h3>
+                        <p>Create a private room, share the code, and play with friends!</p>
+                        <a href="lobby.html?action=private" class="btn btn-secondary">Create Private</a>
+                    </div>
+                    
+                    <div class="play-card compact reveal">
+                        <span class="play-icon">🎟️</span>
+                        <span class="play-badge badge-free">No Login</span>
+                        <h3>Join by Code</h3>
+                        <p>Got a game code? Enter it to join a friend's private game!</p>
+                        <a href="lobby.html?action=join" class="btn btn-secondary">Join Game</a>
+                    </div>
+                    
+                    <div class="play-card compact reveal">
                         <span class="play-icon">🎮</span>
                         <span class="play-badge badge-free">No Login</span>
                         <h3>Multiplayer</h3>
-                        <p>Private rooms or public lobby. Play with friends online!</p>
+                        <p>Quick match or public lobby. Jump into a game instantly!</p>
                         <a href="play.html" class="btn btn-secondary">Play Online</a>
                     </div>
                     
@@ -217,7 +260,7 @@
                 <div class="rule-card reveal">
                     <div class="rule-number">1</div>
                     <h3>Setup</h3>
-                    <p>Each player has 4 pegs in their holding area. Your mission: race all 4 pegs around the hexagonal track and into your safe zone before anyone else!</p>
+                    <p>Each player has 5 pegs — 4 in holding, 1 on the home hole. Your mission: race all 4 pegs into your safe zone, then land the final 5th peg on the home/winner hole to win!</p>
                 </div>
                 
                 <div class="rule-card reveal">
@@ -247,7 +290,7 @@
                 <div class="rule-card reveal">
                     <div class="rule-number">6</div>
                     <h3>Win!</h3>
-                    <p>Get all 4 pegs into your safe zone. First player to finish all pegs wins! Use Royal cards (J, Q, K) to exit the bullseye.</p>
+                    <p>Get all 4 pegs into your safe zone, then land the 5th peg exactly on the home/winner hole. First player to finish all 5 pegs wins! Use Royal cards (J, Q, K) to exit the bullseye.</p>
                 </div>
             </div>
         </div>
@@ -495,7 +538,195 @@
             </div>
         </div>
     </section>
-    
+
+    <!-- Music Section: "The Shape of Me" -->
+    <section id="music" class="music-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">🎵 Original Soundtrack</span>
+                <h2 class="section-title">"The Shape of Me"</h2>
+                <p class="section-subtitle">Plucked from pure math. Every note you hear is generated live by equations.</p>
+            </div>
+
+            <div class="music-content">
+                <div class="music-visual reveal">
+                    <div class="waveform-art">
+                        <div class="wave wave-1"></div>
+                        <div class="wave wave-2"></div>
+                        <div class="wave wave-3"></div>
+                        <div class="phi-symbol">φ</div>
+                    </div>
+                </div>
+
+                <div class="music-info reveal">
+                    <h3>Music &amp; Sound Effects Born from Manifolds</h3>
+                    <p>
+                        There are no audio files in FastTrack — no MP3s, no WAVs, no samples of any kind.
+                        Every note, chord, drum hit, melody, and sound effect is created in real time from
+                        <strong>mathematical expressions called manifolds</strong>. A manifold is just a
+                        smooth mathematical surface — think of a bedsheet stretched in the air. Every point
+                        on that surface has a height. The Music Substrate reads points along these surfaces,
+                        and those heights become the pitch, volume, timing, and tone of every sound you hear.
+                    </p>
+                    <p>
+                        Here's the simple version: <strong>math makes a shape, and the shape makes the music.</strong>
+                        When you hear a bass note rumble, that's a point on the surface <span class="math-formula">z = x · y</span>.
+                        When a cymbal sizzles or a victory fanfare plays, those are coordinates on
+                        <span class="math-formula">z = x · y²</span>. The game doesn't <em>play</em> sounds —
+                        it <em>calculates</em> them, live, from the same manifold surfaces that control the
+                        board, the pegs, the cards, and the AI.
+                    </p>
+
+                    <div class="math-explainer">
+                        <div class="math-card">
+                            <div class="math-icon">🎹</div>
+                            <h4>Notes Are Frequencies</h4>
+                            <p>
+                                Every musical note is a vibration. Middle A vibrates 440 times per second.
+                                To get any other note, we use the formula:
+                                <span class="math-formula">f = 440 × 2<sup>(n − 69) / 12</sup></span>
+                                where <em>n</em> is the note number. This one equation creates every
+                                note on the piano — from the deepest bass to the highest chime.
+                            </p>
+                        </div>
+
+                        <div class="math-card">
+                            <div class="math-icon">🌀</div>
+                            <h4>The Golden Ratio Shapes the Sound</h4>
+                            <p>
+                                The golden ratio <strong>φ ≈ 1.618</strong> appears throughout the game.
+                                Board proportions, hole sizes, peg dimensions — all cascade from φ.
+                                The music follows the same spiral: Fibonacci numbers
+                                <span class="math-formula">1, 1, 2, 3, 5, 8, 13, 21…</span>
+                                weight how loud each layer plays and when chord changes happen.
+                                Nature uses this ratio in sunflower seeds, galaxies, and DNA.
+                                We use it to make music that <em>feels</em> right.
+                            </p>
+                        </div>
+
+                        <div class="math-card">
+                            <div class="math-icon">📐</div>
+                            <h4>Manifolds — The Shape Behind Everything</h4>
+                            <p>
+                                A <strong>manifold</strong> is a smooth surface described by an equation.
+                                Imagine a rolling landscape of hills and valleys — except instead of dirt,
+                                it's made of math. FastTrack uses two manifold surfaces:
+                                <span class="math-formula">z = x · y</span> (the "relation" surface — a saddle shape) and
+                                <span class="math-formula">z = x · y²</span> (the "form" surface — a curved bowl).
+                                Every game element lives on these surfaces. A hole's position determines
+                                its rules. A card's coordinates determine its power. The music reads heights
+                                off the surface to decide pitch and rhythm. Sound effects pick coordinates
+                                to determine their tone and intensity. Even the AI walks along gradients
+                                (slopes) on these curves to make decisions.
+                                <strong>One set of equations runs the entire game — board, music, SFX, and AI.</strong>
+                            </p>
+                        </div>
+
+                        <div class="math-card">
+                            <div class="math-icon">🎼</div>
+                            <h4>Step Sequencer — Like a Music Box</h4>
+                            <p>
+                                Imagine a paper roll with holes punched in it, like an old music box.
+                                The Music Substrate does the same thing digitally: a grid of
+                                <strong>16 slots per bar</strong> where each slot can trigger a bass note,
+                                a melody note, a drum hit, or a sound effect — all synthesized live from
+                                manifold coordinates. The patterns are defined as number arrays.
+                                Each game theme has its own song: <em>Neon Circuit</em> (Cosmic),
+                                <em>Stellar Drift</em> (Space Ace), <em>Gladiator March</em> (Colosseum),
+                                and <em>Coral Groove</em> (Undersea) — all built from the same
+                                manifold engine, just different surface coordinates and tempos.
+                            </p>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top:40px;">The Substrate Architecture</h3>
+                    <p>
+                        FastTrack is built as a constellation of independent <strong>substrates</strong> —
+                        each one a self-contained system that manages a single domain:
+                    </p>
+                    <div class="substrate-grid">
+                        <div class="substrate-chip">🎵 Music Substrate</div>
+                        <div class="substrate-chip">🔊 Audio Substrate</div>
+                        <div class="substrate-chip">📐 Board Manifold</div>
+                        <div class="substrate-chip">🃏 Card Deck Substrate</div>
+                        <div class="substrate-chip">🎯 Peg Substrate</div>
+                        <div class="substrate-chip">📜 Rules Substrate</div>
+                        <div class="substrate-chip">🏟️ Crowd Substrate</div>
+                        <div class="substrate-chip">🎙️ Commentary Substrate</div>
+                        <div class="substrate-chip">👤 Avatar Substrate</div>
+                        <div class="substrate-chip">🤝 Social Substrate</div>
+                        <div class="substrate-chip">🏢 Lobby Substrate</div>
+                        <div class="substrate-chip">🎨 Themes Engine</div>
+                        <div class="substrate-chip">🧠 Manifold AI</div>
+                        <div class="substrate-chip">🔐 Auth Substrate</div>
+                    </div>
+                    <p style="margin-top:20px;color:var(--text-muted);">
+                        Each substrate is a sealed mathematical surface. They don't call each other —
+                        they publish coordinates and other substrates read the surface.
+                        No spaghetti. No callbacks. Just geometry.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Credits Section -->
+    <section id="credits" class="credits-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">🏆 Credits</span>
+                <h2 class="section-title">Made With Math & Heart</h2>
+            </div>
+
+            <div class="credits-grid">
+                <div class="credit-card reveal">
+                    <div class="credit-icon">👨‍💻</div>
+                    <h3>Ken Bingham</h3>
+                    <p>Creator, Designer, & Developer</p>
+                    <span class="credit-detail">Game design, programming, ButterflyFX engine, substrate architecture, AI system</span>
+                </div>
+
+                <div class="credit-card reveal">
+                    <div class="credit-icon">📐</div>
+                    <h3>Mathematics</h3>
+                    <p>The True Engine</p>
+                    <span class="credit-detail">
+                        Golden Ratio (φ), Fibonacci sequence, manifold surfaces z=xy and z=xy²,
+                        frequency formula f=440×2^((n-69)/12), Web Audio oscillators & filters.
+                        All music, physics, AI, and layout generated from pure math.
+                    </span>
+                </div>
+
+                <div class="credit-card reveal">
+                    <div class="credit-icon">🦋</div>
+                    <h3>ButterflyFX</h3>
+                    <p>Dimensional Programming Platform</p>
+                    <span class="credit-detail">
+                        7-level dimensional helix model. Replaces iteration with dimensional transitions.
+                        Every substrate, manifold, and surface in this game is a ButterflyFX construct.
+                    </span>
+                </div>
+
+                <div class="credit-card reveal">
+                    <div class="credit-icon">🎲</div>
+                    <h3>FastTrack — The Game</h3>
+                    <p>Public Domain Board Game</p>
+                    <span class="credit-detail">
+                        FastTrack is a traditional card-and-peg racing game in the public domain.
+                        Many companies and craftspeople produce their own boards — the game
+                        rules belong to no one. This is an original digital implementation
+                        with 3D graphics, AI, multiplayer, and procedural music.
+                    </span>
+                </div>
+            </div>
+
+            <div class="credits-footer reveal">
+                <p>"The Shape of Me" — all music &amp; sound effects generated live from manifold equations. No samples. No audio files. Pure math.</p>
+                <p style="color:var(--text-muted);margin-top:8px;">© 2026 Ken Bingham · Ken's Games · A ButterflyFX Production</p>
+            </div>
+        </div>
+    </section>
+
     <!-- CTA Section -->
     <section class="cta-section">
         <div class="cta-content">
@@ -503,6 +734,8 @@
             <p>No download. No credit card. Just pure strategic fun!</p>
             <div class="cta-buttons">
                 <a href="ai_setup.html" class="btn btn-primary btn-lg">🤖 Play vs AI</a>
+                <a href="lobby.html?action=private" class="btn btn-private btn-lg">🔒 Private Game</a>
+                <a href="lobby.html?action=join" class="btn btn-join btn-lg">🎟️ Join by Code</a>
                 <a href="play.html" class="btn btn-secondary btn-lg">🎮 Multiplayer</a>
             </div>
         </div>
@@ -532,11 +765,16 @@
                 For private games without login, no data is stored.
             </p>
             
-            <h4>Copyright</h4>
+            <h4>Copyright & Attribution</h4>
             <p>
-                © 2026 Ken's Games. FastTrack is a ButterflyFX Production. All rights reserved.
-                FastTrack is inspired by classic marble racing board games and is an original 
-                digital implementation.
+                © 2026 Ken Bingham / Ken's Games. A ButterflyFX Production.
+                FastTrack is a traditional folk board game — not owned by any single company.
+                Like many classic peg-and-board games, FastTrack boards are handcrafted and sold by
+                woodworkers, game makers, and artisans worldwide. The game rules are in the public domain.
+                This digital implementation — including all code, 3D graphics, procedural music
+                ("The Shape of Me"), AI system, substrate architecture, and manifold mathematics —
+                is an original work by Ken Bingham. All music is procedurally generated from
+                mathematical formulas; no samples or audio files are used.
             </p>
         </div>
     </section>
@@ -547,14 +785,19 @@
             <div class="footer-col">
                 <h4>Play</h4>
                 <a href="ai_setup.html">Play vs AI</a>
+                <a href="lobby.html?action=private">Private Game</a>
+                <a href="lobby.html?action=join">Join by Code</a>
                 <a href="play.html">Multiplayer</a>
                 <a href="lobby.html">Public Lobby</a>
             </div>
             <div class="footer-col">
                 <h4>Learn</h4>
-                <a href="#rules">Game Rules</a>
-                <a href="#cards">Card Reference</a>
-                <a href="#tutorials">Tutorials</a>
+                <a href="docs.html">Full Guide</a>
+                <a href="docs.html#card-rules">Card Rules</a>
+                <a href="docs.html#strategy">Strategy Tips</a>
+                <a href="docs.html#themes">Themes & Music</a>
+                <a href="docs.html#manifolds">The Science</a>
+                <a href="docs.html#tutorial">Tutorial</a>
             </div>
             <div class="footer-col">
                 <h4>Community</h4>
@@ -564,17 +807,18 @@
             </div>
             <div class="footer-col">
                 <h4>About</h4>
-                <a href="#about">ButterflyFX</a>
-                <a href="https://butterflyfx.us" target="_blank">Technology</a>
-                <a href="mailto:ken@kensgames.com">Contact</a>
+                <a href="docs.html#themes">The Music</a>
+                <a href="docs.html#credits">Credits</a>
+                <a href="presskit.html">Press Kit</a>
+                <a href="docs.html#manifolds">ButterflyFX</a>
             </div>
         </div>
         
         <div class="footer-bottom">
             <p>
-                © 2026 <a href="https://kensgames.com">Ken's Games</a>. 
-                Created by <a href="https://butterflyfx.us">Kenneth Bingham</a>.
+                © 2026 <a href="https://kensgames.com">Ken Bingham / Ken's Games</a>.
                 Powered by <a href="https://butterflyfx.us">ButterflyFX</a> Dimensional Technology.
+                FastTrack is a public domain game. Music: "The Shape of Me" — procedurally generated.
             </p>
         </div>
     </footer>

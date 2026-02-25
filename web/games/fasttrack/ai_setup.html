@@ -2,270 +2,587 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastTrack! - Play vs AI Setup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fast Track — Play vs AI | Choose Difficulty &amp; Theme</title>
+    <meta name="description" content="Set up your Fast Track game against AI bots. Choose difficulty, number of opponents, and theme. Free to play in your browser.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://kensgames.com/fasttrack/ai_setup.html">
+
+    <!-- ButterflyFX Analytics Substrate (GA4 + Dimensional Journey) -->
+    <script src="analytics_substrate.js"></script>
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Ken's Games">
+    <meta property="og:title" content="Fast Track — Play vs AI">
+    <meta property="og:description" content="Choose your opponent difficulty and theme. Free online board game.">
+    <meta property="og:url" content="https://kensgames.com/fasttrack/ai_setup.html">
+    <meta property="og:image" content="https://kensgames.com/fasttrack/assets/images/og-preview.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Fast Track — Play vs AI">
+    <meta name="twitter:description" content="Set up your game against smart AI bots. Free online board game.">
+    <meta name="twitter:image" content="https://kensgames.com/fasttrack/assets/images/og-preview.png">
+
+    <!-- ButterflyFX SEO Substrate (JSON-LD + Breadcrumbs) -->
+    <script src="seo_substrate.js"></script>
+
     <link rel="icon" href="assets/images/ftLogo.png" type="image/png">
     <link rel="apple-touch-icon" href="assets/images/ftLogo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/ai-setup.css">
+
+    <style>
+        :root {
+            --primary: #e74c3c;
+            --primary-dark: #c0392b;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --bg-hover: #21262d;
+            --text: #f0f6fc;
+            --text-muted: #8b949e;
+            --border: #30363d;
+            --gold: #ffd700;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+        }
+
+        .bg-animation {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: linear-gradient(135deg, #0d1117 0%, #1a1f2e 50%, #0d1117 100%);
+        }
+
+        /* ═══ STICKY TOP BAR — action button ALWAYS visible ═══ */
+        .top-bar {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .top-bar .back-btn {
+            background: none; border: none; color: var(--text-muted); font-size: 1.4em;
+            cursor: pointer; padding: 4px 8px; border-radius: 8px;
+            min-width: 40px; min-height: 40px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .top-bar .back-btn:active { background: rgba(255,255,255,0.1); }
+        .top-bar .title {
+            font-weight: 700; font-size: 1.05em;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .top-bar .action-btn {
+            padding: 10px 22px; border: none; border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, #ff6b5b 100%);
+            color: #fff; font-weight: 700; font-size: 0.95em; font-family: inherit;
+            cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+            white-space: nowrap; min-height: 44px;
+        }
+        .top-bar .action-btn:active { transform: scale(0.96); }
+        .top-bar .action-btn:hover { box-shadow: 0 4px 16px rgba(231,76,60,0.4); }
+
+        /* ═══ VIEW SYSTEM — one concern per view ═══ */
+        .view {
+            display: none;
+            padding: 20px 16px 40px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .view.active { display: block; }
+
+        /* ═══ VIEW 1: PROFILE ═══ */
+        .section-label {
+            font-size: 0.8em; font-weight: 600; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .name-input {
+            width: 100%; padding: 14px 16px;
+            background: var(--bg-card); border: 2px solid var(--border);
+            border-radius: 12px; color: var(--text); font-size: 1.05em;
+            font-family: inherit; transition: border-color 0.2s;
+        }
+        .name-input:focus { outline: none; border-color: var(--primary); }
+
+        .avatar-section { margin-top: 24px; }
+
+        .avatar-preview-row {
+            display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
+        }
+        .avatar-preview {
+            width: 64px; height: 64px; font-size: 40px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--bg-card); border: 3px solid var(--primary);
+            border-radius: 50%; flex-shrink: 0;
+        }
+        .avatar-info .avatar-label { font-weight: 600; font-size: 0.95em; }
+        .avatar-info .avatar-sublabel { font-size: 0.8em; color: var(--text-muted); }
+
+        .avatar-cats {
+            display: flex; gap: 6px; overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; padding-bottom: 4px;
+            margin-bottom: 12px;
+        }
+        .avatar-cats::-webkit-scrollbar { display: none; }
+        .cat-btn {
+            padding: 7px 14px; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 20px; color: var(--text-muted); font-size: 0.78em;
+            cursor: pointer; transition: all 0.15s; font-family: inherit;
+            white-space: nowrap; flex-shrink: 0; min-height: 36px;
+        }
+        .cat-btn:active, .cat-btn.active {
+            background: var(--primary); border-color: var(--primary); color: #fff;
+        }
+
+        .avatar-grid-container {
+            background: var(--bg-card); border-radius: 14px;
+            border: 1px solid var(--border); padding: 12px;
+            position: relative; overflow: hidden;
+        }
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            min-height: 168px;
+        }
+        .av-opt {
+            width: 100%; aspect-ratio: 1; font-size: 28px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--bg-dark); border: 2px solid transparent;
+            border-radius: 10px; cursor: pointer; transition: all 0.12s;
+            min-height: 48px;
+        }
+        .av-opt:active { transform: scale(0.9); }
+        .av-opt.selected { border-color: var(--primary); background: rgba(231,76,60,0.2); }
+
+        .page-controls {
+            display: flex; align-items: center; justify-content: center;
+            gap: 16px; margin-top: 12px;
+        }
+        .page-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--bg-card); border: 1px solid var(--border);
+            color: var(--text); font-size: 1em; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s;
+        }
+        .page-btn:active { background: var(--primary); }
+        .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .page-info {
+            font-size: 0.8em; color: var(--text-muted); font-weight: 500;
+            min-width: 60px; text-align: center;
+        }
+
+        /* ═══ VIEW 2: SETTINGS ═══ */
+        .settings-section { margin-bottom: 28px; }
+        .settings-section h3 {
+            font-size: 0.95em; font-weight: 700; margin-bottom: 12px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .diff-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+        }
+        .diff-card {
+            padding: 14px 8px; background: var(--bg-card);
+            border: 2px solid var(--border); border-radius: 12px;
+            cursor: pointer; text-align: center; transition: all 0.15s;
+            min-height: 48px;
+        }
+        .diff-card:active { transform: scale(0.96); }
+        .diff-card.selected { border-color: var(--primary); background: rgba(231,76,60,0.12); }
+        .diff-card .d-icon { font-size: 1.6em; margin-bottom: 2px; }
+        .diff-card .d-name { font-weight: 600; font-size: 0.85em; }
+        .diff-card .d-desc { font-size: 0.7em; color: var(--text-muted); margin-top: 2px; }
+
+        .diff-grid-row2 {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            margin-top: 10px;
+        }
+
+        .players-row {
+            display: flex; gap: 12px; justify-content: center;
+        }
+        .p-card {
+            flex: 1; max-width: 100px; height: 80px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: var(--bg-card); border: 2px solid var(--border);
+            border-radius: 12px; cursor: pointer; transition: all 0.15s;
+            min-height: 48px;
+        }
+        .p-card:active { transform: scale(0.94); }
+        .p-card.selected { border-color: var(--success); background: rgba(39,174,96,0.15); }
+        .p-card .p-num { font-size: 1.8em; font-weight: 700; }
+        .p-card .p-lbl { font-size: 0.7em; color: var(--text-muted); }
+
+        .preview-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 14px; padding: 16px; text-align: center;
+        }
+        .preview-card .preview-avatar { font-size: 40px; margin-bottom: 4px; }
+        .preview-card .preview-name { font-weight: 600; font-size: 0.95em; }
+        .preview-card .preview-detail { font-size: 0.78em; color: var(--text-muted); margin-top: 2px; }
+
+        @media (min-width: 600px) {
+            .view { max-width: 520px; padding: 28px 24px 40px; }
+            .top-bar { padding: 14px 24px; }
+            .diff-grid { grid-template-columns: repeat(3, 1fr); }
+            .diff-grid-row2 { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
 </head>
 <body>
     <div class="bg-animation"></div>
-    
-    <header class="header">
-        <h1 class="logo">FastTrack!</h1>
-        <p class="tagline">Play Against AI</p>
-    </header>
-    
-    <main class="container">
-        <div class="card">
-            <h2 class="card-title">🤖 Set Up Your Game</h2>
-            
-            <!-- Username -->
-            <div class="form-group">
-                <label>Your Name</label>
-                <input type="text" id="player-name" placeholder="Enter your name..." maxlength="20" value="">
-            </div>
-            
-            <!-- Avatar Selection -->
-            <div class="avatar-section">
-                <label style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 1.1em;">
-                    Choose Your Avatar
-                </label>
-                <div class="avatar-preview">
-                    <div class="avatar-preview-large" id="avatar-preview">🎮</div>
-                    <div>
-                        <div style="font-weight: 600;" id="avatar-name">Select an avatar</div>
-                        <div style="font-size: 0.85em; color: var(--text-muted);">100+ to choose from!</div>
-                    </div>
+
+    <!-- STICKY TOP BAR -->
+    <div class="top-bar" id="top-bar">
+        <button class="back-btn" id="top-back-btn" onclick="handleBack()" title="Back">&larr;</button>
+        <span class="title" id="top-title">&#x1F3AE; Profile</span>
+        <a href="docs.html" style="color:var(--text-muted);font-size:0.82em;font-weight:500;text-decoration:none;padding:6px 10px;min-height:40px;display:flex;align-items:center;">📖 Guide</a>
+        <button class="action-btn" id="top-action-btn" onclick="handleAction()">Next &rarr;</button>
+    </div>
+
+    <!-- VIEW 1: PROFILE -->
+    <div class="view active" id="view-profile">
+        <div class="section-label">Your Name</div>
+        <input type="text" class="name-input" id="player-name"
+               placeholder="Enter your name..." maxlength="20" autocomplete="off">
+
+        <div class="avatar-section">
+            <div class="avatar-preview-row">
+                <div class="avatar-preview" id="avatar-preview">&#x1F3AE;</div>
+                <div class="avatar-info">
+                    <div class="avatar-label" id="avatar-label">Pick your avatar</div>
+                    <div class="avatar-sublabel">Tap to choose &bull; swipe pages</div>
                 </div>
-                <div class="avatar-categories" id="avatar-categories"></div>
+            </div>
+
+            <div class="avatar-cats" id="avatar-categories"></div>
+
+            <div class="avatar-grid-container" id="avatar-grid-container">
                 <div class="avatar-grid" id="avatar-grid"></div>
-            </div>
-            
-            <!-- Difficulty -->
-            <div class="form-group">
-                <label>AI Difficulty</label>
-                <div class="difficulty-grid">
-                    <div class="difficulty-option" data-difficulty="easy" onclick="selectDifficulty('easy')">
-                        <div class="difficulty-icon">😊</div>
-                        <div class="difficulty-name">Easy</div>
-                        <div class="difficulty-desc">Casual play</div>
-                    </div>
-                    <div class="difficulty-option selected" data-difficulty="normal" onclick="selectDifficulty('normal')">
-                        <div class="difficulty-icon">🎯</div>
-                        <div class="difficulty-name">Normal</div>
-                        <div class="difficulty-desc">Balanced challenge</div>
-                    </div>
-                    <div class="difficulty-option" data-difficulty="hard" onclick="selectDifficulty('hard')">
-                        <div class="difficulty-icon">🔥</div>
-                        <div class="difficulty-name">Hard</div>
-                        <div class="difficulty-desc">Strategic AI</div>
-                    </div>
-                    <div class="difficulty-option" data-difficulty="expert" onclick="selectDifficulty('expert')">
-                        <div class="difficulty-icon">🏆</div>
-                        <div class="difficulty-name">Expert</div>
-                        <div class="difficulty-desc">For pros only</div>
-                    </div>
+                <div class="page-controls" id="page-controls">
+                    <button class="page-btn" id="page-prev" onclick="avatarPagePrev()" disabled>&larr;</button>
+                    <span class="page-info" id="page-info">1 / 1</span>
+                    <button class="page-btn" id="page-next" onclick="avatarPageNext()">&rarr;</button>
                 </div>
             </div>
-            
-            <!-- Number of Players -->
-            <div class="form-group">
-                <label>Number of Players</label>
-                <div class="players-grid">
-                    <div class="players-option selected" data-players="2" onclick="selectPlayers(2)">
-                        <div class="players-count">2</div>
-                        <div class="players-label">vs 1 AI</div>
-                    </div>
-                    <div class="players-option" data-players="3" onclick="selectPlayers(3)">
-                        <div class="players-count">3</div>
-                        <div class="players-label">vs 2 AI</div>
-                    </div>
-                    <div class="players-option" data-players="4" onclick="selectPlayers(4)">
-                        <div class="players-count">4</div>
-                        <div class="players-label">vs 3 AI</div>
-                    </div>
+        </div>
+    </div>
+
+    <!-- VIEW 2: SETTINGS -->
+    <div class="view" id="view-settings">
+        <div class="preview-card">
+            <div class="preview-avatar" id="preview-avatar">&#x1F3AE;</div>
+            <div class="preview-name" id="preview-name">Player</div>
+            <div class="preview-detail">Tap &larr; to change profile</div>
+        </div>
+
+        <div class="settings-section" style="margin-top: 24px;">
+            <h3>&#x2694;&#xFE0F; Difficulty</h3>
+            <div class="diff-grid">
+                <div class="diff-card" data-difficulty="easy" onclick="pickDiff('easy')">
+                    <div class="d-icon">&#x1F60A;</div>
+                    <div class="d-name">Easy</div>
+                    <div class="d-desc">Casual</div>
+                </div>
+                <div class="diff-card selected" data-difficulty="normal" onclick="pickDiff('normal')">
+                    <div class="d-icon">&#x1F3AF;</div>
+                    <div class="d-name">Normal</div>
+                    <div class="d-desc">Balanced</div>
+                </div>
+                <div class="diff-card" data-difficulty="hard" onclick="pickDiff('hard')">
+                    <div class="d-icon">&#x1F525;</div>
+                    <div class="d-name">Hard</div>
+                    <div class="d-desc">Strategic</div>
                 </div>
             </div>
-            
-            <!-- Start Button -->
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="startGame()">
-                    🚀 Start Game
-                </button>
+            <div class="diff-grid-row2">
+                <div class="diff-card" data-difficulty="expert" onclick="pickDiff('expert')">
+                    <div class="d-icon">&#x1F3C6;</div>
+                    <div class="d-name">Expert</div>
+                    <div class="d-desc">Ruthless</div>
+                </div>
+                <div class="diff-card" data-difficulty="warpath" onclick="pickDiff('warpath')">
+                    <div class="d-icon">&#x1F525;&#x1F479;</div>
+                    <div class="d-name">Warpath</div>
+                    <div class="d-desc">Hunting you</div>
+                </div>
             </div>
         </div>
-        
-        <div class="back-link">
-            <a href="index.html">← Back to Home</a>
+
+        <div class="settings-section">
+            <h3>&#x1F465; Players</h3>
+            <div class="players-row">
+                <div class="p-card selected" data-players="2" onclick="pickPlayers(2)">
+                    <div class="p-num">2</div>
+                    <div class="p-lbl">vs 1 AI</div>
+                </div>
+                <div class="p-card" data-players="3" onclick="pickPlayers(3)">
+                    <div class="p-num">3</div>
+                    <div class="p-lbl">vs 2 AI</div>
+                </div>
+                <div class="p-card" data-players="4" onclick="pickPlayers(4)">
+                    <div class="p-num">4</div>
+                    <div class="p-lbl">vs 3 AI</div>
+                </div>
+            </div>
         </div>
-    </main>
-    
+    </div>
+
     <script>
-        // Avatar data
-        const AVATARS = {
+        // ═══ AVATAR DATA ═══
+        var AVATARS = {
             people: {
-                label: '👥 People',
+                label: '\u{1F465} People',
                 items: [
-                    '👨🏻', '👨🏼', '👨🏽', '👨🏾', '👨🏿', '👩🏻', '👩🏼', '👩🏽', '👩🏾', '👩🏿',
-                    '🧑🏻', '🧑🏼', '🧑🏽', '🧑🏾', '🧑🏿', '👦🏻', '👦🏽', '👦🏿', '👧🏻', '👧🏽', '👧🏿',
-                    '👴🏻', '👴🏽', '👴🏿', '👵🏻', '👵🏽', '👵🏿', '🧓🏻', '🧓🏽', '🧓🏿',
-                    '👨🏻‍🦰', '👨🏽‍🦰', '👨🏿‍🦰', '👩🏼‍🦰', '👩🏾‍🦰', '👩🏿‍🦰',
-                    '👨🏻‍🦱', '👨🏽‍🦱', '👨🏿‍🦱', '👩🏼‍🦱', '👩🏾‍🦱', '👩🏿‍🦱',
-                    '🥷', '🥷🏻', '🥷🏽', '🥷🏿', '🦸🏻‍♂️', '🦸🏽‍♀️', '🦸🏿‍♂️',
-                    '🦹🏻‍♀️', '🦹🏽‍♂️', '🦹🏿‍♀️', '🧙🏻‍♂️', '🧙🏽‍♀️', '🧙🏿‍♂️',
-                    '💃🏻', '💃🏽', '💃🏿', '🕺🏻', '🕺🏽', '🕺🏿', '🤴🏻', '🤴🏽', '🤴🏿', '👸🏻', '👸🏽', '👸🏿'
+                    '\u{1F468}\u{1F3FB}','\u{1F468}\u{1F3FC}','\u{1F468}\u{1F3FD}','\u{1F468}\u{1F3FE}','\u{1F468}\u{1F3FF}',
+                    '\u{1F469}\u{1F3FB}','\u{1F469}\u{1F3FC}','\u{1F469}\u{1F3FD}','\u{1F469}\u{1F3FE}','\u{1F469}\u{1F3FF}',
+                    '\u{1F9D1}\u{1F3FB}','\u{1F9D1}\u{1F3FC}','\u{1F9D1}\u{1F3FD}','\u{1F9D1}\u{1F3FE}','\u{1F9D1}\u{1F3FF}',
+                    '\u{1F466}\u{1F3FB}','\u{1F466}\u{1F3FD}','\u{1F466}\u{1F3FF}','\u{1F467}\u{1F3FB}','\u{1F467}\u{1F3FD}','\u{1F467}\u{1F3FF}',
+                    '\u{1F977}','\u{1F977}\u{1F3FB}','\u{1F977}\u{1F3FD}','\u{1F977}\u{1F3FF}',
+                    '\u{1F483}\u{1F3FB}','\u{1F483}\u{1F3FD}','\u{1F483}\u{1F3FF}',
+                    '\u{1F57A}\u{1F3FB}','\u{1F57A}\u{1F3FD}','\u{1F57A}\u{1F3FF}',
+                    '\u{1F934}\u{1F3FB}','\u{1F934}\u{1F3FD}','\u{1F934}\u{1F3FF}',
+                    '\u{1F478}\u{1F3FB}','\u{1F478}\u{1F3FD}','\u{1F478}\u{1F3FF}'
                 ]
             },
             animals: {
-                label: '🐾 Animals',
+                label: '\u{1F43E} Animals',
                 items: [
-                    '🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐻‍❄️',
-                    '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🙈', '🙉', '🙊',
-                    '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇',
-                    '🐺', '🐗', '🐴', '🦄', '🐝', '🦋', '🐌',
-                    '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞',
-                    '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊'
+                    '\u{1F436}','\u{1F431}','\u{1F42D}','\u{1F439}','\u{1F430}','\u{1F98A}','\u{1F43B}','\u{1F43C}',
+                    '\u{1F428}','\u{1F42F}','\u{1F981}','\u{1F42E}','\u{1F437}','\u{1F438}','\u{1F435}',
+                    '\u{1F649}','\u{1F64A}','\u{1F414}','\u{1F427}','\u{1F426}','\u{1F424}',
+                    '\u{1F986}','\u{1F985}','\u{1F989}','\u{1F987}',
+                    '\u{1F43A}','\u{1F417}','\u{1F434}','\u{1F984}','\u{1F41D}','\u{1F98B}','\u{1F40C}',
+                    '\u{1F422}','\u{1F40D}','\u{1F99E}','\u{1F419}','\u{1F42C}','\u{1F433}','\u{1F988}','\u{1F40A}'
                 ]
             },
             fantasy: {
-                label: '🦄 Fantasy',
+                label: '\u{2728} Fantasy',
                 items: [
-                    '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😈', '👿',
-                    '👹', '👺', '🧠', '👁️', '🌟', '⭐', '💫',
-                    '✨', '🔥', '💧', '🌊', '🌈', '☀️', '🌙', '⚡', '❄️',
-                    '🌸', '🌺', '🌻', '🌹', '🍀', '🌴', '🌵', '🎄', '🌲',
-                    '🍄', '💎', '🔮', '🪄', '🛸', '🚀', '🌍', '🌎', '🌏'
+                    '\u{1F47B}','\u{1F480}','\u{1F47D}','\u{1F47E}','\u{1F916}','\u{1F383}','\u{1F608}','\u{1F47F}',
+                    '\u{1F479}','\u{1F47A}','\u{1F9E0}','\u{1F31F}','\u{2B50}','\u{1F4AB}',
+                    '\u{2728}','\u{1F525}','\u{1F4A7}','\u{1F30A}','\u{1F308}','\u{2600}\u{FE0F}','\u{1F319}','\u{26A1}','\u{2744}\u{FE0F}',
+                    '\u{1F338}','\u{1F33A}','\u{1F33B}','\u{1F339}','\u{1F340}','\u{1F334}','\u{1F335}','\u{1F384}','\u{1F332}',
+                    '\u{1F344}','\u{1F48E}','\u{1F52E}','\u{1FA84}','\u{1F6F8}','\u{1F680}','\u{1F30D}'
                 ]
             },
             food: {
-                label: '🍕 Food',
+                label: '\u{1F355} Food',
                 items: [
-                    '🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍒',
-                    '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🥑', '🥦', '🥬',
-                    '🍕', '🍔', '🍟', '🌭', '🍿', '🥪', '🌮', '🌯',
-                    '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟',
-                    '🍦', '🍩', '🍪', '🎂', '🍰', '🧁', '🍫', '🍬', '🍭'
+                    '\u{1F34E}','\u{1F34A}','\u{1F34B}','\u{1F34C}','\u{1F349}','\u{1F347}','\u{1F353}','\u{1F352}',
+                    '\u{1F351}','\u{1F34D}','\u{1F95D}','\u{1F345}','\u{1F951}','\u{1F966}',
+                    '\u{1F355}','\u{1F354}','\u{1F35F}','\u{1F32D}','\u{1F37F}','\u{1F96A}','\u{1F32E}','\u{1F32F}',
+                    '\u{1F35D}','\u{1F35C}','\u{1F372}','\u{1F35B}','\u{1F363}','\u{1F371}','\u{1F95F}',
+                    '\u{1F366}','\u{1F369}','\u{1F36A}','\u{1F382}','\u{1F370}','\u{1F9C1}','\u{1F36B}','\u{1F36C}','\u{1F36D}'
                 ]
             },
             objects: {
-                label: '🎮 Objects',
+                label: '\u{1F3AE} More',
                 items: [
-                    '⚽', '🏀', '🏈', '⚾', '🎾', '🏐', '🎱', '🏓', '🏸',
-                    '🥊', '🥋', '🎽', '🛹', '⛸️', '🎿', '🏂',
-                    '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷',
-                    '🎺', '🎸', '🎻', '🎲', '♟️', '🎯', '🎳',
-                    '🎮', '🕹️', '🧩', '🎰', '🧸'
+                    '\u{26BD}','\u{1F3C0}','\u{1F3C8}','\u{26BE}','\u{1F3BE}','\u{1F3D0}','\u{1F3B1}','\u{1F3D3}','\u{1F3F8}',
+                    '\u{1F94A}','\u{1F94B}','\u{1F3BD}','\u{1F6F9}',
+                    '\u{1F3A8}','\u{1F3AC}','\u{1F3A4}','\u{1F3A7}','\u{1F3BC}','\u{1F3B9}','\u{1F941}','\u{1F3B7}',
+                    '\u{1F3BA}','\u{1F3B8}','\u{1F3BB}','\u{1F3B2}','\u{265F}\u{FE0F}','\u{1F3AF}','\u{1F3B3}',
+                    '\u{1F3AE}','\u{1F579}\u{FE0F}','\u{1F9E9}','\u{1F3B0}','\u{1F9F8}'
                 ]
             }
         };
-        
-        // State
-        let selectedAvatar = '🎮';
-        let selectedDifficulty = 'normal';
-        let selectedPlayers = 2;
-        
-        // Initialize on load
-        document.addEventListener('DOMContentLoaded', () => {
-            renderAvatarGrid();
-            loadSavedPreferences();
-        });
-        
-        function renderAvatarGrid() {
-            const categoriesContainer = document.getElementById('avatar-categories');
-            const gridContainer = document.getElementById('avatar-grid');
-            
-            // Render category buttons
-            categoriesContainer.innerHTML = Object.entries(AVATARS).map(([key, cat], i) => 
-                `<button class="avatar-category-btn ${i === 0 ? 'active' : ''}" 
-                         onclick="switchCategory('${key}')">${cat.label}</button>`
-            ).join('');
-            
-            // Render first category
-            switchCategory(Object.keys(AVATARS)[0]);
+
+        // ═══ STATE ═══
+        var currentView = 'profile';
+        var selectedAvatar = '\u{1F3AE}';
+        var selectedDifficulty = 'normal';
+        var selectedPlayers = 2;
+        var currentCategory = 'people';
+        var currentPage = 0;
+        var ITEMS_PER_PAGE = 18;
+
+        // ═══ VIEW NAVIGATION ═══
+        function showView(viewName) {
+            currentView = viewName;
+            document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+            var el = document.getElementById('view-' + viewName);
+            if (el) el.classList.add('active');
+            updateTopBar();
         }
-        
-        function switchCategory(category) {
-            // Update active button
-            document.querySelectorAll('.avatar-category-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Render avatars
-            const gridContainer = document.getElementById('avatar-grid');
-            gridContainer.innerHTML = AVATARS[category].items.map(avatar => 
-                `<div class="avatar-option ${avatar === selectedAvatar ? 'selected' : ''}" 
-                      onclick="selectAvatar('${avatar}')">${avatar}</div>`
-            ).join('');
-        }
-        
-        function selectAvatar(avatar) {
-            selectedAvatar = avatar;
-            document.getElementById('avatar-preview').textContent = avatar;
-            document.getElementById('avatar-name').textContent = 'Looking good!';
-            
-            // Update selected state
-            document.querySelectorAll('.avatar-option').forEach(opt => {
-                opt.classList.remove('selected');
-                if (opt.textContent === avatar) {
-                    opt.classList.add('selected');
-                }
-            });
-        }
-        
-        function selectDifficulty(difficulty) {
-            selectedDifficulty = difficulty;
-            document.querySelectorAll('.difficulty-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            document.querySelector(`[data-difficulty="${difficulty}"]`).classList.add('selected');
-        }
-        
-        function selectPlayers(count) {
-            selectedPlayers = count;
-            document.querySelectorAll('.players-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            document.querySelector(`[data-players="${count}"]`).classList.add('selected');
-        }
-        
-        function loadSavedPreferences() {
-            // Load saved name if available
-            const savedName = localStorage.getItem('fasttrack_player_name');
-            if (savedName) {
-                document.getElementById('player-name').value = savedName;
+
+        function updateTopBar() {
+            var title = document.getElementById('top-title');
+            var actionBtn = document.getElementById('top-action-btn');
+
+            if (currentView === 'profile') {
+                title.innerHTML = '&#x1F3AE; Profile';
+                actionBtn.innerHTML = 'Next &rarr;';
+            } else {
+                title.innerHTML = '&#x2694;&#xFE0F; Settings';
+                actionBtn.innerHTML = '&#x1F680; Start Game';
+                var name = document.getElementById('player-name').value.trim() || 'Player';
+                document.getElementById('preview-avatar').textContent = selectedAvatar;
+                document.getElementById('preview-name').textContent = name;
             }
-            
-            // Load saved avatar
-            const savedAvatar = localStorage.getItem('fasttrack_player_avatar');
+        }
+
+        function handleBack() {
+            if (currentView === 'settings') {
+                showView('profile');
+            } else {
+                history.back();
+            }
+        }
+
+        function handleAction() {
+            if (currentView === 'profile') {
+                goToSettings();
+            } else {
+                startGame();
+            }
+        }
+
+        function goToSettings() {
+            var name = document.getElementById('player-name').value.trim();
+            if (name) localStorage.setItem('fasttrack_player_name', name);
+            localStorage.setItem('fasttrack_player_avatar', selectedAvatar);
+            showView('settings');
+        }
+
+        // ═══ AVATAR SYSTEM — PAGED ═══
+        function renderCategories() {
+            var c = document.getElementById('avatar-categories');
+            c.innerHTML = Object.entries(AVATARS).map(function(entry) {
+                var key = entry[0], cat = entry[1];
+                return '<button class="cat-btn ' + (key === currentCategory ? 'active' : '') + '" onclick="switchCat(\'' + key + '\')">' + cat.label + '</button>';
+            }).join('');
+        }
+
+        function switchCat(cat) {
+            currentCategory = cat;
+            currentPage = 0;
+            renderCategories();
+            renderAvatarPage();
+        }
+
+        function renderAvatarPage() {
+            var items = AVATARS[currentCategory].items;
+            var totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
+            var start = currentPage * ITEMS_PER_PAGE;
+            var pageItems = items.slice(start, start + ITEMS_PER_PAGE);
+
+            var grid = document.getElementById('avatar-grid');
+            grid.innerHTML = pageItems.map(function(a) {
+                return '<div class="av-opt ' + (a === selectedAvatar ? 'selected' : '') + '" onclick="pickAvatar(this)">' + a + '</div>';
+            }).join('');
+
+            document.getElementById('page-info').textContent = (currentPage + 1) + ' / ' + totalPages;
+            document.getElementById('page-prev').disabled = currentPage === 0;
+            document.getElementById('page-next').disabled = currentPage >= totalPages - 1;
+            document.getElementById('page-controls').style.display = totalPages <= 1 ? 'none' : 'flex';
+        }
+
+        function avatarPagePrev() {
+            if (currentPage > 0) { currentPage--; renderAvatarPage(); }
+        }
+        function avatarPageNext() {
+            var items = AVATARS[currentCategory].items;
+            var totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
+            if (currentPage < totalPages - 1) { currentPage++; renderAvatarPage(); }
+        }
+
+        function pickAvatar(el) {
+            selectedAvatar = el.textContent;
+            document.getElementById('avatar-preview').textContent = selectedAvatar;
+            document.getElementById('avatar-label').textContent = 'Looking good!';
+            renderAvatarPage();
+        }
+
+        // Touch swipe for avatar pages
+        (function() {
+            var startX = 0;
+            document.addEventListener('DOMContentLoaded', function() {
+                var container = document.getElementById('avatar-grid-container');
+                if (!container) return;
+                container.addEventListener('touchstart', function(e) {
+                    startX = e.touches[0].clientX;
+                }, { passive: true });
+                container.addEventListener('touchend', function(e) {
+                    var diffX = e.changedTouches[0].clientX - startX;
+                    if (Math.abs(diffX) > 50) {
+                        if (diffX < 0) avatarPageNext();
+                        else avatarPagePrev();
+                    }
+                }, { passive: true });
+            });
+        })();
+
+        // ═══ DIFFICULTY & PLAYERS ═══
+        function pickDiff(d) {
+            selectedDifficulty = d;
+            document.querySelectorAll('.diff-card').forEach(function(c) { c.classList.remove('selected'); });
+            var el = document.querySelector('.diff-card[data-difficulty="' + d + '"]');
+            if (el) el.classList.add('selected');
+        }
+
+        function pickPlayers(n) {
+            selectedPlayers = n;
+            document.querySelectorAll('.p-card').forEach(function(c) { c.classList.remove('selected'); });
+            var el = document.querySelector('.p-card[data-players="' + n + '"]');
+            if (el) el.classList.add('selected');
+        }
+
+        // ═══ LOAD SAVED ═══
+        function loadSaved() {
+            var savedName = localStorage.getItem('fasttrack_player_name');
+            if (savedName) document.getElementById('player-name').value = savedName;
+            var savedAvatar = localStorage.getItem('fasttrack_player_avatar');
             if (savedAvatar) {
-                selectAvatar(savedAvatar);
+                selectedAvatar = savedAvatar;
+                document.getElementById('avatar-preview').textContent = savedAvatar;
+                document.getElementById('avatar-label').textContent = 'Looking good!';
             }
         }
-        
+
+        // ═══ START GAME ═══
         function startGame() {
-            const playerName = document.getElementById('player-name').value.trim() || 'Player';
-            
-            // Save preferences
+            var playerName = document.getElementById('player-name').value.trim() || 'Player';
             localStorage.setItem('fasttrack_player_name', playerName);
             localStorage.setItem('fasttrack_player_avatar', selectedAvatar);
-            
-            // Build URL with parameters
-            const params = new URLSearchParams({
+
+            var params = new URLSearchParams({
                 quickplay: '1',
                 name: playerName,
                 avatar: selectedAvatar,
                 difficulty: selectedDifficulty,
                 players: selectedPlayers
             });
-            
-            // Navigate to game
-            window.location.href = `board_3d.html?${params.toString()}`;
+            window.location.href = 'board_3d.html?' + params.toString();
         }
+
+        // ═══ INIT ═══
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCategories();
+            renderAvatarPage();
+            loadSaved();
+            updateTopBar();
+        });
     </script>
 </body>
 </html>

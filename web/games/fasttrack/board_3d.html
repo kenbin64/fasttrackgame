@@ -8,7 +8,47 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a2e">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Fast Track 3D - ButterflyFX Board Game</title>
+    <title>Fast Track — Play Free Online | 3D Board Game</title>
+    <meta name="description" content="Play Fast Track free in your browser — a 3D card &amp; peg racing board game. Race around the board, take the Fast Track shortcut, capture opponents. 2-4 players, 7 themes, smart AI.">
+    <meta name="keywords" content="fast track, board game, online game, free game, 3D board game, card game, multiplayer, peg racing">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://kensgames.com/fasttrack/board_3d.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Ken's Games">
+    <meta property="og:title" content="Fast Track — Play Free Online">
+    <meta property="og:description" content="Race your pegs around a stunning 3D board. Shortcuts, captures, 7 themes. Free — no download!">
+    <meta property="og:url" content="https://kensgames.com/fasttrack/board_3d.html">
+    <meta property="og:image" content="https://kensgames.com/fasttrack/assets/images/og-preview.png">
+    <meta property="og:image:width" content="1527">
+    <meta property="og:image:height" content="1024">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Fast Track — Free 3D Board Game">
+    <meta name="twitter:description" content="Card &amp; peg racing for 2-4 players. 7 themes, smart AI. Play free now!">
+    <meta name="twitter:image" content="https://kensgames.com/fasttrack/assets/images/og-preview.png">
+
+    <!-- Gate: board_3d.html is the game board only. No session params = redirect to lobby -->
+    <script>
+        (function() {
+            const p = new URLSearchParams(window.location.search);
+            const hasGame = p.get('session') || p.get('code') || p.get('offline') || p.get('multiplayer') || p.get('demo') || p.get('spectate') || p.get('quickplay') || p.get('debug');
+            if (!hasGame) {
+                window.location.replace('lobby.html');
+            }
+        })();
+    </script>
+
+    <!-- ButterflyFX Analytics Substrate (GA4 + Dimensional Journey) -->
+    <script src="analytics_substrate.js"></script>
+
+    <!-- ButterflyFX SEO Substrate (JSON-LD + Breadcrumbs) -->
+    <script src="seo_substrate.js"></script>
+
+    <!-- ButterflyFX Growth Substrate (Viral Spiral Engine) -->
+    <script src="growth_substrate.js"></script>
     
     <!-- PWA Manifest (for direct access) -->
     <link rel="manifest" href="manifest.json">
@@ -260,23 +300,17 @@
     <div id="auth-container" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 10px;"></div>
     <div id="lobby-container" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%); z-index: 9998; display: none; padding: 10px; overflow: auto;"></div>
     
-    <!-- Start Game Screen -->
+    <!-- Start Game Screen — Clean Mode Picker (single concern) -->
     <div id="start-game-screen">
         <h1>🎯 Fast Track</h1>
         <div class="subtitle">ButterflyFX Board Game</div>
         
-        <!-- Quick Links -->
-        <div class="quick-links">
-            <button class="quick-link" onclick="showTutorial()">📚 Tutorial</button>
-            <button class="quick-link" onclick="scrollToRules()">📜 Full Rules</button>
-        </div>
-        
-        <!-- Game Mode Selector -->
+        <!-- Mode Cards — one tap to proceed -->
         <div class="game-mode-selector">
-            <div class="game-mode-btn selected" data-mode="solo" onclick="selectGameMode('solo')">
+            <div class="game-mode-btn" onclick="window.location.href='ai_setup.html'">
                 <div class="mode-icon">🤖</div>
                 <div class="mode-name">Solo vs Bots</div>
-                <div class="mode-desc">Practice against computer</div>
+                <div class="mode-desc">Choose avatar, difficulty &amp; play</div>
             </div>
             <div class="game-mode-btn" data-mode="quickmatch" onclick="selectGameMode('quickmatch')">
                 <div class="mode-icon">⚡</div>
@@ -298,11 +332,10 @@
             <button class="match-cancel-btn" onclick="cancelMatchmaking()">Cancel Search</button>
         </div>
         
-        <!-- Private Game Section (hidden by default) -->
+        <!-- Private Game Section (hidden by default, clean 2-action layout) -->
         <div id="private-game-section">
             <h3 style="color: #f59e0b; margin-bottom: 15px;">🔒 Private Game</h3>
             
-            <!-- Host: Create Game with Settings -->
             <div id="private-create-section" style="margin-bottom: 20px;">
                 <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -311,6 +344,8 @@
                             <option value="2">2 Players</option>
                             <option value="3" selected>3 Players</option>
                             <option value="4">4 Players</option>
+                            <option value="5">5 Players</option>
+                            <option value="6">6 Players</option>
                         </select>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -318,24 +353,6 @@
                         <label class="toggle-switch" style="position:relative;width:44px;height:24px;">
                             <input type="checkbox" id="private-allow-bots" checked style="display:none;">
                             <span style="position:absolute;inset:0;background:#444;border-radius:12px;cursor:pointer;transition:.3s;" onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.style.background=this.previousElementSibling.checked?'#4ade80':'#444';">
-                                <span style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.3s;"></span>
-                            </span>
-                        </label>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label style="color: #ccc; font-size: 14px;">Music for All</label>
-                        <label class="toggle-switch" style="position:relative;width:44px;height:24px;">
-                            <input type="checkbox" id="private-music-enabled" checked style="display:none;">
-                            <span style="position:absolute;inset:0;background:#4ade80;border-radius:12px;cursor:pointer;transition:.3s;" onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.style.background=this.previousElementSibling.checked?'#4ade80':'#444';">
-                                <span style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.3s;"></span>
-                            </span>
-                        </label>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label style="color: #ccc; font-size: 14px;">Allow Late Joiners</label>
-                        <label class="toggle-switch" style="position:relative;width:44px;height:24px;">
-                            <input type="checkbox" id="private-allow-late-join" checked style="display:none;">
-                            <span style="position:absolute;inset:0;background:#4ade80;border-radius:12px;cursor:pointer;transition:.3s;" onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.style.background=this.previousElementSibling.checked?'#4ade80':'#444';">
                                 <span style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.3s;"></span>
                             </span>
                         </label>
@@ -351,70 +368,11 @@
             </div>
         </div>
         
-        <!-- Solo Setup (visible by default) -->
-        <div id="solo-setup">
-            <div class="player-setup">
-                <h3>Players</h3>
-                <div class="player-list">
-                    <div class="player-card human" style="border-color: #ff0000;">
-                        <div style="font-size: 32px; margin-bottom: 5px;">🦊</div>
-                        <div class="name" style="color: #ff0000;">You</div>
-                        <div class="type">Human Player</div>
-                    </div>
-                    <div class="player-card ai" style="border-color: #00ff4a;">
-                        <div style="font-size: 32px; margin-bottom: 5px;">�</div>
-                        <div class="name" style="color: #00ff4a;">Strategist</div>
-                        <div class="type">z=xy manifold</div>
-                    </div>
-                    <div class="player-card ai" style="border-color: #9400ff;">
-                        <div style="font-size: 32px; margin-bottom: 5px;">🎯</div>
-                        <div class="name" style="color: #9400ff;">Hunter</div>
-                        <div class="type">z=xy² manifold</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Difficulty Selector -->
-            <div class="difficulty-selector">
-                <h3>⚔️ Difficulty</h3>
-                <div class="difficulty-options">
-                    <div class="difficulty-option easy selected" data-difficulty="easy" onclick="selectDifficulty('easy')">
-                        <div class="diff-icon">🌱</div>
-                        <div class="diff-name">Easy</div>
-                        <div class="diff-desc">Bots avoid cutting you.<br>Full move assistance.</div>
-                    </div>
-                    <div class="difficulty-option intermediate" data-difficulty="intermediate" onclick="selectDifficulty('intermediate')">
-                        <div class="diff-icon">⚡</div>
-                        <div class="diff-name">Intermediate</div>
-                        <div class="diff-desc">Strategic bots.<br>Highlights shown.</div>
-                    </div>
-                    <div class="difficulty-option hard" data-difficulty="hard" onclick="selectDifficulty('hard')">
-                        <div class="diff-icon">🔥</div>
-                        <div class="diff-name">Hard</div>
-                        <div class="diff-desc">Aggressive bots.<br>No aids, count your own moves!</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Solo Setup HIDDEN — handled by ai_setup.html now -->
+        <div id="solo-setup" style="display:none;"></div>
         
-        <!-- Rules Panel (openly displayed) -->
-        <div class="rules-container" id="start-rules">
-            <h3>📜 Game Rules</h3>
-            <ul>
-                <li><span class="rule-icon">🎯</span> Move all 5 pegs clockwise around the board into your safe zone to win</li>
-                <li><span class="rule-icon">🃏</span> Ace, Joker, 6 = Enter from holding + extra turn</li>
-                <li><span class="rule-icon">👑</span> J, Q, K = Move 1 + extra turn + exit bullseye (only these 3!)</li>
-                <li><span class="rule-icon">⚡</span> Land exactly on a FastTrack hole to enter the shortcut loop</li>
-                <li><span class="rule-icon">🎱</span> Bullseye: Enter from FT with 1-step card; exit only with J/Q/K</li>
-                <li><span class="rule-icon">⬅️</span> Card 4 = Back 4 spaces (can't enter FT, bullseye, or safe zone)</li>
-                <li><span class="rule-icon">✂️</span> Card 7 = Split 7 between 2 pegs (both clockwise)</li>
-                <li><span class="rule-icon">💥</span> Land on opponent = Cut them back to holding</li>
-                <li><span class="rule-icon">🔥</span> FT pegs lose status if you move a non-FT peg instead</li>
-                <li><span class="rule-icon">🚫</span> Can't pass or land on your own peg</li>
-            </ul>
-        </div>
-        
-        <button id="start-btn" onclick="startGameSession()" disabled style="opacity: 0.5; cursor: not-allowed;">▶ START GAME</button>
+        <!-- Quick Match start button (shown only for quickmatch mode) -->
+        <button id="start-btn" onclick="startGameSession()" disabled style="display:none; opacity: 0.5; cursor: not-allowed;">🔍 FIND MATCH</button>
         
         <div id="loading-status" class="loading-status">Loading board...</div>
     </div>
@@ -468,6 +426,9 @@
     
     <!-- Exit Game Button -->
     <button id="exit-game-btn" onclick="showExitConfirm()" title="Exit Game">🚪</button>
+    
+    <!-- Tutorial Button -->
+    <button id="tutorial-btn" onclick="FastTrackTutorial.start()" title="Tutorial" style="display:none;">📖</button>
     
     <!-- Mom Help Button -->
     <button id="mom-help-btn" onclick="showMomHelp()" title="Ask Mom for Help">👩‍👧</button>
@@ -770,9 +731,9 @@
     
     <!-- Turn Timer Display -->
     <div id="turn-timer-display" style="display: none;">
-        <div id="turn-timer-label">Time Left</div>
-        <div id="turn-timer-countdown">2:00</div>
-        <div id="turn-timer-warning" style="display: none;">⚠️ Warning!</div>
+        <div id="turn-timer-label">Time Remaining</div>
+        <div id="turn-timer-countdown">1:00</div>
+        <div id="turn-timer-warning" style="display: none;">⚠️ Make your move!</div>
     </div>
     
     <!-- Leave Game Modal -->
@@ -997,7 +958,7 @@
     <script src="admin_substrate.js?v=20260223"></script>
     <script src="game_session_manager.js?v=20260223"></script>
     <script src="lobby_substrate.js?v=20260223"></script>
-    <script src="game_ui_minimal.js?v=20260223"></script>
+    <script src="game_ui_minimal.js?v=20260225b"></script>
     <!-- BoardManifold: Every hole, card, peg, rule on z=xy / z=xy² surfaces -->
     <script src="board_manifold.js?v=20260223"></script>
     <!-- ManifoldAI: Geometric intelligence on z=xy and z=xy² surfaces -->
@@ -1017,19 +978,25 @@
     <!-- ButterflyFX Natural Lens System -->
     <script src="natural_lens.js?v=20260223"></script>
     <!-- Stadium Audio System -->
-    <script src="music_substrate.js?v=20260223"></script>
+    <script src="music_substrate.js?v=20260225b"></script>
     <script src="crowd_substrate.js?v=20260223"></script>
     <script src="commentary_substrate.js?v=20260223"></script>
     <script src="audio_substrate.js?v=20260223"></script>
     <script src="stadium_controller.js?v=20260223"></script>
     <!-- Game Sound Effects -->
-    <script src="game_sfx.js?v=20260223"></script>
-    <script src="game_engine.js?v=20260223"></script>
+    <script src="game_sfx.js?v=20260225"></script>
+    <script src="game_engine.js?v=20260225"></script>
+    <script src="victory_ceremony.js?v=20260225"></script>
     
     <!-- Multiplayer & Prestige Systems -->
     <script src="prestige.js?v=20260223"></script>
     <script src="multiplayer_client.js?v=20260223"></script>
     <script src="avatars.js?v=20260223"></script>
+
+    <!-- Tutorial & Ask Mom Advisor -->
+    <script src="tutorial.js?v=20260225"></script>
+    <script src="ask_mom.js?v=20260225"></script>
+    <script src="board_tooltips.js?v=20260225"></script>
 
     <script>
     // ============================================================
@@ -1439,7 +1406,7 @@
     // Theme system variables
     let mouseX = 0, mouseY = 0;
     let targetMouseX = 0, targetMouseY = 0;
-    let currentThemeName = 'cosmic';
+    let currentThemeName = 'spaceace';
     
     function init() {
         console.log('🔄 init() started');
@@ -1450,11 +1417,15 @@
 
         // Camera - far plane extended to see distant theme backdrops (stars, planets, etc.)
         camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
-        camera.position.set(0, 500, 400);
+        // Default: 30° above center — clear view of all holes
+        // 30° → Y = dist*sin(30) = 320, Z = dist*cos(30) = 554
+        camera.position.set(0, 320, 554);
         camera.lookAt(0, 0, 0);
 
         // Renderer
-        renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true });
+        const urlP = new URLSearchParams(window.location.search);
+        const isPromo = urlP.has('promo');
+        renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true, preserveDrawingBuffer: isPromo });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.shadowMap.enabled = true;
@@ -1487,6 +1458,13 @@
         // Peg group
         pegGroup = new THREE.Group();
         scene.add(pegGroup);
+
+        // Expose 3D globals for external modules (tooltips, tutorial)
+        window.scene = scene;
+        window.camera = camera;
+        window.controls = controls;
+        window.boardGroup = boardGroup;
+        window.getNormalizedHoleType = getNormalizedHoleType;
 
         // Build hexagon and borders only
         createHexagonBoard();
@@ -1527,6 +1505,11 @@
             if (label) label.textContent = GAME_CONFIG.autoMoveForHumans ? 'ON' : 'OFF';
         }
 
+        // Initialize victory ceremony with scene references
+        if (window.VictoryCeremony) {
+            VictoryCeremony.init(scene, camera, renderer);
+        }
+        
         // Start animation
         animate();
         
@@ -2068,6 +2051,108 @@
             winnerHole.mesh = starMesh; // Use star as the hole mesh for highlighting
         }
         
+        // ============================================================
+        // GOLDEN CROWN — Glowing crown above home hole when all 4 safe zone holes filled
+        // ============================================================
+        const goldenCrowns = [];  // Array of { mesh, pointLight, playerIndex }
+        
+        for (let i = 0; i < 6; i++) {
+            // Get home hole position from registry
+            const homeHole = holeRegistry.get(`home-${i}`);
+            if (!homeHole) continue;
+            
+            const hx = homeHole.position.x;
+            const hz = homeHole.position.z;
+            const crownY = LINE_HEIGHT + 12; // Float above the home hole
+            
+            // Build a crown shape using a ring with 5 triangular points
+            const crownGroup = new THREE.Group();
+            
+            // Crown base ring
+            const ringGeo = new THREE.TorusGeometry(TRACK_HOLE_RADIUS * 1.6, 0.8, 8, 24);
+            const crownMat = new THREE.MeshStandardMaterial({
+                color: 0xffd700,        // Gold
+                emissive: 0xffa500,      // Warm orange glow
+                emissiveIntensity: 0.6,
+                metalness: 0.9,
+                roughness: 0.15,
+                transparent: true,
+                opacity: 0.95
+            });
+            const ring = new THREE.Mesh(ringGeo, crownMat);
+            ring.rotation.x = Math.PI / 2;
+            crownGroup.add(ring);
+            
+            // Crown points (5 triangular prongs)
+            for (let p = 0; p < 5; p++) {
+                const angle = (p / 5) * Math.PI * 2;
+                const px = Math.cos(angle) * TRACK_HOLE_RADIUS * 1.6;
+                const pz = Math.sin(angle) * TRACK_HOLE_RADIUS * 1.6;
+                
+                const pointGeo = new THREE.ConeGeometry(1.2, 4, 4);
+                const pointMesh = new THREE.Mesh(pointGeo, crownMat);
+                pointMesh.position.set(px, 2, pz);
+                crownGroup.add(pointMesh);
+            }
+            
+            // Gem on top of each point (small sphere)
+            for (let p = 0; p < 5; p++) {
+                const angle = (p / 5) * Math.PI * 2;
+                const gx = Math.cos(angle) * TRACK_HOLE_RADIUS * 1.6;
+                const gz = Math.sin(angle) * TRACK_HOLE_RADIUS * 1.6;
+                
+                const gemGeo = new THREE.SphereGeometry(0.6, 8, 8);
+                const gemMat = new THREE.MeshStandardMaterial({
+                    color: RAINBOW_COLORS[i],  // Player's color
+                    emissive: RAINBOW_COLORS[i],
+                    emissiveIntensity: 0.8,
+                    metalness: 0.7,
+                    roughness: 0.2
+                });
+                const gem = new THREE.Mesh(gemGeo, gemMat);
+                gem.position.set(gx, 4.2, gz);
+                crownGroup.add(gem);
+            }
+            
+            // Point light for golden glow effect
+            const crownLight = new THREE.PointLight(0xffd700, 0, 40);
+            crownLight.position.set(0, 2, 0);
+            crownGroup.add(crownLight);
+            
+            crownGroup.position.set(hx, crownY, hz);
+            crownGroup.visible = false;  // Hidden until 4 safe zone pegs
+            boardGroup.add(crownGroup);
+            
+            goldenCrowns.push({
+                mesh: crownGroup,
+                pointLight: crownLight,
+                material: crownMat,
+                playerIndex: i,
+                active: false
+            });
+        }
+        
+        // Export crowns for access from animate loop and update functions
+        window._goldenCrowns = goldenCrowns;
+        
+        // Check and toggle crown visibility for a player
+        window.updateGoldenCrown = function(playerIndex, safeZoneCount) {
+            const crown = goldenCrowns[playerIndex];
+            if (!crown) return;
+            
+            if (safeZoneCount >= 4 && !crown.active) {
+                crown.mesh.visible = true;
+                crown.active = true;
+                crown.pointLight.intensity = 2;
+                console.log(`👑 Golden crown ACTIVATED for player ${playerIndex}!`);
+            } else if (safeZoneCount < 4 && crown.active) {
+                crown.mesh.visible = false;
+                crown.active = false;
+                crown.pointLight.intensity = 0;
+                console.log(`👑 Golden crown deactivated for player ${playerIndex}`);
+            }
+        };
+        
         // HOLDING AREA - 4 holes (2x2) in a colored circle (using global HOLDING constants)
         for (let i = 0; i < 6; i++) {
             // Position holding area in the corner region, to the right of the player's wedge
@@ -2244,8 +2329,13 @@
     
     let cameraTransition = null;
     let userOverrideCamera = false;
+    let userIsInteracting = false;  // true while mouse/touch is down on canvas
+    let userInteractionTimeout = null;  // smooth-return delay timer
     let cameraMode = 'cinematic'; // 'cinematic' = auto-follow, 'manual' = user control
     let activePegTracking = null; // Ref to peg being tracked for smooth follow
+    
+    // Saved camera state for smooth return after user releases mouse
+    let savedCameraTarget = null;
     
     // ============================================================
     // LEADING PEG TRACKING
@@ -2346,7 +2436,8 @@
     
     // Pan camera to a special event destination
     function panToSpecialEvent(move, onComplete = null) {
-        if (userOverrideCamera) {
+        // Never override manual mode or active user interaction
+        if (userOverrideCamera || userIsInteracting || currentCameraView === 'manual') {
             if (onComplete) onComplete();
             return;
         }
@@ -2419,9 +2510,9 @@
         board: {
             name: 'Board View',
             icon: '🎯',
-            description: 'Classic top-down view of the board',
-            height: 500,
-            distance: 400,
+            description: 'Classic 30° angled view of the board',
+            height: 320,
+            distance: 554,
             followPeg: false,
             autoOrbit: false
         },
@@ -2461,8 +2552,208 @@
             distance: null,
             followPeg: false,
             autoOrbit: false
+        },
+        pegeye: {
+            name: "Peg's Eye",
+            icon: '👁️',
+            description: 'First-person view from any peg — click a peg, then pan 360°',
+            height: null,
+            distance: null,
+            followPeg: false,
+            autoOrbit: false,
+            pegEye: true
         }
     };
+
+    // ============================================================
+    // PEG'S EYE VIEW — First-person camera from any peg
+    // ============================================================
+    let pegEyeActive = false;
+    let pegEyeTargetPeg = null;      // pegRegistry entry
+    let pegEyeYaw = 0;               // horizontal rotation (radians)
+    let pegEyePitch = 0;             // vertical tilt (radians)
+    let pegEyeDragging = false;
+    let pegEyeLastX = 0;
+    let pegEyeLastY = 0;
+    let pegEyeSelectMode = false;    // waiting for user to click a peg
+
+    function enterPegEyeMode() {
+        pegEyeSelectMode = true;
+        pegEyeActive = false;
+        pegEyeTargetPeg = null;
+        pegEyeYaw = 0;
+        pegEyePitch = 0;
+        // Show selection prompt
+        _showPegEyePrompt('👁️ Click any peg to see its point of view');
+        _showPegEyeBackButton();
+        // Highlight all pegs to show they're clickable
+        pegRegistry.forEach(peg => {
+            if (peg.bodyMesh) {
+                peg._origEmissiveIntensity = peg.bodyMesh.material.emissiveIntensity;
+                peg.bodyMesh.material.emissiveIntensity = 1.2;
+            }
+        });
+        console.log("[Peg's Eye] Select mode — click any peg");
+    }
+
+    function _pegEyeOnClick(event) {
+        if (!pegEyeSelectMode) return;
+        // Raycast to find clicked peg
+        const mouse = new THREE.Vector2(
+            (event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1
+        );
+        const rc = new THREE.Raycaster();
+        rc.setFromCamera(mouse, camera);
+        const hits = rc.intersectObjects(scene.children, true);
+        for (const hit of hits) {
+            for (const [pegId, peg] of pegRegistry) {
+                if (peg.bodyMesh === hit.object || peg.discMesh === hit.object || peg.mesh === hit.object) {
+                    // Found a peg — activate peg eye on it
+                    _activatePegEye(peg);
+                    return;
+                }
+            }
+        }
+    }
+
+    function _activatePegEye(peg) {
+        pegEyeSelectMode = false;
+        pegEyeActive = true;
+        pegEyeTargetPeg = peg;
+        pegEyeYaw = 0;
+        pegEyePitch = 0.1; // slight upward look
+        // Restore peg highlights
+        pegRegistry.forEach(p => {
+            if (p.bodyMesh && p._origEmissiveIntensity !== undefined) {
+                p.bodyMesh.material.emissiveIntensity = p._origEmissiveIntensity;
+            }
+        });
+        // Disable orbit controls while in peg eye (we handle mouse ourselves)
+        if (controls) controls.enabled = false;
+        userOverrideCamera = true;
+
+        // Position camera at peg
+        _updatePegEyeCamera();
+        _showPegEyePrompt("👁️ " + (peg.id || 'Peg') + " — drag to pan 360°");
+
+        console.log("[Peg's Eye] Activated on", peg.id);
+    }
+
+    function _updatePegEyeCamera() {
+        if (!pegEyeActive || !pegEyeTargetPeg) return;
+        const pos = pegEyeTargetPeg.mesh.position;
+        // Camera sits at peg top height (eye level)
+        const eyeHeight = pos.y + 25; // top of peg + a little above
+        camera.position.set(pos.x, eyeHeight, pos.z);
+        // Look direction from yaw/pitch
+        const lookDist = 100;
+        const lookX = pos.x + Math.sin(pegEyeYaw) * Math.cos(pegEyePitch) * lookDist;
+        const lookY = eyeHeight + Math.sin(pegEyePitch) * lookDist;
+        const lookZ = pos.z + Math.cos(pegEyeYaw) * Math.cos(pegEyePitch) * lookDist;
+        camera.lookAt(lookX, lookY, lookZ);
+        if (controls) {
+            controls.target.set(lookX, lookY, lookZ);
+        }
+    }
+
+    function _pegEyePointerDown(e) {
+        if (!pegEyeActive) return;
+        pegEyeDragging = true;
+        pegEyeLastX = e.clientX;
+        pegEyeLastY = e.clientY;
+    }
+    function _pegEyePointerMove(e) {
+        if (!pegEyeActive || !pegEyeDragging) return;
+        const dx = e.clientX - pegEyeLastX;
+        const dy = e.clientY - pegEyeLastY;
+        pegEyeLastX = e.clientX;
+        pegEyeLastY = e.clientY;
+        // Sensitivity
+        pegEyeYaw -= dx * 0.005;
+        pegEyePitch = Math.max(-0.8, Math.min(0.8, pegEyePitch + dy * 0.003));
+        _updatePegEyeCamera();
+    }
+    function _pegEyePointerUp() {
+        pegEyeDragging = false;
+    }
+
+    function exitPegEyeMode() {
+        pegEyeSelectMode = false;
+        pegEyeActive = false;
+        pegEyeTargetPeg = null;
+        pegEyeDragging = false;
+        // Restore peg highlights
+        pegRegistry.forEach(p => {
+            if (p.bodyMesh && p._origEmissiveIntensity !== undefined) {
+                p.bodyMesh.material.emissiveIntensity = p._origEmissiveIntensity;
+                delete p._origEmissiveIntensity;
+            }
+        });
+        // Re-enable orbit controls
+        if (controls) controls.enabled = true;
+        userOverrideCamera = false;
+        // Hide prompts and back button
+        _hidePegEyePrompt();
+        _hidePegEyeBackButton();
+        // Return to board view
+        setCameraViewMode('board');
+        console.log("[Peg's Eye] Exited, returned to board view");
+    }
+
+    // UI helpers for Peg's Eye
+    function _showPegEyePrompt(text) {
+        let el = document.getElementById('pegeye-prompt');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'pegeye-prompt';
+            el.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:20010;' +
+                'background:linear-gradient(135deg,rgba(52,152,219,0.9),rgba(155,89,182,0.85));color:#fff;' +
+                'padding:12px 28px;border-radius:30px;font-family:Orbitron,Rajdhani,sans-serif;font-size:1em;' +
+                'font-weight:600;letter-spacing:0.5px;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,0.4);' +
+                'border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);transition:opacity 0.3s;';
+            document.body.appendChild(el);
+        }
+        el.textContent = text;
+        el.style.opacity = '1';
+    }
+    function _hidePegEyePrompt() {
+        const el = document.getElementById('pegeye-prompt');
+        if (el) el.style.opacity = '0';
+    }
+
+    function _showPegEyeBackButton() {
+        let btn = document.getElementById('pegeye-back-btn');
+        if (!btn) {
+            btn = document.createElement('button');
+            btn.id = 'pegeye-back-btn';
+            btn.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:20010;' +
+                'background:linear-gradient(135deg,rgba(231,76,60,0.9),rgba(192,57,43,0.9));color:#fff;' +
+                'padding:14px 32px;border-radius:30px;font-family:Orbitron,Rajdhani,sans-serif;font-size:1.05em;' +
+                'font-weight:700;letter-spacing:1px;cursor:pointer;border:2px solid rgba(255,255,255,0.2);' +
+                'box-shadow:0 4px 25px rgba(231,76,60,0.4);transition:transform 0.2s,box-shadow 0.2s;';
+            btn.textContent = '🎯 Back to Board';
+            btn.addEventListener('mouseenter', function() { this.style.transform = 'translateX(-50%) scale(1.06)'; });
+            btn.addEventListener('mouseleave', function() { this.style.transform = 'translateX(-50%) scale(1)'; });
+            btn.addEventListener('click', exitPegEyeMode);
+            document.body.appendChild(btn);
+        }
+        btn.style.display = 'block';
+    }
+    function _hidePegEyeBackButton() {
+        const btn = document.getElementById('pegeye-back-btn');
+        if (btn) btn.style.display = 'none';
+    }
+
+    // Wire mouse events for peg eye (added once, checked inside handlers)
+    document.addEventListener('click', _pegEyeOnClick);
+    document.addEventListener('pointerdown', _pegEyePointerDown);
+    document.addEventListener('pointermove', _pegEyePointerMove);
+    document.addEventListener('pointerup', _pegEyePointerUp);
+
+    // Expose globally
+    window.enterPegEyeMode = enterPegEyeMode;
+    window.exitPegEyeMode = exitPegEyeMode;
     
     // Toggle camera panel visibility
     function toggleCameraPanel() {
@@ -2507,6 +2798,13 @@
         if (viewName === 'manual') {
             userOverrideCamera = true;
             cameraMode = 'manual';
+            // In manual mode, disable all cinematic transitions
+            if (cameraTransition) {
+                cancelAnimationFrame(cameraTransition.animId);
+                const pendingCallback = cameraTransition.onComplete;
+                cameraTransition = null;
+                if (pendingCallback) pendingCallback();
+            }
             return;
         }
         
@@ -2606,6 +2904,9 @@
         const speed = 0.0005 * cameraSpeedFactor; // radians per frame, scaled by speed
         
         function animateOrbit() {
+            // Stop orbit if user takes over
+            if (userIsInteracting || currentCameraView === 'manual') return;
+            
             orbitAngle += speed;
             
             const x = Math.sin(orbitAngle) * radius;
@@ -2625,51 +2926,63 @@
     
     // Update camera during peg movement (called from animatePegMove)
     function updateCameraForPegMove(pegX, pegZ) {
-        if (userOverrideCamera || currentCameraView === 'manual') return;
+        if (pegEyeActive || pegEyeSelectMode) {
+            // In peg's eye mode, update eye position if our peg moved
+            if (pegEyeActive) _updatePegEyeCamera();
+            return;
+        }
+        if (userOverrideCamera || userIsInteracting || currentCameraView === 'manual') return;
         
         const view = CAMERA_VIEWS[currentCameraView];
-        if (!view || !view.followPeg) return;
+        if (!view) return;
         
-        // Lerp factor scaled by speed: lower cameraSpeedFactor = smoother/slower follow
-        const baseLerp = view.behindPeg ? 0.05 : 0.08;
-        const lerp = baseLerp * cameraSpeedFactor;
-        
-        if (view.behindPeg) {
-            // Chase cam - smooth follow behind peg
-            const dx = pegX || 0.01;
-            const dz = pegZ || 0.01;
-            const mag = Math.sqrt(dx * dx + dz * dz);
-            const dirX = dx / mag;
-            const dirZ = dz / mag;
+        if (view.followPeg) {
+            // Lerp factor scaled by speed: lower cameraSpeedFactor = smoother/slower follow
+            const baseLerp = view.behindPeg ? 0.05 : 0.08;
+            const lerp = baseLerp * cameraSpeedFactor;
             
-            const camX = pegX - dirX * view.distance;
-            const camZ = pegZ - dirZ * view.distance;
-            
-            // Smooth interpolation (scaled by speed factor)
-            camera.position.x += (camX - camera.position.x) * lerp;
-            camera.position.y += (view.height - camera.position.y) * lerp;
-            camera.position.z += (camZ - camera.position.z) * lerp;
-            
-            controls.target.set(pegX, 10, pegZ);
-            camera.lookAt(pegX, 10, pegZ);
+            if (view.behindPeg) {
+                // Chase cam - smooth follow behind peg
+                const dx = pegX || 0.01;
+                const dz = pegZ || 0.01;
+                const mag = Math.sqrt(dx * dx + dz * dz);
+                const dirX = dx / mag;
+                const dirZ = dz / mag;
+                
+                const camX = pegX - dirX * view.distance;
+                const camZ = pegZ - dirZ * view.distance;
+                
+                camera.position.x += (camX - camera.position.x) * lerp;
+                camera.position.y += (view.height - camera.position.y) * lerp;
+                camera.position.z += (camZ - camera.position.z) * lerp;
+                
+                controls.target.set(pegX, 10, pegZ);
+                camera.lookAt(pegX, 10, pegZ);
+            } else {
+                // Ground level - low angle tracking
+                const dx = pegX || 0.01;
+                const dz = pegZ || 0.01;
+                const mag = Math.sqrt(dx * dx + dz * dz);
+                const dirX = dx / mag;
+                const dirZ = dz / mag;
+                
+                const camX = pegX - dirX * view.distance;
+                const camZ = pegZ - dirZ * view.distance;
+                
+                camera.position.x += (camX - camera.position.x) * lerp;
+                camera.position.y += (view.height - camera.position.y) * lerp;
+                camera.position.z += (camZ - camera.position.z) * lerp;
+                
+                controls.target.set(pegX, 10, pegZ);
+                camera.lookAt(pegX, 10, pegZ);
+            }
         } else {
-            // Ground level - low angle tracking
-            const dx = pegX || 0.01;
-            const dz = pegZ || 0.01;
-            const mag = Math.sqrt(dx * dx + dz * dz);
-            const dirX = dx / mag;
-            const dirZ = dz / mag;
-            
-            const camX = pegX - dirX * view.distance;
-            const camZ = pegZ - dirZ * view.distance;
-            
-            // Smooth interpolation (scaled by speed factor)
-            camera.position.x += (camX - camera.position.x) * lerp;
-            camera.position.y += (view.height - camera.position.y) * lerp;
-            camera.position.z += (camZ - camera.position.z) * lerp;
-            
-            controls.target.set(pegX, 10, pegZ);
-            camera.lookAt(pegX, 10, pegZ);
+            // Board/orbit view — smoothly pan camera target to follow peg
+            // Keep camera position, just shift where it looks
+            const lerp = 0.06 * cameraSpeedFactor;
+            controls.target.x += (pegX - controls.target.x) * lerp;
+            controls.target.z += (pegZ - controls.target.z) * lerp;
+            camera.lookAt(controls.target);
         }
     }
     window.updateCameraForPegMove = updateCameraForPegMove;
@@ -2680,18 +2993,97 @@
     }
     
     // Track user interaction with camera
+    // While user is actively manipulating (mouse/touch down), ALL cinematic
+    // movement is blocked. After release, there's a grace period then a
+    // smooth transition back to the current camera mode's position.
     function setupCameraInteractionTracking() {
-        if (controls && renderer) {
-            renderer.domElement.addEventListener('pointerdown', () => {
-                userOverrideCamera = true;
-            });
+        if (!controls || !renderer) return;
+        
+        renderer.domElement.addEventListener('pointerdown', () => {
+            userIsInteracting = true;
+            userOverrideCamera = true;
+            // Cancel any pending smooth-return timer
+            if (userInteractionTimeout) {
+                clearTimeout(userInteractionTimeout);
+                userInteractionTimeout = null;
+            }
+            // Cancel any active cinematic transition but preserve game callbacks
+            if (cameraTransition) {
+                cancelAnimationFrame(cameraTransition.animId);
+                const pendingCallback = cameraTransition.onComplete;
+                cameraTransition = null;
+                // Fire the callback so game logic (deck enable, AI turn) is never blocked
+                if (pendingCallback) pendingCallback();
+            }
+        });
+        
+        renderer.domElement.addEventListener('pointerup', onUserCameraRelease);
+        renderer.domElement.addEventListener('pointerleave', onUserCameraRelease);
+        renderer.domElement.addEventListener('pointercancel', onUserCameraRelease);
+    }
+    
+    function onUserCameraRelease() {
+        if (!userIsInteracting) return;
+        userIsInteracting = false;
+        
+        // In manual mode, stay where the user left the camera forever
+        if (currentCameraView === 'manual') {
+            return; // No smooth return — full user control
+        }
+        
+        // For other modes, wait 1.5s grace period then smoothly return
+        if (userInteractionTimeout) clearTimeout(userInteractionTimeout);
+        userInteractionTimeout = setTimeout(() => {
+            userOverrideCamera = false;
+            userInteractionTimeout = null;
+            // Smoothly return to current view mode's default position
+            returnToViewDefault();
+        }, 1500);
+    }
+    
+    // Smoothly transition back to the current camera view's default position
+    function returnToViewDefault() {
+        if (userIsInteracting || currentCameraView === 'manual') return;
+        
+        const view = CAMERA_VIEWS[currentCameraView];
+        if (!view) return;
+        
+        if (view.autoOrbit) {
+            // Just restart orbit from current angle
+            orbitAngle = Math.atan2(camera.position.x, camera.position.z);
+            startOrbitAnimation();
+        } else if (view.followPeg) {
+            const activePeg = getActivePegPosition();
+            if (activePeg) {
+                if (view.behindPeg) {
+                    positionChaseCam(activePeg.x, activePeg.z, view.height, view.distance);
+                } else {
+                    positionGroundCam(activePeg.x, activePeg.z, view.height, view.distance);
+                }
+            }
+        } else {
+            // Board view — return to 30° default
+            smoothCameraTransition(
+                { x: 0, y: view.height || 320, z: view.distance || 554 },
+                { x: 0, y: 0, z: 0 },
+                1500
+            );
         }
     }
     
     function smoothCameraTransition(targetPos, targetLookAt, duration = 2500, onComplete = null) {
-        // Cancel any existing transition
+        // Never interrupt manual mode or active user interaction
+        if (currentCameraView === 'manual' || userIsInteracting) {
+            if (onComplete) onComplete();
+            return;
+        }
+        
+        // Cancel any existing transition (fire its callback so game logic isn't blocked)
         if (cameraTransition) {
             cancelAnimationFrame(cameraTransition.animId);
+            const pendingCallback = cameraTransition.onComplete;
+            cameraTransition = null;
+            if (pendingCallback) pendingCallback();
         }
         
         // Apply speed factor: lower factor = longer duration = smoother
@@ -2722,32 +3114,97 @@
             }
         }
         
-        cameraTransition = { animId: requestAnimationFrame(animateCamera) };
+        cameraTransition = { animId: requestAnimationFrame(animateCamera), onComplete: onComplete };
     }
     
     function focusOnPlayerPeg(playerIndex, onComplete = null) {
-        if (userOverrideCamera) {
+        // Never override manual mode, active interaction, or while player is choosing a flashing hole
+        if (userOverrideCamera || userIsInteracting || currentCameraView === 'manual' || highlightsActive) {
             if (onComplete) onComplete();
             return;
         }
         
-        // Find the player's leading peg (furthest along track)
         const player = gameState?.players?.[playerIndex];
         if (!player || !player.peg) {
             if (onComplete) onComplete();
             return;
         }
         
-        // Get the leading peg (furthest along track)
-        const leadingPeg = getLeadingPeg(playerIndex);
+        // --- Camera focus PRIORITY ORDER ---
+        // 1. Bullseye/center peg (highest priority)
+        // 2. Fast track peg
+        // 3. Start/home hole (if any peg is still in holding)
+        // 4. Fallback: leading peg on the board
         
-        // If no peg on board, use home hole position
-        if (!leadingPeg || leadingPeg.holeType === 'holding') {
-            const homeHole = holeRegistry.get(`home-${playerIndex}`);
+        let focusPeg = null;
+        let focusOnHome = false;
+        
+        // Priority 1: Check for a peg in the bullseye (center)
+        const bullseyePeg = player.peg.find(p => p.holeId === 'center' || p.inBullseye);
+        if (bullseyePeg) {
+            focusPeg = bullseyePeg;
+        }
+        
+        // Priority 2: Check for a peg on the fast track
+        if (!focusPeg) {
+            const ftPeg = player.peg.find(p => p.onFasttrack || (p.holeId && p.holeId.startsWith('ft-')));
+            if (ftPeg) {
+                focusPeg = ftPeg;
+            }
+        }
+        
+        // Priority 3: If any peg is in holding, focus on the start/home hole
+        if (!focusPeg) {
+            const boardPos = player.boardPosition;
+            const hasHoldingPeg = player.peg.some(p => p.holeType === 'holding' || (p.holeId && p.holeId.startsWith('hold-')));
+            if (hasHoldingPeg) {
+                focusOnHome = true;
+            }
+        }
+        
+        // Priority 4: Fallback to leading peg
+        if (!focusPeg && !focusOnHome) {
+            const leadingPeg = getLeadingPeg(playerIndex);
+            if (!leadingPeg || leadingPeg.holeType === 'holding') {
+                focusOnHome = true;
+            } else {
+                focusPeg = leadingPeg;
+            }
+        }
+        
+        // --- Determine camera closeness based on peg spread ---
+        // Collect world positions of all non-holding pegs to measure spread
+        let pegPositions = [];
+        for (const p of player.peg) {
+            if (p.holeType === 'holding' || (p.holeId && p.holeId.startsWith('hold-'))) continue;
+            const po = pegRegistry.get(p.id);
+            if (po && po.mesh) pegPositions.push(po.mesh.position);
+        }
+        
+        // Measure max distance between any two pegs
+        let maxSpread = 0;
+        for (let i = 0; i < pegPositions.length; i++) {
+            for (let j = i + 1; j < pegPositions.length; j++) {
+                const dx = pegPositions[i].x - pegPositions[j].x;
+                const dz = pegPositions[i].z - pegPositions[j].z;
+                maxSpread = Math.max(maxSpread, Math.sqrt(dx * dx + dz * dz));
+            }
+        }
+        
+        // Close-up when pegs are clustered, pull back when spread far apart
+        // Spread < 100 → tight closeup, spread > 350 → wide view
+        const spreadFactor = Math.min(1, Math.max(0, (maxSpread - 100) / 250));
+        const camHeight = 200 + spreadFactor * 250;     // 200 (close) → 450 (far)
+        const camPull   = 0.65 - spreadFactor * 0.35;   // 0.65 (close) → 0.3 (far)
+        const camOffset = 80 + spreadFactor * 150;       // 80 (close) → 230 (far)
+        
+        // Focus on the home hole
+        if (focusOnHome) {
+            const boardPos = player.boardPosition;
+            const homeHole = holeRegistry.get(`home-${boardPos}`);
             if (homeHole && homeHole.position) {
-                const offset = 200;
                 smoothCameraTransition(
-                    { x: homeHole.position.x * 0.3, y: 400, z: homeHole.position.z * 0.3 + offset },
+                    { x: homeHole.position.x * camPull, y: camHeight, z: homeHole.position.z * camPull + camOffset },
                     { x: homeHole.position.x, y: 0, z: homeHole.position.z },
                     2500,
                     onComplete
@@ -2758,26 +3215,93 @@
             return;
         }
         
-        // Get peg position from registry
-        const pegObj = pegRegistry.get(leadingPeg.id);
-        if (!pegObj || !pegObj.mesh) {
-            if (onComplete) onComplete();
+        // Focus on the priority peg
+        if (focusPeg) {
+            const pegObj = pegRegistry.get(focusPeg.id);
+            if (!pegObj || !pegObj.mesh) {
+                if (onComplete) onComplete();
+                return;
+            }
+            
+            const pegPos = pegObj.mesh.position;
+            
+            smoothCameraTransition(
+                { x: pegPos.x * camPull, y: camHeight, z: pegPos.z * camPull + camOffset },
+                { x: pegPos.x, y: 0, z: pegPos.z },
+                2500,
+                onComplete
+            );
             return;
         }
         
-        const pegPos = pegObj.mesh.position;
-        const offset = 200;
+        if (onComplete) onComplete();
+    }
+    
+    // Move camera TOWARD the destination choices so the player can see them up close.
+    // If choices are spread far apart, pull back just enough to frame them all.
+    function focusOnChoices(moves) {
+        if (userOverrideCamera || userIsInteracting || currentCameraView === 'manual') return;
+        if (!moves || moves.length === 0) return;
         
-        smoothCameraTransition(
-            { x: pegPos.x * 0.3, y: 400, z: pegPos.z * 0.3 + offset },
-            { x: pegPos.x, y: 0, z: pegPos.z },
-            2500,
-            onComplete
-        );
+        // Gather world positions of all destination holes
+        const positions = [];
+        for (const m of moves) {
+            const hole = holeRegistry.get(m.toHoleId);
+            if (!hole) continue;
+            const hx = hole.position ? hole.position.x : hole.x;
+            const hz = hole.position ? hole.position.z : hole.z;
+            if (hx !== undefined && hz !== undefined) positions.push({ x: hx, z: hz });
+        }
+        if (positions.length === 0) return;
+        
+        // Compute bounding box center and diagonal extent
+        let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+        for (const p of positions) {
+            if (p.x < minX) minX = p.x;
+            if (p.x > maxX) maxX = p.x;
+            if (p.z < minZ) minZ = p.z;
+            if (p.z > maxZ) maxZ = p.z;
+        }
+        const cx = (minX + maxX) / 2;
+        const cz = (minZ + maxZ) / 2;
+        const spread = Math.sqrt((maxX - minX) ** 2 + (maxZ - minZ) ** 2);
+        
+        // Adaptive height/distance: tight closeup for clustered choices, wider for spread
+        // spread < 50 → very close, spread > 300 → moderately pulled back
+        const t = Math.min(1, Math.max(0, (spread - 50) / 250));
+        const camH   = 180 + t * 200;     // 180 (close) → 380 (wide)
+        const camPull = 0.7 - t * 0.4;    // 0.7 (close) → 0.3 (wide)
+        const camOff  = 60 + t * 120;     // 60 (close) → 180 (wide)
+        
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile) {
+            // Mobile: if spread is huge, do top-down; otherwise get close
+            if (spread > 250) {
+                smoothCameraTransition(
+                    { x: cx * 0.15, y: 550, z: cz * 0.15 + 1 },
+                    { x: cx, y: 0, z: cz },
+                    2000
+                );
+                enterDecisionMode();
+            } else {
+                smoothCameraTransition(
+                    { x: cx * camPull, y: camH, z: cz * camPull + camOff },
+                    { x: cx, y: 0, z: cz },
+                    2000
+                );
+            }
+        } else {
+            smoothCameraTransition(
+                { x: cx * camPull, y: camH, z: cz * camPull + camOff },
+                { x: cx, y: 0, z: cz },
+                2500
+            );
+        }
     }
     
     function panOutForBoardView() {
-        if (userOverrideCamera) return;
+        // Never override manual mode, active interaction, or while choices are shown
+        if (userOverrideCamera || userIsInteracting || currentCameraView === 'manual' || highlightsActive) return;
         
         const isMobile = window.innerWidth <= 768;
         
@@ -2792,10 +3316,9 @@
             // Enter decision mode - hide panels for full board view
             enterDecisionMode();
         } else {
-            // DESKTOP: 60-degree angle view of the board
-            // tan(60°) ≈ 1.732, so for z=350, y = 350 * 1.732 ≈ 606
+            // DESKTOP: 30° angle view of the board — clear view of all holes
             smoothCameraTransition(
-                { x: 0, y: 600, z: 350 },
+                { x: 0, y: 320, z: 554 },
                 { x: 0, y: 0, z: 0 },
                 2500
             );
@@ -2858,6 +3381,9 @@
     window.exitDecisionMode = exitDecisionMode;
     
     function resetCameraOverride() {
+        // Only reset override if user is NOT actively interacting
+        // and camera is not in manual mode
+        if (userIsInteracting || currentCameraView === 'manual') return;
         userOverrideCamera = false;
     }
 
@@ -2889,6 +3415,23 @@
             FastTrackThemes.updateSpectators(Date.now() * 0.001);
         }
         
+        // Animate golden crowns (oscillate + glow pulse)
+        if (window._goldenCrowns) {
+            const t = Date.now() * 0.001;
+            for (const crown of window._goldenCrowns) {
+                if (!crown.active) continue;
+                // Gentle bobbing (oscillate Y position)
+                const baseY = LINE_HEIGHT + 12;
+                crown.mesh.position.y = baseY + Math.sin(t * 1.5) * 1.5;
+                // Slow rotation
+                crown.mesh.rotation.y = t * 0.5;
+                // Pulsing glow
+                const pulse = 0.5 + 0.5 * Math.sin(t * 2.5);
+                crown.pointLight.intensity = 1.5 + pulse * 2;
+                crown.material.emissiveIntensity = 0.4 + pulse * 0.6;
+            }
+        }
+        
         renderer.render(scene, camera);
     }
     
@@ -2903,6 +3446,11 @@
     
     function setTheme(themeName) {
         console.log('[Theme] Switching to:', themeName);
+
+        // ── Analytics: Track theme change (skip during demo/promo auto-rotation) ──
+        if (window.FTAnalytics && !window.DemoDirector) {
+            FTAnalytics.themeChange(themeName);
+        }
         
         if (!window.FastTrackThemes) {
             console.error('[Theme] Theme system not loaded');
@@ -3507,6 +4055,84 @@
     
     // Make it globally available
     window.sendDesktopReaction = sendDesktopReaction;
+
+    /**
+     * AI Chat Bubble — bots express personality with floating text messages!
+     * Shows a styled chat bubble with the bot's message, floating up and fading out.
+     * This makes bots feel alive and friendly — they're not just silent algorithms.
+     * @param {string} message - The chat message text (with emoji)
+     * @param {string} [botName] - Optional bot name for attribution
+     * @param {Object} [options] - Optional styling overrides
+     */
+    function aiSendChatBubble(message, botName, options = {}) {
+        if (!AI_REACTIONS.enabled) return;
+
+        const el = document.createElement('div');
+        const displayMsg = botName ? `${botName}: ${message}` : message;
+        el.textContent = displayMsg;
+        
+        // Position: random horizontal, bottom third of screen
+        const startX = 80 + Math.random() * (window.innerWidth - 400);
+        const startY = window.innerHeight * 0.55 + Math.random() * (window.innerHeight * 0.2);
+        
+        const bgColor = options.bg || 'rgba(30, 30, 60, 0.92)';
+        const borderColor = options.border || 'rgba(100, 180, 255, 0.5)';
+        const textColor = options.color || '#fff';
+        
+        el.style.cssText = `
+            position: fixed;
+            left: ${startX}px;
+            top: ${startY}px;
+            font-size: 18px;
+            font-weight: 600;
+            color: ${textColor};
+            background: ${bgColor};
+            border: 1px solid ${borderColor};
+            border-radius: 16px;
+            padding: 10px 18px;
+            pointer-events: none;
+            z-index: 10003;
+            max-width: 320px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 15px rgba(100,180,255,0.15);
+            will-change: transform, opacity;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        `;
+        
+        document.body.appendChild(el);
+        
+        // Float up and fade out animation
+        const duration = 4000;
+        const startTime = performance.now();
+        
+        function animate(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            
+            const translateY = -200 * eased;
+            const opacity = progress > 0.65 ? 1 - ((progress - 0.65) / 0.35) : 1;
+            const scale = progress < 0.1 ? 0.8 + 0.2 * (progress / 0.1) : 1;
+            
+            el.style.transform = `translateY(${translateY}px) scale(${scale})`;
+            el.style.opacity = opacity;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                el.remove();
+            }
+        }
+        
+        requestAnimationFrame(animate);
+    }
+    
+    // Make globally available
+    window.aiSendChatBubble = aiSendChatBubble;
     
     // ============================================================
     // DRAGGABLE REACTION BAR
@@ -3825,14 +4451,36 @@
     
     window.onload = init;
     window.setCameraView = setCameraView;
+    window.setCameraViewMode = setCameraViewMode;
     window.setTheme = setTheme;
     window.testFastTrack = testFastTrack;
     window.testSendHome = testSendHome;
     window.testWinner = testWinner;
+    window.smoothCameraTransition = smoothCameraTransition;
+    window.resetCameraOverride = function() { if (currentCameraView === 'manual') return; userOverrideCamera = false; userIsInteracting = false; highlightsActive = false; };
     </script>
     
     <!-- Rules Substrate (after board is defined) -->
     <script src="rules_substrate.js?v=20260223"></script>
+
+    <!-- Promo Director (loaded only with ?promo=1) -->
+    <script>
+    (function() {
+        const urlP = new URLSearchParams(window.location.search);
+        if (urlP.has('promo')) {
+            const s = document.createElement('script');
+            s.src = 'promo_director.js?v=' + Date.now();
+            document.head.appendChild(s);
+            console.log('[Promo] Loading Promo Director...');
+        }
+        if (urlP.has('demo')) {
+            const s = document.createElement('script');
+            s.src = 'demo_director.js?v=' + Date.now();
+            document.head.appendChild(s);
+            console.log('[Demo] Loading Demo Director...');
+        }
+    })();
+    </script>
     
     <script>
     // ============================================================
@@ -3861,6 +4509,15 @@
     };
     let legalMoves = [];
     let highlightedHoles = [];
+    let highlightsActive = false;  // True while flashing destination holes are shown — blocks camera yanks
+    
+    // Expose legalMoves to external modules (ask_mom.js)
+    // Uses a getter so window.legalMoves always reflects the local variable
+    Object.defineProperty(window, 'legalMoves', {
+        get() { return legalMoves; },
+        set(v) { legalMoves = v; },
+        configurable: true
+    });
     
     // Track last winner for "winner goes first" on replay
     let lastWinnerIndex = null;
@@ -3876,96 +4533,263 @@
     };
     
     // AI Reaction Configuration - reactions AI can send based on turn outcomes
+    // Philosophy: ALL bots love the human players. It's just fun and games!
+    // They want the game to be exciting and competitive, but it's all in good spirit.
     const AI_REACTIONS = {
         enabled: true,
-        probability: 0.7,  // 70% chance AI reacts to events
+        probability: 0.75,  // 75% chance AI reacts to events
         // Reactions for positive outcomes (AI did something good)
         positive: [
             { emoji: '🎉', name: 'celebrate' },
             { emoji: '🔥', name: 'fire' },
-            { emoji: '😈', name: 'revenge' }
+            { emoji: '💃', name: 'dance' },
+            { emoji: '🥳', name: 'party' }
         ],
-        // Reactions when AI cuts an opponent
+        // Reactions when AI cuts an opponent — playful, not mean!
         cut: [
-            { emoji: '😈', name: 'revenge' },
-            { emoji: '💀', name: 'dead' },
-            { emoji: '👻', name: 'boo' }
+            { emoji: '😜', name: 'playful' },
+            { emoji: '😏', name: 'smirk' },
+            { emoji: '🤭', name: 'oopsie' },
+            { emoji: '💅', name: 'sassy' },
+            { emoji: '😘', name: 'kiss' }
         ],
         // Reactions for special moves (fasttrack, bullseye)
         special: [
             { emoji: '🔥', name: 'fire' },
             { emoji: '🎉', name: 'celebrate' },
-            { emoji: '👏', name: 'clap' }
+            { emoji: '👏', name: 'clap' },
+            { emoji: '⚡', name: 'lightning' },
+            { emoji: '🚀', name: 'rocket' }
         ],
-        // Reactions when AI gets cut (negative)
+        // Reactions when AI gets cut (negative) — good-spirited
         negative: [
-            { emoji: '😭', name: 'cry' },
             { emoji: '😱', name: 'shock' },
-            { emoji: '😬', name: 'ouch' }
+            { emoji: '😤', name: 'determined' },
+            { emoji: '🫣', name: 'peekaboo' },
+            { emoji: '😅', name: 'sweat' },
+            { emoji: '💪', name: 'comeback' }
         ],
-        // Reactions for close games / frustration
+        // Reactions for close games / frustration — competitive but fun
         frustration: [
-            { emoji: '😬', name: 'ouch' },
-            { emoji: '😭', name: 'cry' },
-            { emoji: '💀', name: 'dead' }
+            { emoji: '😤', name: 'determined' },
+            { emoji: '😅', name: 'sweat' },
+            { emoji: '🥴', name: 'dizzy' },
+            { emoji: '🤯', name: 'mindblown' }
+        ],
+        // NEW: Encouragement — when human makes a great move, bots cheer!
+        encouragement: [
+            { emoji: '👏', name: 'clap' },
+            { emoji: '🔥', name: 'fire' },
+            { emoji: '💪', name: 'strong' },
+            { emoji: '👀', name: 'watchout' },
+            { emoji: '😮', name: 'wow' },
+            { emoji: '🫡', name: 'salute' }
+        ],
+        // NEW: Sportsmanship — when game ends (win or lose)
+        sportsmanship: [
+            { emoji: '🤝', name: 'handshake' },
+            { emoji: '👏', name: 'clap' },
+            { emoji: '🎉', name: 'celebrate' },
+            { emoji: '💙', name: 'love' },
+            { emoji: '🫶', name: 'heart_hands' }
+        ],
+        // NEW: Game start — friendly welcome
+        welcome: [
+            { emoji: '👋', name: 'wave' },
+            { emoji: '🤗', name: 'hug' },
+            { emoji: '😊', name: 'smile' },
+            { emoji: '🎮', name: 'gamepad' },
+            { emoji: '🎲', name: 'dice' }
+        ],
+        // NEW: Warpath-specific — intense but still fun/playful
+        warpathCut: [
+            { emoji: '😈', name: 'revenge' },
+            { emoji: '👹', name: 'ogre' },
+            { emoji: '🔥', name: 'fire' },
+            { emoji: '⚔️', name: 'swords' },
+            { emoji: '💀', name: 'dead' },
+            { emoji: '😏', name: 'smirk' }
+        ]
+    };
+
+    // AI Chat Messages — bots express personality with words too!
+    // Short, fun, friendly messages bots send as floating text bubbles.
+    const AI_CHAT_MESSAGES = {
+        // When bot cuts the human
+        cut: [
+            "Sorry, not sorry! 😜",
+            "Oops! My bad! 🤭",
+            "Nothing personal! 💕",
+            "It's part of the game! 😘",
+            "Had to do it! 😅",
+            "I still love you tho! 💙",
+            "Gotcha! Good sport? 🤗",
+            "Tag, you're it! 😝"
+        ],
+        // When human makes a great move
+        encouragement: [
+            "Nice move! 👏",
+            "Wow, impressive! 🔥",
+            "You're on fire! ⚡",
+            "Watch out for this one! 👀",
+            "Great play! 💪",
+            "Ooh, smart move! 🧠",
+            "That was slick! 😎"
+        ],
+        // When human cuts a bot
+        gotCut: [
+            "Nooo! Well played! 😅",
+            "I'll be back! 💪",
+            "You got me! Good one! 👏",
+            "Ouch! But respect! 🫡",
+            "Fair play, fair play! 🤝",
+            "Revenge will be sweet! 😤",
+            "Okay okay, nice one! 😂"
+        ],
+        // Game start greetings
+        welcome: [
+            "Let's have fun! 🎮",
+            "May the best player win! 🏆",
+            "Good luck everyone! 🍀",
+            "Let's gooo! 🚀",
+            "Ready to play! 🎲",
+            "This is gonna be great! 😊"
+        ],
+        // When human wins (sportsmanship)
+        humanWins: [
+            "GG! You earned it! 🏆",
+            "Well played! Great game! 👏",
+            "You're too good! 🙌",
+            "Champion! Rematch? 😄",
+            "Amazing game! You win! 🎉",
+            "Respect! Great playing! 🫡"
+        ],
+        // When bot wins (humble)
+        botWins: [
+            "GG! That was close! 🤝",
+            "Fun game! Rematch? 😊",
+            "Great game everyone! 🎉",
+            "That was exciting! 🔥",
+            "Good game! You almost had me! 💪"
+        ],
+        // Warpath-specific cut messages — intense but fun
+        warpathCut: [
+            "COMING FOR YOU! 😈🔥",
+            "No mercy! Just kidding... kinda! 👹",
+            "You knew this was coming! ⚔️",
+            "Warpath activated! 💥",
+            "Run! Just kidding, love you! 😘💀"
+        ],
+        // Warpath got cut — dramatic but fun
+        warpathGotCut: [
+            "You dare?! ...respect tho 💪",
+            "I'LL REMEMBER THIS! 😤🔥",
+            "The hunter becomes the hunted! 😱",
+            "Okay that was actually good 👏",
+            "This isn't over! 😈"
+        ],
+        // When bot enters safe zone or scores
+        selfCelebrate: [
+            "Safe! Finally! 😅",
+            "Made it! 🎉",
+            "One step closer! 💪",
+            "Catch me if you can! 😜"
         ]
     };
     
     // Game Configuration for Human Players
     const GAME_CONFIG = {
-        difficulty: 'easy',       // 'easy', 'intermediate', 'hard'
+        difficulty: 'easy',       // 'easy', 'normal', 'hard', 'expert', 'warpath'
         autoMoveForHumans: true,  // Auto-execute when only one legal move (no choice needed)
         autoMoveDelay: 500,       // ms delay before auto-executing single move
         showHighlights: true,     // Show legal move highlights
         showMoveAids: true,       // Show move helper popups
-        hintMode: 'blink'         // 'blink' = blinking holes, 'dropdown' = suggestion list, 'voice' = audio hints, 'all' = all modes, 'none' = no hints
+        hintMode: 'blink',        // 'blink' = blinking holes, 'dropdown' = suggestion list, 'voice' = audio hints, 'all' = all modes, 'none' = no hints
+        ftAutoTraverse: false     // FastTrack auto-traverse: true = auto-move FT pegs around ring, false = manual choice each turn
     };
     
     // Difficulty presets - AI strategy scaling
+    // Maps to setup page values: easy, normal, hard, expert, warpath
     const DIFFICULTY_PRESETS = {
         easy: {
             autoMoveForHumans: true,
             showHighlights: true,
             showMoveAids: true,
             // AI Strategy Multipliers (higher = more aggressive/smart)
-            aiCutPriority: 0.2,           // Rarely cuts - lets you play
-            aiBullseyeCutPriority: 0.3,   // Rarely steals bullseye
+            aiCutPriority: 0.0,           // NEVER targets opponents — only cuts when it's the ONLY legal move
+            aiBullseyeCutPriority: 0.0,   // Never steals bullseye intentionally
             aiDefensiveAwareness: 0.3,    // Doesn't avoid vulnerable spots well
-            aiOffensiveAwareness: 0.2,    // Doesn't set up attacks
+            aiOffensiveAwareness: 0.0,    // Doesn't set up attacks
             ai4CardStrategy: 0.3,         // Basic backward positioning
             aiFastTrackPriority: 0.7,     // Uses FastTrack but not aggressively
+            aiFTLeaveToCut: false,        // NEVER leaves FT to cut
             aiRandomFactor: 0.3,          // Some randomness - makes mistakes
             aiDescription: 'Lenient AI - learning mode'
         },
-        intermediate: {
+        normal: {
             autoMoveForHumans: false,
             showHighlights: true,
             showMoveAids: true,
-            // Fair but firm
-            aiCutPriority: 1.0,           // Normal cutting
+            // Fair but firm — cuts when strategic
+            aiCutPriority: 1.0,           // Normal cutting - strategic only
             aiBullseyeCutPriority: 1.0,   // Takes bullseye opportunities
             aiDefensiveAwareness: 1.0,    // Avoids vulnerable positions
             aiOffensiveAwareness: 1.0,    // Sets up attack positions
             ai4CardStrategy: 1.0,         // Good backward positioning
             aiFastTrackPriority: 1.0,     // Strategic FastTrack use
+            aiFTLeaveToCut: true,         // Will leave FT to cut IF strategically beneficial
             aiRandomFactor: 0.1,          // Slight randomness
-            aiDescription: 'Fair but firm AI'
+            aiDescription: 'Fair but firm AI - cuts when strategic'
         },
         hard: {
             autoMoveForHumans: false,
-            showHighlights: false,
-            showMoveAids: false,
-            // Ruthless
+            showHighlights: true,
+            showMoveAids: true,
+            // Aggressive — targets opponents when opportunity presents
             aiCutPriority: 2.0,           // Aggressively hunts cuts
-            aiBullseyeCutPriority: 2.5,   // Prioritizes bullseye theft
-            aiDefensiveAwareness: 1.5,    // Never lands in vulnerable spots
-            aiOffensiveAwareness: 2.0,    // Always sets up attacks
+            aiBullseyeCutPriority: 2.0,   // Prioritizes bullseye theft
+            aiDefensiveAwareness: 1.5,    // Avoids vulnerable positions well
+            aiOffensiveAwareness: 1.5,    // Sets up attack positions actively
             ai4CardStrategy: 1.5,         // Expert backward positioning
             aiFastTrackPriority: 1.2,     // Optimal FastTrack decisions
+            aiFTLeaveToCut: true,         // Will leave FT to cut opponents
+            aiRandomFactor: 0.05,         // Minimal randomness
+            aiDescription: 'Aggressive AI - targets opponents when possible'
+        },
+        expert: {
+            autoMoveForHumans: false,
+            showHighlights: false,
+            showMoveAids: false,
+            // Ruthless — optimal play + aggressive targeting
+            aiCutPriority: 3.0,           // Actively hunts all cut opportunities
+            aiBullseyeCutPriority: 3.0,   // Prioritizes bullseye theft strongly
+            aiDefensiveAwareness: 2.0,    // Never lands in vulnerable spots
+            aiOffensiveAwareness: 2.0,    // Always sets up attacks
+            ai4CardStrategy: 2.0,         // Expert backward positioning
+            aiFastTrackPriority: 1.5,     // Optimal FastTrack decisions
+            aiFTLeaveToCut: true,         // Will leave FT to cut opponents
             aiRandomFactor: 0.0,          // No mistakes - pure optimization
-            aiDescription: 'Ruthless AI - no mercy'
+            aiDescription: 'Expert AI - ruthless and optimal'
+        },
+        warpath: {
+            autoMoveForHumans: false,
+            showHighlights: false,
+            showMoveAids: false,
+            // WARPATH — cutting opponents is the #1 goal, even at own expense
+            aiCutPriority: 5.0,           // OBSESSED with cutting — main goal
+            aiBullseyeCutPriority: 5.0,   // Bullseye theft is top priority
+            aiDefensiveAwareness: 0.5,    // Ignores own safety — offense only
+            aiOffensiveAwareness: 3.0,    // Always positioning to attack
+            ai4CardStrategy: 2.0,         // Uses 4-card aggressively
+            aiFastTrackPriority: 0.5,     // Will EXIT FT to chase opponents
+            aiFTLeaveToCut: true,         // Always leaves FT if cut is available
+            aiRandomFactor: 0.0,          // No mistakes - pure aggression
+            aiDescription: 'WARPATH AI - hunting you down at all costs'
         }
     };
+    
+    // Backward compatibility: map old names
+    DIFFICULTY_PRESETS.intermediate = DIFFICULTY_PRESETS.normal;
     
     // Apply difficulty settings
     function applyDifficultySettings(difficulty) {
@@ -4278,6 +5102,12 @@
     
     // Game mode selection
     window.selectGameMode = function(mode) {
+        // Solo → redirect to ai_setup.html (dedicated setup wizard)
+        if (mode === 'solo') {
+            window.location.href = 'ai_setup.html';
+            return;
+        }
+        
         currentGameMode = mode;
         
         // Update UI
@@ -4288,40 +5118,21 @@
         if (selected) selected.classList.add('selected');
         
         // Show/hide relevant sections
-        const soloSetup = document.getElementById('solo-setup');
         const privateSection = document.getElementById('private-game-section');
         const matchmakingStatus = document.getElementById('matchmaking-status');
         
-        if (soloSetup) soloSetup.style.display = mode === 'solo' ? 'block' : 'none';
         if (privateSection) privateSection.style.display = mode === 'private' ? 'block' : 'none';
         if (matchmakingStatus) matchmakingStatus.style.display = 'none';
         
         // Update start button
         const startBtn = document.getElementById('start-btn');
         if (startBtn) {
-            if (mode === 'solo') {
-                startBtn.textContent = '▶ START GAME';
-                // Use new GameInit system for solo mode
-                startBtn.onclick = () => {
-                    if (window.GameInit) {
-                        // Get player count from slider (default 3)
-                        const slider = document.getElementById('player-count-slider');
-                        const players = slider ? parseInt(slider.value) : 3;
-                        window.GameInit.start({ players });
-                    } else {
-                        // Fallback to old system
-                        startGameSession();
-                    }
-                };
-            } else if (mode === 'quickmatch') {
+            if (mode === 'quickmatch') {
                 startBtn.textContent = '🔍 FIND MATCH';
+                startBtn.style.display = 'block';
                 startBtn.onclick = () => joinMatchmaking();
             } else if (mode === 'private') {
                 startBtn.style.display = 'none';
-            }
-            
-            if (mode !== 'private') {
-                startBtn.style.display = 'block';
             }
         }
     };
@@ -5039,6 +5850,13 @@
     
     // Show Mom's contextual help based on current game state
     function showMomHelp() {
+        // Delegate to AskMomAdvisor if available (enhanced advisor with auto-execute)
+        if (window.AskMomAdvisor && typeof window.AskMomAdvisor.showAdvice === 'function') {
+            window.AskMomAdvisor.showAdvice();
+            return;
+        }
+
+        // Fallback to legacy Mom Help
         const panel = document.getElementById('mom-help-panel');
         const messageEl = document.getElementById('mom-message-text');
         const optionsEl = document.getElementById('mom-options');
@@ -5610,6 +6428,8 @@
         if (typeof GameEventSubstrate !== 'undefined') {
             GameEventSubstrate.on(GameEventSubstrate.types.FAST_TRACK_USED, (data) => {
                 console.log('[Substrate] Fast track used:', data);
+                // Analytics: fast track shortcut
+                if (window.FTAnalytics) FTAnalytics.fastTrackUsed(data.player?.name || 'Player');
                 // Stadium integration
                 if (typeof StadiumController !== 'undefined') {
                     StadiumController.fastTrackEntry(data.player?.name || 'Player');
@@ -5617,6 +6437,8 @@
             });
             GameEventSubstrate.on(GameEventSubstrate.types.PEG_CUT, (data) => {
                 console.log('[Substrate] Peg cut:', data);
+                // Analytics: peg capture
+                if (window.FTAnalytics) FTAnalytics.pegCapture(data.cutter?.name || 'Bot', data.victim?.name || 'Peg');
                 // Stadium integration - capture event
                 if (typeof StadiumController !== 'undefined') {
                     const hunterName = data.cutter?.name || 'Bot';
@@ -6018,6 +6840,9 @@
                 currentPlayerIndex: gameState.currentPlayerIndex,
                 phase: gameState.phase
             });
+
+            // ── Analytics: count turns ──
+            if (window.FTAnalytics) FTAnalytics.turn();
             
             cardUI.updateCurrentPlayer(player);
             cardUI.updateTurnCount(gameState.turnCount);
@@ -6027,12 +6852,14 @@
             hideTurnBanner(); // Hide any previous banner
             
             // Turn timer management
+            // NO TIMER when a human only plays AI (solo mode) — timer is for multiplayer only
             const nextPlayer = gameState.players[gameState.currentPlayerIndex];
-            if (nextPlayer && !nextPlayer.isAI && gameSessionSettings.turnTimer) {
-                // Start turn timer for human players
+            const hasMultipleHumans = gameState.players.filter(p => !isAIPlayer(p.index)).length > 1;
+            if (nextPlayer && !nextPlayer.isAI && gameSessionSettings.turnTimer && hasMultipleHumans) {
+                // Start turn timer for human players in multiplayer
                 startTurnTimer();
             } else {
-                // Stop timer for AI turns
+                // Stop timer for AI turns or solo play
                 stopTurnTimer();
             }
             
@@ -6127,7 +6954,10 @@
             const isBot = upcomingPlayer.isAI || upcomingPlayer.isBot || /[🤖🔧⚙️🎮💻]/.test(upcomingPlayerName);
             
             // Show transition announcement
-            if (!wasExtraTurn) {
+            if (wasExtraTurn && !isBot) {
+                // Immediately tell the human player they get another draw
+                showDrawAgainPopup();
+            } else if (!wasExtraTurn) {
                 const readyMessage = isBot 
                     ? `🤖 ${upcomingPlayerAvatar} ${upcomingPlayerName}'s turn` 
                     : `${upcomingPlayerAvatar} Board ready for ${upcomingPlayerName}`;
@@ -6240,6 +7070,14 @@
                     if (!isAIPlayer(gameState.currentPlayerIndex) && window.PrestigeTracker) {
                         PrestigeTracker.award('fasttrack_use');
                     }
+                    
+                    // ════════════════════════════════════════════════════════
+                    // FASTTRACK AUTO/MANUAL CHOICE — Show prompt for human players
+                    // Offer the choice: traverse automatically or manually each turn
+                    // ════════════════════════════════════════════════════════
+                    if (!isAIPlayer(gameState.currentPlayerIndex)) {
+                        setTimeout(() => showFTTraversalChoiceDialog(), 2000);
+                    }
                 }
                 
                 // Check if sent someone home (cut)
@@ -6276,6 +7114,14 @@
             if (window.playerPanelUI) {
                 updatePlayerPanelStats();
                 
+                // Update golden crowns — check all players for safe zone fill
+                if (window.updateGoldenCrown && gameState.players) {
+                    for (const player of gameState.players) {
+                        const safeCount = player.peg ? player.peg.filter(p => p.holeType === 'safezone').length : 0;
+                        window.updateGoldenCrown(player.boardPosition, safeCount);
+                    }
+                }
+                
                 // Update mood based on action
                 if (cutPeg) {
                     // Cutter feels smooth/revenge
@@ -6296,7 +7142,7 @@
             
             // Handle cut animation if there was a cut (move animation already happened)
             if (cutPeg) {
-                animateCut(cutPeg);
+                animateCut(cutPeg, move);
             }
             
             // Note: Extra turn logic is handled by game engine's endTurn() 
@@ -6330,8 +7176,17 @@
         gameState.onGameOver = (winner) => {
             const playerColor = getThemedPlayerColor(winner.index);
             const avatar = winner.avatar || '👤';
+
+            // ── Analytics: Track game completion ──
+            if (window.FTAnalytics) {
+                FTAnalytics.gameEnd(
+                    winner.name || 'Player',
+                    isAIPlayer(winner.index),
+                    gameState.turnCount || 0
+                );
+            }
             
-            // Play victory sound effect!
+            // Play victory fanfare sound effect!
             if (window.GameSFX) {
                 GameSFX.playVictory();
             }
@@ -6343,7 +7198,6 @@
                     avatar: avatar
                 });
             }
-            cardUI.showMessage(`${avatar} ${winner.name} WINS!`, 5000);
             
             // PRESTIGE: Award points for winning (only for human player)
             if (!isAIPlayer(winner.index) && window.PrestigeTracker) {
@@ -6356,25 +7210,56 @@
                 multiplayerClient.syncGameState(gameState, true); // final sync
             }
             
-            // AI celebration or frustration based on who won
+            // AI sportsmanship reactions — win or lose, bots love the game!
             if (AI_REACTIONS.enabled) {
+                const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+                const getBotName = (idx) => {
+                    const p = gameState.players?.[idx];
+                    return p?.name?.replace(/^[^\w\s]+\s*/, '').trim() || 'Bot';
+                };
+                
                 setTimeout(() => {
                     if (isAIPlayer(winner.index)) {
-                        // AI won - celebrate multiple times!
-                        for (let i = 0; i < 3; i++) {
+                        // AI won — celebrate but with sportsmanship!
+                        // First: a couple celebration emojis
+                        for (let i = 0; i < 2; i++) {
                             setTimeout(() => {
-                                const reaction = AI_REACTIONS.positive[Math.floor(Math.random() * AI_REACTIONS.positive.length)];
+                                const reaction = pick(AI_REACTIONS.positive);
                                 sendDesktopReaction(reaction.emoji, reaction.name);
                             }, i * 400);
                         }
+                        // Then: a sportsmanship emoji from another bot
+                        setTimeout(() => {
+                            const reaction = pick(AI_REACTIONS.sportsmanship);
+                            sendDesktopReaction(reaction.emoji, reaction.name);
+                        }, 900);
+                        // Chat: humble winner message
+                        setTimeout(() => {
+                            const msg = pick(AI_CHAT_MESSAGES.botWins);
+                            aiSendChatBubble(msg, getBotName(winner.index));
+                        }, 1200);
                     } else {
-                        // Human won - AI players are frustrated
+                        // Human won — bots CHEER and congratulate! They love humans!
                         AI_CONFIG.players.forEach((aiIdx, i) => {
                             setTimeout(() => {
-                                const reaction = AI_REACTIONS.negative[Math.floor(Math.random() * AI_REACTIONS.negative.length)];
+                                const reaction = pick(AI_REACTIONS.sportsmanship);
                                 sendDesktopReaction(reaction.emoji, reaction.name);
-                            }, i * 300);
+                            }, i * 350);
                         });
+                        // Chat: congratulatory message from a random bot
+                        setTimeout(() => {
+                            const randomBot = AI_CONFIG.players[Math.floor(Math.random() * AI_CONFIG.players.length)];
+                            const msg = pick(AI_CHAT_MESSAGES.humanWins);
+                            aiSendChatBubble(msg, getBotName(randomBot));
+                        }, 1000);
+                        // Second bot chimes in too (if multiple bots)
+                        if (AI_CONFIG.players.length > 1) {
+                            setTimeout(() => {
+                                const secondBot = AI_CONFIG.players[AI_CONFIG.players.length - 1];
+                                const msg = pick(AI_CHAT_MESSAGES.humanWins);
+                                aiSendChatBubble(msg, getBotName(secondBot));
+                            }, 2000);
+                        }
                     }
                 }, 500);
             }
@@ -6388,10 +7273,26 @@
                 window.playerPanelUI.setMood(`player_${winner.index}`, 'celebration');
             }
             
-            // Show Play Again button after celebration
-            setTimeout(() => {
-                showPlayAgainButton(winner);
-            }, 3000);
+            // ── VICTORY CEREMONY CUTSCENE ──
+            // Crown envelops peg → rises → giant peg with crown → bow → applause → confetti → replay
+            const homeHole = holeRegistry.get(`home-${winner.boardPosition}`);
+            const homePos = homeHole ? new THREE.Vector3(homeHole.position.x, homeHole.position.y, homeHole.position.z) : new THREE.Vector3(0, 0, 0);
+            
+            if (window.VictoryCeremony) {
+                // Stop turn timer during ceremony
+                if (typeof stopTurnTimer === 'function') stopTurnTimer();
+                
+                VictoryCeremony.start(winner, homePos, playerColor, () => {
+                    // Ceremony complete → show replay button
+                    showPlayAgainButton(winner);
+                });
+            } else {
+                // Fallback: no ceremony, just show message and button
+                cardUI.showMessage(`${avatar} ${winner.name} WINS!`, 5000);
+                setTimeout(() => {
+                    showPlayAgainButton(winner);
+                }, 3000);
+            }
         };
         
         // Start game
@@ -6431,6 +7332,42 @@
             
             // Show who goes first (with avatar)
             showFirstPlayerAnnouncement(`${playerAvatar} ${playerName}`, playerColor, firstPlayerReason);
+            
+            // ═══════════════════════════════════════════════════════
+            // BOT WELCOME MESSAGES — bots greet at game start!
+            // They love the human and want a fun, competitive game.
+            // ═══════════════════════════════════════════════════════
+            if (AI_REACTIONS.enabled && AI_CONFIG.enabled && AI_CONFIG.players.length > 0) {
+                const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+                const getBotName = (idx) => {
+                    const p = gameState.players?.[idx];
+                    return p?.name?.replace(/^[^\w\s]+\s*/, '').trim() || 'Bot';
+                };
+                
+                // First bot waves hello (emoji)
+                setTimeout(() => {
+                    if (thisInitId !== gameInitCount) return;
+                    const reaction = pick(AI_REACTIONS.welcome);
+                    sendDesktopReaction(reaction.emoji, reaction.name);
+                }, 800);
+                
+                // First bot sends welcome chat
+                setTimeout(() => {
+                    if (thisInitId !== gameInitCount) return;
+                    const botIdx = AI_CONFIG.players[0];
+                    const msg = pick(AI_CHAT_MESSAGES.welcome);
+                    aiSendChatBubble(msg, getBotName(botIdx));
+                }, 1500);
+                
+                // Second bot chimes in (if multiple bots)
+                if (AI_CONFIG.players.length > 1) {
+                    setTimeout(() => {
+                        if (thisInitId !== gameInitCount) return;
+                        const reaction = pick(AI_REACTIONS.welcome);
+                        sendDesktopReaction(reaction.emoji, reaction.name);
+                    }, 2200);
+                }
+            }
             
             // Show turn banner after announcement fades
             const timer2 = setTimeout(() => {
@@ -6573,6 +7510,8 @@
     
     // Expose initGame to global scope for multiplayer integration
     window.initGame = initGame;
+    // Expose aiTakeTurn for demo/promo spectator mode
+    window.aiTakeTurn = aiTakeTurn;
     
     // Set up player panels for all players
     function setupPlayerPanels(playerCount) {
@@ -6897,6 +7836,31 @@
             return; // Don't show move selection UI
         }
         
+        // ════════════════════════════════════════════════════════
+        // FASTTRACK AUTO-TRAVERSE: If enabled, auto-select the FT traverse move
+        // when a human player has an FT peg and the FT traverse option is available.
+        // This skips the manual choice and keeps the peg moving around the ring.
+        // ════════════════════════════════════════════════════════
+        if (isHumanPlayer && GAME_CONFIG.ftAutoTraverse && !inSplitMode) {
+            const ftTraverseMove = moves.find(m => 
+                m.toHoleId && m.toHoleId.startsWith('ft-') && 
+                !m.isLeaveFastTrack && !m.isCenterOption &&
+                // Must be from an FT peg (peg currently on FT)
+                gameState.currentPlayer.peg.find(p => p.id === m.pegId && p.onFasttrack)
+            );
+            if (ftTraverseMove) {
+                console.log(`🚀 [FT Auto-Traverse] Auto-executing FT move: ${ftTraverseMove.fromHoleId} → ${ftTraverseMove.toHoleId}`);
+                if (cardUI) {
+                    cardUI.showActionBanner('🚀 Auto-traversing FastTrack...', 'default');
+                    setTimeout(() => { if (cardUI) cardUI.hideActionBanner(); }, 800);
+                }
+                setTimeout(() => {
+                    executeMoveDirectly(ftTraverseMove);
+                }, GAME_CONFIG.autoMoveDelay);
+                return; // Don't show move selection UI
+            }
+        }
+        
         // Make pegs with legal moves blink (unless highlights are disabled)
         if (GAME_CONFIG.showHighlights) {
             console.log('✨ [highlightLegalMoves] Enabling peg blinking for', moves.length, 'moves');
@@ -6928,10 +7892,9 @@
             showMoveDropdown(moves);
         }
         
-        // Pan out camera when multiple moves available so player can see all options
-        if (moves.length > 1) {
-            panOutForBoardView();
-        }
+        // Camera: move TOWARD the choices, not away
+        highlightsActive = true;
+        focusOnChoices(moves);
         
         // Hide light pillars - just use hole highlighting
         if (window.mobileUI) {
@@ -7446,6 +8409,9 @@
     }
     
     function clearHighlights() {
+        // Unlock camera — player has chosen, normal transitions can resume
+        highlightsActive = false;
+
         // Hide peg move dropdown if visible
         hidePegMoveDropdown();
 
@@ -7618,9 +8584,10 @@
                         clearHardModeSelection();
                         executeMoveDirectly(validMove);
                     } else {
-                        // Invalid move - show error
+                        // Invalid move - provide detailed reason
                         console.log('❌ [HARD MODE] Invalid move:', hardModeSelectedPeg, '→', holeId);
-                        showIllegalMovePopup(`You cannot move to ${formatHoleId(holeId)} with a ${gameState.currentCard?.value || '?'} card.`);
+                        const reason = getIllegalMoveReason(hardModeSelectedPeg, holeId);
+                        showIllegalMovePopup(reason);
                     }
                     return;
                 }
@@ -7664,20 +8631,63 @@
         return holeId;
     }
     
-    function showIllegalMovePopup(reason) {
-        const popup = document.getElementById('illegal-move-popup');
-        const reasonEl = document.getElementById('illegal-move-reason');
-        if (popup && reasonEl) {
-            reasonEl.textContent = reason;
-            popup.style.display = 'block';
+    // ================================================================
+    // GET DETAILED ILLEGAL MOVE REASON
+    // Explains WHY a move is not legal for better player understanding
+    // ================================================================
+    function getIllegalMoveReason(pegId, targetHoleId) {
+        if (!gameState || !gameState.currentCard || !gameState.currentPlayer) {
+            return 'No active card or player.';
         }
+        
+        const card = gameState.currentCard;
+        const player = gameState.currentPlayer;
+        const peg = player.peg.find(p => p.id === pegId);
+        if (!peg) return 'Selected peg not found.';
+        
+        const cardRank = card.rank || card.value || '?';
+        const hops = card.movement;
+        const target = formatHoleId(targetHoleId);
+        
+        // Check specific reasons
+        if (card.direction === 'backward') {
+            if (targetHoleId.startsWith('ft-')) {
+                return `The ${cardRank} moves backward — you cannot back into FastTrack holes.`;
+            }
+            if (targetHoleId.startsWith('safe-')) {
+                return `The ${cardRank} moves backward — you cannot back into the Safe Zone.`;
+            }
+            if (targetHoleId === 'center') {
+                return `The ${cardRank} moves backward — you cannot back into the Bullseye.`;
+            }
+        }
+        
+        if (peg.lockedToSafeZone && !targetHoleId.startsWith('safe-') && !targetHoleId.startsWith('home-') && card.direction !== 'backward') {
+            return `This peg is locked to the Safe Zone — it can only move into safe zone holes or home.`;
+        }
+        
+        if (peg.onFasttrack && peg.mustExitFasttrack) {
+            if (targetHoleId.startsWith('ft-')) {
+                return `A 4 was drawn — this peg must EXIT FastTrack to the outer track, not continue on the ring.`;
+            }
+        }
+        
+        // Check if own peg is blocking
+        const ownPegBlocking = player.peg.find(p => p.holeId === targetHoleId && p.id !== pegId && !p.inBullseye);
+        if (ownPegBlocking) {
+            return `Your own peg is on ${target} — you cannot land on or pass through your own pegs.`;
+        }
+        
+        // Distance check
+        return `${target} is not exactly ${hops} ${hops === 1 ? 'hole' : 'holes'} away with the ${cardRank} card. Count carefully!`;
     }
+    
+    // Wrapper to use the full popup for hard mode illegal move reporting
+    // (The styled popup is defined above with showIllegalMovePopup)
     
     function hideIllegalMovePopup() {
         const popup = document.getElementById('illegal-move-popup');
-        if (popup) {
-            popup.style.display = 'none';
-        }
+        if (popup) popup.remove();
     }
     window.hideIllegalMovePopup = hideIllegalMovePopup;
     
@@ -8260,6 +9270,12 @@
             if (window.mobileUI) window.mobileUI.hideFloatingCard();
         });
     }
+    // Expose executeMoveDirectly and executeHoleClick for external modules (ask_mom.js)
+    window.executeMoveDirectly = executeMoveDirectly;
+    window.executeHoleClick = executeHoleClick;
+    window.clearHighlights = clearHighlights;
+    window.getPegNumber = getPegNumber;
+    window.getTrackDistance = getTrackDistance;
     
     function executeSplitMoveFirst(move) {
         console.log('[Split] First move:', move, 'Steps used:', move.steps);
@@ -8581,7 +9597,7 @@
         // For special events (FastTrack, bullseye, safe zone, entering from holding, winning), use dramatic pan
         // Otherwise follow the leading peg
         const finalHole = holeRegistry.get(move.toHoleId);
-        if (finalHole && !userOverrideCamera) {
+        if (finalHole && !userOverrideCamera && !userIsInteracting && currentCameraView !== 'manual') {
             const isSpecial = isSpecialEventMove(move);
             
             if (isSpecial) {
@@ -8649,8 +9665,8 @@
                 peg.mesh.position.set(destX, pegHeight, destZ);
                 peg.currentHole = move.toHoleId;
                 
-                // Update camera
-                if (!userOverrideCamera) {
+                // Update camera (never in manual mode)
+                if (!userOverrideCamera && currentCameraView !== 'manual') {
                     controls.target.set(destX, 0, destZ);
                     camera.lookAt(controls.target);
                 }
@@ -8711,10 +9727,16 @@
     // Expose updatePegPosition globally for analyzer corrections
     window.updatePegPosition = updatePegPosition;
     
-    function animateCut(cutPegInfo) {
-        // Animate cut peg flying back to holding/home
-        // Note: Game engine already updated peg state in sendPegToHolding
-        console.log('Cut animation for:', cutPegInfo);
+    function animateCut(cutPegInfo, moveInfo) {
+        // ============================================================
+        // CINEMATIC VANQUISH SEQUENCE
+        // 1. Camera pans to vanquished peg
+        // 2. Sad wail plays as peg slowly arcs to holding area
+        // 3. Camera follows the arc cinematically
+        // 4. On landing: camera snaps to attacker peg
+        // 5. Attacker peg does a victory dance with jingle
+        // ============================================================
+        console.log('🎬 Cinematic vanquish for:', cutPegInfo);
         
         if (!cutPegInfo || !cutPegInfo.peg || !cutPegInfo.player) {
             console.warn('Invalid cut peg info');
@@ -8730,8 +9752,7 @@
             return;
         }
         
-        // Game engine already set victimPeg.holeId to the target hole
-        // Just use that for the animation destination
+        // Game engine already set victimPeg.holeId to the target holding hole
         const targetHoleId = victimPeg.holeId;
         const targetHole = holeRegistry.get(targetHoleId);
         
@@ -8740,52 +9761,190 @@
             return;
         }
         
-        console.log('Animating cut peg to:', targetHoleId, 'at position:', targetHole.position);
-        
-        // Get target position - holes store position as {x, y, z} object
+        // Get target position
         const targetX = targetHole.position ? targetHole.position.x : targetHole.x;
         const targetZ = targetHole.position ? targetHole.position.z : targetHole.z;
         
-        // Animate the peg moving to holding
+        // === PHASE 1: Slow cinematic arc with camera follow ===
         const startPos = pegMesh.mesh.position.clone();
         const endPos = new THREE.Vector3(targetX, LINE_HEIGHT + 10, targetZ);
         
-        // Arc animation - fly up then down
-        const duration = 800;
-        const startTime = Date.now();
-        const maxHeight = LINE_HEIGHT + 60;
+        // Calculate distance for proportional arc height
+        const dist = startPos.distanceTo(endPos);
+        const maxArcHeight = Math.max(LINE_HEIGHT + 80, dist * 0.6);
         
-        function animateFlyBack() {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
+        const arcDuration = 2500; // Slow dramatic arc
+        const arcStartTime = Date.now();
+        
+        // Play the sad vanquish sound
+        if (window.GameSFX) {
+            GameSFX.playVanquishSad();
+        }
+        
+        // Pan camera to watch the victim peg if not manual mode
+        const isManual = currentCameraView === 'manual';
+        if (!isManual) {
+            // Position camera slightly above and to the side for cinematic angle
+            const midX = (startPos.x + endPos.x) / 2;
+            const midZ = (startPos.z + endPos.z) / 2;
+            const camOffset = 80;
+            const camHeight = maxArcHeight + 40;
             
-            // Ease in-out
-            const t = progress < 0.5 
-                ? 2 * progress * progress 
-                : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+            smoothCameraTransition(
+                { x: midX + camOffset, y: camHeight, z: midZ + camOffset },
+                { x: midX, y: LINE_HEIGHT + 20, z: midZ },
+                800 // Quick initial pan to frame the action
+            );
+        }
+        
+        // Track camera following target during arc
+        let cameraFollowTarget = { x: startPos.x, y: startPos.y, z: startPos.z };
+        
+        function animateCinematicArc() {
+            const elapsed = Date.now() - arcStartTime;
+            const progress = Math.min(elapsed / arcDuration, 1);
+            
+            // Ultra-smooth ease-in-out (slow start, slow finish, dramatic middle)
+            const t = -(Math.cos(Math.PI * progress) - 1) / 2;
             
             // Horizontal interpolation
             const x = startPos.x + (endPos.x - startPos.x) * t;
             const z = startPos.z + (endPos.z - startPos.z) * t;
             
-            // Parabolic arc for height
-            const arcProgress = Math.sin(progress * Math.PI);
-            const y = startPos.y + (endPos.y - startPos.y) * t + arcProgress * (maxHeight - startPos.y);
+            // Dramatic parabolic arc - high peak in the middle
+            const arcT = Math.sin(progress * Math.PI);
+            const baseY = startPos.y + (endPos.y - startPos.y) * t;
+            const y = baseY + arcT * maxArcHeight;
             
             pegMesh.mesh.position.set(x, y, z);
             
-            // Spin the peg as it flies
-            pegMesh.mesh.rotation.y += 0.2;
+            // Slow mournful spin
+            pegMesh.mesh.rotation.y += 0.04;
+            
+            // Slight wobble for drama
+            pegMesh.mesh.rotation.x = Math.sin(progress * Math.PI * 3) * 0.15;
+            pegMesh.mesh.rotation.z = Math.cos(progress * Math.PI * 2) * 0.1;
+            
+            // Camera smoothly follows the arcing peg
+            cameraFollowTarget = { x, y, z };
+            if (!isManual && !userIsInteracting) {
+                controls.target.lerp(new THREE.Vector3(x, y, z), 0.04);
+                camera.lookAt(controls.target);
+            }
             
             if (progress < 1) {
-                requestAnimationFrame(animateFlyBack);
+                requestAnimationFrame(animateCinematicArc);
             } else {
-                pegMesh.mesh.rotation.y = 0;
-                console.log(`Peg ${victimPeg.id} sent to ${targetHoleId}`);
+                // === PHASE 2: Landing impact ===
+                pegMesh.mesh.rotation.set(0, 0, 0);
+                pegMesh.mesh.position.copy(endPos);
+                
+                // Landing thump
+                if (window.GameSFX) {
+                    GameSFX._playImpact(GameSFX.audioContext.currentTime, 0.4);
+                }
+                
+                console.log(`😢 Peg ${victimPeg.id} vanquished to ${targetHoleId}`);
+                
+                // === PHASE 3: Victory dance for attacker ===
+                setTimeout(() => {
+                    performVictoryDance(moveInfo);
+                }, 400);
             }
         }
         
-        animateFlyBack();
+        // Start the arc animation
+        animateCinematicArc();
+        
+        // === VICTORY DANCE SUB-FUNCTION ===
+        function performVictoryDance(moveInfo) {
+            // Find the attacker peg
+            let attackerPegMesh = null;
+            let attackerPegPos = null;
+            
+            // Try to find via moveInfo first
+            if (moveInfo && moveInfo.pegId) {
+                const reg = pegRegistry.get(moveInfo.pegId);
+                if (reg && reg.mesh) {
+                    attackerPegMesh = reg.mesh;
+                    attackerPegPos = reg.mesh.position.clone();
+                }
+            }
+            
+            // Fallback: find via gameState.currentPlayer — pick peg closest to where victim was
+            if (!attackerPegMesh && gameState && gameState.currentPlayer) {
+                const pegs = gameState.currentPlayer.peg || [];
+                let bestDist = Infinity;
+                for (const p of pegs) {
+                    const reg = pegRegistry.get(p.id);
+                    if (reg && reg.mesh) {
+                        const d = reg.mesh.position.distanceTo(startPos);
+                        if (d < bestDist) {
+                            bestDist = d;
+                            attackerPegMesh = reg.mesh;
+                            attackerPegPos = reg.mesh.position.clone();
+                        }
+                    }
+                }
+            }
+            
+            if (!attackerPegMesh) {
+                console.log('No attacker peg found for victory dance');
+                return;
+            }
+            
+            // Pan camera to attacker peg
+            if (!isManual) {
+                smoothCameraTransition(
+                    { x: attackerPegPos.x + 50, y: LINE_HEIGHT + 60, z: attackerPegPos.z + 50 },
+                    { x: attackerPegPos.x, y: LINE_HEIGHT + 10, z: attackerPegPos.z },
+                    600,
+                    null
+                );
+            }
+            
+            // Play victory jingle
+            if (window.GameSFX) {
+                GameSFX.playVanquishDance();
+            }
+            
+            // Victory dance animation: bounce + spin
+            const danceStart = Date.now();
+            const danceDuration = 1200;
+            const bounceBaseY = attackerPegPos.y;
+            const bounceHeight = 15;
+            const numBounces = 4;
+            
+            function animateDance() {
+                const elapsed = Date.now() - danceStart;
+                const progress = Math.min(elapsed / danceDuration, 1);
+                
+                // Bouncing
+                const bouncePhase = progress * numBounces * Math.PI * 2;
+                const bounceDecay = 1 - progress; // Bounces get smaller
+                const yOffset = Math.abs(Math.sin(bouncePhase)) * bounceHeight * bounceDecay;
+                attackerPegMesh.position.y = bounceBaseY + yOffset;
+                
+                // Spin celebration
+                attackerPegMesh.rotation.y += 0.15 * bounceDecay;
+                
+                // Slight scale pulse for flair
+                const scalePulse = 1 + Math.sin(bouncePhase) * 0.08 * bounceDecay;
+                attackerPegMesh.scale.set(scalePulse, scalePulse, scalePulse);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animateDance);
+                } else {
+                    // Reset to normal
+                    attackerPegMesh.rotation.y = 0;
+                    attackerPegMesh.position.y = bounceBaseY;
+                    attackerPegMesh.scale.set(1, 1, 1);
+                    console.log('💃 Victory dance complete!');
+                }
+            }
+            
+            animateDance();
+        }
     }
     
     // ============================================================
@@ -8836,6 +9995,7 @@
         }
         return false;
     }
+    window.isAIPlayer = isAIPlayer;
     
     function showMoveAnnouncement(playerName, spaces, direction) {
         const indicator = document.getElementById('ai-thinking');
@@ -8874,6 +10034,53 @@
         if (cardUI) {
             cardUI.showActionBanner(`${playerName}: ${message}`, 'default');
         }
+    }
+    
+    // ── "DRAW AGAIN!" popup — shown immediately when a peg lands on an extra-turn card ──
+    function showDrawAgainPopup() {
+        // Remove any existing popup
+        const old = document.getElementById('draw-again-popup');
+        if (old) old.remove();
+        
+        const el = document.createElement('div');
+        el.id = 'draw-again-popup';
+        el.innerHTML = '🃏 DRAW AGAIN!';
+        Object.assign(el.style, {
+            position: 'fixed',
+            top: '32%',
+            left: '50%',
+            transform: 'translate(-50%, -50%) scale(0.6)',
+            zIndex: '20002',
+            pointerEvents: 'none',
+            fontSize: '38px',
+            fontWeight: '900',
+            fontFamily: '"Segoe UI", system-ui, sans-serif',
+            color: '#fff',
+            textShadow: '0 0 20px rgba(255,215,0,0.9), 0 2px 8px rgba(0,0,0,0.7)',
+            background: 'linear-gradient(135deg, rgba(255,180,0,0.92), rgba(255,120,0,0.92))',
+            padding: '14px 36px',
+            borderRadius: '16px',
+            border: '3px solid rgba(255,255,255,0.5)',
+            boxShadow: '0 8px 40px rgba(255,165,0,0.5), 0 0 0 6px rgba(255,200,0,0.25)',
+            opacity: '0',
+            transition: 'none'
+        });
+        document.body.appendChild(el);
+        
+        // Animate in
+        requestAnimationFrame(() => {
+            el.style.transition = 'transform 0.35s cubic-bezier(0.18,1.2,0.4,1), opacity 0.2s ease-out';
+            el.style.opacity = '1';
+            el.style.transform = 'translate(-50%, -50%) scale(1)';
+        });
+        
+        // Fade out after 2.5s
+        setTimeout(() => {
+            el.style.transition = 'opacity 0.6s ease-in, transform 0.6s ease-in';
+            el.style.opacity = '0';
+            el.style.transform = 'translate(-50%, -60%) scale(0.9)';
+            setTimeout(() => el.remove(), 700);
+        }, 2500);
     }
     
     function showCardDrawnBanner(playerName, playerColor, cardValue, hasMultipleMoves) {
@@ -9034,6 +10241,173 @@
     }
     
     // Show auto-move notification for human players
+    // ================================================================
+    // FASTTRACK AUTO/MANUAL TRAVERSAL CHOICE DIALOG
+    // Shows when a human player enters FastTrack, offering them the
+    // choice to traverse automatically or manually each turn.
+    // ================================================================
+    function showFTTraversalChoiceDialog() {
+        // Don't show if dialog already exists
+        if (document.getElementById('ft-traversal-dialog')) return;
+        
+        const dialog = document.createElement('div');
+        dialog.id = 'ft-traversal-dialog';
+        Object.assign(dialog.style, {
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'linear-gradient(135deg, rgba(10,0,40,0.97), rgba(30,10,60,0.98))',
+            border: '2px solid #9966ff',
+            borderRadius: '18px',
+            padding: '30px 40px',
+            zIndex: '10000',
+            textAlign: 'center',
+            color: '#fff',
+            fontFamily: "'Segoe UI', sans-serif",
+            boxShadow: '0 0 40px rgba(153,102,255,0.5), 0 0 80px rgba(100,50,200,0.3)',
+            maxWidth: '420px',
+            animation: 'ftDialogFadeIn 0.4s ease-out'
+        });
+        
+        dialog.innerHTML = `
+            <style>
+                @keyframes ftDialogFadeIn {
+                    from { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
+                    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                }
+                .ft-choice-btn {
+                    display: block;
+                    width: 100%;
+                    padding: 14px 20px;
+                    margin: 8px 0;
+                    border: none;
+                    border-radius: 12px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: transform 0.15s, box-shadow 0.15s;
+                }
+                .ft-choice-btn:hover {
+                    transform: scale(1.03);
+                    box-shadow: 0 4px 20px rgba(255,255,255,0.2);
+                }
+                .ft-auto-btn {
+                    background: linear-gradient(135deg, #6633cc, #9966ff);
+                    color: #fff;
+                }
+                .ft-manual-btn {
+                    background: linear-gradient(135deg, #1a5276, #2e86c1);
+                    color: #fff;
+                }
+            </style>
+            <div style="font-size: 28px; margin-bottom: 8px;">⚡ FastTrack Entered!</div>
+            <div style="font-size: 14px; color: #ccc; margin-bottom: 20px;">
+                How do you want to traverse the inner ring?
+            </div>
+            <button class="ft-choice-btn ft-auto-btn" onclick="window._ftChooseMode('auto')">
+                🚀 Auto Traverse
+                <div style="font-size:12px;font-weight:normal;margin-top:4px;opacity:0.8;">
+                    Automatically move around the ring each turn
+                </div>
+            </button>
+            <button class="ft-choice-btn ft-manual-btn" onclick="window._ftChooseMode('manual')">
+                🎯 Manual Control
+                <div style="font-size:12px;font-weight:normal;margin-top:4px;opacity:0.8;">
+                    Choose your move each turn (continue, exit, or bullseye)
+                </div>
+            </button>
+        `;
+        
+        document.body.appendChild(dialog);
+    }
+    
+    // Handle FT traversal mode choice
+    window._ftChooseMode = function(mode) {
+        GAME_CONFIG.ftAutoTraverse = (mode === 'auto');
+        console.log(`⚡ [FT Choice] Player chose ${mode} FastTrack traversal (ftAutoTraverse=${GAME_CONFIG.ftAutoTraverse})`);
+        
+        const dialog = document.getElementById('ft-traversal-dialog');
+        if (dialog) {
+            dialog.style.transition = 'opacity 0.3s, transform 0.3s';
+            dialog.style.opacity = '0';
+            dialog.style.transform = 'translate(-50%, -50%) scale(0.85)';
+            setTimeout(() => dialog.remove(), 300);
+        }
+        
+        // Show confirmation banner
+        if (cardUI) {
+            const msg = mode === 'auto' 
+                ? '🚀 Auto-traversing FastTrack ring' 
+                : '🎯 Manual FastTrack mode — choose each move';
+            cardUI.showActionBanner(msg, 'default');
+            setTimeout(() => { if (cardUI) cardUI.hideActionBanner(); }, 2000);
+        }
+    };
+    
+    // ================================================================
+    // ILLEGAL MOVE POPUP — Shows when player clicks an illegal hole
+    // Used in hard mode or when manually selecting moves
+    // ================================================================
+    function showIllegalMovePopup(reason) {
+        // Remove any existing popup
+        const existing = document.getElementById('illegal-move-popup');
+        if (existing) existing.remove();
+        
+        const popup = document.createElement('div');
+        popup.id = 'illegal-move-popup';
+        Object.assign(popup.style, {
+            position: 'fixed',
+            top: '30%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'linear-gradient(135deg, rgba(120,10,10,0.96), rgba(80,0,0,0.98))',
+            border: '2px solid #ff4444',
+            borderRadius: '14px',
+            padding: '24px 36px',
+            zIndex: '10001',
+            textAlign: 'center',
+            color: '#fff',
+            fontFamily: "'Segoe UI', sans-serif",
+            boxShadow: '0 0 30px rgba(255, 50, 50, 0.5)',
+            maxWidth: '380px',
+            animation: 'illegalMoveShake 0.5s ease-out'
+        });
+        
+        popup.innerHTML = `
+            <style>
+                @keyframes illegalMoveShake {
+                    0%,100% { transform: translate(-50%, -50%); }
+                    10%,30%,50%,70%,90% { transform: translate(-50%, -50%) translateX(-5px); }
+                    20%,40%,60%,80% { transform: translate(-50%, -50%) translateX(5px); }
+                }
+            </style>
+            <div style="font-size: 26px; margin-bottom: 8px;">🚫 Illegal Move</div>
+            <div style="font-size: 14px; color: #ffcccc; line-height: 1.5;">
+                ${reason}
+            </div>
+            <div style="font-size: 12px; color: #ff9999; margin-top: 12px; opacity: 0.7;">
+                Peg returned to original position
+            </div>
+        `;
+        
+        document.body.appendChild(popup);
+        
+        // Play error sound
+        if (window.gameSFX && window.gameSFX.playError) {
+            window.gameSFX.playError();
+        }
+        
+        // Auto-dismiss after 3 seconds
+        setTimeout(() => {
+            if (popup.parentNode) {
+                popup.style.transition = 'opacity 0.4s';
+                popup.style.opacity = '0';
+                setTimeout(() => popup.remove(), 400);
+            }
+        }, 3000);
+    }
+
     function showAutoMoveBanner() {
         if (cardUI) {
             cardUI.showActionBanner('⚡ Auto-moving (only one choice)', 'default');
@@ -9139,6 +10513,17 @@
             overlay.appendChild(pointsDiv);
         }
         
+        // ── ButterflyFX Growth: Victory Share Panel ─────────────
+        // WHOLE → POTENTIAL: Every win seeds the next player
+        if (window.GrowthSubstrate) {
+            GrowthSubstrate.injectVictoryShare(overlay, winner, {
+                turns: gameState.turnCount || 0,
+                theme: currentThemeName || 'spaceace',
+                players: activePlayerCount || 4,
+                isAI: (currentGameMode === 'solo')
+            });
+        }
+
         // Button container
         const btnContainer = document.createElement('div');
         Object.assign(btnContainer.style, {
@@ -9392,11 +10777,8 @@
     }
 
     // ============================================================
-    // TURN TIMER SYSTEM — DISABLED
+    // TURN TIMER SYSTEM — stubs overridden by full implementation below
     // ============================================================
-    // No-op stubs so any stray references don't crash
-    function startTurnTimer() {}
-    function clearTurnTimer() {}
     
     // ============================================================
     // BOT REPLACEMENT SYSTEM
@@ -9557,8 +10939,10 @@
         organizerId: null,
         replaceWithBot: true,
         noReturns: false,
-        turnTimer: false,
-        turnTimerSeconds: 120,
+        turnTimer: true,
+        turnTimerWaitSeconds: 120,   // 2 minutes silent wait
+        turnTimerClockSeconds: 60,   // 1 minute visible countdown
+        turnTimerSeconds: 180,       // total (wait + clock)
         warningSeconds: 60,
         noBots: false
     };
@@ -9573,9 +10957,11 @@
     let turnTimerState = {
         active: false,
         intervalId: null,
+        waitTimeoutId: null,
         secondsRemaining: 0,
-        isWarning: false,
-        warningCount: 0
+        clockSeconds: 60,
+        phase: null,        // 'wait' or 'clock'
+        isWarning: false
     };
     
     // Initialize session settings from URL params or server data
@@ -9700,18 +11086,53 @@
         const player = gameState.players[playerIndex];
         const playerName = player.name;
         
-        // Remove all pegs from this player
+        // Remove all pegs from the board — both game state and 3D scene
         if (player.pegs) {
             player.pegs.forEach(peg => {
+                // Remove 3D mesh from scene
                 if (peg.mesh) {
+                    if (peg.mesh.parent) peg.mesh.parent.remove(peg.mesh);
                     peg.mesh.visible = false;
+                    // Dispose geometry and materials
+                    peg.mesh.traverse(child => {
+                        if (child.geometry) child.geometry.dispose();
+                        if (child.material) {
+                            if (Array.isArray(child.material)) {
+                                child.material.forEach(m => m.dispose());
+                            } else {
+                                child.material.dispose();
+                            }
+                        }
+                    });
                 }
+                // Remove from pegRegistry
+                if (typeof pegRegistry !== 'undefined') {
+                    pegRegistry.forEach((regPeg, id) => {
+                        if (regPeg.playerIndex === playerIndex) {
+                            pegRegistry.delete(id);
+                        }
+                    });
+                }
+                // Clear peg state
+                peg.position = -1;
+                peg.state = 'removed';
             });
         }
         
         // Mark player as eliminated
         player.eliminated = true;
         player.active = false;
+        
+        // Hide their player panel
+        if (window.playerPanelUI) {
+            const panelEl = document.getElementById(`player_${playerIndex}`);
+            if (panelEl) {
+                panelEl.style.transition = 'opacity 0.5s, transform 0.5s';
+                panelEl.style.opacity = '0';
+                panelEl.style.transform = 'scale(0.8)';
+                setTimeout(() => { panelEl.style.display = 'none'; }, 600);
+            }
+        }
         
         // Update UI
         if (window.GameUIMinimal) {
@@ -9723,9 +11144,7 @@
             gameState.advanceTurn();
         }
         
-        showBotAlert(`${playerName} left`, 'They have been removed from the game');
-        
-        console.log(`[Session] Player ${playerIndex} removed from game`);
+        console.log(`[Session] Player ${playerIndex} (${playerName}) fully removed from game`);
     }
     
     function showReturnBanner() {
@@ -10202,49 +11621,81 @@
     }
     window.handleServerJoinRequest = handleServerJoinRequest;
 
-    // Turn Timer Functions
+    // ============================================================
+    // TURN TIMER SYSTEM — 2 minute wait + 1 minute visible clock
+    // ============================================================
+    // Phase 1: 2 minutes silent wait (timer display hidden)
+    // Phase 2: 1 minute visible countdown clock
+    // On expire: replace with bot (or remove if organizer set no-bots)
+    
     function startTurnTimer() {
         if (!gameSessionSettings.turnTimer) return;
         
+        // Only use turn timer in multiplayer games with 2+ human players.
+        // Solo play against bots doesn't need a timer.
+        if (gameState && gameState.players) {
+            const humanCount = gameState.players.filter(p => p && !p.isAI && !p.isBot).length;
+            if (humanCount <= 1) return;
+        }
+        
         stopTurnTimer();
         
+        const waitSeconds = gameSessionSettings.turnTimerWaitSeconds || 120;
+        const clockSeconds = gameSessionSettings.turnTimerClockSeconds || 60;
+        
         turnTimerState.active = true;
-        turnTimerState.secondsRemaining = gameSessionSettings.turnTimerSeconds;
+        turnTimerState.phase = 'wait';  // 'wait' then 'clock'
+        turnTimerState.secondsRemaining = waitSeconds;
+        turnTimerState.clockSeconds = clockSeconds;
         turnTimerState.isWarning = false;
         
+        // Hide timer display during silent wait phase
         const timerDisplay = document.getElementById('turn-timer-display');
         const countdown = document.getElementById('turn-timer-countdown');
         const warning = document.getElementById('turn-timer-warning');
+        const label = document.getElementById('turn-timer-label');
         
-        if (timerDisplay) timerDisplay.style.display = 'block';
+        if (timerDisplay) timerDisplay.style.display = 'none';
         if (warning) warning.style.display = 'none';
-        if (countdown) {
-            countdown.classList.remove('warning', 'critical');
-        }
+        if (countdown) countdown.classList.remove('warning', 'critical');
         
         turnTimerState.intervalId = setInterval(() => {
             turnTimerState.secondsRemaining--;
-            updateTurnTimerDisplay();
             
-            // Warning phase
-            if (turnTimerState.secondsRemaining <= gameSessionSettings.warningSeconds && !turnTimerState.isWarning) {
-                turnTimerState.isWarning = true;
-                if (warning) warning.style.display = 'block';
-                if (countdown) countdown.classList.add('warning');
-            }
-            
-            // Critical phase (last 10 seconds)
-            if (turnTimerState.secondsRemaining <= 10) {
-                if (countdown) countdown.classList.add('critical');
-            }
-            
-            // Time expired
-            if (turnTimerState.secondsRemaining <= 0) {
-                handleTurnTimerExpired();
+            if (turnTimerState.phase === 'wait') {
+                // Silent phase — no visible UI
+                if (turnTimerState.secondsRemaining <= 0) {
+                    // Transition to visible clock phase
+                    turnTimerState.phase = 'clock';
+                    turnTimerState.secondsRemaining = turnTimerState.clockSeconds;
+                    turnTimerState.isWarning = true;
+                    
+                    // Show the countdown clock
+                    if (timerDisplay) timerDisplay.style.display = 'block';
+                    if (label) label.textContent = 'Time Remaining';
+                    if (warning) {
+                        warning.textContent = '⚠️ Make your move!';
+                        warning.style.display = 'block';
+                    }
+                    if (countdown) countdown.classList.add('warning');
+                    updateTurnTimerDisplay();
+                }
+            } else {
+                // Visible clock phase
+                updateTurnTimerDisplay();
+                
+                // Critical phase (last 15 seconds) — pulse red
+                if (turnTimerState.secondsRemaining <= 15) {
+                    if (countdown) countdown.classList.add('critical');
+                    if (warning) warning.textContent = '⏰ Hurry up!';
+                }
+                
+                // Time fully expired
+                if (turnTimerState.secondsRemaining <= 0) {
+                    handleTurnTimerExpired();
+                }
             }
         }, 1000);
-        
-        updateTurnTimerDisplay();
     }
     
     function stopTurnTimer() {
@@ -10252,7 +11703,12 @@
             clearInterval(turnTimerState.intervalId);
             turnTimerState.intervalId = null;
         }
+        if (turnTimerState.waitTimeoutId) {
+            clearTimeout(turnTimerState.waitTimeoutId);
+            turnTimerState.waitTimeoutId = null;
+        }
         turnTimerState.active = false;
+        turnTimerState.phase = null;
         
         const timerDisplay = document.getElementById('turn-timer-display');
         if (timerDisplay) timerDisplay.style.display = 'none';
@@ -10276,31 +11732,26 @@
         const player = gameState.players[currentIdx];
         if (!player || player.isAI) return;
         
-        turnTimerState.warningCount++;
-        
-        if (turnTimerState.warningCount >= 2) {
-            // Second timeout - replace with bot
-            showBotAlert('Time Expired!', `${player.name} has been replaced by a bot`);
+        // Check organizer setting: bots allowed?
+        if (gameSessionSettings.noBots) {
+            // === NO BOTS MODE: Remove player entirely ===
+            showBotAlert(
+                `${player.name} Timed Out`,
+                `${player.name} ran out of time and has been removed from the game. Their pegs have been cleared.`
+            );
+            removePlayerFromGame(currentIdx);
+            console.log(`[TurnTimer] Player ${currentIdx} removed (no-bots mode)`);
+        } else {
+            // === BOTS ALLOWED: Replace with bot ===
+            showBotAlert(
+                'Time\'s Up!',
+                `${player.name} ran out of time and has been replaced by a bot.`
+            );
             replacePlayerWithBot(currentIdx);
             
-            // Force AI to take turn
-            setTimeout(() => aiTakeTurn(), 500);
-            turnTimerState.warningCount = 0;
-        } else {
-            // First timeout - warning, shorter timer next turn
-            showBotAlert('Time Warning!', `${player.name} - act quickly or be replaced!`);
-            
-            // Make a random legal move
-            if (gameState.phase === 'move' && legalMoves?.length > 0) {
-                const randomMove = legalMoves[Math.floor(Math.random() * legalMoves.length)];
-                clearHighlights();
-                animatePegMove(randomMove, () => {
-                    gameState.executeMove(randomMove);
-                    cardUI?.clearCard();
-                });
-            } else if (gameState.phase === 'draw') {
-                handleDrawCard(false);
-            }
+            // Let the bot take over
+            setTimeout(() => aiTakeTurn(), 1000);
+            console.log(`[TurnTimer] Player ${currentIdx} replaced with bot`);
         }
     }
     
@@ -10683,16 +12134,107 @@
                     console.log(`🤖 [AI FT] FastTrack ENTRY option detected: ${move.toHoleId}, returning score 1.0`);
                     return 1.0;
                 }
-                // Already on FastTrack and moving to another ft-* hole
-                if (move.toHoleId.startsWith('ft-') && context.peg?.onFasttrack) {
-                    console.log(`🤖 [AI FT] FastTrack TRAVERSE: ${move.toHoleId}, returning score 0.5`);
-                    return 0.5;
-                }
                 // Penalize NON-entry when landing on ft-* (incentivize choosing FastTrack entry)
                 if (move.toHoleId.startsWith('ft-') && !move.isFastTrackEntry && !context.peg?.onFasttrack) {
                     console.log(`🤖 [AI FT] FastTrack PASS-THROUGH option (not entering): ${move.toHoleId}, returning score -0.3`);
                     return -0.3;  // Slight penalty for NOT entering FastTrack when on ft-* hole
                 }
+                return 0;
+            }
+        },
+        
+        // FASTTRACK TRAVERSAL - Default preference is to stay on FT
+        // BUT bots can choose to leave FT for strategic reasons:
+        //   - To cut an opponent (difficulty-dependent)
+        //   - To enter bullseye/center
+        //   - When forced by 4-card (mustExitFasttrack)
+        // Easy bots: NEVER leave FT voluntarily
+        // Normal+: Leave FT to cut if strategic
+        // Warpath: Will always leave if there's a cut available
+        isFastTrackTraversal: {
+            weight: 60,  // Higher than safe zone (55) for default FT preference
+            evaluate: (move, context) => {
+                // Only applies to pegs already ON FastTrack
+                if (!context.peg?.onFasttrack) return 0;
+                
+                // Continuing on FastTrack ring (ft-* to ft-*)
+                if (move.toHoleId.startsWith('ft-') && !move.isLeaveFastTrack) {
+                    return 1.0;
+                }
+                
+                // Leaving FastTrack — check if there's a strategic reason
+                if (move.isLeaveFastTrack) {
+                    const diffPreset = getDifficultyPreset();
+                    
+                    // Check if leaving FT lands on an opponent (cut opportunity)
+                    const cutAtDest = typeof findCutTargetAtHole === 'function' 
+                        ? findCutTargetAtHole(move.toHoleId) : null;
+                    
+                    if (cutAtDest && diffPreset.aiFTLeaveToCut) {
+                        // Strategic reason to leave FT: CUT!
+                        // Return positive score — the isCutMove rule will add MORE on top
+                        console.log(`🤖 [AI FT] Leave FT FOR CUT at ${move.toHoleId} — allowing (difficulty: ${GAME_CONFIG.difficulty})`);
+                        return 0.3;  // Slight positive — let isCutMove weight decide final priority
+                    }
+                    
+                    // Entering bullseye from FT is always a valid strategic option
+                    if (move.toHoleId === 'center' || move.isCenterOption) {
+                        return 0.2;
+                    }
+                    
+                    // ════════════════════════════════════════════════════
+                    // WARPATH: Leave FT to POSITION against opponents
+                    // even without an immediate cut. If any human opponent
+                    // has a peg in home stretch, center, or FT — warpath
+                    // bot exits FT to get on the outer track and hunt them.
+                    // ════════════════════════════════════════════════════
+                    if (GAME_CONFIG.difficulty === 'warpath' && gameState && gameState.players) {
+                        let hasHuntTarget = false;
+                        for (const opp of gameState.players) {
+                            if (opp.index === context.player.index) continue;
+                            if (isAIPlayer(opp.index)) continue;  // Only hunt humans
+                            for (const op of opp.peg) {
+                                if (op.holeType === 'holding') continue;
+                                if (op.inHomeStretch || op.lockedToSafeZone || op.eligibleForSafeZone ||
+                                    op.inBullseye || op.holeId === 'center' ||
+                                    (op.onFasttrack && op.holeId?.startsWith('ft-'))) {
+                                    hasHuntTarget = true;
+                                    break;
+                                }
+                            }
+                            if (hasHuntTarget) break;
+                        }
+                        if (hasHuntTarget) {
+                            // Check if the leave-FT destination is closer to a target
+                            const destHole = move.toHoleId;
+                            let positionScore = 0;
+                            for (const opp of gameState.players) {
+                                if (opp.index === context.player.index || isAIPlayer(opp.index)) continue;
+                                for (const op of opp.peg) {
+                                    if (op.holeType === 'holding' || op.inBullseye) continue;
+                                    if (op.inHomeStretch || op.lockedToSafeZone || op.eligibleForSafeZone) {
+                                        const dist = getTrackDistance(destHole, op.holeId);
+                                        if (dist !== null && dist >= 1 && dist <= 12) {
+                                            positionScore = Math.max(positionScore, 0.6);
+                                        }
+                                    }
+                                    if (op.onFasttrack && op.holeId?.startsWith('ft-')) {
+                                        positionScore = Math.max(positionScore, 0.4);
+                                    }
+                                }
+                            }
+                            if (positionScore > 0) {
+                                console.log(`🔥 [WARPATH FT] Leaving FT to HUNT — positioning at ${move.toHoleId} (score: ${positionScore})`);
+                                return positionScore;
+                            }
+                        }
+                    }
+                    
+                    // No strategic reason — penalize leaving
+                    console.log(`🤖 [AI FT] Leave FT with no cut target — penalized`);
+                    return -0.5;
+                }
+                
                 return 0;
             }
         },
@@ -10916,6 +12458,111 @@
             }
         },
         
+        // ════════════════════════════════════════════════════════════════
+        // WARPATH HUNTING — Dedicated warpath-only targeting AI
+        // Every move is evaluated for how well it positions the bot
+        // to TARGET opponent pegs, with priority on:
+        //   1. Opponents in home stretch (about to win — must intercept)
+        //   2. Opponents in center/bullseye (high-value position to steal)
+        //   3. Opponents on FastTrack circuit (moving fast — disrupt them)
+        //   4. Any opponent peg within striking range
+        // This rule ONLY activates for warpath difficulty.
+        // ════════════════════════════════════════════════════════════════
+        warpathHunting: {
+            weight: 70,  // Higher than FT traversal (60) — hunting overrides FT loyalty
+            evaluate: (move, context) => {
+                // ONLY active for warpath difficulty
+                if (GAME_CONFIG.difficulty !== 'warpath') return 0;
+                if (!gameState || !gameState.players) return 0;
+                
+                const destHoleId = move.toHoleId;
+                // Can't target pegs in safe zone (protected)
+                if (destHoleId.includes('safe') || destHoleId.includes('winner')) return 0;
+                
+                let huntScore = 0;
+                
+                for (const opponent of gameState.players) {
+                    if (opponent.index === context.player.index) continue;
+                    // Only hunt human players (skip fellow AI bots)
+                    if (isAIPlayer(opponent.index)) continue;
+                    
+                    for (const oppPeg of opponent.peg) {
+                        if (oppPeg.holeType === 'holding') continue;
+                        
+                        // ── PRIORITY 1: Opponent in HOME STRETCH ──
+                        // Pegs in home stretch are about to win. Any move that
+                        // positions us to intercept them is top priority.
+                        const oppInHomeStretch = oppPeg.inHomeStretch || oppPeg.lockedToSafeZone || oppPeg.eligibleForSafeZone;
+                        
+                        // ── PRIORITY 2: Opponent in BULLSEYE/CENTER ──
+                        const oppInCenter = oppPeg.inBullseye || oppPeg.holeId === 'center';
+                        
+                        // ── PRIORITY 3: Opponent on FASTTRACK ──
+                        const oppOnFT = oppPeg.onFasttrack && oppPeg.holeId?.startsWith('ft-');
+                        
+                        // Direct CUT — landing exactly on opponent
+                        if (oppPeg.holeId === destHoleId) {
+                            if (oppInHomeStretch) {
+                                huntScore = Math.max(huntScore, 1.0);  // Maximum — derail their win
+                                console.log(`🔥 [WARPATH] DIRECT CUT on home-stretch peg at ${destHoleId}!`);
+                            } else if (oppInCenter) {
+                                huntScore = Math.max(huntScore, 0.95);
+                                console.log(`🔥 [WARPATH] DIRECT CUT on bullseye peg!`);
+                            } else if (oppOnFT) {
+                                huntScore = Math.max(huntScore, 0.9);
+                                console.log(`🔥 [WARPATH] DIRECT CUT on FT peg at ${destHoleId}!`);
+                            } else {
+                                huntScore = Math.max(huntScore, 0.8);
+                            }
+                            continue;
+                        }
+                        
+                        // POSITIONING — how close does this move put us to the target?
+                        // Skip center/FT pegs for distance calc (different track)
+                        if (oppInCenter) {
+                            // If we're moving to an ft-* hole, we can reach center with 1-hop
+                            if (destHoleId.startsWith('ft-')) {
+                                huntScore = Math.max(huntScore, 0.7);
+                            }
+                            continue;
+                        }
+                        
+                        if (oppOnFT) {
+                            // Positioning on an ft-* hole is good to target FT opponents
+                            if (destHoleId.startsWith('ft-')) {
+                                huntScore = Math.max(huntScore, 0.6);
+                            }
+                            continue;
+                        }
+                        
+                        // Perimeter opponent — calculate approach distance
+                        const distance = getTrackDistance(destHoleId, oppPeg.holeId);
+                        if (distance === null || distance === undefined || distance < 0) continue;
+                        
+                        if (oppInHomeStretch) {
+                            // Home stretch targets get HUGE bonus for positioning
+                            if (distance >= 1 && distance <= 3) {
+                                huntScore = Math.max(huntScore, 0.9);  // Kill range
+                            } else if (distance >= 4 && distance <= 7) {
+                                huntScore = Math.max(huntScore, 0.7);  // One-turn range
+                            } else if (distance >= 8 && distance <= 12) {
+                                huntScore = Math.max(huntScore, 0.5);  // Two-turn approach
+                            }
+                        } else {
+                            // Regular opponents — standard tracking
+                            if (distance >= 1 && distance <= 3) {
+                                huntScore = Math.max(huntScore, 0.6);
+                            } else if (distance >= 4 && distance <= 7) {
+                                huntScore = Math.max(huntScore, 0.4);
+                            }
+                        }
+                    }
+                }
+                
+                return huntScore;
+            }
+        },
+        
         // FORWARD PROGRESS - Base priority
         forwardProgress: {
             weight: 5,
@@ -10947,6 +12594,22 @@
         const movingPlayer = gameState.currentPlayer;
         const movingPlayerIdx = movingPlayer.index;
         const isMovingPlayerAI = isAIPlayer(movingPlayerIdx);
+        const isMovingPlayerHuman = !isMovingPlayerAI;
+        const difficulty = GAME_CONFIG.difficulty || 'easy';
+        const isWarpath = difficulty === 'warpath';
+        
+        // Helper: pick random from array
+        const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+        
+        // Helper: get bot name for chat bubbles
+        const getBotName = (playerIdx) => {
+            const player = gameState.players?.[playerIdx];
+            if (player?.name) {
+                // Strip emoji prefix for cleaner chat (icon is in name like "🖥️ Turing")
+                return player.name.replace(/^[^\w\s]+\s*/, '').trim() || player.name;
+            }
+            return 'Bot';
+        };
         
         // ── ManifoldAI Adaptation: shift entity's position on the surface ──
         if (window.ManifoldAI) {
@@ -10961,43 +12624,101 @@
             }
         }
         
-        // Random chance to react (don't react every time)
-        if (Math.random() > AI_REACTIONS.probability) return;
+        // Random chance to react (don't react every time — but chat bubbles have own probability)
+        const shouldReact = Math.random() <= AI_REACTIONS.probability;
+        const shouldChat = Math.random() <= 0.45; // 45% chance of chat bubble (less frequent than emoji)
+        
+        if (!shouldReact && !shouldChat) return;
         
         // Small delay so reaction feels more natural
         const reactionDelay = 300 + Math.random() * 500;
+        const chatDelay = reactionDelay + 400 + Math.random() * 600; // Chat comes slightly after emoji
         
         setTimeout(() => {
             let reactionList = null;
+            let chatList = null;
+            let chatBotIdx = null; // Which bot should "say" the message
             
-            // AI made the move - check if something good happened
+            // ═══════════════════════════════════════════════════════
+            // AI MADE THE MOVE — check what happened
+            // ═══════════════════════════════════════════════════════
             if (isMovingPlayerAI) {
-                if (cutPeg) {
-                    // AI cut an opponent - celebrate!
-                    reactionList = AI_REACTIONS.cut;
-                    console.log(`🤖 AI Player ${movingPlayerIdx} reacting to CUT!`);
+                if (cutPeg && !isAIPlayer(cutPeg.player?.index)) {
+                    // AI cut a HUMAN — playful/sportsmanlike reaction
+                    reactionList = isWarpath ? AI_REACTIONS.warpathCut : AI_REACTIONS.cut;
+                    chatList = isWarpath ? AI_CHAT_MESSAGES.warpathCut : AI_CHAT_MESSAGES.cut;
+                    chatBotIdx = movingPlayerIdx;
+                    console.log(`🤖 AI Player ${movingPlayerIdx} playfully reacting to cutting human!`);
+                } else if (cutPeg && isAIPlayer(cutPeg.player?.index)) {
+                    // AI cut another AI — just a small celebration, no chat needed
+                    reactionList = AI_REACTIONS.positive;
+                    console.log(`🤖 AI Player ${movingPlayerIdx} cut fellow AI — small celebration`);
                 } else if (entryFlags.enteredFasttrack || entryFlags.enteredBullseye) {
                     // AI entered special area
                     reactionList = AI_REACTIONS.special;
+                    chatList = AI_CHAT_MESSAGES.selfCelebrate;
+                    chatBotIdx = movingPlayerIdx;
                     console.log(`🤖 AI Player ${movingPlayerIdx} reacting to special move!`);
-                } else if (move.toHoleId.includes('safe-') || move.toHoleId.includes('winner')) {
+                } else if (move.toHoleId?.includes('safe-') || move.toHoleId?.includes('winner')) {
                     // AI reached safe zone or winner
                     reactionList = AI_REACTIONS.positive;
+                    chatList = AI_CHAT_MESSAGES.selfCelebrate;
+                    chatBotIdx = movingPlayerIdx;
                     console.log(`🤖 AI Player ${movingPlayerIdx} celebrating safe/winner!`);
                 }
             }
             
-            // Check if an AI player got cut (victim reaction)
-            if (cutPeg && isAIPlayer(cutPeg.player.index)) {
-                reactionList = AI_REACTIONS.negative;
-                console.log(`🤖 AI Player ${cutPeg.player.index} reacting to being CUT!`);
+            // ═══════════════════════════════════════════════════════
+            // HUMAN MADE THE MOVE — bots react with encouragement!
+            // This is the heart of the warmth: bots cheer for humans
+            // ═══════════════════════════════════════════════════════
+            if (isMovingPlayerHuman) {
+                if (cutPeg && isAIPlayer(cutPeg.player?.index)) {
+                    // Human cut a bot — bot reacts with good sportsmanship
+                    const victimIdx = cutPeg.player.index;
+                    reactionList = AI_REACTIONS.negative;
+                    chatList = isWarpath ? AI_CHAT_MESSAGES.warpathGotCut : AI_CHAT_MESSAGES.gotCut;
+                    chatBotIdx = victimIdx;
+                    console.log(`🤖 AI Player ${victimIdx} reacting to being cut by human — good sport!`);
+                } else if (entryFlags.enteredFasttrack || entryFlags.enteredBullseye) {
+                    // Human entered FT or bullseye — bots are impressed!
+                    reactionList = AI_REACTIONS.encouragement;
+                    chatList = AI_CHAT_MESSAGES.encouragement;
+                    // Random AI reacts
+                    chatBotIdx = AI_CONFIG.players[Math.floor(Math.random() * AI_CONFIG.players.length)];
+                    console.log(`🤖 AI cheering human's FT/bullseye entry!`);
+                } else if (move.toHoleId?.includes('safe-')) {
+                    // Human reached safe zone — bots acknowledge
+                    if (Math.random() < 0.5) { // Only sometimes — don't overdo it
+                        reactionList = AI_REACTIONS.encouragement;
+                        chatList = AI_CHAT_MESSAGES.encouragement;
+                        chatBotIdx = AI_CONFIG.players[Math.floor(Math.random() * AI_CONFIG.players.length)];
+                        console.log(`🤖 AI acknowledging human's safe zone entry`);
+                    }
+                } else if (move.toHoleId?.includes('winner')) {
+                    // Human scored a peg — bots cheer/impressed
+                    reactionList = AI_REACTIONS.encouragement;
+                    chatList = AI_CHAT_MESSAGES.encouragement;
+                    chatBotIdx = AI_CONFIG.players[Math.floor(Math.random() * AI_CONFIG.players.length)];
+                    console.log(`🤖 AI cheering human's winning peg!`);
+                }
             }
             
-            // Pick a random reaction from the list
-            if (reactionList && reactionList.length > 0) {
-                const reaction = reactionList[Math.floor(Math.random() * reactionList.length)];
+            // Send emoji reaction
+            if (shouldReact && reactionList && reactionList.length > 0) {
+                const reaction = pick(reactionList);
                 console.log(`🤖 AI sending reaction: ${reaction.emoji} (${reaction.name})`);
                 sendDesktopReaction(reaction.emoji, reaction.name);
+            }
+            
+            // Send chat bubble (with its own delay for natural feel)
+            if (shouldChat && chatList && chatList.length > 0 && chatBotIdx !== null) {
+                setTimeout(() => {
+                    const msg = pick(chatList);
+                    const name = getBotName(chatBotIdx);
+                    console.log(`💬 AI Chat: [${name}] "${msg}"`);
+                    aiSendChatBubble(msg, name);
+                }, chatDelay - reactionDelay);
             }
         }, reactionDelay);
     }
@@ -11035,25 +12756,70 @@
                 switch (ruleName) {
                     case 'isCutMove':
                         weight = rule.weight * difficultyPreset.aiCutPriority;
-                        // Easy mode: strongly discourage cutting if other options exist
+                        
+                        // ═══════════════════════════════════════════════════
+                        // EASY: NEVER target opponents. Only cut when it is
+                        // the SOLE legal move available.
+                        // ═══════════════════════════════════════════════════
                         if (GAME_CONFIG.difficulty === 'easy' && rawScore > 0) {
                             const hasNonCutMoves = moves.some(m => !findCutTargetAtHole(m.toHoleId));
-                            if (hasNonCutMoves) weight = -50;
+                            if (hasNonCutMoves) {
+                                weight = -100;  // Strongly avoid — only land on opponent if no other choice
+                            } else {
+                                weight = 1;  // Sole option — reluctantly accept
+                            }
                         }
-                        // Hard mode: HUNT for cuts - add significant bonus for any cut opportunity
-                        // Hard mode makes it a point to send players home even if not optimal
+                        
+                        // ═══════════════════════════════════════════════════
+                        // NORMAL: Cut when strategic (beneficial to progress).
+                        // Default weight (1.0x) — balanced decision.
+                        // ═══════════════════════════════════════════════════
+                        // (No special logic — just uses aiCutPriority: 1.0)
+                        
+                        // ═══════════════════════════════════════════════════
+                        // HARD: Target opponents whenever it's an option.
+                        // ═══════════════════════════════════════════════════
                         if (GAME_CONFIG.difficulty === 'hard' && rawScore > 0) {
-                            weight = rule.weight * 3.0; // Triple priority for cuts
-                            // Extra bonus if cutting player who is ahead
+                            weight = rule.weight * 3.0;
                             const cutTarget = findCutTargetAtHole(move.toHoleId);
                             if (cutTarget) {
                                 const victimPegsInSafe = cutTarget.player.peg.filter(p => 
                                     p.holeId && p.holeId.includes('safe')
                                 ).length;
-                                if (victimPegsInSafe > 0) {
-                                    // Target has pegs in safe zone = they're ahead, cut priority++
-                                    weight += 20;
-                                }
+                                if (victimPegsInSafe > 0) weight += 20;
+                            }
+                        }
+                        
+                        // ═══════════════════════════════════════════════════
+                        // EXPERT: Actively hunts cuts + optimal positioning.
+                        // ═══════════════════════════════════════════════════
+                        if (GAME_CONFIG.difficulty === 'expert' && rawScore > 0) {
+                            weight = rule.weight * 4.0;
+                            const cutTarget = findCutTargetAtHole(move.toHoleId);
+                            if (cutTarget) {
+                                const victimPegsInSafe = cutTarget.player.peg.filter(p => 
+                                    p.holeId && p.holeId.includes('safe')
+                                ).length;
+                                if (victimPegsInSafe > 0) weight += 30;
+                            }
+                        }
+                        
+                        // ═══════════════════════════════════════════════════
+                        // WARPATH: Cutting is the #1 GOAL. Will sacrifice
+                        // own progress to send opponents home. The main
+                        // objective is to land on opponents, even if it's
+                        // not in the bot's own strategic interest.
+                        // Still must be a LEGAL move.
+                        // ═══════════════════════════════════════════════════
+                        if (GAME_CONFIG.difficulty === 'warpath' && rawScore > 0) {
+                            weight = 100;  // Higher than almost everything except winner hole (89)
+                            const cutTarget = findCutTargetAtHole(move.toHoleId);
+                            if (cutTarget) {
+                                const victimPegsInSafe = cutTarget.player.peg.filter(p => 
+                                    p.holeId && p.holeId.includes('safe')
+                                ).length;
+                                // Extra obsession points for cutting leaders
+                                weight += victimPegsInSafe * 15;
                             }
                         }
                         break;
@@ -11067,12 +12833,25 @@
                     case 'offensivePositioning':
                         weight = rule.weight * difficultyPreset.aiOffensiveAwareness;
                         break;
+                    case 'warpathHunting':
+                        // Only applies to warpath — weight is already 0 for other difficulties
+                        // via the evaluate() returning 0
+                        break;
                     case 'isStrategicBackward':
                         weight = rule.weight * difficultyPreset.ai4CardStrategy;
                         break;
                     case 'isFastTrackEntry':
                     case 'isBullseyeEntry':
                         weight = rule.weight * difficultyPreset.aiFastTrackPriority;
+                        break;
+                    case 'isFastTrackTraversal':
+                        // FT traversal preference scaled by difficulty
+                        // Easy/Normal: Stay on FT (high weight)
+                        // Hard+: Will leave FT to cut (lower FT loyalty)
+                        // Warpath: FT is secondary to hunting (low weight)
+                        weight = rule.weight * difficultyPreset.aiFastTrackPriority;
+                        // Ensure minimum weight so FT is still generally preferred
+                        if (weight < 20) weight = 20;
                         break;
                     case 'randomTiebreaker':
                         weight = rule.weight + (difficultyPreset.aiRandomFactor * 10);
@@ -11560,6 +13339,12 @@
             momBtn.style.display = 'flex';
         }
         
+        // Show tutorial button
+        const tutBtn = document.getElementById('tutorial-btn');
+        if (tutBtn) {
+            tutBtn.style.display = 'flex';
+        }
+        
         // Hide auth/lobby containers
         document.getElementById('auth-container').style.display = 'none';
         document.getElementById('lobby-container').style.display = 'none';
@@ -11580,6 +13365,11 @@
         // Initialize game with requested player count
         console.log(`[startGameSession] Calling initGame(${playerCount})...`);
         initGame(playerCount);
+
+        // ── Analytics: Track game start ──
+        if (window.FTAnalytics) {
+            FTAnalytics.gameStart(currentGameMode, playerCount, difficulty);
+        }
         console.log('[startGameSession] initGame complete, gameState:', !!gameState, 'currentPlayerIndex:', gameState?.currentPlayerIndex);
         console.log('[startGameSession] gameState.players.length:', gameState?.players?.length);
         console.log('[startGameSession] cardUI:', !!cardUI);
@@ -11898,11 +13688,8 @@
                     console.log('[BoardManifold] Hole truth table:', JSON.stringify(BoardManifold.holeTruthTable()));
                 }
                 
-                // Ensure the default game mode (solo) is properly initialized
-                // so the START button uses GameInit.start() instead of raw startGameSession()
-                if (typeof selectGameMode === 'function') {
-                    selectGameMode('solo');
-                }
+                // Board is ready — start screen shows mode picker (no auto-redirect)
+                // selectGameMode('solo') was removed since Solo now navigates to ai_setup.html
             }
         }, 100);
         
@@ -11963,19 +13750,19 @@
             
             // Adjust camera position for device type
             if (isMobile && !isTablet) {
-                // Mobile: Higher, more top-down view for better board visibility
+                // Mobile: Higher, more top-down for board visibility, still 30°-ish
                 if (controls.target) {
-                    camera.position.set(0, 500, 200);
+                    camera.position.set(0, 350, 500);
                     controls.maxDistance = 800;
                     controls.minDistance = 200;
                 }
             } else if (isTablet) {
-                // Tablet: Moderate angle
-                camera.position.set(0, 450, 250);
+                // Tablet: 30° angle
+                camera.position.set(0, 320, 554);
                 controls.maxDistance = 900;
                 controls.minDistance = 250;
             }
-            // Desktop uses default settings
+            // Desktop uses default 30° settings
         }
         
         // Touch gesture enhancements for OrbitControls
@@ -12525,6 +14312,10 @@
                     // Show mom help button
                     const momBtn = document.getElementById('mom-help-btn');
                     if (momBtn) momBtn.style.display = 'flex';
+                    
+                    // Show tutorial button
+                    const tutBtn = document.getElementById('tutorial-btn');
+                    if (tutBtn) tutBtn.style.display = 'flex';
                     
                     // Initialize game with correct player count from session
                     if (typeof window.initGame === 'function') {

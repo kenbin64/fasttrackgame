@@ -94,38 +94,67 @@ const GameUIMinimal = {
                 z-index: 10005;
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                padding: 6px 10px;
+                gap: 10px;
+                padding: 8px 14px;
                 background: rgba(0, 0, 0, 0.65);
-                border: 1.5px solid var(--player-color, #3498db);
-                border-radius: 24px;
+                border: 2px solid var(--player-color, #3498db);
+                border-radius: 28px;
                 box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4),
                             0 0 15px var(--player-glow, rgba(52, 152, 219, 0.2));
                 backdrop-filter: blur(10px);
-                transition: all 0.35s ease, opacity 0.4s ease;
+                transition: all 0.35s ease, opacity 0.4s ease, transform 0.35s ease;
                 font-family: 'Poppins', -apple-system, sans-serif;
-                opacity: 0.55;
+                opacity: 0.45;
+                pointer-events: auto;
+            }
+            
+            /* Disabled state — not the current human player's turn */
+            #current-player-panel.panel-disabled {
+                opacity: 0.35;
+                filter: grayscale(0.5) brightness(0.7);
+                pointer-events: none;
             }
             
             #current-player-panel:hover,
             #current-player-panel.active-turn {
                 opacity: 1;
                 background: rgba(0, 0, 0, 0.82);
+                transform: scale(1.06);
                 box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5),
-                            0 0 25px var(--player-glow, rgba(52, 152, 219, 0.35));
+                            0 0 30px var(--player-glow, rgba(52, 152, 219, 0.45));
+            }
+            
+            /* Flowing glow animation when it's the active player's turn */
+            #current-player-panel.active-turn {
+                animation: panel-glow-flow 2.5s ease-in-out infinite;
+            }
+            
+            @keyframes panel-glow-flow {
+                0%, 100% {
+                    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5),
+                                0 0 25px var(--player-glow, rgba(52, 152, 219, 0.4)),
+                                0 0 50px var(--player-glow, rgba(52, 152, 219, 0.15));
+                    border-color: var(--player-color, #3498db);
+                }
+                50% {
+                    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5),
+                                0 0 40px var(--player-glow, rgba(52, 152, 219, 0.6)),
+                                0 0 70px var(--player-glow, rgba(52, 152, 219, 0.25));
+                    border-color: #fff;
+                }
             }
             
             .cp-avatar {
-                width: 34px;
-                height: 34px;
+                width: 40px;
+                height: 40px;
                 border-radius: 50%;
                 background: linear-gradient(135deg, #2c3e50, #1a252f);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 18px;
-                border: 1.5px solid var(--player-color, #3498db);
-                box-shadow: 0 0 8px var(--player-glow, rgba(52, 152, 219, 0.4));
+                font-size: 20px;
+                border: 2px solid var(--player-color, #3498db);
+                box-shadow: 0 0 10px var(--player-glow, rgba(52, 152, 219, 0.4));
                 flex-shrink: 0;
             }
             
@@ -176,8 +205,8 @@ const GameUIMinimal = {
             }
             
             .cp-deck-icon {
-                width: 26px;
-                height: 34px;
+                width: 32px;
+                height: 42px;
                 background:
                     repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(255,255,255,0.07) 3px, rgba(255,255,255,0.07) 6px),
                     repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 6px),
@@ -223,15 +252,15 @@ const GameUIMinimal = {
             }
             
             .cp-drawn-card {
-                width: 30px;
-                height: 40px;
+                width: 36px;
+                height: 48px;
                 background: linear-gradient(135deg, #f8f9fa, #e9ecef);
                 border-radius: 4px;
                 border: 1.5px solid #333;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 1.05em;
+                font-size: 1.15em;
                 font-weight: 900;
                 color: #c0392b;
                 box-shadow: 2px 2px 5px rgba(0,0,0,0.35);
@@ -404,6 +433,152 @@ const GameUIMinimal = {
                 padding-bottom: 5px;
                 border-bottom: 1px solid #333;
             }
+
+            /* ===== DIMENSIONAL ACCORDION CATEGORIES ===== */
+            .menu-category {
+                margin-bottom: 6px;
+                border-radius: 12px;
+                overflow: hidden;
+                border: 1px solid rgba(255,255,255,0.06);
+                background: rgba(255,255,255,0.02);
+                transition: border-color 0.3s, box-shadow 0.3s;
+            }
+            .menu-category:hover {
+                border-color: rgba(52,152,219,0.25);
+            }
+            .menu-category.expanded {
+                border-color: rgba(52,152,219,0.35);
+                box-shadow: 0 0 12px rgba(52,152,219,0.08), inset 0 0 20px rgba(52,152,219,0.03);
+            }
+            .menu-category-header {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 13px 14px;
+                cursor: pointer;
+                user-select: none;
+                -webkit-user-select: none;
+                background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+                transition: background 0.2s;
+                position: relative;
+            }
+            .menu-category-header::after {
+                content: '';
+                position: absolute;
+                bottom: 0; left: 14px; right: 14px;
+                height: 1px;
+                background: rgba(255,255,255,0.05);
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+            .menu-category.expanded .menu-category-header::after {
+                opacity: 1;
+            }
+            .menu-category-header:active {
+                background: rgba(52,152,219,0.15);
+            }
+            .cat-icon {
+                font-size: 1.15em;
+                width: 24px;
+                text-align: center;
+                filter: drop-shadow(0 0 3px rgba(255,255,255,0.15));
+            }
+            .cat-title {
+                flex: 1;
+                color: #ddd;
+                font-size: 0.92em;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+                font-family: 'Orbitron', 'Rajdhani', sans-serif;
+            }
+            .menu-category.expanded .cat-title {
+                color: #fff;
+                text-shadow: 0 0 8px rgba(52,152,219,0.4);
+            }
+            .cat-chevron {
+                font-size: 0.85em;
+                color: #666;
+                transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), color 0.3s;
+            }
+            .menu-category.expanded .cat-chevron {
+                transform: rotate(90deg);
+                color: #3498db;
+            }
+            .menu-category-body {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), padding 0.35s;
+                padding: 0 12px;
+            }
+            .menu-category.expanded .menu-category-body {
+                max-height: 600px;
+                padding: 10px 12px 14px;
+            }
+            /* Dimensional glow line at top of expanded body */
+            .menu-category.expanded .menu-category-body::before {
+                content: '';
+                display: block;
+                height: 1px;
+                margin-bottom: 8px;
+                background: linear-gradient(90deg, transparent, rgba(52,152,219,0.4), rgba(155,89,182,0.3), transparent);
+            }
+            /* Theme button grid */
+            .theme-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            .theme-grid .menu-btn {
+                padding: 10px 10px;
+                font-size: 0.85em;
+                justify-content: center;
+                text-align: center;
+                gap: 6px;
+            }
+            .theme-grid .menu-btn.active-theme {
+                border-color: #3498db;
+                background: rgba(52,152,219,0.2);
+                box-shadow: 0 0 10px rgba(52,152,219,0.15);
+            }
+            /* Camera view grid */
+            .camera-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 6px;
+                margin-bottom: 10px;
+            }
+            .camera-grid .menu-btn {
+                padding: 10px 8px;
+                font-size: 0.82em;
+                justify-content: center;
+                text-align: center;
+                gap: 5px;
+            }
+            .camera-grid .menu-btn.active-cam {
+                border-color: #e67e22;
+                background: rgba(230,126,34,0.18);
+                box-shadow: 0 0 8px rgba(230,126,34,0.12);
+            }
+            .cam-speed-row {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 6px 4px;
+            }
+            .cam-speed-row .cam-speed-label {
+                font-size: 0.75em;
+                color: #888;
+            }
+            .cam-speed-row .menu-volume-slider {
+                flex: 1;
+            }
+            .cam-speed-row .cam-speed-val {
+                font-size: 0.72em;
+                color: #aaa;
+                width: 50px;
+                text-align: right;
+            }
             
             .menu-btn {
                 width: 100%;
@@ -478,6 +653,159 @@ const GameUIMinimal = {
                 left: 27px;
             }
             
+            /* ===== VOLUME SLIDERS ===== */
+            .menu-volume-row {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 6px 15px 12px;
+                margin-top: -4px;
+            }
+            .menu-volume-row .vol-icon {
+                font-size: 0.8em;
+                color: #888;
+                width: 18px;
+                text-align: center;
+            }
+            .menu-volume-slider {
+                -webkit-appearance: none;
+                appearance: none;
+                flex: 1;
+                height: 4px;
+                background: #333;
+                border-radius: 2px;
+                outline: none;
+            }
+            .menu-volume-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                background: #9b59b6;
+                cursor: pointer;
+                border: 2px solid rgba(255,255,255,0.2);
+                transition: background 0.2s;
+            }
+            .menu-volume-slider::-webkit-slider-thumb:hover {
+                background: #a76bc8;
+            }
+            .menu-volume-slider::-moz-range-thumb {
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                background: #9b59b6;
+                cursor: pointer;
+                border: 2px solid rgba(255,255,255,0.2);
+            }
+            .menu-volume-pct {
+                color: #888;
+                font-size: 0.75em;
+                width: 30px;
+                text-align: right;
+            }
+            
+            /* ===== YOUR TURN POPUP ===== */
+            #your-turn-popup {
+                position: fixed;
+                top: 18px;
+                left: 50%;
+                transform: translateX(-50%) translateY(-80px);
+                z-index: 9999;
+                background: linear-gradient(135deg, rgba(39,174,96,0.92), rgba(46,204,113,0.88));
+                color: #fff;
+                padding: 14px 36px;
+                border-radius: 40px;
+                font-family: 'Orbitron', 'Rajdhani', sans-serif;
+                font-size: 1.3em;
+                font-weight: 700;
+                letter-spacing: 1px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                box-shadow: 0 6px 30px rgba(39,174,96,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+                border: 1px solid rgba(255,255,255,0.15);
+                pointer-events: none;
+                opacity: 0;
+                transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s;
+            }
+            #your-turn-popup.visible {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+            #your-turn-popup.fade-out {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+                transition: transform 0.5s ease-in, opacity 0.5s ease-in;
+            }
+            #your-turn-popup .turn-glyph {
+                font-size: 1.4em;
+                animation: turn-pulse 0.8s ease-in-out infinite alternate;
+            }
+            /* Bot turn styling */
+            #your-turn-popup.bot-turn {
+                background: linear-gradient(135deg, rgba(142,68,173,0.92), rgba(155,89,182,0.88));
+                box-shadow: 0 6px 30px rgba(142,68,173,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+                font-size: 1.1em;
+            }
+            @keyframes turn-pulse {
+                from { transform: scale(1); }
+                to { transform: scale(1.15); }
+            }
+
+            /* ===== CARD DRAWN POPUP ===== */
+            #card-drawn-popup {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(0.3);
+                z-index: 20003;
+                pointer-events: none;
+                opacity: 0;
+                transition: transform 0.4s cubic-bezier(0.18,1.2,0.4,1), opacity 0.25s ease-out;
+            }
+            #card-drawn-popup.visible {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            #card-drawn-popup.fade-out {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+                transition: transform 0.5s ease-in, opacity 0.4s ease-in;
+            }
+            .card-popup-face {
+                width: 100px;
+                height: 140px;
+                background: linear-gradient(145deg, #fff, #f0f0f0);
+                border-radius: 10px;
+                border: 3px solid #333;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                font-size: 2.8em;
+                font-weight: 900;
+                color: #c0392b;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 60px rgba(255,255,255,0.15);
+                position: relative;
+            }
+            .card-popup-face.black { color: #2c3e50; }
+            .card-popup-suit {
+                font-size: 0.5em;
+                margin-top: -4px;
+            }
+            @media (max-width: 768px) {
+                .card-popup-face {
+                    width: 120px;
+                    height: 168px;
+                    font-size: 3.2em;
+                }
+                #your-turn-popup {
+                    font-size: 1.4em;
+                    padding: 16px 40px;
+                }
+            }
+
             /* ===== OVERLAY ===== */
             #menu-overlay {
                 position: fixed;
@@ -580,41 +908,41 @@ const GameUIMinimal = {
                 #current-player-panel {
                     top: 6px;
                     left: 6px;
-                    padding: 5px 8px;
-                    gap: 6px;
+                    padding: 8px 12px;
+                    gap: 10px;
                 }
                 
                 .cp-avatar {
-                    width: 28px;
-                    height: 28px;
-                    font-size: 15px;
+                    width: 42px;
+                    height: 42px;
+                    font-size: 22px;
                 }
                 
                 .cp-name {
-                    font-size: 0.75em;
-                    max-width: 70px;
+                    font-size: 0.9em;
+                    max-width: 80px;
                 }
                 
                 .cp-turn-label {
-                    font-size: 0.48em;
+                    font-size: 0.6em;
                 }
                 
                 .cp-deck-info {
-                    gap: 6px;
-                    margin-left: 4px;
-                    padding-left: 6px;
+                    gap: 10px;
+                    margin-left: 6px;
+                    padding-left: 10px;
                 }
                 
                 .cp-deck-icon {
-                    width: 22px;
-                    height: 28px;
-                    font-size: 0.55em;
+                    width: 36px;
+                    height: 46px;
+                    font-size: 0.75em;
                 }
                 
                 .cp-drawn-card {
-                    width: 24px;
-                    height: 32px;
-                    font-size: 0.85em;
+                    width: 38px;
+                    height: 50px;
+                    font-size: 1.15em;
                 }
                 
                 #game-menu-panel {
@@ -627,6 +955,24 @@ const GameUIMinimal = {
                 #current-player-panel {
                     max-width: calc(100vw - 16px);
                     flex-wrap: wrap;
+                }
+                
+                .cp-avatar {
+                    width: 38px;
+                    height: 38px;
+                    font-size: 20px;
+                }
+                
+                .cp-deck-icon {
+                    width: 34px;
+                    height: 44px;
+                    font-size: 0.7em;
+                }
+                
+                .cp-drawn-card {
+                    width: 36px;
+                    height: 48px;
+                    font-size: 1.1em;
                 }
                 
                 .cp-deck-label {
@@ -924,60 +1270,166 @@ const GameUIMinimal = {
         menu.id = 'game-menu-panel';
         menu.innerHTML = `
             <div class="menu-header">
-                <h3>⚙️ Game Menu</h3>
+                <h3>⚡ FastTrack</h3>
             </div>
             <div class="menu-content">
+                <!-- Players bar — always visible -->
                 <div class="menu-section">
                     <div class="menu-section-title">Players</div>
-                    <div class="players-list" id="menu-players-list">
-                        <!-- Players rendered here -->
+                    <div class="players-list" id="menu-players-list"></div>
+                </div>
+
+                <!-- ═══ THEME ═══ -->
+                <div class="menu-category" data-cat="theme">
+                    <div class="menu-category-header" onclick="GameUIMinimal.toggleCategory('theme')">
+                        <span class="cat-icon">🎨</span>
+                        <span class="cat-title">Theme</span>
+                        <span class="cat-chevron">▸</span>
+                    </div>
+                    <div class="menu-category-body">
+                        <div class="theme-grid">
+                            <button class="menu-btn" data-theme="cosmic" onclick="GameUIMinimal.setTheme('cosmic')">
+                                <span class="menu-btn-icon">🌌</span> Cosmic
+                            </button>
+                            <button class="menu-btn" data-theme="spaceace" onclick="GameUIMinimal.setTheme('spaceace')">
+                                <span class="menu-btn-icon">🚀</span> Space Ace ✦
+                            </button>
+                            <button class="menu-btn" data-theme="undersea" onclick="GameUIMinimal.setTheme('undersea')">
+                                <span class="menu-btn-icon">🌊</span> Undersea
+                            </button>
+                            <button class="menu-btn" data-theme="colosseum" onclick="GameUIMinimal.setTheme('colosseum')">
+                                <span class="menu-btn-icon">⚔️</span> Colosseum
+                            </button>
+                            <button class="menu-btn" data-theme="highcontrast" onclick="GameUIMinimal.setTheme('highcontrast')">
+                                <span class="menu-btn-icon">👁️</span> Clean
+                            </button>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">Theme</div>
-                    <button class="menu-btn" onclick="GameUIMinimal.setTheme('cosmic')">
-                        <span class="menu-btn-icon">🌌</span> Cosmic
-                    </button>
-                    <button class="menu-btn" onclick="GameUIMinimal.setTheme('spaceace')">
-                        <span class="menu-btn-icon">🚀</span> Space Ace
-                    </button>
-                    <button class="menu-btn" onclick="GameUIMinimal.setTheme('undersea')">
-                        <span class="menu-btn-icon">🌊</span> Undersea
-                    </button>
-                    <button class="menu-btn" onclick="GameUIMinimal.setTheme('colosseum')">
-                        <span class="menu-btn-icon">⚔️</span> Colosseum
-                    </button>
-                </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">Audio</div>
-                    <div class="menu-toggle-row">
-                        <span class="menu-toggle-label">🎵 Music</span>
-                        <div class="menu-toggle active" id="toggle-music" onclick="GameUIMinimal.toggleMusic()"></div>
+
+                <!-- ═══ SOUNDS ═══ -->
+                <div class="menu-category" data-cat="sounds">
+                    <div class="menu-category-header" onclick="GameUIMinimal.toggleCategory('sounds')">
+                        <span class="cat-icon">🔊</span>
+                        <span class="cat-title">Sounds</span>
+                        <span class="cat-chevron">▸</span>
                     </div>
-                    <div class="menu-toggle-row">
-                        <span class="menu-toggle-label">🔊 Sound FX</span>
-                        <div class="menu-toggle active" id="toggle-sfx" onclick="GameUIMinimal.toggleSFX()"></div>
-                    </div>
-                    <div class="menu-toggle-row">
-                        <span class="menu-toggle-label">🎤 Commentary</span>
-                        <div class="menu-toggle" id="toggle-commentary" onclick="GameUIMinimal.toggleCommentary()"></div>
+                    <div class="menu-category-body">
+                        <div class="menu-toggle-row">
+                            <span class="menu-toggle-label">🎵 Music</span>
+                            <div class="menu-toggle active" id="toggle-music" onclick="GameUIMinimal.toggleMusic()"></div>
+                        </div>
+                        <div class="menu-volume-row">
+                            <span class="vol-icon">🔈</span>
+                            <input type="range" class="menu-volume-slider" id="slider-music" min="0" max="100" value="20" oninput="GameUIMinimal.setMusicVolume(this.value)">
+                            <span class="menu-volume-pct" id="pct-music">20%</span>
+                        </div>
+                        <div class="menu-toggle-row">
+                            <span class="menu-toggle-label">🔊 Sound FX</span>
+                            <div class="menu-toggle active" id="toggle-sfx" onclick="GameUIMinimal.toggleSFX()"></div>
+                        </div>
+                        <div class="menu-volume-row">
+                            <span class="vol-icon">🔈</span>
+                            <input type="range" class="menu-volume-slider" id="slider-sfx" min="0" max="100" value="60" oninput="GameUIMinimal.setSfxVolume(this.value)">
+                            <span class="menu-volume-pct" id="pct-sfx">60%</span>
+                        </div>
+                        <div class="menu-toggle-row">
+                            <span class="menu-toggle-label">🎤 Commentary</span>
+                            <div class="menu-toggle" id="toggle-commentary" onclick="GameUIMinimal.toggleCommentary()"></div>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="menu-section">
-                    <div class="menu-section-title">Game</div>
-                    <button class="menu-btn" onclick="GameUIMinimal.showRules()">
-                        <span class="menu-btn-icon">📖</span> Rules
-                    </button>
-                    <button class="menu-btn" onclick="GameUIMinimal.restartGame()">
-                        <span class="menu-btn-icon">🔄</span> Restart
-                    </button>
-                    <button class="menu-btn" onclick="GameUIMinimal.exitGame()">
-                        <span class="menu-btn-icon">🚪</span> Exit to Menu
-                    </button>
+
+                <!-- ═══ CONTROLS ═══ -->
+                <div class="menu-category" data-cat="controls">
+                    <div class="menu-category-header" onclick="GameUIMinimal.toggleCategory('controls')">
+                        <span class="cat-icon">🎮</span>
+                        <span class="cat-title">Controls</span>
+                        <span class="cat-chevron">▸</span>
+                    </div>
+                    <div class="menu-category-body">
+                        <button class="menu-btn" onclick="GameUIMinimal.askMom()">
+                            <span class="menu-btn-icon">👩‍👧</span> Ask Mom for Help
+                        </button>
+                        <button class="menu-btn" onclick="GameUIMinimal.restartGame()">
+                            <span class="menu-btn-icon">🔄</span> Restart Game
+                        </button>
+                        <button class="menu-btn" onclick="GameUIMinimal.exitGame()">
+                            <span class="menu-btn-icon">🚪</span> Exit to Menu
+                        </button>
+                    </div>
                 </div>
+
+                <!-- ═══ CAMERA ═══ -->
+                <div class="menu-category" data-cat="camera">
+                    <div class="menu-category-header" onclick="GameUIMinimal.toggleCategory('camera')">
+                        <span class="cat-icon">📹</span>
+                        <span class="cat-title">Camera</span>
+                        <span class="cat-chevron">▸</span>
+                    </div>
+                    <div class="menu-category-body">
+                        <div class="camera-grid">
+                            <button class="menu-btn active-cam" data-cam="board" onclick="GameUIMinimal.setCameraView('board')">
+                                <span class="menu-btn-icon">🎯</span> Board
+                            </button>
+                            <button class="menu-btn" data-cam="ground" onclick="GameUIMinimal.setCameraView('ground')">
+                                <span class="menu-btn-icon">🏃</span> Ground
+                            </button>
+                            <button class="menu-btn" data-cam="chase" onclick="GameUIMinimal.setCameraView('chase')">
+                                <span class="menu-btn-icon">🎬</span> Chase
+                            </button>
+                            <button class="menu-btn" data-cam="orbit" onclick="GameUIMinimal.setCameraView('orbit')">
+                                <span class="menu-btn-icon">🌀</span> Orbit
+                            </button>
+                            <button class="menu-btn" data-cam="manual" onclick="GameUIMinimal.setCameraView('manual')">
+                                <span class="menu-btn-icon">✋</span> Manual
+                            </button>
+                            <button class="menu-btn" data-cam="pegeye" onclick="GameUIMinimal.enterPegEyeView()">
+                                <span class="menu-btn-icon">👁️</span> Peg's Eye
+                            </button>
+                        </div>
+                        <div class="cam-speed-row">
+                            <span class="cam-speed-label">🐢</span>
+                            <input type="range" class="menu-volume-slider" id="menu-cam-speed" min="0.2" max="2.0" step="0.1" value="0.6" oninput="GameUIMinimal.setCameraSpeed(this.value)">
+                            <span class="cam-speed-val" id="menu-cam-speed-val">Smooth</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ RULES ═══ -->
+                <div class="menu-category" data-cat="rules">
+                    <div class="menu-category-header" onclick="GameUIMinimal.toggleCategory('rules')">
+                        <span class="cat-icon">📖</span>
+                        <span class="cat-title">Rules</span>
+                        <span class="cat-chevron">▸</span>
+                    </div>
+                    <div class="menu-category-body">
+                        <button class="menu-btn" onclick="GameUIMinimal.showRules()">
+                            <span class="menu-btn-icon">📜</span> Quick Rules
+                        </button>
+                        <button class="menu-btn" onclick="window.open('docs.html','_blank')">
+                            <span class="menu-btn-icon">📘</span> Full Guide
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ═══ TUTORIAL ═══ -->
+                <div class="menu-category" data-cat="tutorial">
+                    <div class="menu-category-header" onclick="GameUIMinimal.toggleCategory('tutorial')">
+                        <span class="cat-icon">🎓</span>
+                        <span class="cat-title">Tutorial</span>
+                        <span class="cat-chevron">▸</span>
+                    </div>
+                    <div class="menu-category-body">
+                        <button class="menu-btn" onclick="GameUIMinimal.startTutorial()">
+                            <span class="menu-btn-icon">▶️</span> Start Tutorial
+                        </button>
+                        <button class="menu-btn" onclick="GameUIMinimal.showBoardTooltips()">
+                            <span class="menu-btn-icon">💡</span> Board Tooltips
+                        </button>
+                    </div>
+                </div>
+
             </div>
         `;
         
@@ -1034,12 +1486,22 @@ const GameUIMinimal = {
                 nameEl.textContent = player.name || `Bot ${playerIndex}`;
                 if (labelEl) labelEl.textContent = 'Bot Turn';
                 panel.classList.add('is-bot');
+                // Panel is disabled/faded during bot turns
+                panel.classList.add('panel-disabled');
+                panel.classList.remove('active-turn');
+                // Show bot playing popup
+                this.showBotTurnPopup(player.name || `Bot ${playerIndex + 1}`);
             } else {
                 // Show player's chosen avatar
                 avatarEl.textContent = player.avatar || '👤';
                 nameEl.textContent = player.name || player.username || `Player ${playerIndex + 1}`;
                 if (labelEl) labelEl.textContent = 'Your Turn';
                 panel.classList.remove('is-bot');
+                // Panel is active and glowing during human turn
+                panel.classList.remove('panel-disabled');
+                panel.classList.add('active-turn');
+                // Show "Your Turn!" popup
+                this.showYourTurnPopup();
             }
         }
         
@@ -1144,7 +1606,7 @@ const GameUIMinimal = {
                 <div class="player-list-avatar">${avatar}</div>
                 <div class="player-list-info">
                     <div class="player-list-name">${p.name || p.username || 'Player ' + (i + 1)} ${label ? '<span class="bot-badge">BOT</span>' : ''}</div>
-                    <div class="player-list-pegs">${p.pegsHome || 0}/4 pegs home</div>
+                    <div class="player-list-pegs">${p.pegsHome || 0}/5 pegs home</div>
                 </div>
             </div>
         `;
@@ -1178,6 +1640,8 @@ const GameUIMinimal = {
     // ============================================================
     
     onDrawCard() {
+        // Dismiss turn popup immediately
+        this.dismissYourTurnPopup();
         // Trigger draw card action
         if (window.drawCard) {
             window.drawCard();
@@ -1191,9 +1655,94 @@ const GameUIMinimal = {
         if (typeof window.setTheme === 'function') {
             window.setTheme(themeName);
         } else if (window.FastTrackThemes?.apply) {
-            // Fallback: needs scene + THREE which only board_3d.html has
             console.warn('[GameUIMinimal] window.setTheme not found, theme may not apply correctly');
             window.FastTrackThemes.apply(themeName);
+        }
+        // Highlight active theme button
+        document.querySelectorAll('.theme-grid .menu-btn').forEach(btn => {
+            btn.classList.toggle('active-theme', btn.dataset.theme === themeName);
+        });
+    },
+
+    // ============================================================
+    // ACCORDION CATEGORY TOGGLE
+    // ============================================================
+
+    toggleCategory(catName) {
+        const cat = document.querySelector(`.menu-category[data-cat="${catName}"]`);
+        if (!cat) return;
+        const wasExpanded = cat.classList.contains('expanded');
+        // Collapse all categories first (accordion behavior — one open at a time)
+        document.querySelectorAll('.menu-category.expanded').forEach(el => {
+            el.classList.remove('expanded');
+        });
+        // Toggle the selected one
+        if (!wasExpanded) {
+            cat.classList.add('expanded');
+        }
+    },
+
+    // ============================================================
+    // CAMERA (delegates to board_3d setCameraViewMode)
+    // ============================================================
+
+    setCameraView(viewName) {
+        if (typeof window.setCameraViewMode === 'function') {
+            window.setCameraViewMode(viewName);
+        }
+        // Highlight active camera button
+        document.querySelectorAll('.camera-grid .menu-btn').forEach(btn => {
+            btn.classList.toggle('active-cam', btn.dataset.cam === viewName);
+        });
+    },
+
+    setCameraSpeed(val) {
+        if (typeof window.setCameraSpeed === 'function') {
+            window.setCameraSpeed(val);
+        }
+        const speedLabel = document.getElementById('menu-cam-speed-val');
+        if (speedLabel) {
+            const v = parseFloat(val);
+            if (v <= 0.4) speedLabel.textContent = 'Slow';
+            else if (v <= 0.8) speedLabel.textContent = 'Smooth';
+            else if (v <= 1.3) speedLabel.textContent = 'Fast';
+            else speedLabel.textContent = 'Blazing';
+        }
+        // Sync the board_3d slider if present
+        const boardSlider = document.getElementById('camera-speed-slider');
+        if (boardSlider) boardSlider.value = val;
+    },
+
+    enterPegEyeView() {
+        if (typeof window.enterPegEyeMode === 'function') {
+            window.enterPegEyeMode();
+        }
+        this.toggleMenu(false);
+    },
+
+    // ============================================================
+    // ASK MOM / TUTORIAL / TOOLTIPS
+    // ============================================================
+
+    askMom() {
+        if (typeof window.showMomHelp === 'function') {
+            window.showMomHelp();
+        }
+        this.toggleMenu(false);
+    },
+
+    startTutorial() {
+        if (window.FastTrackTutorial && typeof window.FastTrackTutorial.start === 'function') {
+            window.FastTrackTutorial.start();
+        }
+        this.toggleMenu(false);
+    },
+
+    showBoardTooltips() {
+        if (window.BoardTooltips && typeof window.BoardTooltips.toggle === 'function') {
+            window.BoardTooltips.toggle();
+        } else if (window.BoardTooltips && typeof window.BoardTooltips.enable === 'function') {
+            window.BoardTooltips.enable();
         }
         this.toggleMenu(false);
     },
@@ -1228,7 +1777,154 @@ const GameUIMinimal = {
             window.CommentarySubstrate.enabled = toggle?.classList.contains('active');
         }
     },
-    
+
+    // ============================================================
+    // YOUR TURN POPUP
+    // ============================================================
+
+    _turnPopupTimer: null,
+
+    showYourTurnPopup() {
+        // Create popup if it doesn't exist
+        let popup = document.getElementById('your-turn-popup');
+        if (!popup) {
+            popup = document.createElement('div');
+            popup.id = 'your-turn-popup';
+            popup.innerHTML = '<span class="turn-glyph">🎯</span> Your Turn!';
+            document.body.appendChild(popup);
+        }
+
+        // Clear any pending fade
+        if (this._turnPopupTimer) clearTimeout(this._turnPopupTimer);
+        popup.classList.remove('fade-out', 'visible');
+
+        // Trigger slide-in on next frame
+        requestAnimationFrame(() => {
+            popup.classList.add('visible');
+        });
+
+        // Auto-fade after 3 seconds
+        this._turnPopupTimer = setTimeout(() => {
+            this.dismissYourTurnPopup();
+        }, 3000);
+    },
+
+    dismissYourTurnPopup() {
+        const popup = document.getElementById('your-turn-popup');
+        if (!popup) return;
+        if (this._turnPopupTimer) {
+            clearTimeout(this._turnPopupTimer);
+            this._turnPopupTimer = null;
+        }
+        popup.classList.remove('visible');
+        popup.classList.add('fade-out');
+    },
+
+    // ============================================================
+    // BOT TURN POPUP
+    // ============================================================
+
+    showBotTurnPopup(botName) {
+        let popup = document.getElementById('your-turn-popup');
+        if (!popup) {
+            popup = document.createElement('div');
+            popup.id = 'your-turn-popup';
+            document.body.appendChild(popup);
+        }
+
+        if (this._turnPopupTimer) clearTimeout(this._turnPopupTimer);
+        popup.classList.remove('fade-out', 'visible', 'bot-turn');
+        popup.innerHTML = `<span class="turn-glyph">🤖</span> ${botName} is playing`;
+        popup.classList.add('bot-turn');
+
+        requestAnimationFrame(() => {
+            popup.classList.add('visible');
+        });
+
+        this._turnPopupTimer = setTimeout(() => {
+            this.dismissYourTurnPopup();
+        }, 2500);
+    },
+
+    // ============================================================
+    // CARD DRAWN POPUP
+    // ============================================================
+
+    _cardPopupTimer: null,
+
+    showCardDrawnPopup(cardValue, cardSuit, isRed) {
+        // Remove existing
+        let popup = document.getElementById('card-drawn-popup');
+        if (popup) popup.remove();
+
+        popup = document.createElement('div');
+        popup.id = 'card-drawn-popup';
+        const colorClass = isRed ? '' : ' black';
+        popup.innerHTML = `
+            <div class="card-popup-face${colorClass}">
+                <span>${cardValue || '?'}</span>
+                <span class="card-popup-suit">${cardSuit || ''}</span>
+            </div>
+        `;
+        document.body.appendChild(popup);
+
+        if (this._cardPopupTimer) clearTimeout(this._cardPopupTimer);
+
+        requestAnimationFrame(() => {
+            popup.classList.add('visible');
+        });
+
+        // The popup stays until dismissCardDrawnPopup() is called (when camera is ready)
+        // But auto-dismiss after 5 seconds as fallback
+        this._cardPopupTimer = setTimeout(() => {
+            this.dismissCardDrawnPopup();
+        }, 5000);
+    },
+
+    dismissCardDrawnPopup() {
+        const popup = document.getElementById('card-drawn-popup');
+        if (!popup) return;
+        if (this._cardPopupTimer) {
+            clearTimeout(this._cardPopupTimer);
+            this._cardPopupTimer = null;
+        }
+        popup.classList.remove('visible');
+        popup.classList.add('fade-out');
+        setTimeout(() => popup.remove(), 600);
+    },
+
+    // ============================================================
+    // CAMERA-GATE STATE
+    // ============================================================
+
+    cameraReady: true,
+
+    setCameraReady(ready) {
+        this.cameraReady = ready;
+        if (ready) {
+            // Dismiss card popup when camera is in place
+            this.dismissCardDrawnPopup();
+        }
+    },
+
+    setMusicVolume(pct) {
+        const val = parseInt(pct, 10);
+        const pctEl = document.getElementById('pct-music');
+        if (pctEl) pctEl.textContent = val + '%';
+        if (window.MusicSubstrate) {
+            window.MusicSubstrate.setVolume(val / 100);
+        }
+    },
+
+    setSfxVolume(pct) {
+        const val = parseInt(pct, 10);
+        const pctEl = document.getElementById('pct-sfx');
+        if (pctEl) pctEl.textContent = val + '%';
+        if (window.GameSFX) {
+            window.GameSFX.setVolume(val / 100);
+        }
+    },
+
     showRules() {
         // Show rules modal
         if (window.showRulesModal) {

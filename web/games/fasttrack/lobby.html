@@ -59,10 +59,13 @@
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
             </form>
             
-            <div class="auth-divider"><span>or</span></div>
+            <div class="auth-divider"><span>or play without login</span></div>
             
+            <button class="btn btn-secondary private-game-btn" onclick="createPrivateAsGuest()">
+                🔒 Create Private Game
+            </button>
             <button class="btn btn-secondary private-game-btn" onclick="showPrivateGameJoin()">
-                🎮 Join Private Game
+                🎟️ Join Private Game
             </button>
             <button class="btn btn-secondary private-game-btn" onclick="playOfflineWithAI()">
                 🤖 Play Offline vs AI
@@ -816,7 +819,7 @@
         </div>
     </div>
     
-    <!-- Waiting Room Modal -->
+    <!-- Waiting Room Modal (for public games / join-by-code) -->
     <div class="modal-overlay" id="waiting-room-modal">
         <div class="modal" style="max-width: 600px;">
             <div class="modal-header">
@@ -836,7 +839,6 @@
                 
                 <div class="waiting-players" id="waiting-players"></div>
                 
-                <!-- Bot/Player Options -->
                 <div id="game-setup-options" style="margin-top: 1rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 10px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
                         <span style="font-size: 0.9rem; color: var(--text-secondary);">Add Bots:</span>
@@ -860,74 +862,115 @@
         </div>
     </div>
     
-    <!-- Create Private Game Modal -->
-    <div class="modal-overlay" id="create-private-modal">
-        <div class="modal" style="max-width: 520px;">
+    <!-- Private Game Wizard Modal -->
+    <div class="modal-overlay" id="private-wizard-modal">
+        <div class="modal wizard-modal" style="max-width: 520px;">
+            <!-- Wizard Header -->
             <div class="modal-header">
-                <h2 class="modal-title">🔒 Create Private Game</h2>
-                <button class="modal-close" onclick="closeModal('create-private-modal')">×</button>
+                <h2 class="modal-title" id="wizard-title">🔒 Create Private Game</h2>
+                <button class="modal-close" onclick="closePrivateWizard()">×</button>
             </div>
             
-            <form onsubmit="createPrivateGame(event)">
-                <div class="input-group">
-                    <label>Number of Players</label>
-                    <select class="input" id="private-player-count" onchange="updatePrivateGameOptions()">
-                        <option value="2">2 Players</option>
-                        <option value="3">3 Players</option>
-                        <option value="4" selected>4 Players</option>
-                        <option value="5">5 Players</option>
-                        <option value="6">6 Players (All Human)</option>
-                    </select>
-                </div>
-                
-                <div class="input-group" id="bot-options-group">
-                    <label>Starting AI Bots</label>
-                    <select class="input" id="private-bot-count">
-                        <option value="0">No Bots (All Human)</option>
-                        <option value="1">1 Bot</option>
-                        <option value="2">2 Bots</option>
-                        <option value="3">3 Bots</option>
-                    </select>
-                </div>
-                
-                <!-- Game Rules Options -->
-                <div style="background: rgba(0,0,0,0.2); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
-                    <div style="font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary);">⚙️ Game Rules</div>
+            <!-- Step Indicator -->
+            <div class="wizard-steps">
+                <div class="wizard-step active" data-step="1"><span>1</span></div>
+                <div class="wizard-step-line"></div>
+                <div class="wizard-step" data-step="2"><span>2</span></div>
+                <div class="wizard-step-line"></div>
+                <div class="wizard-step" data-step="3"><span>3</span></div>
+                <div class="wizard-step-line"></div>
+                <div class="wizard-step" data-step="4"><span>4</span></div>
+            </div>
+            
+            <!-- Step 1: Room Code & Share -->
+            <div class="wizard-panel active" id="wizard-step-1">
+                <div class="wizard-content">
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">Share this code with friends:</p>
+                    <div class="waiting-code" id="wizard-room-code">------</div>
                     
-                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <label class="checkbox-option" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkbox" id="private-require-approval" style="width: 18px; height: 18px;">
-                            <span style="font-size: 0.9rem;">🔐 Require my approval before players join</span>
-                        </label>
-                        
-                        <label class="checkbox-option" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkbox" id="private-replace-with-bot" checked style="width: 18px; height: 18px;">
-                            <span style="font-size: 0.9rem;">🤖 Replace leaving players with bots</span>
-                        </label>
-                        
-                        <label class="checkbox-option" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkbox" id="private-no-returns" style="width: 18px; height: 18px;">
-                            <span style="font-size: 0.9rem;">🚫 No returns (players who leave cannot rejoin)</span>
-                        </label>
-                        
-                        <label class="checkbox-option" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkbox" id="private-turn-timer" style="width: 18px; height: 18px;">
-                            <span style="font-size: 0.9rem;">⏱️ Enable turn timer (2 min + 1 min warning)</span>
-                        </label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="text" class="input" id="wizard-share-url" readonly style="flex: 1; font-size: 0.8rem;">
+                        <button class="btn btn-secondary" onclick="copyShareUrl()" title="Copy link">📋 Copy</button>
+                        <button class="btn btn-primary" onclick="wizardNext()" id="wizard-next-1">Next →</button>
                     </div>
                     
-                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.75rem; margin-bottom: 0;">
-                        Without turn timer, you can remove idle players manually.
-                    </p>
+                    <div class="wizard-share-icons">
+                        <button class="wizard-share-btn" onclick="shareViaMessenger()" title="Share">📤</button>
+                        <button class="wizard-share-btn" onclick="shareToWhatsApp()" title="WhatsApp">💬</button>
+                        <button class="wizard-share-btn" onclick="shareToTwitter()" title="Twitter / X">🐦</button>
+                        <button class="wizard-share-btn" onclick="shareToEmail()" title="Email">✉️</button>
+                    </div>
                 </div>
-                
-                <p id="private-game-note" style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
-                    Private games with bots are limited to 4 total players.<br>
-                    6 players requires all human participants.
-                </p>
-                
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Game</button>
-            </form>
+            </div>
+            
+            <!-- Step 2: Username & Avatar -->
+            <div class="wizard-panel" id="wizard-step-2">
+                <div class="wizard-content">
+                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 1rem;">
+                        <div class="wizard-avatar-preview" id="wizard-avatar-preview">😊</div>
+                        <input type="text" class="input" id="wizard-username" placeholder="Choose your name..." style="flex: 1;" oninput="wizardCheckUsername()" maxlength="20">
+                        <button class="btn btn-primary" onclick="wizardNext()" id="wizard-next-2" disabled>Next →</button>
+                    </div>
+                    
+                    <div class="wizard-avatar-cats" id="wizard-avatar-cats"></div>
+                    <div class="wizard-avatar-grid" id="wizard-avatar-grid"></div>
+                </div>
+            </div>
+            
+            <!-- Step 3: Game Settings -->
+            <div class="wizard-panel" id="wizard-step-3">
+                <div class="wizard-content">
+                    <div class="wizard-settings">
+                        <label class="wizard-toggle">
+                            <span>🎵 Music</span>
+                            <input type="checkbox" id="wiz-music" checked>
+                        </label>
+                        <label class="wizard-toggle">
+                            <span>🤖 Allow AI Players</span>
+                            <input type="checkbox" id="wiz-allow-ai" checked>
+                        </label>
+                        <label class="wizard-toggle">
+                            <span>⏱️ Turn Timer</span>
+                            <input type="checkbox" id="wiz-turn-timer">
+                        </label>
+                        <label class="wizard-toggle">
+                            <span>🚪 Late Arrivals OK</span>
+                            <input type="checkbox" id="wiz-late-arrivals" checked>
+                        </label>
+                        <div class="wizard-toggle" style="cursor: default;">
+                            <span>👥 Max Players</span>
+                            <select class="input" id="wiz-max-players" style="width: 80px; padding: 0.3rem 0.5rem; font-size: 0.9rem;">
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4" selected>4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="wizardNext()" id="wizard-next-3">Open Lobby →</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 4: Waiting Lobby -->
+            <div class="wizard-panel" id="wizard-step-4">
+                <div class="wizard-content">
+                    <button class="btn btn-primary btn-enter-game" onclick="startGame()" id="wizard-start-btn" disabled>🎮 Enter Game</button>
+                    <p id="wizard-start-note" style="color: var(--text-secondary); font-size: 0.8rem; text-align: center; margin: 0.5rem 0;">
+                        Add at least 1 bot or invite a friend to start
+                    </p>
+                    
+                    <div class="waiting-players" id="wizard-waiting-players"></div>
+                    
+                    <div id="wizard-bot-controls" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.75rem;">
+                        <button class="btn btn-small btn-secondary" onclick="addAIPlayer()" id="wizard-add-ai">🤖 + Add Bot</button>
+                        <button class="btn btn-small btn-secondary" onclick="removeAIPlayer()" id="wizard-remove-ai" style="display: none;">➖ Remove Bot</button>
+                    </div>
+                    <div id="wizard-bot-info" style="font-size: 0.75rem; color: var(--text-secondary); text-align: center; margin-top: 0.5rem;"></div>
+                </div>
+            </div>
         </div>
     </div>
     

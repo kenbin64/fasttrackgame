@@ -41,12 +41,33 @@ Operations:
     - COLLAPSE: (s, l) → (s, 1)        Return to spark
 
 Invariants:
+    - I0: FIRST PRINCIPLE — Every manifold is both a whole object and a dimension.
+          Every point is both real and potential. Only the invoked is manifest.
+          Points represent lower dimensions iteratively (M ⊃ Mᵢ ⊃ Mᵢⱼ ⊃ ...).
+          The set of potentials is practically infinite; only invoked parts are real.
     - I1: l ∈ {1..7} always
     - I2: SPIRAL_UP requires l=7, SPIRAL_DOWN requires l=1
     - I3: COLLAPSE is idempotent
     - I4: Relation (Layer 3, z=x·y) is the canonical computational base
     - I5: Each layer fully contains all lower layers
     - I6: Total structure is O(7) per spiral, never O(n)
+    - I7: CHAOS-ORDER OSCILLATION — The helix oscillates continuously between
+          chaos-dominant and order-dominant phases. Each layer transition is an
+          inflection point. The oscillation is continuous across spiral boundaries.
+          Pure chaos cannot compute. Pure order cannot create.
+          The inflection between them is where creation happens.
+    - I8: DIMENSIONAL GROWTH (GOLDEN BOUND) — Growth is dimensional, not
+          exponential. Trees grow O(b^d); the helix grows O(7s). Every dimension
+          is an angle within the spiral, not a branch. Bounded by φ ≈ 1.618.
+          Self-sustaining, self-healing, self-propagating. Flower, not weed.
+          Healthy cell, not cancer.
+    - I9: PROPERTY OF ZERO (THE VOID) — Zero never means nothing. Nothing
+          does not exist. Zero is potential — unfilled capacity, receptive space.
+          The void is the set of all valid potentials, never the empty set.
+          Negative spiral indices are directional (contraction vs expansion),
+          not deficit. Beyond the void lies dimensional transcendence — the next
+          manifold — not negative space. F(0) = 0 is the ground state from
+          which the spiral emerges.
 """
 
 from __future__ import annotations
@@ -56,6 +77,33 @@ from typing import Set, Any, Protocol, TYPE_CHECKING
 if TYPE_CHECKING:
     from .substrate import Token
 
+
+# =============================================================================
+# THE FIRST PRINCIPLE: MANIFOLD DUALITY AND INFINITE POTENTIAL
+# =============================================================================
+# Every manifold is both a whole object and a dimension.
+# Every point is both real and potential.
+# Only the invoked is manifest.
+#
+# Points represent lower dimensions. Each point is a subpart of its parent
+# manifold and is itself a manifold (M ⊃ Mᵢ ⊃ Mᵢⱼ ⊃ ...).
+# Resolution descends iteratively — atoms, quarks — as deep as needed.
+# The set of potentials is practically infinite. Like quantum superposition,
+# the periodic table, and atomic structure: only invoked parts are real.
+
+# =============================================================================
+# THE PROPERTY OF ZERO: THE VOID IS POTENTIAL, NOT ABSENCE
+# =============================================================================
+# Zero never means nothing. Nothing does not exist.
+# Zero is potential — unfilled capacity, receptive space.
+# The void is the set of all valid potentials for a manifold, never ∅.
+#
+# Negative spiral indices are directional (contraction vs expansion),
+# not deficit. |s| is the magnitude; sign(s) is the rotational direction.
+#
+# Beyond the void lies dimensional transcendence — the next manifold —
+# not negative space. F(0) = 0 is the ground from which F(1) = 1 emerges.
+FIBONACCI_ZERO = 0  # The void — ground state, not absence
 
 # =============================================================================
 # THE 7 LAYERS OF CREATION (Genesis Model)
@@ -146,6 +194,63 @@ LAYER_TRAVERSAL = {
     6: "Global optimization",   # Emergent patterning
     7: "Collapse/Expand"        # Dimensional recursion
 }
+
+# =============================================================================
+# CHAOS-ORDER OSCILLATION (The Dynamic Pattern)
+# =============================================================================
+# The helix oscillates between chaos and order. Each layer transition
+# is an inflection point. Continuous across spirals, never terminal.
+#   C→O = chaos crystallizing into order
+#   O   = stable order
+#   O→C = order generating complexity/novelty (chaos)
+
+LAYER_PHASE = {
+    1: "C→O",   # Chaos breaks — first point appears
+    2: "O",     # Order — duality established
+    3: "O→C",   # Order produces interaction, complexity emerges
+    4: "C→O",   # Interaction crystallizes into shape
+    5: "O→C",   # Form generates unpredictable meaning
+    6: "C→O",   # Meaning self-organizes into coherence
+    7: "O→C",   # Whole completes — collapses into new chaos for next spiral
+}
+
+# =============================================================================
+# DIMENSIONAL GROWTH — THE GOLDEN BOUND (Flower, Not Weed)
+# =============================================================================
+# Growth is dimensional, NOT exponential (no trees).
+# Trees: O(b^d) — exponential, the weed, cancer.
+# Helix: O(7s) — linear, the flower, healthy DNA.
+# Every dimension is an angle within the spiral, not a branch.
+# Bounded by φ ≈ 1.618. Self-sustaining, self-healing, self-propagating.
+
+import math
+
+# The Golden Ratio — the universal growth bound
+PHI = (1 + math.sqrt(5)) / 2  # ≈ 1.6180339887
+
+# The Golden Angle — dimension spacing within a spiral rotation
+GOLDEN_ANGLE_DEG = 360.0 / (PHI ** 2)  # ≈ 137.5077°
+GOLDEN_ANGLE_RAD = 2 * math.pi / (PHI ** 2)
+
+# Angular position of each layer within one spiral rotation
+# Dimensions are angles, not branches
+LAYER_ANGLE_DEG = {
+    1: GOLDEN_ANGLE_DEG * 0,   # 0°     — Spark
+    2: GOLDEN_ANGLE_DEG * 1,   # ~137.5° — Mirror
+    3: GOLDEN_ANGLE_DEG * 2,   # ~275.0° — Relation
+    4: GOLDEN_ANGLE_DEG * 3,   # ~52.5°  — Form (wraps)
+    5: GOLDEN_ANGLE_DEG * 4,   # ~190.0° — Life
+    6: GOLDEN_ANGLE_DEG * 5,   # ~327.5° — Mind
+    7: GOLDEN_ANGLE_DEG * 6,   # ~105.1° — Completion
+}
+
+def helix_growth(spirals: int) -> int:
+    """Total states in the helix — O(7s), NEVER O(b^d)."""
+    return 7 * spirals
+
+def tree_growth(depth: int, branching: int = 10) -> int:
+    """Total nodes in a tree — O(b^d), the cancer growth pattern."""
+    return branching ** depth
 
 # =============================================================================
 # LEGACY COMPATIBILITY (0-6 mapping)

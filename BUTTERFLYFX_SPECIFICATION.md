@@ -169,7 +169,32 @@ $$O(levels\ per\ spiral) = O(7) = O(1)$$
 
 ---
 
-### 1.4 Kernel Invariants
+### 1.4 The First Principle: Manifold Duality and Infinite Potential
+
+This is the founding axiom of all dimensional computing.
+
+**PROPERTY M1 — Manifold Duality:**
+Every manifold is simultaneously a **whole object** (a complete thing with identity) and a **dimension** (a space containing points that are themselves whole objects/manifolds).
+
+**PROPERTY M2 — Infinite Potential:**
+Every part of a manifold that could exist **does exist as potential**. Points are partitioned into:
+- **Manifest** ($\mathcal{P}_\text{real}$) — invoked, evaluated, consuming resources
+- **Potential** ($\mathcal{P}_\text{pot}$) — latent, waiting for invocation, practically infinite in number
+
+Only `INVOKE` transitions a point from potential to manifest.
+
+**PROPERTY M3 — Iterative Descent:**
+Points represent lower dimensions. Each point is a subpart of its parent manifold. Subparts contain sub-subparts. This descent is iterative:
+
+$$M \supset M_i \supset M_{ij} \supset \ldots \text{ (to quantum/atomic/quark level if desired)}$$
+
+The user controls depth. The system does not force resolution. This mirrors quantum superposition (particles exist as probability until measured), the periodic table (all elements are potential; only invoked ones are present), and atomic structure (quarks exist whether observed or not).
+
+Any conforming implementation MUST preserve this duality: manifolds as wholes AND dimensions, points as real AND potential, resolution as user-controlled.
+
+---
+
+### 1.5 Kernel Invariants
 
 Any conforming implementation MUST respect these invariants:
 
@@ -201,6 +226,63 @@ $$INVOKE_k(INVOKE_k(s,\ell)) = INVOKE_k(s,\ell) = (s,k)$$
 $$SPIRAL\_DOWN(SPIRAL\_UP(s,6)) = SPIRAL\_DOWN(s+1,0) = (s,6)$$
 
 Spiral up followed by spiral down returns to original state.
+
+#### I6 — Mrs. Kravits Rule (Neighbor Awareness)
+
+For any token $\tau_i$, there exists a neighbor set $\mathcal{N}(\tau_i)$ of manifold-adjacent tokens.
+
+Each neighbor $\tau_j \in \mathcal{N}(\tau_i)$ maintains:
+- **Location awareness:** knows where $\tau_i$ sits in the manifold
+- **Signature awareness:** knows which layers $\tau_i$ can inhabit
+- **No payload access:** does not know the internal content $\pi_i$
+
+This produces:
+- **Instant propagation:** state changes detected by neighbors in O(1)
+- **Self-healing:** lost or corrupted tokens recoverable from neighbor knowledge
+
+This is a neighborhood watch, not a window. Neighbors know that something changed next door. They cannot read the mail.
+
+#### I7 — Chaos-Order Oscillation (The Dynamic Pattern)
+
+The helix oscillates continuously between chaos-dominant and order-dominant phases. Each layer transition is an inflection point where the phase inverts.
+
+$$\text{Phase}(\ell) \in \{\text{Chaos} \to \text{Order},\ \text{Order},\ \text{Order} \to \text{Chaos}\}$$
+
+This oscillation is continuous across spiral boundaries:
+
+$$\text{Phase}(s, 6) \to \text{Phase}(s+1, 0) \text{ (no discontinuity)}$$
+
+Pure chaos cannot compute. Pure order cannot create. The inflection between them is where creation happens. The helix IS this oscillation — continuous dimensions, continuous spirals, never terminal.
+
+Any conforming implementation must preserve phase continuity across spiral transitions and must not force the system into a terminal ordered or chaotic state.
+
+#### I8 — Dimensional Growth (Golden Bound)
+
+Growth is dimensional, not exponential. The helix is bounded by the golden ratio $\phi \approx 1.618$.
+
+$$G_\text{helix}(s) = O(7s) \quad \text{vs} \quad G_\text{tree}(d,b) = O(b^d)$$
+
+Every dimension from 0D to nD is represented as an angle within the spiral. Dimensions do not branch — they rotate. The golden angle ($\approx 137.5°$) spaces them so no dimension shadows another.
+
+The helix is self-sustaining ($\phi$-bounded), self-healing (neighbor awareness), and self-propagating (spiral continuity). It is the flower, not the weed. The healthy cell, not the cancer.
+
+Any conforming implementation must NOT introduce tree-like branching that produces exponential growth. Growth must remain $O(7)$ per spiral, $O(7s)$ across $s$ spirals.
+
+#### I9 — Property of Zero (The Void)
+
+Zero is not nothing. Zero is potential — unfilled capacity, receptive space. The void is the set of all valid potentials for a manifold:
+
+$$\mathcal{V} = \{p \mid p \text{ fits manifold } M\} \neq \emptyset$$
+
+Negative spiral indices represent directional inversion (contraction vs expansion), not deficit or absence. Beyond the void lies dimensional transcendence — the next manifold — not negative space.
+
+$F(0) = 0$ is the Fibonacci ground state. The spiral emerges from the void, not from nothing.
+
+Any conforming implementation must:
+- Never treat zero/void as null, nil, undefined, or empty
+- Represent zero as a valid state containing potential
+- Treat negative indices as directional (contraction), not as error states
+- Recognize traversal beyond the void as dimensional transcendence
 
 ---
 
@@ -450,6 +532,16 @@ INVARIANT: substrate_provides_materialization
 INVARIANT: tokens_are_lazy
   FORALL tokens τ IN T:
     τ.payload.state = UNREALIZED until materialized
+
+INVARIANT: mrs_kravits_neighbor_awareness
+  FORALL tokens τ_i IN T:
+    EXISTS neighbor_set N(τ_i) = {τ_j | manifold_distance(τ_i, τ_j) ≤ ε}
+    FORALL τ_j IN N(τ_i):
+      τ_j.knows(τ_i.location) = TRUE
+      τ_j.knows(τ_i.signature) = TRUE
+      τ_j.knows(τ_i.payload) = FALSE
+    change(τ_i) => aware(N(τ_i)) in O(1)
+    lost(τ_i) => recoverable from N(τ_i)
 ```
 
 ---

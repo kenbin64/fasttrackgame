@@ -201,34 +201,187 @@ const GameSFX = {
     
     /**
      * STEP SOUND - Peg moving through each hole during traversal
-     * Uses position to vary pitch (dimensional coordinate → frequency)
+     * Theme-specific: Roman=march drums+trumpet, Undersea=calypso steel drum,
+     * Space=laser beam sweep, Default=simple tone
      * @param {number} stepIndex - Current step in the path (0-N)
      * @param {number} totalSteps - Total steps in move
      */
     playStep(stepIndex = 0, totalSteps = 1) {
         if (!this.enabled || !this.activate()) return;
         
-        const profile = this.getProfile();
+        const theme = this.currentTheme;
         const now = this.audioContext.currentTime;
-        
-        // Pitch rises slightly with each step (progress through move)
         const progress = totalSteps > 1 ? stepIndex / (totalSteps - 1) : 0;
+        
+        switch (theme) {
+            case 'ROMAN_COLISEUM':
+                this._playStepRoman(now, progress, stepIndex);
+                break;
+            case 'UNDERSEA':
+                this._playStepUndersea(now, progress, stepIndex);
+                break;
+            case 'SPACE_ACE':
+                this._playStepSpace(now, progress, stepIndex);
+                break;
+            default:
+                this._playStepDefault(now, progress);
+                break;
+        }
+    },
+    
+    /**
+     * Roman step: alternating march drums (left/right foot) + trumpet stab
+     */
+    _playStepRoman(now, progress, stepIndex) {
+        const ctx = this.audioContext;
+        const vol = this.volume;
+        
+        // Alternating left-right march: kick on even steps, tom on odd
+        if (stepIndex % 2 === 0) {
+            // Left foot: kick drum
+            const kickOsc = ctx.createOscillator();
+            const kickGain = ctx.createGain();
+            kickOsc.type = 'sine';
+            kickOsc.frequency.setValueAtTime(100, now);
+            kickOsc.frequency.exponentialRampToValueAtTime(45, now + 0.08);
+            kickGain.gain.setValueAtTime(vol * 0.25, now);
+            kickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            kickOsc.connect(kickGain);
+            kickGain.connect(this.masterGain);
+            kickOsc.start(now);
+            kickOsc.stop(now + 0.15);
+        } else {
+            // Right foot: tom
+            const tomOsc = ctx.createOscillator();
+            const tomGain = ctx.createGain();
+            tomOsc.type = 'sine';
+            tomOsc.frequency.setValueAtTime(85, now);
+            tomOsc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
+            tomGain.gain.setValueAtTime(vol * 0.20, now);
+            tomGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            tomOsc.connect(tomGain);
+            tomGain.connect(this.masterGain);
+            tomOsc.start(now);
+            tomOsc.stop(now + 0.15);
+        }
+        
+        // Trumpet stab — pitch rises with progress through move
+        const freq = 330 * (1 + progress * 0.5); // G4 rising to ~C5
+        const trumpetOsc = ctx.createOscillator();
+        const trumpetFilter = ctx.createBiquadFilter();
+        const trumpetGain = ctx.createGain();
+        trumpetOsc.type = 'sawtooth';
+        trumpetOsc.frequency.value = freq;
+        trumpetFilter.type = 'lowpass';
+        trumpetFilter.frequency.value = 1200;
+        trumpetGain.gain.setValueAtTime(0, now);
+        trumpetGain.gain.linearRampToValueAtTime(vol * 0.08, now + 0.01);
+        trumpetGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+        trumpetOsc.connect(trumpetFilter);
+        trumpetFilter.connect(trumpetGain);
+        trumpetGain.connect(this.masterGain);
+        trumpetOsc.start(now);
+        trumpetOsc.stop(now + 0.08);
+    },
+    
+    /**
+     * Undersea step: calypso steel drum ping + occasional bubble pop
+     */
+    _playStepUndersea(now, progress, stepIndex) {
+        const ctx = this.audioContext;
+        const vol = this.volume;
+        
+        // Steel drum pentatonic scale — bouncy calypso feel
+        const pentatonic = [392, 440, 493.88, 587.33, 659.25]; // G4 A4 B4 D5 E5
+        const noteIdx = stepIndex % pentatonic.length;
+        const freq = pentatonic[noteIdx] * (1 + progress * 0.2);
+        
+        const osc = ctx.createOscillator();
+        const filter = ctx.createBiquadFilter();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.value = freq;
+        filter.type = 'lowpass';
+        filter.frequency.value = 3000;
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(vol * 0.15, now + 0.005);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.15);
+        
+        // Bubble pop on every other step
+        if (stepIndex % 2 === 0) {
+            const bubbleOsc = ctx.createOscillator();
+            const bubbleGain = ctx.createGain();
+            bubbleOsc.type = 'sine';
+            const bFreq = 800 + Math.random() * 400;
+            bubbleOsc.frequency.setValueAtTime(bFreq, now + 0.02);
+            bubbleOsc.frequency.exponentialRampToValueAtTime(bFreq + 400, now + 0.05);
+            bubbleGain.gain.setValueAtTime(vol * 0.06, now + 0.02);
+            bubbleGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            bubbleOsc.connect(bubbleGain);
+            bubbleGain.connect(this.masterGain);
+            bubbleOsc.start(now + 0.02);
+            bubbleOsc.stop(now + 0.1);
+        }
+    },
+    
+    /**
+     * Space Ace step: laser beam frequency sweep + secondary whirl
+     */
+    _playStepSpace(now, progress, stepIndex) {
+        const ctx = this.audioContext;
+        const vol = this.volume;
+        
+        // Primary laser beam: fast descending frequency sweep
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        const startFreq = 1200 + progress * 800;
+        const endFreq = 200 + progress * 200;
+        osc.frequency.setValueAtTime(startFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.08);
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(vol * 0.12, now + 0.005);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.12);
+        
+        // Secondary whirl: counter-sweep for sci-fi texture
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(endFreq, now + 0.02);
+        osc2.frequency.exponentialRampToValueAtTime(Math.max(startFreq * 0.5, 50), now + 0.06);
+        gain2.gain.setValueAtTime(vol * 0.05, now + 0.02);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc2.connect(gain2);
+        gain2.connect(this.masterGain);
+        osc2.start(now + 0.02);
+        osc2.stop(now + 0.1);
+    },
+    
+    /**
+     * Default step: simple tonal click (used by DEFAULT, FIBONACCI, COSMIC)
+     */
+    _playStepDefault(now, progress) {
+        const profile = this.getProfile();
         const freq = profile.stepBaseFreq * (1 + progress * 0.3);
         
         const osc = this.audioContext.createOscillator();
         const gain = this.audioContext.createGain();
-        
         osc.type = profile.stepWave;
         osc.frequency.value = freq;
-        
-        // Quick click/tap envelope
         gain.gain.setValueAtTime(0, now);
         gain.gain.linearRampToValueAtTime(this.volume * 0.15, now + 0.01);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-        
         osc.connect(gain);
         gain.connect(this.masterGain);
-        
         osc.start(now);
         osc.stop(now + 0.1);
     },
@@ -416,6 +569,112 @@ const GameSFX = {
     },
     
     /**
+     * VANQUISH SAD - Slow sad descending wail as vanquished peg arcs to holding
+     * Plays over ~2 seconds to match the cinematic arc
+     */
+    playVanquishSad() {
+        if (!this.enabled || !this.activate()) return;
+        
+        const now = this.audioContext.currentTime;
+        
+        // Sad descending wail - slow slide down
+        const osc1 = this.audioContext.createOscillator();
+        const gain1 = this.audioContext.createGain();
+        
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(500, now);
+        osc1.frequency.exponentialRampToValueAtTime(180, now + 1.8);
+        osc1.frequency.exponentialRampToValueAtTime(80, now + 2.4);
+        
+        gain1.gain.setValueAtTime(0, now);
+        gain1.gain.linearRampToValueAtTime(this.volume * 0.2, now + 0.1);
+        gain1.gain.setValueAtTime(this.volume * 0.2, now + 1.2);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
+        
+        osc1.connect(gain1);
+        gain1.connect(this.masterGain);
+        osc1.start(now);
+        osc1.stop(now + 2.6);
+        
+        // Add a minor-third wobble for sadness
+        const osc2 = this.audioContext.createOscillator();
+        const gain2 = this.audioContext.createGain();
+        
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(600, now + 0.05);
+        osc2.frequency.exponentialRampToValueAtTime(214, now + 1.8);
+        osc2.frequency.exponentialRampToValueAtTime(95, now + 2.4);
+        
+        gain2.gain.setValueAtTime(0, now);
+        gain2.gain.linearRampToValueAtTime(this.volume * 0.1, now + 0.15);
+        gain2.gain.setValueAtTime(this.volume * 0.1, now + 1.0);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 2.3);
+        
+        osc2.connect(gain2);
+        gain2.connect(this.masterGain);
+        osc2.start(now + 0.05);
+        osc2.stop(now + 2.4);
+        
+        // Subtle "womp womp" at the end
+        setTimeout(() => {
+            const t = this.audioContext.currentTime;
+            [220, 185].forEach((freq, i) => {
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                osc.type = 'square';
+                osc.frequency.value = freq;
+                const start = t + i * 0.25;
+                gain.gain.setValueAtTime(0, start);
+                gain.gain.linearRampToValueAtTime(this.volume * 0.15, start + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, start + 0.22);
+                osc.connect(gain);
+                gain.connect(this.masterGain);
+                osc.start(start);
+                osc.stop(start + 0.25);
+            });
+        }, 2100);
+        
+        console.log('😢 [GameSFX] Vanquish sad!');
+    },
+    
+    /**
+     * VANQUISH DANCE - Quick triumphant jingle for the attacking peg's victory dance
+     */
+    playVanquishDance() {
+        if (!this.enabled || !this.activate()) return;
+        
+        const now = this.audioContext.currentTime;
+        
+        // Quick ascending triumphant notes
+        const notes = [392, 523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((freq, i) => {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            
+            osc.type = i < 3 ? 'triangle' : 'square';
+            osc.frequency.value = freq;
+            
+            const noteStart = now + i * 0.08;
+            
+            gain.gain.setValueAtTime(0, noteStart);
+            gain.gain.linearRampToValueAtTime(this.volume * 0.25, noteStart + 0.015);
+            gain.gain.setValueAtTime(this.volume * 0.25, noteStart + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, noteStart + 0.2);
+            
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+            
+            osc.start(noteStart);
+            osc.stop(noteStart + 0.25);
+        });
+        
+        // Add sparkles
+        this._playSparkle(now + 0.3, 6);
+        
+        console.log('💃 [GameSFX] Vanquish dance!');
+    },
+    
+    /**
      * VICTORY - Winner celebration fanfare!
      * Full triumphant scale with sparkles
      */
@@ -475,6 +734,61 @@ const GameSFX = {
         }, profile.victoryScale.length * 120 + 100);
         
         console.log('🏆 [GameSFX] Victory!');
+    },
+    
+    /**
+     * APPLAUSE - Crowd applause sound effect for victory ceremony
+     * Simulated with filtered noise bursts for a clapping crowd effect
+     */
+    playApplause(durationSec = 4) {
+        if (!this.enabled || !this.activate()) return;
+        
+        const now = this.audioContext.currentTime;
+        const ctx = this.audioContext;
+        
+        // Create noise buffer for applause simulation
+        const sampleRate = ctx.sampleRate;
+        const length = sampleRate * durationSec;
+        const buffer = ctx.createBuffer(2, length, sampleRate);
+        
+        for (let ch = 0; ch < 2; ch++) {
+            const data = buffer.getChannelData(ch);
+            for (let i = 0; i < length; i++) {
+                // Noise with rhythmic amplitude modulation to simulate clapping
+                const t = i / sampleRate;
+                // Multiple layered clap rhythms
+                const clap1 = Math.abs(Math.sin(t * 12.5 * Math.PI)); // ~6 claps/sec
+                const clap2 = Math.abs(Math.sin(t * 10.3 * Math.PI + 0.7));
+                const clap3 = Math.abs(Math.sin(t * 8.7 * Math.PI + 1.4));
+                const clapEnv = (clap1 * 0.4 + clap2 * 0.35 + clap3 * 0.25);
+                // Fade in/out envelope
+                const fadeIn = Math.min(1, t / 0.5);
+                const fadeOut = Math.min(1, (durationSec - t) / 1.0);
+                const envelope = fadeIn * fadeOut;
+                data[i] = (Math.random() * 2 - 1) * clapEnv * envelope;
+            }
+        }
+        
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        
+        // Band-pass filter to sound like clapping (remove low rumble and high hiss)
+        const bandpass = ctx.createBiquadFilter();
+        bandpass.type = 'bandpass';
+        bandpass.frequency.value = 2800;
+        bandpass.Q.value = 0.5;
+        
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(this.volume * 0.2, now);
+        
+        source.connect(bandpass);
+        bandpass.connect(gain);
+        gain.connect(this.masterGain);
+        
+        source.start(now);
+        source.stop(now + durationSec);
+        
+        console.log('👏 [GameSFX] Applause!');
     },
     
     /**

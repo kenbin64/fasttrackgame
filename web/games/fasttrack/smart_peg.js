@@ -109,16 +109,8 @@ class SmartPeg {
                 return `safe-${safePlayer}-${safeNum + 1}`;
             }
 
-            // At safe-*-4: can only proceed to home if safe zone is completely full
-            // (5th peg passing through scenario)
-            const otherSafePegs = this.teammates.filter(p =>
-                p.holeType === 'safezone' && p.id !== this.peg.id
-            ).length;
-            // This peg is at safe-4, so total safe pegs = otherSafePegs + 1
-            // Need all 4 safe holes occupied (this peg + 3 others)
-            if (otherSafePegs >= 3) {
-                return `home-${safePlayer}`;
-            }
+            // Pegs IN the safe zone can NEVER exit to home — they are permanently placed.
+            // Only the 5th peg (on the outer track) bypasses a full safe zone to reach home.
             return null; // End of safe zone, can't proceed
         }
 
@@ -131,12 +123,14 @@ class SmartPeg {
 
             const currentFtIdx = parseInt(currentHole.replace('ft-', ''));
 
-            // If at own exit point AND has traversed (entered from different hole):
+            // If at own exit point AND has traversed:
             // EXIT TO PERIMETER (side-left track), NOT directly to safe zone!
             // The peg continues on the main circuit: side-left → outer → safe zone entry
+            // FIX: Also handle case where peg entered at OWN ft-{boardPos} and has
+            // traversed away (visited other ft-* holes) before returning.
             if (currentFtIdx === this.boardPos &&
                 simState.fasttrackEntryHole &&
-                simState.fasttrackEntryHole !== currentHole) {
+                (simState.fasttrackEntryHole !== currentHole || simState.hasTraversedFT)) {
                 // Exit to side-left-{boardPos}-1 (first hole of perimeter after FastTrack exit)
                 return `side-left-${this.boardPos}-1`;
             }
@@ -164,13 +158,15 @@ class SmartPeg {
         // When eligible for safe zone and reaching this hole, route to safe zone
         if (currentHole === `outer-${this.boardPos}-2` &&
             simState.eligibleForSafeZone && clockwise) {
-            return `safe-${this.boardPos}-1`;
-        }
-
-        // HOME HOLE with safe zone eligibility: route to safe zone
-        // (This is for 5th peg scenario when safe zone is full)
-        if (currentHole === `home-${this.boardPos}` &&
-            simState.eligibleForSafeZone && clockwise) {
+            // Check if safe zone is full — 5th peg must bypass to outer track → home
+            const pegsInSafeZone = this.teammates.filter(p =>
+                p.holeType === 'safezone' && p.id !== this.peg.id
+            ).length;
+            // If 4 pegs already in safe zone, bypass — continue on outer perimeter toward home
+            if (pegsInSafeZone >= 4) {
+                console.log(`🏆 [SmartPeg] Safe zone FULL (${pegsInSafeZone} pegs) - 5th peg bypassing to outer track → home`);
+                return this.adj.getNextPerimeter(currentHole, true);
+            }
             return `safe-${this.boardPos}-1`;
         }
 
@@ -196,6 +192,7 @@ class SmartPeg {
             fasttrackEntryHole: this.peg.fasttrackEntryHole || null,
             mustExitFasttrack: this.peg.mustExitFasttrack || false,
             inBullseye: this.peg.inBullseye || false,
+            hasTraversedFT: false,  // Tracks if peg has visited any ft-* other than entry
             ...simOverrides  // Apply overrides (e.g. {onFasttrack: false} for leave-FT)
         };
 
@@ -214,12 +211,12 @@ class SmartPeg {
             }
 
             // BACKWARD RESTRICTIONS (4 card)
-            // Cannot enter bullseye (center) or safe zone going backward.
-            // ft-* holes CAN be traversed on perimeter going backward (they're just corners)
-            // but FastTrack MODE is never entered backward (getNextHole handles that).
+            // Cannot enter bullseye (center), safe zone, or FastTrack holes going backward.
+            // ft-* holes are special corners — a peg cannot back into them.
             if (!clockwise) {
                 if (nextHole === 'center') { blocked = true; blockedAt = nextHole; break; }
                 if (nextHole.startsWith('safe-')) { blocked = true; blockedAt = nextHole; break; }
+                if (nextHole.startsWith('ft-')) { blocked = true; blockedAt = nextHole; break; }
             }
 
             // BLOCKING by own peg (can't pass or land on own non-bullseye, non-finished pegs)
@@ -234,16 +231,22 @@ class SmartPeg {
                 break;
             }
 
-            // EXACT LANDING: home-{boardPos} from safe zone requires exact landing
-            // (this is the final winning position)
+            // EXACT LANDING: home-{boardPos} requires exact count to WIN
+            // The 5th peg (when safe zone is full) must land on home exactly.
+            // Can't overshoot the winning hole — if more hops remain, move is blocked.
             if (nextHole === `home-${this.boardPos}` &&
-                currentHole.startsWith('safe-') &&
+                sim.eligibleForSafeZone &&
                 hop < hops - 1) {
-                // Can land on home only as the LAST hop
-                // If there are more hops remaining, can't overshoot
-                blocked = true;
-                blockedAt = nextHole;
-                break;
+                // Check if safe zone is full (5th peg scenario)
+                const safePegsCount = this.teammates.filter(p =>
+                    p.holeType === 'safezone'
+                ).length;
+                if (safePegsCount >= 4) {
+                    // Can land on home only as the LAST hop — exact count required
+                    blocked = true;
+                    blockedAt = nextHole;
+                    break;
+                }
             }
 
             path.push(nextHole);
@@ -257,16 +260,32 @@ class SmartPeg {
                 sim.lockedToSafeZone = true;
             }
 
+            // SAFE ZONE ENTRY CROSSING = CIRCUIT COMPLETE (ANY DIRECTION)
+            // Landing on or passing through outer-{boardPos}-2 (safe zone entry hole)
+            // in ANY direction constitutes a full board traversal.
+            // This makes the peg eligible for safe zone entry on next forward turn.
+            if (nextHole === `outer-${this.boardPos}-2` && !sim.eligibleForSafeZone) {
+                sim.eligibleForSafeZone = true;
+                console.log(`🏁 [SmartPeg] Peg crossed safe zone entry ${nextHole} (dir=${clockwise ? 'fwd' : 'bwd'}) — now eligible for safe zone`);
+            }
+
             // Track FastTrack state: if entering ft-* intentionally, sim knows
             if (sim.onFasttrack && !nextHole.startsWith('ft-') && nextHole !== 'center') {
                 sim.onFasttrack = false;
                 sim.fasttrackEntryHole = null;
             }
 
+            // Track FT traversal: mark when peg visits any ft-* hole other than entry
+            if (sim.onFasttrack && nextHole.startsWith('ft-') && nextHole !== sim.fasttrackEntryHole) {
+                sim.hasTraversedFT = true;
+            }
+
             // If on FastTrack and reached own exit, EXIT FASTTRACK and mark for safe zone
             // They've "left FastTrack" - now on perimeter heading to safe zone
+            // FIX: Also handle entry at own ft-{boardPos} — exit once peg has traversed away
             if (sim.onFasttrack && nextHole === `ft-${this.boardPos}` &&
-                sim.fasttrackEntryHole && sim.fasttrackEntryHole !== `ft-${this.boardPos}`) {
+                sim.fasttrackEntryHole &&
+                (sim.fasttrackEntryHole !== `ft-${this.boardPos}` || sim.hasTraversedFT)) {
                 sim.eligibleForSafeZone = true;
                 sim.lockedToSafeZone = true;
                 sim.onFasttrack = false;  // EXIT FastTrack - they're now on perimeter
@@ -306,13 +325,16 @@ class SmartPeg {
         const destinations = [];
         const direction = card.direction || 'clockwise';
         const hops = card.movement;
+        const ownFtHole = `ft-${this.boardPos}`;
+        const isOnFtHole = this.peg.holeId.startsWith('ft-');
+        const canEnterBullseye = !this.peg.hasExitedBullseye; // Pegs that exited bullseye can never re-enter
 
         // ── Standard path ──
         const result = this.calculatePath(hops, direction);
 
         if (result.destination) {
             // Primary destination (FT traverse if on FT, or normal perimeter move)
-            const isFTPeg = this.peg.onFasttrack && this.peg.holeId.startsWith('ft-');
+            const isFTPeg = this.peg.onFasttrack && isOnFtHole;
             destinations.push({
                 holeId: result.destination,
                 steps: hops,
@@ -322,8 +344,8 @@ class SmartPeg {
                     : `Move ${hops} to ${result.destination}`
             });
 
-            // OPTION: FastTrack entry (landing exactly on ft-* from perimeter)
-            if (result.destination.startsWith('ft-') && !this.peg.onFasttrack) {
+            // OPTION: FastTrack entry (landing exactly on ft-* from perimeter, not already on ft-*)
+            if (result.destination.startsWith('ft-') && !this.peg.onFasttrack && !isOnFtHole) {
                 destinations.push({
                     holeId: result.destination,
                     steps: hops,
@@ -334,7 +356,75 @@ class SmartPeg {
             }
 
             // OPTION: Bullseye from FastTrack (1 step past ft-*)
-            this._addBullseyeOptions(result, destinations, hops);
+            if (canEnterBullseye) {
+                this._addBullseyeOptions(result, destinations, hops);
+            }
+        }
+
+        // ════════════════════════════════════════════════════════
+        // OPTION: Re-enter FastTrack — peg is on ft-* but NOT in FT mode
+        // This handles: a) FT status lost due to non-FT move (endTurn rule)
+        //               b) Peg landed on ft-* via perimeter but didn't enter FT
+        //               c) Peg exited bullseye to ft-* corner
+        // The peg can choose to enter FT mode from its current ft-* position.
+        // ════════════════════════════════════════════════════════
+        if (!this.peg.onFasttrack && isOnFtHole && direction !== 'backward'
+            && !this.peg.lockedToSafeZone && !this.peg.inHomeStretch) {
+            const ftReentryResult = this.calculatePath(hops, direction, {
+                onFasttrack: true,
+                fasttrackEntryHole: this.peg.holeId,
+                mustExitFasttrack: false,
+                hasTraversedFT: false
+            });
+            if (ftReentryResult.destination) {
+                // Only add if destination differs from perimeter path
+                const alreadyHasDest = destinations.some(d =>
+                    d.holeId === ftReentryResult.destination && !d.isCenterOption
+                );
+                if (!alreadyHasDest) {
+                    destinations.push({
+                        holeId: ftReentryResult.destination,
+                        steps: hops,
+                        path: [...ftReentryResult.path],
+                        isFastTrackEntry: true,
+                        description: `⚡ Enter FastTrack → ${ftReentryResult.destination}`
+                    });
+                    console.log(`⚡ [SmartPeg] Offering FT re-entry: ${this.peg.holeId} → FT → ${ftReentryResult.destination}`);
+                }
+                // Bullseye options from the FT re-entry path
+                if (canEnterBullseye) {
+                    const ftPath = ftReentryResult.path;
+                    if (ftPath.length >= 3) {
+                        const prevHole = ftPath[ftPath.length - 2];
+                        if (prevHole.startsWith('ft-') && prevHole !== ownFtHole && !this._ownPegInCenter()) {
+                            const alreadyCenter = destinations.some(d => d.isCenterOption);
+                            if (!alreadyCenter) {
+                                destinations.push({
+                                    holeId: 'center',
+                                    steps: hops,
+                                    path: [...ftPath.slice(0, -1), 'center'],
+                                    isCenterOption: true,
+                                    isFastTrackEntry: true,
+                                    description: `🎯 Enter Bullseye via FT re-entry`
+                                });
+                            }
+                        }
+                    }
+                }
+                // Direct bullseye (1-hop card at current ft-* with re-entry)
+                if (canEnterBullseye && hops === 1 && this.peg.holeId !== ownFtHole
+                    && !this._ownPegInCenter() && !destinations.some(d => d.isCenterOption)) {
+                    destinations.push({
+                        holeId: 'center',
+                        steps: 1,
+                        path: [this.peg.holeId, 'center'],
+                        isCenterOption: true,
+                        isFastTrackEntry: true,
+                        description: `🎯 Enter Bullseye from ${this.peg.holeId}`
+                    });
+                    console.log(`🎯 [SmartPeg] Offering bullseye via FT re-entry at ${this.peg.holeId}`);
+                }
+            }
         }
 
         // ════════════════════════════════════════════════════════
@@ -343,7 +433,7 @@ class SmartPeg {
         // FastTrack and continue on the outer perimeter track instead.
         // This calculates where the peg would land if it left FT immediately.
         // ════════════════════════════════════════════════════════
-        if (this.peg.onFasttrack && this.peg.holeId.startsWith('ft-') && !this.peg.inHomeStretch) {
+        if (this.peg.onFasttrack && isOnFtHole && !this.peg.inHomeStretch) {
             const perimeterResult = this.calculatePath(hops, direction, {
                 onFasttrack: false,
                 fasttrackEntryHole: null,
@@ -374,8 +464,8 @@ class SmartPeg {
         // EXCEPT their own color's FastTrack hole (ft-{boardPos}). Moving to center
         // from your own FT entry point is considered a backwards move.
         // Cards with movement=1: A, Joker, J, Q, K.
-        const ownFtHole = `ft-${this.boardPos}`;
-        if (this.peg.onFasttrack && this.peg.holeId.startsWith('ft-') && hops === 1
+        // GUARD: Pegs that have exited bullseye before can NEVER re-enter.
+        if (canEnterBullseye && this.peg.onFasttrack && isOnFtHole && hops === 1
             && this.peg.holeId !== ownFtHole) {
             if (!this._ownPegInCenter()) {
                 const already = destinations.some(d => d.isCenterOption);
@@ -392,11 +482,15 @@ class SmartPeg {
             }
         } else if (this.peg.onFasttrack && this.peg.holeId === ownFtHole && hops === 1) {
             console.log(`🚫 [SmartPeg] Bullseye blocked - peg is on own FT hole ${ownFtHole} (backwards move)`);
+        } else if (!canEnterBullseye && this.peg.onFasttrack && isOnFtHole && hops === 1) {
+            console.log(`🚫 [SmartPeg] Bullseye blocked - peg has previously exited bullseye (no re-entry)`);
         }
 
         // ── lockedToSafeZone filter ──
-        // If peg is locked, only allow safe zone or home destinations
-        if (this.peg.lockedToSafeZone) {
+        // If peg is locked, only allow safe zone or home destinations for FORWARD moves.
+        // EXCEPTION: Backward moves (4 card) are always allowed — a locked peg can still
+        // move backward on the outer track. The lock only prevents forward deviation.
+        if (this.peg.lockedToSafeZone && direction !== 'backward') {
             const filtered = destinations.filter(d =>
                 d.holeId.startsWith('safe-') || d.holeId.startsWith('home-')
             );
@@ -655,7 +749,8 @@ class SmartPegManager {
                 // Fix 2: Peg in holding with stale flags
                 if (peg.holeType === 'holding') {
                     if (peg.eligibleForSafeZone || peg.lockedToSafeZone ||
-                        peg.onFasttrack || peg.completedCircuit || peg.inBullseye) {
+                        peg.onFasttrack || peg.completedCircuit || peg.inBullseye ||
+                        peg.hasExitedBullseye || peg.mustExitFasttrack || peg.inHomeStretch) {
                         console.warn(`🔧 [Audit] ${peg.id}: clearing stale flags in holding`);
                         peg.eligibleForSafeZone = false;
                         peg.lockedToSafeZone = false;
@@ -663,6 +758,10 @@ class SmartPegManager {
                         peg.completedCircuit = false;
                         peg.inBullseye = false;
                         peg.mustExitFasttrack = false;
+                        peg.hasExitedBullseye = false;
+                        peg.inHomeStretch = false;
+                        peg.fasttrackEntryHole = null;
+                        peg.fasttrackEntryTurn = null;
                         fixes++;
                     }
                 }

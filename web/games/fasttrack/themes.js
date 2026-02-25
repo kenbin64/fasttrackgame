@@ -89,22 +89,22 @@ const FastTrackThemes = {
             holeColor: 0x001a33,
             bullseyeColor: 0x7fffd4
         },
-        // Colorblind-safe high contrast theme - earth tones without green
+        // Accessibility theme — colorblind-safe, no red/green, high contrast
         highcontrast: {
-            boardColor: 0x5c4033,       // Dark brown board
+            boardColor: 0xd0c8b8,       // Warm light gray board
             boardRoughness: 0.6,
-            boardMetalness: 0.1,
+            boardMetalness: 0.05,
             playerColors: [
-                0xf5deb3,  // Wheat/cream (light, high visibility)
-                0x8b4513,  // Saddle brown
-                0xd2691e,  // Chocolate/terracotta  
-                0xdaa520,  // Goldenrod/mustard
-                0x2f1810,  // Dark espresso (near black)
-                0xcd853f   // Peru/tan
+                0x0077bb,  // Strong blue
+                0xff9900,  // Vivid orange
+                0xdddddd,  // Near-white
+                0xffdd00,  // Bright yellow
+                0x222222,  // Near-black
+                0x8844bb   // Purple
             ],
-            playerNames: ['Cream', 'Brown', 'Rust', 'Mustard', 'Espresso', 'Tan'],
-            holeColor: 0x1a1008,        // Very dark brown holes
-            bullseyeColor: 0xffd700     // Gold bullseye
+            playerNames: ['Blue', 'Orange', 'White', 'Yellow', 'Black', 'Purple'],
+            holeColor: 0x2a2a2a,        // Dark gray holes
+            bullseyeColor: 0xffdd00     // Bright yellow bullseye
         },
         // Fibonacci spiral theme - golden ratio inspired colors
         fibonacci: {
@@ -965,7 +965,7 @@ FastTrackThemes.register('cosmic', {
                 transparent: true,
                 opacity: 0.3 + Math.random() * 0.3,
                 blending: THREE.AdditiveBlending,
-                wireframe: shapeType !== 1
+                wireframe: true
             });
             
             const shape = new THREE.Mesh(shapeGeo, shapeMat);
@@ -1105,773 +1105,731 @@ FastTrackThemes.register('cosmic', {
 
 // ============================================================
 // THEME: ROMAN COLOSSEUM
+// Grand open cylinder with arched tiers, toga'd spectators
+// with laurel crowns, and the Emperor in his Imperial perch.
+// ALL structures pushed beyond radius 500 — board stays clear.
 // ============================================================
 
 FastTrackThemes.register('colosseum', {
     name: 'Roman Colosseum',
-    description: 'Epic gladiator arena with animated crowd reactions',
+    description: 'Grand Roman amphitheatre with toga-clad spectators & Emperor',
     
     create: function(scene, THREE, manager) {
         // Warm Mediterranean sky
         scene.background = new THREE.Color(0x87CEEB);
         
-        const stoneColor = 0xd4c4a8;
-        const stoneDark = 0xa89880;
-        const sandColor = 0xe8d4a8;
+        const FLOOR_Y     = -2;      // Just below board
+        const WALL_INNER_R = 520;     // Inner wall — well beyond board (radius ~260)
+        const stoneLight   = 0xd4c4a8;
+        const stoneMed     = 0xc4b498;
+        const stoneDark    = 0xa89880;
+        const marbleWhite  = 0xf0ece4;
+        const sandColor    = 0xe8d4a8;
+        const imperialPurple = 0x4b0082;
+        const crimson      = 0xc41e3a;
+        const gold         = 0xffd700;
         
-        // === LAYER 0: Sky gradient dome ===
-        const skyGeo = new THREE.SphereGeometry(1500, 32, 32);
+        // Shared materials (reuse for perf)
+        const stoneMat = new THREE.MeshStandardMaterial({ color: stoneLight, roughness: 0.75, metalness: 0.05 });
+        const stoneDarkMat = new THREE.MeshStandardMaterial({ color: stoneDark, roughness: 0.8, metalness: 0.05 });
+        const marbleMat = new THREE.MeshStandardMaterial({ color: marbleWhite, roughness: 0.35, metalness: 0.15 });
+        const goldMat = new THREE.MeshStandardMaterial({ color: gold, roughness: 0.25, metalness: 0.8 });
+        
+        // ────────────────────────────
+        // SKY DOME with sun glow
+        // ────────────────────────────
+        const skyGeo = new THREE.SphereGeometry(2500, 32, 32);
         const skyMat = new THREE.ShaderMaterial({
             side: THREE.BackSide,
             uniforms: {
                 topColor: { value: new THREE.Color(0x1e90ff) },
                 bottomColor: { value: new THREE.Color(0x87ceeb) },
-                sunColor: { value: new THREE.Color(0xffd700) },
-                time: { value: 0 }
+                sunColor: { value: new THREE.Color(0xffd700) }
             },
             vertexShader: `
-                varying vec3 vWorldPosition;
+                varying vec3 vWP;
                 void main() {
-                    vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-                    vWorldPosition = worldPosition.xyz;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                }
-            `,
+                    vWP = (modelMatrix * vec4(position,1.0)).xyz;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+                }`,
             fragmentShader: `
-                uniform vec3 topColor;
-                uniform vec3 bottomColor;
-                uniform vec3 sunColor;
-                uniform float time;
-                varying vec3 vWorldPosition;
+                uniform vec3 topColor, bottomColor, sunColor;
+                varying vec3 vWP;
                 void main() {
-                    float h = normalize(vWorldPosition).y;
-                    vec3 skyCol = mix(bottomColor, topColor, max(0.0, h));
-                    // Sun glow
-                    vec3 sunDir = normalize(vec3(0.5, 0.6, 0.3));
-                    float sunDot = max(0.0, dot(normalize(vWorldPosition), sunDir));
-                    float sunGlow = pow(sunDot, 32.0) + pow(sunDot, 8.0) * 0.3;
-                    skyCol += sunColor * sunGlow * 0.5;
-                    gl_FragColor = vec4(skyCol, 1.0);
-                }
-            `
+                    float h = normalize(vWP).y;
+                    vec3 c = mix(bottomColor, topColor, max(0.0, h));
+                    vec3 sd = normalize(vec3(0.5,0.6,0.3));
+                    float d = max(0.0, dot(normalize(vWP), sd));
+                    c += sunColor * (pow(d,32.0) + pow(d,8.0)*0.3) * 0.5;
+                    gl_FragColor = vec4(c,1.0);
+                }`
         });
         const sky = new THREE.Mesh(skyGeo, skyMat);
         scene.add(sky);
         manager.backdropLayers.push({ mesh: sky, parallaxFactor: 0, rotationSpeed: 0 });
         
-        // === LAYER 1: Arena floor (sand) ===
-        const sandGeo = new THREE.CircleGeometry(800, 64);
-        const sandMat = new THREE.MeshStandardMaterial({
-            color: sandColor,
-            roughness: 0.9,
-            metalness: 0.0
-        });
-        const sandFloor = new THREE.Mesh(sandGeo, sandMat);
+        // ────────────────────────────
+        // ARENA FLOOR — sandy ground below the board
+        // ────────────────────────────
+        const sandFloor = new THREE.Mesh(
+            new THREE.CircleGeometry(1200, 64),
+            new THREE.MeshStandardMaterial({ color: sandColor, roughness: 0.9, metalness: 0 })
+        );
         sandFloor.rotation.x = -Math.PI / 2;
-        sandFloor.position.y = -100;
+        sandFloor.position.y = FLOOR_Y - 1;
         sandFloor.receiveShadow = true;
         scene.add(sandFloor);
         manager.backdropLayers.push({ mesh: sandFloor, parallaxFactor: 0, rotationSpeed: 0 });
         
-        // === LAYER 2: Arena wall (inner ring) ===
-        const wallHeight = 80;
-        const wallRadius = 350;
-        const wallSegments = 64;
+        // ────────────────────────────
+        // PODIUM WALL — low marble retaining wall with decorative band
+        // ────────────────────────────
+        const podiumH = 40;
+        const podiumWall = new THREE.Mesh(
+            new THREE.CylinderGeometry(WALL_INNER_R, WALL_INNER_R, podiumH, 80, 1, true),
+            new THREE.MeshStandardMaterial({ color: marbleWhite, roughness: 0.4, metalness: 0.15, side: THREE.DoubleSide })
+        );
+        podiumWall.position.y = FLOOR_Y + podiumH / 2;
+        scene.add(podiumWall);
+        manager.backdropLayers.push({ mesh: podiumWall, parallaxFactor: 0.005, rotationSpeed: 0 });
         
-        const wallGeo = new THREE.CylinderGeometry(wallRadius, wallRadius, wallHeight, wallSegments, 1, true);
-        const wallMat = new THREE.MeshStandardMaterial({
-            color: stoneColor,
-            roughness: 0.8,
-            metalness: 0.1,
-            side: THREE.DoubleSide
-        });
-        const wall = new THREE.Mesh(wallGeo, wallMat);
-        wall.position.y = -100 + wallHeight / 2;
-        scene.add(wall);
-        manager.backdropLayers.push({ mesh: wall, parallaxFactor: 0.01, rotationSpeed: 0 });
+        // Decorative red band around podium top
+        const bandMesh = new THREE.Mesh(
+            new THREE.TorusGeometry(WALL_INNER_R, 3, 8, 80),
+            new THREE.MeshStandardMaterial({ color: crimson, roughness: 0.6, metalness: 0.2 })
+        );
+        bandMesh.rotation.x = Math.PI / 2;
+        bandMesh.position.y = FLOOR_Y + podiumH;
+        scene.add(bandMesh);
+        manager.backdropLayers.push({ mesh: bandMesh, parallaxFactor: 0.005, rotationSpeed: 0 });
         
-        // === ROMAN ART: Shields and laurel wreaths on arena wall ===
+        // Gold shields and laurel wreaths on podium wall
         const artGroup = new THREE.Group();
-        const shieldCount = 16;
-        for (let i = 0; i < shieldCount; i++) {
-            const angle = (i / shieldCount) * Math.PI * 2;
-            const artX = Math.cos(angle) * (wallRadius - 2);
-            const artZ = Math.sin(angle) * (wallRadius - 2);
-            const artY = -100 + wallHeight * 0.6;
+        const artCount = 24;
+        for (let i = 0; i < artCount; i++) {
+            const a = (i / artCount) * Math.PI * 2;
+            const ax = Math.cos(a) * (WALL_INNER_R - 2);
+            const az = Math.sin(a) * (WALL_INNER_R - 2);
+            const ay = FLOOR_Y + podiumH * 0.55;
             
             if (i % 2 === 0) {
-                // Roman shield (scutum) — rectangular with boss
-                const shieldGroup = new THREE.Group();
-                const sBody = new THREE.Mesh(
-                    new THREE.BoxGeometry(18, 25, 2),
-                    new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.6, metalness: 0.3 })
-                );
-                shieldGroup.add(sBody);
-                // Gold boss (center circle)
-                const sBoss = new THREE.Mesh(
-                    new THREE.SphereGeometry(4, 12, 12, 0, Math.PI),
-                    new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.2, metalness: 0.8 })
-                );
-                sBoss.position.z = 1.5;
-                shieldGroup.add(sBoss);
-                // Gold rim
-                const sRim = new THREE.Mesh(
-                    new THREE.TorusGeometry(12, 1, 8, 16),
-                    new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.3, metalness: 0.7 })
-                );
-                sRim.position.z = 0.5;
-                shieldGroup.add(sRim);
-                
-                shieldGroup.position.set(artX, artY, artZ);
-                shieldGroup.lookAt(0, artY, 0);
-                artGroup.add(shieldGroup);
+                // Roman scutum shield
+                const sg = new THREE.Group();
+                sg.add(new THREE.Mesh(new THREE.BoxGeometry(14, 20, 1.5),
+                    new THREE.MeshStandardMaterial({ color: crimson, roughness: 0.5, metalness: 0.3 })));
+                const boss = new THREE.Mesh(new THREE.SphereGeometry(3, 10, 10, 0, Math.PI), goldMat);
+                boss.position.z = 1; sg.add(boss);
+                sg.position.set(ax, ay, az);
+                sg.lookAt(0, ay, 0);
+                artGroup.add(sg);
             } else {
-                // Laurel wreath decoration
-                const wreathGroup = new THREE.Group();
-                const leafCount = 12;
-                for (let l = 0; l < leafCount; l++) {
-                    const la = (l / leafCount) * Math.PI * 2;
-                    const leaf = new THREE.Mesh(
-                        new THREE.SphereGeometry(2, 4, 4),
+                // Laurel wreath
+                const wg = new THREE.Group();
+                for (let l = 0; l < 10; l++) {
+                    const la = (l / 10) * Math.PI * 2;
+                    const lf = new THREE.Mesh(
+                        new THREE.SphereGeometry(1.5, 4, 4),
                         new THREE.MeshStandardMaterial({ color: 0x228b22, roughness: 0.7 })
                     );
-                    leaf.position.set(Math.cos(la) * 8, Math.sin(la) * 8, 0);
-                    leaf.scale.set(1.5, 0.6, 0.4);
-                    wreathGroup.add(leaf);
+                    lf.position.set(Math.cos(la) * 6, Math.sin(la) * 6, 0);
+                    lf.scale.set(1.5, 0.6, 0.4);
+                    wg.add(lf);
                 }
-                // Center medallion
-                const medal = new THREE.Mesh(
-                    new THREE.CylinderGeometry(3, 3, 1, 12),
-                    new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.2, metalness: 0.8 })
-                );
-                medal.rotation.x = Math.PI / 2;
-                wreathGroup.add(medal);
-                
-                wreathGroup.position.set(artX, artY, artZ);
-                wreathGroup.lookAt(0, artY, 0);
-                artGroup.add(wreathGroup);
+                wg.add(new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 1, 10), goldMat));
+                wg.children[wg.children.length - 1].rotation.x = Math.PI / 2;
+                wg.position.set(ax, ay, az);
+                wg.lookAt(0, ay, 0);
+                artGroup.add(wg);
             }
         }
         scene.add(artGroup);
-        manager.backdropLayers.push({ mesh: artGroup, parallaxFactor: 0.01, rotationSpeed: 0 });
+        manager.backdropLayers.push({ mesh: artGroup, parallaxFactor: 0.005, rotationSpeed: 0 });
         
-        // === ROMAN ART: Torch braziers on wall top ===
-        const torchGroup = new THREE.Group();
-        const torchCount = 12;
-        for (let i = 0; i < torchCount; i++) {
-            const angle = (i / torchCount) * Math.PI * 2;
-            const tx = Math.cos(angle) * (wallRadius + 5);
-            const tz = Math.sin(angle) * (wallRadius + 5);
+        // ────────────────────────────
+        // THREE TIERS OF ARCHED SEATING — the iconic Colosseum look
+        // Each tier: arched openings (columns + arches) backed by solid wall
+        // ────────────────────────────
+        const tierDefs = [
+            { innerR: WALL_INNER_R + 5,  outerR: WALL_INNER_R + 70,  baseY: FLOOR_Y + podiumH, h: 70,  archN: 40, col: stoneLight },
+            { innerR: WALL_INNER_R + 70,  outerR: WALL_INNER_R + 140, baseY: FLOOR_Y + podiumH + 70, h: 65,  archN: 48, col: stoneMed },
+            { innerR: WALL_INNER_R + 140, outerR: WALL_INNER_R + 200, baseY: FLOOR_Y + podiumH + 135, h: 55, archN: 56, col: stoneDark }
+        ];
+        
+        tierDefs.forEach((td, ti) => {
+            const tierGroup = new THREE.Group();
+            const midR = (td.innerR + td.outerR) / 2;
             
-            // Bronze brazier bowl
+            // Solid back wall for this tier
+            const backWall = new THREE.Mesh(
+                new THREE.CylinderGeometry(td.outerR, td.outerR, td.h, 80, 1, true),
+                new THREE.MeshStandardMaterial({ color: td.col, roughness: 0.8, metalness: 0.05, side: THREE.DoubleSide })
+            );
+            backWall.position.y = td.baseY + td.h / 2;
+            tierGroup.add(backWall);
+            
+            // Horizontal ledge / cornice at top of tier
+            const cornice = new THREE.Mesh(
+                new THREE.TorusGeometry(td.outerR, 4, 6, 80),
+                new THREE.MeshStandardMaterial({ color: marbleWhite, roughness: 0.4, metalness: 0.1 })
+            );
+            cornice.rotation.x = Math.PI / 2;
+            cornice.position.y = td.baseY + td.h;
+            tierGroup.add(cornice);
+            
+            // Columns and arches around the tier's inner face
+            const colMatl = new THREE.MeshStandardMaterial({ color: marbleWhite, roughness: 0.35, metalness: 0.12 });
+            for (let i = 0; i < td.archN; i++) {
+                const a = (i / td.archN) * Math.PI * 2;
+                const cx = Math.cos(a) * td.innerR;
+                const cz = Math.sin(a) * td.innerR;
+                
+                // Column (Doric-style)
+                const col = new THREE.Mesh(
+                    new THREE.CylinderGeometry(3.5 - ti * 0.3, 4 - ti * 0.3, td.h - 8, 8),
+                    colMatl
+                );
+                col.position.set(cx, td.baseY + td.h / 2, cz);
+                tierGroup.add(col);
+                
+                // Column capital (wider top piece)
+                const cap = new THREE.Mesh(
+                    new THREE.BoxGeometry(10 - ti, 5, 10 - ti),
+                    colMatl
+                );
+                cap.position.set(cx, td.baseY + td.h - 4, cz);
+                cap.lookAt(0, cap.position.y, 0);
+                tierGroup.add(cap);
+                
+                // Arch between every 2 columns
+                if (i % 2 === 0 && td.archN > 0) {
+                    const nextA = ((i + 1) / td.archN) * Math.PI * 2;
+                    const midA = (a + nextA) / 2;
+                    const archSpan = td.innerR * (2 * Math.PI / td.archN);
+                    const archR = archSpan * 0.4;
+                    const arch = new THREE.Mesh(
+                        new THREE.TorusGeometry(archR, 2.5 - ti * 0.3, 6, 12, Math.PI),
+                        colMatl
+                    );
+                    arch.position.set(
+                        Math.cos(midA) * td.innerR,
+                        td.baseY + td.h - 6,
+                        Math.sin(midA) * td.innerR
+                    );
+                    arch.rotation.y = -midA + Math.PI / 2;
+                    arch.rotation.x = Math.PI;
+                    tierGroup.add(arch);
+                }
+            }
+            
+            scene.add(tierGroup);
+            manager.backdropLayers.push({ mesh: tierGroup, parallaxFactor: 0.01 + ti * 0.005, rotationSpeed: 0 });
+        });
+        
+        // ────────────────────────────
+        // TORCH BRAZIERS on top of podium wall
+        // ────────────────────────────
+        const torchGroup = new THREE.Group();
+        const torchN = 16;
+        for (let i = 0; i < torchN; i++) {
+            const a = (i / torchN) * Math.PI * 2;
+            const tx = Math.cos(a) * (WALL_INNER_R + 8);
+            const tz = Math.sin(a) * (WALL_INNER_R + 8);
+            
+            // Bronze bowl
             const bowl = new THREE.Mesh(
-                new THREE.ConeGeometry(6, 10, 8, 1, true),
+                new THREE.ConeGeometry(5, 8, 8, 1, true),
                 new THREE.MeshStandardMaterial({ color: 0xcd7f32, roughness: 0.4, metalness: 0.6, side: THREE.DoubleSide })
             );
             bowl.rotation.x = Math.PI;
-            bowl.position.set(tx, -100 + wallHeight + 5, tz);
+            bowl.position.set(tx, FLOOR_Y + podiumH + 4, tz);
             torchGroup.add(bowl);
             
-            // Fire glow (emissive sphere)
+            // Fire glow
             const fire = new THREE.Mesh(
-                new THREE.SphereGeometry(4, 8, 8),
-                new THREE.MeshStandardMaterial({ 
+                new THREE.SphereGeometry(3.5, 8, 8),
+                new THREE.MeshStandardMaterial({
                     color: 0xff6600, emissive: 0xff4400, emissiveIntensity: 1.5,
-                    transparent: true, opacity: 0.8, roughness: 1 
+                    transparent: true, opacity: 0.8, roughness: 1
                 })
             );
-            fire.position.set(tx, -100 + wallHeight + 10, tz);
+            fire.position.set(tx, FLOOR_Y + podiumH + 9, tz);
             fire.userData.flickerOffset = i * 0.7;
             torchGroup.add(fire);
         }
         scene.add(torchGroup);
-        manager.backdropLayers.push({ 
+        manager.backdropLayers.push({
             mesh: torchGroup, parallaxFactor: 0.01, rotationSpeed: 0,
             update: function(mesh, time) {
-                // Flicker torch fires
                 mesh.children.forEach(child => {
                     if (child.userData.flickerOffset !== undefined) {
-                        const flicker = 0.6 + Math.sin(time * 8 + child.userData.flickerOffset) * 0.2 
-                                        + Math.sin(time * 13 + child.userData.flickerOffset * 2) * 0.15;
-                        child.material.emissiveIntensity = flicker * 1.5;
-                        child.material.opacity = 0.6 + flicker * 0.3;
-                        child.scale.setScalar(0.8 + flicker * 0.3);
+                        const f = 0.6 + Math.sin(time * 8 + child.userData.flickerOffset) * 0.2
+                                      + Math.sin(time * 13 + child.userData.flickerOffset * 2) * 0.15;
+                        child.material.emissiveIntensity = f * 1.5;
+                        child.material.opacity = 0.6 + f * 0.3;
+                        child.scale.setScalar(0.8 + f * 0.3);
                     }
                 });
             }
         });
         
-        // === LAYER 3-6: TIERED SEATING with spectators ===
-        const tiers = [
-            { radius: 400, height: 50, rows: 8, color: 0xc9b896 },
-            { radius: 520, height: 100, rows: 10, color: 0xbfaf8a },
-            { radius: 680, height: 160, rows: 12, color: 0xb5a57e },
-            { radius: 880, height: 230, rows: 14, color: 0xab9b72 }
+        // ────────────────────────────
+        // TOGA-CLAD SPECTATORS WITH LAUREL CROWNS
+        // Placed across the 3 tiers with varied Roman attire
+        // ────────────────────────────
+        const skinTones = [0xffe4c4, 0xdeb887, 0xd2b48c, 0xbc8f8f, 0x8b7355, 0xf5deb3];
+        const togaColors = [
+            0xf5f5dc, 0xe8e4d4, 0xfaf0e6,   // White/cream togas (citizens)
+            0xe8d8c0, 0xf0e6d3, 0xddd5c4,   // Off-whites
+            0xc41e3a,                          // Crimson (magistrates — rare)
+            0x4b0082                           // Purple (senators — rare)
         ];
         
-        tiers.forEach((tier, tierIndex) => {
-            // Seating structure
-            const tierGeo = new THREE.CylinderGeometry(
-                tier.radius + 40, 
-                tier.radius, 
-                tier.height, 
-                64, 
-                tier.rows, 
-                true
-            );
-            const tierMat = new THREE.MeshStandardMaterial({
-                color: tier.color,
-                roughness: 0.85,
-                metalness: 0.05,
-                side: THREE.DoubleSide
-            });
-            const tierMesh = new THREE.Mesh(tierGeo, tierMat);
-            tierMesh.position.y = -100 + tier.height / 2;
-            scene.add(tierMesh);
-            manager.backdropLayers.push({ mesh: tierMesh, parallaxFactor: 0.02 + tierIndex * 0.01, rotationSpeed: 0 });
-            
-            // Add spectators to this tier
-            const spectatorCount = 40 + tierIndex * 20;
-            for (let i = 0; i < spectatorCount; i++) {
-                const angle = (i / spectatorCount) * Math.PI * 2 + (tierIndex * 0.1);
-                const rowOffset = Math.random() * (tier.rows - 1);
-                const rowRadius = tier.radius + rowOffset * (40 / tier.rows) + 10;
-                const rowHeight = -100 + (rowOffset / tier.rows) * tier.height + 10;
+        const specTiers = [
+            { innerR: WALL_INNER_R + 10, outerR: WALL_INNER_R + 60,  baseY: FLOOR_Y + podiumH + 5,  count: 60,  isVIP: true },
+            { innerR: WALL_INNER_R + 75, outerR: WALL_INNER_R + 130, baseY: FLOOR_Y + podiumH + 75,  count: 80,  isVIP: false },
+            { innerR: WALL_INNER_R + 145,outerR: WALL_INNER_R + 190, baseY: FLOOR_Y + podiumH + 140, count: 70,  isVIP: false }
+        ];
+        
+        specTiers.forEach((st, si) => {
+            for (let i = 0; i < st.count; i++) {
+                const a = (i / st.count) * Math.PI * 2 + si * 0.15;
+                const r = st.innerR + Math.random() * (st.outerR - st.innerR);
+                const rowProg = (r - st.innerR) / (st.outerR - st.innerR);
+                const sy = st.baseY + rowProg * 30;
                 
-                // Create spectator (simple colored shape)
-                const spectatorGroup = new THREE.Group();
+                const spectator = new THREE.Group();
                 
-                // Body (varied colors for togas)
-                const togaColors = [0xf5f5dc, 0xe8e4d4, 0xfaf0e6, 0xd4a574, 0x8b4513, 0xcd853f, 0xc41e3a];
-                const togaColor = togaColors[Math.floor(Math.random() * togaColors.length)];
+                // Pick toga color — VIP tier gets more purple/crimson
+                let togaIdx;
+                if (st.isVIP && Math.random() > 0.6) {
+                    togaIdx = Math.random() > 0.5 ? 6 : 7; // crimson or purple
+                } else {
+                    togaIdx = Math.floor(Math.random() * 6); // citizen whites
+                }
+                const togaColor = togaColors[togaIdx];
+                const togaMat = new THREE.MeshStandardMaterial({ color: togaColor, roughness: 0.8 });
                 
-                const bodyGeo = new THREE.CapsuleGeometry(3, 6, 4, 8);
-                const bodyMat = new THREE.MeshStandardMaterial({ color: togaColor, roughness: 0.8 });
-                const body = new THREE.Mesh(bodyGeo, bodyMat);
+                // Body — capsule (toga-draped torso)
+                const body = new THREE.Mesh(new THREE.CapsuleGeometry(3.5, 7, 4, 8), togaMat);
                 body.position.y = 5;
-                spectatorGroup.add(body);
+                spectator.add(body);
+                
+                // Toga drape — thin tilted plane for sash effect
+                const drape = new THREE.Mesh(
+                    new THREE.PlaneGeometry(4, 8),
+                    new THREE.MeshStandardMaterial({ color: togaColor, roughness: 0.9, side: THREE.DoubleSide })
+                );
+                drape.position.set(2, 6, 1.5);
+                drape.rotation.set(0.1, 0.3, -0.2);
+                spectator.add(drape);
                 
                 // Head
-                const headGeo = new THREE.SphereGeometry(2.5, 8, 8);
-                const skinTones = [0xffe4c4, 0xdeb887, 0xd2b48c, 0xbc8f8f, 0x8b7355];
-                const headMat = new THREE.MeshStandardMaterial({ 
-                    color: skinTones[Math.floor(Math.random() * skinTones.length)],
-                    roughness: 0.6
-                });
-                const head = new THREE.Mesh(headGeo, headMat);
-                head.position.y = 11;
-                spectatorGroup.add(head);
+                const skinColor = skinTones[Math.floor(Math.random() * skinTones.length)];
+                const head = new THREE.Mesh(
+                    new THREE.SphereGeometry(2.8, 8, 8),
+                    new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.6 })
+                );
+                head.position.y = 12;
+                spectator.add(head);
                 
-                // VIP senators in front rows get laurel wreaths or helmets
-                if (tierIndex === 0 && Math.random() > 0.5) {
-                    // Gold laurel wreath
-                    const wreath = new THREE.Mesh(
-                        new THREE.TorusGeometry(3, 0.6, 6, 12),
-                        new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.3, metalness: 0.7 })
+                // LAUREL CROWN — every Roman gets one! (gold torus + small green leaves)
+                const laurel = new THREE.Group();
+                const laurelRing = new THREE.Mesh(
+                    new THREE.TorusGeometry(3.2, 0.5, 6, 12),
+                    goldMat
+                );
+                laurelRing.rotation.x = Math.PI / 2;
+                laurel.add(laurelRing);
+                // Small leaf sprigs
+                for (let lf = 0; lf < 8; lf++) {
+                    const la = (lf / 8) * Math.PI * 2;
+                    const leaf = new THREE.Mesh(
+                        new THREE.SphereGeometry(0.8, 3, 3),
+                        new THREE.MeshStandardMaterial({ color: 0x2e8b2e, roughness: 0.7 })
                     );
-                    wreath.position.y = 13;
-                    wreath.rotation.x = Math.PI / 2;
-                    spectatorGroup.add(wreath);
-                } else if (tierIndex >= 2 && Math.random() > 0.8) {
-                    // Some hold small flags/pennants
-                    const flagPole = new THREE.Mesh(
-                        new THREE.CylinderGeometry(0.3, 0.3, 8, 4),
+                    leaf.position.set(Math.cos(la) * 3.2, 0, Math.sin(la) * 3.2);
+                    leaf.scale.set(1.8, 0.5, 0.8);
+                    laurel.add(leaf);
+                }
+                laurel.position.y = 14.5;
+                spectator.add(laurel);
+                
+                // VIP tier senators get wider purple sash
+                if (st.isVIP && togaIdx >= 6) {
+                    const sash = new THREE.Mesh(
+                        new THREE.PlaneGeometry(2, 10),
+                        new THREE.MeshStandardMaterial({ color: imperialPurple, roughness: 0.8, side: THREE.DoubleSide })
+                    );
+                    sash.position.set(-1, 5, 2);
+                    sash.rotation.set(0, 0, 0.15);
+                    spectator.add(sash);
+                }
+                
+                // Arms
+                const armMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.7 });
+                const leftArm = new THREE.Mesh(new THREE.CapsuleGeometry(1, 4, 4, 6), armMat);
+                leftArm.position.set(-4.5, 6, 0);
+                leftArm.rotation.z = 0.3;
+                leftArm.userData.baseRotZ = 0.3;
+                spectator.add(leftArm);
+                
+                const rightArm = new THREE.Mesh(new THREE.CapsuleGeometry(1, 4, 4, 6), armMat);
+                rightArm.position.set(4.5, 6, 0);
+                rightArm.rotation.z = -0.3;
+                rightArm.userData.baseRotZ = -0.3;
+                spectator.add(rightArm);
+                
+                // Some hold small flags or staffs
+                if (!st.isVIP && Math.random() > 0.85) {
+                    const fp = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.2, 0.2, 7, 4),
                         new THREE.MeshStandardMaterial({ color: 0x8b4513 })
                     );
-                    flagPole.position.set(3, 12, 0);
-                    spectatorGroup.add(flagPole);
-                    const flag = new THREE.Mesh(
-                        new THREE.PlaneGeometry(4, 3),
-                        new THREE.MeshStandardMaterial({ 
-                            color: [0xc41e3a, 0xffd700, 0x4169e1][Math.floor(Math.random() * 3)],
+                    fp.position.set(4, 12, 0);
+                    spectator.add(fp);
+                    const fl = new THREE.Mesh(
+                        new THREE.PlaneGeometry(3, 2.5),
+                        new THREE.MeshStandardMaterial({
+                            color: [crimson, gold, 0x4169e1][Math.floor(Math.random() * 3)],
                             side: THREE.DoubleSide
                         })
                     );
-                    flag.position.set(5, 14, 0);
-                    spectatorGroup.add(flag);
+                    fl.position.set(5.5, 14, 0);
+                    spectator.add(fl);
                 }
                 
-                // Arms (for waving animation)
-                const armGeo = new THREE.CapsuleGeometry(1, 4, 4, 8);
-                const armMat = new THREE.MeshStandardMaterial({ color: togaColor, roughness: 0.8 });
+                spectator.position.set(Math.cos(a) * r, sy, Math.sin(a) * r);
+                spectator.lookAt(0, sy, 0);
                 
-                const leftArm = new THREE.Mesh(armGeo, armMat);
-                leftArm.position.set(-4, 6, 0);
-                leftArm.rotation.z = 0.3;
-                leftArm.userData.baseRotZ = 0.3;
-                spectatorGroup.add(leftArm);
+                spectator.userData.waveSpeed = 2 + Math.random() * 3;
+                spectator.userData.waveOffset = Math.random() * Math.PI * 2;
+                spectator.userData.excitement = 0.2 + Math.random() * 0.15;
+                spectator.userData.leftArm = leftArm;
+                spectator.userData.rightArm = rightArm;
+                spectator.userData.originalY = sy;
                 
-                const rightArm = new THREE.Mesh(armGeo, armMat);
-                rightArm.position.set(4, 6, 0);
-                rightArm.rotation.z = -0.3;
-                rightArm.userData.baseRotZ = -0.3;
-                spectatorGroup.add(rightArm);
-                
-                spectatorGroup.position.set(
-                    Math.cos(angle) * rowRadius,
-                    rowHeight,
-                    Math.sin(angle) * rowRadius
-                );
-                spectatorGroup.lookAt(0, rowHeight, 0);
-                
-                // Animation properties
-                spectatorGroup.userData.waveSpeed = 2 + Math.random() * 3;
-                spectatorGroup.userData.waveOffset = Math.random() * Math.PI * 2;
-                spectatorGroup.userData.excitement = Math.random();
-                spectatorGroup.userData.leftArm = leftArm;
-                spectatorGroup.userData.rightArm = rightArm;
-                spectatorGroup.userData.originalY = rowHeight;
-                
-                scene.add(spectatorGroup);
-                manager.spectators.push(spectatorGroup);
+                scene.add(spectator);
+                manager.spectators.push(spectator);
             }
         });
         
-        // === LAYER 7: Columns/Arches at top tier ===
-        const columnCount = 48;
-        const columnRadius = 950;
-        const columnHeight = 100;
-        
-        const archGroup = new THREE.Group();
-        
-        for (let i = 0; i < columnCount; i++) {
-            const angle = (i / columnCount) * Math.PI * 2;
-            
-            // Column
-            const colGeo = new THREE.CylinderGeometry(8, 10, columnHeight, 8);
-            const colMat = new THREE.MeshStandardMaterial({
-                color: stoneColor,
-                roughness: 0.7,
-                metalness: 0.1
-            });
-            const column = new THREE.Mesh(colGeo, colMat);
-            column.position.set(
-                Math.cos(angle) * columnRadius,
-                -100 + 230 + columnHeight / 2,
-                Math.sin(angle) * columnRadius
-            );
-            archGroup.add(column);
-            
-            // Arch top between columns
-            if (i % 2 === 0) {
-                const archGeo = new THREE.TorusGeometry(20, 5, 8, 12, Math.PI);
-                const arch = new THREE.Mesh(archGeo, colMat);
-                const midAngle = angle + (Math.PI / columnCount);
-                arch.position.set(
-                    Math.cos(midAngle) * columnRadius,
-                    -100 + 230 + columnHeight,
-                    Math.sin(midAngle) * columnRadius
-                );
-                arch.rotation.y = -midAngle + Math.PI / 2;
-                arch.rotation.x = Math.PI / 2;
-                archGroup.add(arch);
-            }
-        }
-        scene.add(archGroup);
-        manager.backdropLayers.push({ mesh: archGroup, parallaxFactor: 0.03, rotationSpeed: 0 });
-        
-        // === LAYER 8: Velarium (shade cloth) ===
+        // ────────────────────────────
+        // VELARIUM (shade awnings) on top tier
+        // ────────────────────────────
         const velariumGroup = new THREE.Group();
-        const velariumSegments = 12;
-        const velariumColors = [0xc41e3a, 0xffd700, 0x800020];
+        const velN = 16;
+        const velInner = WALL_INNER_R + 80;
+        const velOuter = WALL_INNER_R + 210;
+        const velY = FLOOR_Y + podiumH + 200;
+        const velariumColors = [crimson, gold, 0x800020, crimson, gold];
         
-        for (let i = 0; i < velariumSegments; i++) {
-            const angle1 = (i / velariumSegments) * Math.PI * 2;
-            const angle2 = ((i + 1) / velariumSegments) * Math.PI * 2;
-            
-            const clothGeo = new THREE.BufferGeometry();
-            const vertices = new Float32Array([
-                // Inner edge
-                Math.cos(angle1) * 400, 350, Math.sin(angle1) * 400,
-                Math.cos(angle2) * 400, 350, Math.sin(angle2) * 400,
-                // Outer edge (drooping)
-                Math.cos(angle1) * 900, 280, Math.sin(angle1) * 900,
-                Math.cos(angle2) * 900, 280, Math.sin(angle2) * 900
+        for (let i = 0; i < velN; i++) {
+            const a1 = (i / velN) * Math.PI * 2;
+            const a2 = ((i + 1) / velN) * Math.PI * 2;
+            const verts = new Float32Array([
+                Math.cos(a1) * velInner, velY + 10, Math.sin(a1) * velInner,
+                Math.cos(a2) * velInner, velY + 10, Math.sin(a2) * velInner,
+                Math.cos(a1) * velOuter, velY - 15,  Math.sin(a1) * velOuter,
+                Math.cos(a2) * velOuter, velY - 15,  Math.sin(a2) * velOuter
             ]);
-            const indices = new Uint16Array([0, 2, 1, 1, 2, 3]);
-            clothGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-            clothGeo.setIndex(new THREE.BufferAttribute(indices, 1));
-            clothGeo.computeVertexNormals();
-            
-            const clothMat = new THREE.MeshStandardMaterial({
+            const idx = new Uint16Array([0, 2, 1, 1, 2, 3]);
+            const cg = new THREE.BufferGeometry();
+            cg.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+            cg.setIndex(new THREE.BufferAttribute(idx, 1));
+            cg.computeVertexNormals();
+            const cm = new THREE.Mesh(cg, new THREE.MeshStandardMaterial({
                 color: velariumColors[i % velariumColors.length],
-                roughness: 0.9,
-                metalness: 0,
-                side: THREE.DoubleSide,
-                transparent: true,
-                opacity: 0.7
-            });
-            
-            const cloth = new THREE.Mesh(clothGeo, clothMat);
-            cloth.userData.waveOffset = i * 0.5;
-            velariumGroup.add(cloth);
+                roughness: 0.9, side: THREE.DoubleSide, transparent: true, opacity: 0.65
+            }));
+            cm.userData.waveOffset = i * 0.5;
+            velariumGroup.add(cm);
         }
         scene.add(velariumGroup);
-        manager.backdropLayers.push({ 
-            mesh: velariumGroup, 
-            parallaxFactor: 0.01, 
-            rotationSpeed: 0,
+        manager.backdropLayers.push({
+            mesh: velariumGroup, parallaxFactor: 0.01, rotationSpeed: 0,
             update: function(mesh, time) {
-                // Gentle cloth billowing
-                mesh.children.forEach((cloth, i) => {
-                    const positions = cloth.geometry.attributes.position.array;
-                    // Animate outer edge Y positions
-                    positions[7] = 280 + Math.sin(time * 0.5 + cloth.userData.waveOffset) * 10;
-                    positions[10] = 280 + Math.sin(time * 0.5 + cloth.userData.waveOffset + 0.5) * 10;
-                    cloth.geometry.attributes.position.needsUpdate = true;
+                mesh.children.forEach(c => {
+                    const p = c.geometry.attributes.position.array;
+                    p[7] = (velY - 15) + Math.sin(time * 0.5 + c.userData.waveOffset) * 8;
+                    p[10] = (velY - 15) + Math.sin(time * 0.5 + c.userData.waveOffset + 0.5) * 8;
+                    c.geometry.attributes.position.needsUpdate = true;
                 });
             }
         });
         
-        // === LAYER 9: Banners and flags ===
+        // ────────────────────────────
+        // BANNERS on poles around top
+        // ────────────────────────────
         const bannerGroup = new THREE.Group();
-        const bannerColors = [0xc41e3a, 0xffd700, 0x4169e1, 0x228b22, 0x800080];
+        const bColors = [crimson, gold, 0x4169e1, 0x228b22, imperialPurple];
+        const topR = WALL_INNER_R + 205;
         
-        for (let i = 0; i < 24; i++) {
-            const angle = (i / 24) * Math.PI * 2;
-            
-            const poleGeo = new THREE.CylinderGeometry(2, 2, 60, 8);
-            const poleMat = new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.8 });
-            const pole = new THREE.Mesh(poleGeo, poleMat);
-            pole.position.set(
-                Math.cos(angle) * 920,
-                -100 + 230 + 80,
-                Math.sin(angle) * 920
+        for (let i = 0; i < 20; i++) {
+            const a = (i / 20) * Math.PI * 2;
+            const pole = new THREE.Mesh(
+                new THREE.CylinderGeometry(1.5, 1.5, 50, 6),
+                new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.8 })
             );
+            pole.position.set(Math.cos(a) * topR, velY + 20, Math.sin(a) * topR);
             bannerGroup.add(pole);
             
-            // Banner cloth
-            const bannerGeo = new THREE.PlaneGeometry(25, 40);
-            const bannerMat = new THREE.MeshStandardMaterial({
-                color: bannerColors[i % bannerColors.length],
-                roughness: 0.9,
-                side: THREE.DoubleSide
-            });
-            const banner = new THREE.Mesh(bannerGeo, bannerMat);
-            banner.position.set(
-                Math.cos(angle) * 920,
-                -100 + 230 + 100,
-                Math.sin(angle) * 920
+            const ban = new THREE.Mesh(
+                new THREE.PlaneGeometry(20, 32),
+                new THREE.MeshStandardMaterial({ color: bColors[i % bColors.length], roughness: 0.9, side: THREE.DoubleSide })
             );
-            banner.rotation.y = -angle;
-            banner.userData.waveOffset = i * 0.3;
-            bannerGroup.add(banner);
+            ban.position.set(Math.cos(a) * topR, velY + 35, Math.sin(a) * topR);
+            ban.rotation.y = -a;
+            ban.userData.waveOffset = i * 0.3;
+            bannerGroup.add(ban);
         }
         scene.add(bannerGroup);
-        manager.backdropLayers.push({ 
-            mesh: bannerGroup, 
-            parallaxFactor: 0.02, 
-            rotationSpeed: 0,
+        manager.backdropLayers.push({
+            mesh: bannerGroup, parallaxFactor: 0.02, rotationSpeed: 0,
             update: function(mesh, time) {
-                mesh.children.forEach(child => {
-                    if (child.userData.waveOffset !== undefined && child.geometry.type === 'PlaneGeometry') {
-                        child.rotation.z = Math.sin(time * 2 + child.userData.waveOffset) * 0.1;
+                mesh.children.forEach(c => {
+                    if (c.userData.waveOffset !== undefined && c.geometry && c.geometry.type === 'PlaneGeometry') {
+                        c.rotation.z = Math.sin(time * 2 + c.userData.waveOffset) * 0.08;
                     }
                 });
             }
         });
         
-        // === LAYER 10: EMPEROR'S BOX (Pulvinar) ===
+        // ────────────────────────────
+        // EMPEROR'S BOX (PULVINAR) — Grand imperial perch
+        // Positioned at front of the arena, first tier, facing the board
+        // ────────────────────────────
         const emperorBox = new THREE.Group();
-        const boxAngle = 0; // Front facing position
-        const boxRadius = 450;
+        const boxAngle = 0; // front-center
+        const boxR = WALL_INNER_R + 35;
+        const boxBaseY = FLOOR_Y + podiumH;
         
-        // Elevated platform
-        const platformGeo = new THREE.BoxGeometry(120, 30, 80);
-        const platformMat = new THREE.MeshStandardMaterial({
-            color: 0xffd700,
-            roughness: 0.3,
-            metalness: 0.5
-        });
-        const platform = new THREE.Mesh(platformGeo, platformMat);
-        platform.position.set(
-            Math.cos(boxAngle) * boxRadius,
-            -100 + 100,
-            Math.sin(boxAngle) * boxRadius
+        // Wide marble platform jutting out from tier 1
+        const platW = 100, platH = 12, platD = 60;
+        const platform = new THREE.Mesh(
+            new THREE.BoxGeometry(platW, platH, platD),
+            new THREE.MeshStandardMaterial({ color: marbleWhite, roughness: 0.3, metalness: 0.15 })
         );
+        platform.position.set(boxR, boxBaseY + platH / 2, 0);
         emperorBox.add(platform);
         
-        // Ornate columns on sides
-        for (let side = -1; side <= 1; side += 2) {
-            const colGeo = new THREE.CylinderGeometry(5, 6, 80, 12);
-            const colMat = new THREE.MeshStandardMaterial({
-                color: 0xffffff,
-                roughness: 0.2,
-                metalness: 0.3
-            });
-            const col = new THREE.Mesh(colGeo, colMat);
-            col.position.set(
-                Math.cos(boxAngle) * boxRadius + side * 55,
-                -100 + 140,
-                Math.sin(boxAngle) * boxRadius
-            );
-            emperorBox.add(col);
-            
-            // Column capital
-            const capGeo = new THREE.BoxGeometry(15, 10, 15);
-            const cap = new THREE.Mesh(capGeo, colMat);
-            cap.position.copy(col.position);
-            cap.position.y += 45;
-            emperorBox.add(cap);
-        }
+        // Gold trim around platform edge
+        const trimGeo = new THREE.BoxGeometry(platW + 4, 3, platD + 4);
+        const trim = new THREE.Mesh(trimGeo, goldMat);
+        trim.position.set(boxR, boxBaseY + platH, 0);
+        emperorBox.add(trim);
         
-        // Canopy/roof
-        const canopyGeo = new THREE.BoxGeometry(140, 5, 100);
-        const canopyMat = new THREE.MeshStandardMaterial({
-            color: 0x800020,
-            roughness: 0.8,
-            metalness: 0.1
+        // 4 ornate marble columns with Corinthian-style capitals
+        const colPositions = [
+            [-platW / 2 + 8, -platD / 2 + 8], [-platW / 2 + 8, platD / 2 - 8],
+            [platW / 2 - 8, -platD / 2 + 8],  [platW / 2 - 8, platD / 2 - 8]
+        ];
+        const canopyH = 70;
+        colPositions.forEach(([ox, oz]) => {
+            const col = new THREE.Mesh(
+                new THREE.CylinderGeometry(4, 5, canopyH, 10),
+                marbleMat
+            );
+            col.position.set(boxR + ox, boxBaseY + platH + canopyH / 2, oz);
+            emperorBox.add(col);
+            // Corinthian capital
+            const cap = new THREE.Mesh(new THREE.BoxGeometry(12, 8, 12), goldMat);
+            cap.position.set(boxR + ox, boxBaseY + platH + canopyH + 2, oz);
+            emperorBox.add(cap);
         });
-        const canopy = new THREE.Mesh(canopyGeo, canopyMat);
-        canopy.position.set(
-            Math.cos(boxAngle) * boxRadius,
-            -100 + 195,
-            Math.sin(boxAngle) * boxRadius
+        
+        // Canopy roof (rich burgundy)
+        const canopy = new THREE.Mesh(
+            new THREE.BoxGeometry(platW + 10, 5, platD + 10),
+            new THREE.MeshStandardMaterial({ color: 0x800020, roughness: 0.7, metalness: 0.1 })
         );
+        canopy.position.set(boxR, boxBaseY + platH + canopyH + 8, 0);
         emperorBox.add(canopy);
         
-        // Purple drapes
+        // Imperial purple drape curtains on sides
         for (let side = -1; side <= 1; side += 2) {
-            const drapeGeo = new THREE.PlaneGeometry(20, 80);
-            const drapeMat = new THREE.MeshStandardMaterial({
-                color: 0x4b0082,
-                roughness: 0.9,
-                metalness: 0.0,
-                side: THREE.DoubleSide
-            });
-            const drape = new THREE.Mesh(drapeGeo, drapeMat);
-            drape.position.set(
-                Math.cos(boxAngle) * (boxRadius - 35) + side * 50,
-                -100 + 150,
-                Math.sin(boxAngle) * (boxRadius - 35)
+            const drape = new THREE.Mesh(
+                new THREE.PlaneGeometry(15, canopyH - 5),
+                new THREE.MeshStandardMaterial({ color: imperialPurple, roughness: 0.9, side: THREE.DoubleSide })
             );
+            drape.position.set(boxR + side * (platW / 2), boxBaseY + platH + canopyH / 2, 0);
             drape.rotation.y = Math.PI / 2;
             emperorBox.add(drape);
         }
         
-        // THE EMPEROR (seated figure)
-        const emperor = new THREE.Group();
-        
-        // Throne
-        const throneGeo = new THREE.BoxGeometry(25, 40, 20);
-        const throneMat = new THREE.MeshStandardMaterial({
-            color: 0xffd700,
-            roughness: 0.2,
-            metalness: 0.7
-        });
-        const throne = new THREE.Mesh(throneGeo, throneMat);
-        throne.position.y = 20;
-        emperor.add(throne);
-        
-        // Throne back
-        const backGeo = new THREE.BoxGeometry(30, 50, 5);
-        const back = new THREE.Mesh(backGeo, throneMat);
-        back.position.set(0, 45, -10);
-        emperor.add(back);
-        
-        // Emperor body (purple toga)
-        const bodyGeo = new THREE.CapsuleGeometry(8, 15, 8, 16);
-        const bodyMat = new THREE.MeshStandardMaterial({
-            color: 0x4b0082,
-            roughness: 0.7,
-            metalness: 0.1
-        });
-        const body = new THREE.Mesh(bodyGeo, bodyMat);
-        body.position.set(0, 40, 0);
-        emperor.add(body);
-        
-        // Emperor head
-        const headGeo = new THREE.SphereGeometry(6, 16, 16);
-        const headMat = new THREE.MeshStandardMaterial({
-            color: 0xffe4c4,
-            roughness: 0.6,
-            metalness: 0.0
-        });
-        const head = new THREE.Mesh(headGeo, headMat);
-        head.position.set(0, 58, 0);
-        emperor.add(head);
-        
-        // Laurel crown
-        const crownGeo = new THREE.TorusGeometry(7, 1.5, 8, 16);
-        const crownMat = new THREE.MeshStandardMaterial({
-            color: 0xffd700,
-            roughness: 0.3,
-            metalness: 0.8
-        });
-        const crown = new THREE.Mesh(crownGeo, crownMat);
-        crown.position.set(0, 62, 0);
-        crown.rotation.x = Math.PI / 2;
-        emperor.add(crown);
-        
-        // EMPEROR'S THUMB (key element for reactions!)
-        const thumbGroup = new THREE.Group();
-        
-        // Arm
-        const armGeo = new THREE.CapsuleGeometry(2, 12, 4, 8);
-        const armMat = new THREE.MeshStandardMaterial({
-            color: 0xffe4c4,
-            roughness: 0.6
-        });
-        const arm = new THREE.Mesh(armGeo, armMat);
-        arm.rotation.z = Math.PI / 4;
-        thumbGroup.add(arm);
-        
-        // Hand/fist
-        const fistGeo = new THREE.SphereGeometry(3, 8, 8);
-        const fist = new THREE.Mesh(fistGeo, armMat);
-        fist.position.set(8, 8, 0);
-        thumbGroup.add(fist);
-        
-        // THE THUMB
-        const thumbGeo = new THREE.CapsuleGeometry(1.2, 6, 4, 8);
-        const thumbMat = new THREE.MeshStandardMaterial({
-            color: 0xffd700,
-            roughness: 0.4,
-            metalness: 0.3,
-            emissive: 0x332200,
-            emissiveIntensity: 0.3
-        });
-        const thumb = new THREE.Mesh(thumbGeo, thumbMat);
-        thumb.position.set(8, 14, 0);
-        // Store reference for animation
-        manager.emperorThumb = thumb;
-        thumbGroup.add(thumb);
-        
-        thumbGroup.position.set(12, 45, 5);
-        emperor.add(thumbGroup);
-        
-        // Position emperor in the box
-        emperor.position.set(
-            Math.cos(boxAngle) * (boxRadius - 5),
-            -100 + 105,
-            Math.sin(boxAngle) * (boxRadius - 5)
-        );
-        emperor.rotation.y = boxAngle + Math.PI;
-        emperorBox.add(emperor);
-        
-        // SPQR Banner behind emperor
-        const spqrGeo = new THREE.PlaneGeometry(80, 40);
+        // S·P·Q·R banner behind the emperor
         const spqrCanvas = document.createElement('canvas');
-        spqrCanvas.width = 256;
-        spqrCanvas.height = 128;
+        spqrCanvas.width = 256; spqrCanvas.height = 128;
         const ctx = spqrCanvas.getContext('2d');
-        ctx.fillStyle = '#c41e3a';
-        ctx.fillRect(0, 0, 256, 128);
-        ctx.fillStyle = '#ffd700';
-        ctx.font = 'bold 60px serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#c41e3a'; ctx.fillRect(0, 0, 256, 128);
+        ctx.fillStyle = '#ffd700'; ctx.font = 'bold 56px serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText('S·P·Q·R', 128, 64);
-        const spqrTexture = new THREE.CanvasTexture(spqrCanvas);
-        const spqrMat = new THREE.MeshBasicMaterial({
-            map: spqrTexture,
-            side: THREE.DoubleSide
-        });
-        const spqr = new THREE.Mesh(spqrGeo, spqrMat);
-        spqr.position.set(
-            Math.cos(boxAngle) * (boxRadius + 30),
-            -100 + 160,
-            Math.sin(boxAngle) * (boxRadius + 30)
+        const spqr = new THREE.Mesh(
+            new THREE.PlaneGeometry(60, 30),
+            new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(spqrCanvas), side: THREE.DoubleSide })
         );
-        spqr.rotation.y = boxAngle + Math.PI;
+        spqr.position.set(boxR + platW / 2 - 2, boxBaseY + platH + canopyH * 0.6, 0);
+        spqr.rotation.y = -Math.PI / 2;
         emperorBox.add(spqr);
         
-        // Roman eagle standard
-        const eagleGroup = new THREE.Group();
-        const poleGeo = new THREE.CylinderGeometry(1.5, 1.5, 100, 8);
-        const poleMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.7, roughness: 0.3 });
-        const pole = new THREE.Mesh(poleGeo, poleMat);
-        eagleGroup.add(pole);
+        // ── THE EMPEROR (seated on golden throne) ──
+        const emperor = new THREE.Group();
         
-        // Simplified eagle
-        const eagleBodyGeo = new THREE.ConeGeometry(8, 15, 6);
-        const eagleMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.8, roughness: 0.2 });
-        const eagleBody = new THREE.Mesh(eagleBodyGeo, eagleMat);
-        eagleBody.position.y = 55;
-        eagleGroup.add(eagleBody);
-        
-        // Wings
-        for (let side = -1; side <= 1; side += 2) {
-            const wingGeo = new THREE.BoxGeometry(20, 3, 8);
-            const wing = new THREE.Mesh(wingGeo, eagleMat);
-            wing.position.set(side * 15, 50, 0);
-            wing.rotation.z = side * -0.3;
-            eagleGroup.add(wing);
+        // Golden throne
+        const throneBase = new THREE.Mesh(new THREE.BoxGeometry(20, 8, 16), goldMat);
+        throneBase.position.y = 4; emperor.add(throneBase);
+        const throneBack = new THREE.Mesh(new THREE.BoxGeometry(22, 40, 4), goldMat);
+        throneBack.position.set(0, 24, -8); emperor.add(throneBack);
+        // Throne armrests
+        for (let s = -1; s <= 1; s += 2) {
+            const arm = new THREE.Mesh(new THREE.BoxGeometry(4, 6, 14), goldMat);
+            arm.position.set(s * 10, 10, -1); emperor.add(arm);
         }
         
-        eagleGroup.position.set(
-            Math.cos(boxAngle) * boxRadius + 70,
-            -100 + 130,
-            Math.sin(boxAngle) * boxRadius
+        // Emperor body — imperial purple toga
+        const empBody = new THREE.Mesh(
+            new THREE.CapsuleGeometry(7, 14, 8, 12),
+            new THREE.MeshStandardMaterial({ color: imperialPurple, roughness: 0.6, metalness: 0.1 })
         );
+        empBody.position.y = 22; emperor.add(empBody);
+        
+        // Gold sash across chest
+        const empSash = new THREE.Mesh(
+            new THREE.PlaneGeometry(3, 14),
+            new THREE.MeshStandardMaterial({ color: gold, roughness: 0.3, metalness: 0.7, side: THREE.DoubleSide })
+        );
+        empSash.position.set(2, 22, 4); empSash.rotation.z = -0.4;
+        emperor.add(empSash);
+        
+        // Head
+        const empHead = new THREE.Mesh(
+            new THREE.SphereGeometry(5, 14, 14),
+            new THREE.MeshStandardMaterial({ color: 0xffe4c4, roughness: 0.5 })
+        );
+        empHead.position.y = 36; emperor.add(empHead);
+        
+        // Grand laurel crown — larger, more ornate
+        const empCrown = new THREE.Group();
+        const crownRing = new THREE.Mesh(
+            new THREE.TorusGeometry(6, 1.2, 8, 16),
+            goldMat
+        );
+        crownRing.rotation.x = Math.PI / 2;
+        empCrown.add(crownRing);
+        for (let lf = 0; lf < 12; lf++) {
+            const la = (lf / 12) * Math.PI * 2;
+            const leaf = new THREE.Mesh(
+                new THREE.SphereGeometry(1.2, 4, 4),
+                new THREE.MeshStandardMaterial({ color: 0x228b22, roughness: 0.6 })
+            );
+            leaf.position.set(Math.cos(la) * 6, 0, Math.sin(la) * 6);
+            leaf.scale.set(2, 0.5, 1);
+            empCrown.add(leaf);
+        }
+        empCrown.position.y = 40;
+        emperor.add(empCrown);
+        
+        // Emperor's right arm + thumb (for reactions)
+        const thumbGroup = new THREE.Group();
+        const empArm = new THREE.Mesh(
+            new THREE.CapsuleGeometry(2, 10, 4, 8),
+            new THREE.MeshStandardMaterial({ color: 0xffe4c4, roughness: 0.6 })
+        );
+        empArm.rotation.z = Math.PI / 4;
+        thumbGroup.add(empArm);
+        const fist = new THREE.Mesh(new THREE.SphereGeometry(2.5, 8, 8),
+            new THREE.MeshStandardMaterial({ color: 0xffe4c4, roughness: 0.6 }));
+        fist.position.set(7, 7, 0);
+        thumbGroup.add(fist);
+        const thumb = new THREE.Mesh(
+            new THREE.CapsuleGeometry(1, 5, 4, 8),
+            new THREE.MeshStandardMaterial({ color: gold, roughness: 0.4, metalness: 0.3, emissive: 0x332200, emissiveIntensity: 0.3 })
+        );
+        thumb.position.set(7, 12, 0);
+        manager.emperorThumb = thumb;
+        thumbGroup.add(thumb);
+        thumbGroup.position.set(10, 25, 4);
+        emperor.add(thumbGroup);
+        
+        // Position emperor in the box, facing inward
+        emperor.position.set(boxR - 5, boxBaseY + platH + 1, 0);
+        emperor.rotation.y = Math.PI; // face the arena
+        emperorBox.add(emperor);
+        
+        // Roman eagle standard next to the box
+        const eagleGroup = new THREE.Group();
+        const ePole = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 90, 6), goldMat);
+        eagleGroup.add(ePole);
+        const eBody = new THREE.Mesh(new THREE.ConeGeometry(7, 12, 6), goldMat);
+        eBody.position.y = 50; eagleGroup.add(eBody);
+        for (let s = -1; s <= 1; s += 2) {
+            const w = new THREE.Mesh(new THREE.BoxGeometry(18, 2.5, 6), goldMat);
+            w.position.set(s * 14, 46, 0); w.rotation.z = s * -0.3;
+            eagleGroup.add(w);
+        }
+        eagleGroup.position.set(boxR + platW / 2 + 15, boxBaseY + platH + 10, 0);
         emperorBox.add(eagleGroup);
+        
+        // Second eagle on other side
+        const eagle2 = eagleGroup.clone();
+        eagle2.position.set(boxR - platW / 2 - 15, boxBaseY + platH + 10, 0);
+        emperorBox.add(eagle2);
         
         scene.add(emperorBox);
         manager.emperorBox = emperorBox;
-        manager.backdropLayers.push({ 
-            mesh: emperorBox, 
-            parallaxFactor: 0.02, 
-            rotationSpeed: 0,
+        manager.backdropLayers.push({
+            mesh: emperorBox, parallaxFactor: 0.015, rotationSpeed: 0,
             update: function(mesh, time, mgr) {
-                // Animate emperor's thumb returning to neutral
                 if (mgr.emperorThumb) {
-                    // Slowly return to upright position
-                    const targetZ = 0;
-                    mgr.emperorThumb.rotation.z += (targetZ - mgr.emperorThumb.rotation.z) * 0.02;
-                    
-                    // Color fade back to gold
-                    const gold = new THREE.Color(0xffd700);
-                    mgr.emperorThumb.material.color.lerp(gold, 0.02);
-                    
-                    // Emissive fade back to subtle glow
+                    mgr.emperorThumb.rotation.z += (0 - mgr.emperorThumb.rotation.z) * 0.02;
+                    const g = new THREE.Color(0xffd700);
+                    mgr.emperorThumb.material.color.lerp(g, 0.02);
                     if (mgr.emperorThumb.material.emissiveIntensity > 0.3) {
                         mgr.emperorThumb.material.emissiveIntensity *= 0.98;
                     }
-                    const emGold = new THREE.Color(0x332200);
-                    mgr.emperorThumb.material.emissive.lerp(emGold, 0.02);
+                    mgr.emperorThumb.material.emissive.lerp(new THREE.Color(0x332200), 0.02);
                 }
             }
         });
         
-        // === Sun / lighting enhancement ===
-        const sunLight = new THREE.DirectionalLight(0xffd700, 0.3);
-        sunLight.position.set(500, 600, 300);
+        // ────────────────────────────
+        // LIGHTING — warm Mediterranean sun
+        // ────────────────────────────
+        const sunLight = new THREE.DirectionalLight(0xffd700, 0.4);
+        sunLight.position.set(500, 700, 300);
         scene.add(sunLight);
         manager.backdropLayers.push({ mesh: sunLight, parallaxFactor: 0, rotationSpeed: 0 });
         
-        // === Dust particles in arena ===
-        const dustCount = 300;
-        const dustGeo = new THREE.BufferGeometry();
-        const dustPositions = new Float32Array(dustCount * 3);
+        // Ambient warm fill
+        const warmFill = new THREE.HemisphereLight(0xffeedd, 0x886644, 0.2);
+        scene.add(warmFill);
+        manager.backdropLayers.push({ mesh: warmFill, parallaxFactor: 0, rotationSpeed: 0 });
         
-        for (let i = 0; i < dustCount; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const dist = Math.random() * 300;
-            dustPositions[i * 3] = Math.cos(angle) * dist;
-            dustPositions[i * 3 + 1] = -80 + Math.random() * 150;
-            dustPositions[i * 3 + 2] = Math.sin(angle) * dist;
+        // ────────────────────────────
+        // DUST MOTES floating in the arena
+        // ────────────────────────────
+        const dustN = 250;
+        const dPos = new Float32Array(dustN * 3);
+        for (let i = 0; i < dustN; i++) {
+            const da = Math.random() * Math.PI * 2;
+            const dd = Math.random() * 400;
+            dPos[i * 3]     = Math.cos(da) * dd;
+            dPos[i * 3 + 1] = FLOOR_Y + 5 + Math.random() * 180;
+            dPos[i * 3 + 2] = Math.sin(da) * dd;
         }
-        dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
-        
-        const dustMat = new THREE.PointsMaterial({
-            size: 2,
-            color: 0xd4b896,
-            transparent: true,
-            opacity: 0.4,
-            sizeAttenuation: true
-        });
-        
-        const dust = new THREE.Points(dustGeo, dustMat);
+        const dustGeo = new THREE.BufferGeometry();
+        dustGeo.setAttribute('position', new THREE.BufferAttribute(dPos, 3));
+        const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({
+            size: 2, color: 0xd4b896, transparent: true, opacity: 0.35, sizeAttenuation: true
+        }));
         scene.add(dust);
-        manager.backdropLayers.push({ 
-            mesh: dust, 
-            parallaxFactor: 0.1, 
-            rotationSpeed: 0.0002,
+        manager.backdropLayers.push({
+            mesh: dust, parallaxFactor: 0.08, rotationSpeed: 0.0002,
             update: function(mesh, time) {
-                const positions = mesh.geometry.attributes.position.array;
-                for (let i = 0; i < positions.length; i += 3) {
-                    positions[i + 1] += Math.sin(time + i) * 0.05;
-                    if (positions[i + 1] > 100) positions[i + 1] = -80;
+                const p = mesh.geometry.attributes.position.array;
+                for (let i = 0; i < p.length; i += 3) {
+                    p[i + 1] += Math.sin(time + i) * 0.04;
+                    if (p[i + 1] > 200) p[i + 1] = FLOOR_Y + 5;
                 }
                 mesh.geometry.attributes.position.needsUpdate = true;
             }
@@ -1880,12 +1838,11 @@ FastTrackThemes.register('colosseum', {
     
     // React to game events — Emperor reacts!
     onGameEvent: function(eventType, data, manager) {
-        switch(eventType) {
+        switch (eventType) {
             case 'fasttrack':
                 manager.triggerCrowdReaction('roaring');
-                // Emperor stands and gives enthusiastic thumbs up
                 if (manager.emperorThumb) {
-                    manager.emperorThumb.rotation.z = 0; // Thumbs up
+                    manager.emperorThumb.rotation.z = 0;
                     manager.emperorThumb.material.color.setHex(0xffd700);
                     manager.emperorThumb.material.emissive.setHex(0xffd700);
                     manager.emperorThumb.material.emissiveIntensity = 0.8;
@@ -1893,19 +1850,16 @@ FastTrackThemes.register('colosseum', {
                 break;
             case 'sendHome':
                 manager.triggerCrowdReaction('cheering');
-                // Emperor gives dramatic thumbs DOWN — the crowd goes wild!
                 if (manager.emperorThumb) {
-                    manager.emperorThumb.rotation.z = Math.PI; // Thumbs down
+                    manager.emperorThumb.rotation.z = Math.PI;
                     manager.emperorThumb.material.color.setHex(0xc41e3a);
                     manager.emperorThumb.material.emissive.setHex(0xc41e3a);
                     manager.emperorThumb.material.emissiveIntensity = 1.0;
                 }
-                // Extra crowd intensity for boo
                 if (window.GameSFX) GameSFX.playCrowdReaction('boo');
                 break;
             case 'win':
                 manager.triggerCrowdReaction('roaring');
-                // Emperor rises — golden approval
                 if (manager.emperorThumb) {
                     manager.emperorThumb.rotation.z = 0;
                     manager.emperorThumb.material.color.setHex(0xffd700);
@@ -1915,7 +1869,6 @@ FastTrackThemes.register('colosseum', {
                 break;
             case 'bullseye':
                 manager.triggerCrowdReaction('excited');
-                // Emperor nods — green approval
                 if (manager.emperorThumb) {
                     manager.emperorThumb.rotation.z = 0;
                     manager.emperorThumb.material.color.setHex(0x00ff00);
@@ -1925,7 +1878,6 @@ FastTrackThemes.register('colosseum', {
                 break;
             case 'royal':
                 manager.triggerCrowdReaction('roaring');
-                // Emperor gives golden thumbs up for royal
                 if (manager.emperorThumb) {
                     manager.emperorThumb.rotation.z = 0;
                     manager.emperorThumb.material.color.setHex(0xffd700);
@@ -1939,30 +1891,19 @@ FastTrackThemes.register('colosseum', {
     // Trigger crowd animations
     triggerCrowd: function(reaction, manager) {
         manager.crowdState = reaction;
-        
-        // Animate spectators based on reaction
         manager.spectators.forEach(spec => {
-            switch(reaction) {
-                case 'cheering':
-                    spec.userData.excitement = 1.0;
-                    break;
-                case 'excited':
-                    spec.userData.excitement = 0.7;
-                    break;
-                case 'roaring':
-                    spec.userData.excitement = 1.5;
-                    break;
-                case 'anticipation':
-                    spec.userData.excitement = 0.4;
-                    break;
-                default:
-                    spec.userData.excitement = 0.2;
+            switch (reaction) {
+                case 'cheering':  spec.userData.excitement = 1.0; break;
+                case 'excited':   spec.userData.excitement = 0.7; break;
+                case 'roaring':   spec.userData.excitement = 1.5; break;
+                case 'anticipation': spec.userData.excitement = 0.4; break;
+                default:          spec.userData.excitement = 0.2;
             }
         });
     }
 });
 
-// Default spectator animation (called every frame when colosseum theme is active)
+// Spectator animation (called every frame when colosseum theme is active)
 FastTrackThemes.updateSpectators = function(time) {
     if (this.currentTheme !== 'colosseum') return;
     
@@ -3971,96 +3912,88 @@ FastTrackThemes.register('undersea', {
 // Uses browns, tans, rusts, and creams
 // ============================================================
 FastTrackThemes.register('highcontrast', {
-    name: 'High Contrast',
-    description: 'Colorblind-safe earth tones - no red/green',
+    name: 'Clean (Accessible)',
+    description: 'Minimal backdrop — colorblind-safe, no red/green, high contrast',
     
     create: function(scene, THREE, manager) {
-        // Warm earth-tone gradient background
-        const canvas = document.createElement('canvas');
-        canvas.width = 512;
-        canvas.height = 512;
-        const ctx = canvas.getContext('2d');
-        const gradient = ctx.createRadialGradient(256, 256, 0, 256, 256, 400);
-        gradient.addColorStop(0, '#3d2817');   // Dark brown center
-        gradient.addColorStop(0.5, '#2a1a0f'); // Darker brown
-        gradient.addColorStop(1, '#1a0f08');   // Near black brown edge
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 512, 512);
-        
-        const bgTexture = new THREE.CanvasTexture(canvas);
-        scene.background = bgTexture;
-        
-        // Sandy/tan floor plane
-        const floorGeo = new THREE.PlaneGeometry(2000, 2000);
-        const floorMat = new THREE.MeshStandardMaterial({
-            color: 0x3d2b1f,
-            roughness: 0.85,
-            metalness: 0.0
+        // ── Neutral gradient sky dome (warm gray → slate) ──
+        const skyGeo = new THREE.SphereGeometry(2000, 32, 32);
+        const skyMat = new THREE.ShaderMaterial({
+            side: THREE.BackSide,
+            uniforms: {
+                topColor:    { value: new THREE.Color(0x4a4a5a) },
+                midColor:    { value: new THREE.Color(0x787880) },
+                bottomColor: { value: new THREE.Color(0xb0aaa0) }
+            },
+            vertexShader: `
+                varying vec3 vWP;
+                void main() {
+                    vWP = (modelMatrix * vec4(position,1.0)).xyz;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+                }`,
+            fragmentShader: `
+                uniform vec3 topColor, midColor, bottomColor;
+                varying vec3 vWP;
+                void main() {
+                    float h = normalize(vWP).y;
+                    vec3 c = h > 0.0
+                        ? mix(midColor, topColor, h)
+                        : mix(midColor, bottomColor, -h);
+                    gl_FragColor = vec4(c, 1.0);
+                }`
         });
-        const floor = new THREE.Mesh(floorGeo, floorMat);
+        const sky = new THREE.Mesh(skyGeo, skyMat);
+        scene.add(sky);
+        manager.backdropLayers.push({ mesh: sky, parallaxFactor: 0, rotationSpeed: 0 });
+        
+        // ── Clean matte floor ──
+        const floor = new THREE.Mesh(
+            new THREE.CircleGeometry(1200, 64),
+            new THREE.MeshStandardMaterial({ color: 0x9a9590, roughness: 0.9, metalness: 0 })
+        );
         floor.rotation.x = -Math.PI / 2;
-        floor.position.y = -160;
+        floor.position.y = -3;
+        floor.receiveShadow = true;
         scene.add(floor);
-        manager.backdropLayers.push({ mesh: floor, parallaxFactor: 0 });
+        manager.backdropLayers.push({ mesh: floor, parallaxFactor: 0, rotationSpeed: 0 });
         
-        // Tan/cream grid lines
-        const gridSize = 1200;
-        const gridDivisions = 24;
-        const gridHelper = new THREE.GridHelper(gridSize, gridDivisions, 0x8b7355, 0x5c4033);
-        gridHelper.position.y = -155;
-        scene.add(gridHelper);
-        manager.backdropLayers.push({ mesh: gridHelper, parallaxFactor: 0 });
-        
-        // Gold border ring for board edge
-        const ringGeo = new THREE.TorusGeometry(360, 4, 8, 64);
-        const ringMat = new THREE.MeshBasicMaterial({ color: 0xdaa520 });
-        const ring = new THREE.Mesh(ringGeo, ringMat);
+        // ── Subtle radial ring at board edge for visual reference ──
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0x666666, transparent: true, opacity: 0.5 });
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(310, 2, 8, 80), ringMat);
         ring.rotation.x = Math.PI / 2;
-        ring.position.y = -10;
+        ring.position.y = -1;
         scene.add(ring);
-        manager.backdropLayers.push({ mesh: ring, parallaxFactor: 0 });
+        manager.backdropLayers.push({ mesh: ring, parallaxFactor: 0, rotationSpeed: 0 });
         
-        // Warm white directional lighting
-        const mainLight = new THREE.DirectionalLight(0xfff5e6, 1.6);
-        mainLight.position.set(200, 500, 200);
-        mainLight.castShadow = true;
-        scene.add(mainLight);
+        // Outer reference ring
+        const ring2 = new THREE.Mesh(new THREE.TorusGeometry(500, 1.5, 8, 80), ringMat);
+        ring2.rotation.x = Math.PI / 2;
+        ring2.position.y = -2;
+        scene.add(ring2);
+        manager.backdropLayers.push({ mesh: ring2, parallaxFactor: 0, rotationSpeed: 0 });
         
-        // Secondary warm fill light
-        const fillLight = new THREE.DirectionalLight(0xffeedd, 0.7);
-        fillLight.position.set(-200, 300, -200);
-        scene.add(fillLight);
+        // ── Strong, even, neutral lighting ──
+        // Key light — bright white, overhead
+        const key = new THREE.DirectionalLight(0xffffff, 1.4);
+        key.position.set(0, 600, 200);
+        key.castShadow = true;
+        scene.add(key);
+        manager.backdropLayers.push({ mesh: key, parallaxFactor: 0, rotationSpeed: 0 });
         
-        // Warm ambient
-        const ambient = new THREE.AmbientLight(0xfff0e0, 0.4);
-        scene.add(ambient);
+        // Fill — soft from opposite side
+        const fill = new THREE.DirectionalLight(0xf0f0f0, 0.6);
+        fill.position.set(-200, 400, -300);
+        scene.add(fill);
+        manager.backdropLayers.push({ mesh: fill, parallaxFactor: 0, rotationSpeed: 0 });
         
-        // Corner markers - cream pyramids for orientation
-        const markerGeo = new THREE.ConeGeometry(15, 30, 4);
-        const markerMat = new THREE.MeshBasicMaterial({ color: 0xf5deb3 });
-        const corners = [
-            [350, -140, 0],
-            [-350, -140, 0],
-            [0, -140, 350],
-            [0, -140, -350]
-        ];
-        corners.forEach(([x, y, z]) => {
-            const marker = new THREE.Mesh(markerGeo, markerMat);
-            marker.position.set(x, y, z);
-            scene.add(marker);
-            manager.backdropLayers.push({ mesh: marker, parallaxFactor: 0 });
-        });
+        // Hemisphere — neutral warm/cool split for depth
+        const hemi = new THREE.HemisphereLight(0xeeeeee, 0x888888, 0.5);
+        scene.add(hemi);
+        manager.backdropLayers.push({ mesh: hemi, parallaxFactor: 0, rotationSpeed: 0 });
     },
     
-    onFastTrack: function(scene, manager, data) {
-        // Flash bright white overlay
-        console.log('[High Contrast] Fast track - bright flash');
-    },
-    onSendHome: function(scene, manager, data) {
-        console.log('[High Contrast] Send home');
-    },
-    onWinner: function(scene, manager, data) {
-        console.log('[High Contrast] Winner');
+    onGameEvent: function(eventType, data, manager) {
+        // Minimal — no distracting effects
     }
 });
 

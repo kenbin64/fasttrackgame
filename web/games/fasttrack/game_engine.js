@@ -364,14 +364,13 @@ const CARD_TYPES = (typeof CardSubstrate !== 'undefined')
             canExitBullseye: false,
             // BACKWARD MOVEMENT RESTRICTIONS:
             // A peg moving backward (counter-clockwise) CANNOT enter:
-            //   - FastTrack mode (ft-* holes can be TRAVERSED on perimeter, but NOT entered as FT)
+            //   - FastTrack holes (ft-* holes) — blocked entirely, cannot traverse or land
             //   - Bullseye (center hole)
             //   - Safe zone (safe-* holes)
-            // A peg CAN traverse ft-* and home-* holes on the perimeter going backward
-            // without activating their special modes.
+            // A peg CAN move backward through home-* holes on the perimeter.
             // If 4 brings a peg to (or past) the safe zone entrance going counter-clockwise,
             // that DOES satisfy the circuit completion requirement (eligible for safe zone next forward move).
-            cannotEnterFastTrack: true,     // Cannot enter FastTrack mode going backward
+            cannotEnterFastTrack: true,     // Cannot back into any ft-* hole
             cannotEnterCenter: true,        // Cannot back into Bullseye
             cannotEnterSafeZone: true,      // Cannot back into Safe Zone
             cannotEnterWinner: false,       // CAN move backward through home holes on perimeter
@@ -1049,13 +1048,15 @@ class GameState {
         console.log(`[GameState.drawCard] Card drawn: ${this.currentCard?.rank} of ${this.currentCard?.suit}`);
         console.log(`${this.currentPlayer.name} drew: ${this.currentCard.rank} of ${this.currentCard.suit}`);
         
-        // FASTTRACK LOSS: Drawing a 4 card causes all FastTrack tokens to lose status
+        // FASTTRACK LOSS: Drawing a 4 card causes ALL pegs on FastTrack (ALL players) to lose FT status.
+        // They must exit to the outer track on subsequent turns.
         if (this.currentCard.rank === '4') {
-            const player = this.currentPlayer;
-            for (const peg of player.peg) {
-                if (peg.onFasttrack) {
-                    peg.mustExitFasttrack = true;
-                    console.log(`Peg ${peg.id} must exit FastTrack (4 card drawn)`);
+            for (const player of this.players) {
+                for (const peg of player.peg) {
+                    if (peg.onFasttrack) {
+                        peg.mustExitFasttrack = true;
+                        console.log(`⚠️ [4-CARD FT LOSS] Peg ${peg.id} (${player.name}) must exit FastTrack (4 card drawn by ${this.currentPlayer.name})`);
+                    }
                 }
             }
         }
@@ -1288,6 +1289,7 @@ class GameState {
                         isFastTrackEntry: dest.isFastTrackEntry || false,  // IMPORTANT: Pass through FastTrack entry flag
                         isCenterOption: dest.isCenterOption || false,      // Pass through bullseye option flag
                         isLeaveFastTrack: dest.isLeaveFastTrack || false,  // Pass through leave-FT flag
+                        isForcedFTExit: dest.isForcedFTExit || false,     // Pass through forced FT exit flag
                         description: dest.description || `Move ${dest.steps} spaces`
                     };
                     console.log('📍 [LegalMoves] Adding move:', moveObj.toHoleId, 'isFastTrackEntry:', moveObj.isFastTrackEntry, 'isLeaveFT:', moveObj.isLeaveFastTrack);
@@ -1386,6 +1388,7 @@ class GameState {
                                     isFastTrackEntry: dest.isFastTrackEntry || false,  // Pass through FastTrack entry flag
                                     isCenterOption: dest.isCenterOption || false,      // Pass through bullseye option flag
                                     isLeaveFastTrack: dest.isLeaveFastTrack || false,  // Pass through leave-FT flag
+                                    isForcedFTExit: dest.isForcedFTExit || false,     // Pass through forced FT exit flag
                                     description: dest.description || `Move ${steps} of 7 (${7 - steps} left for another peg)`
                                 });
                             }
@@ -1528,9 +1531,15 @@ class GameState {
             // The 5th peg wins by landing on home after 4 pegs are in safe zone.
             // ============================================================
             
-            // Home hole (as final position from safe zone) requires exact landing - can't pass it
-            const isHomeAsFinalPosition = nextHole && nextHole.type === 'home' && 
-                path.some(h => h.startsWith('safe-'));
+            // Home hole (as winning position) requires exact landing - can't pass it
+            // This applies to BOTH:
+            // a) Pegs coming through safe zone (path includes safe-* holes)
+            // b) 5th peg bypassing full safe zone (eligible peg approaching own home)
+            const isOwnHome = nextHole && nextHole.type === 'home' && 
+                nextHoleId === `home-${player.boardPosition}`;
+            const isFromSafeZone = path.some(h => h.startsWith('safe-'));
+            const is5thPegApproach = peg.eligibleForSafeZone || peg.lockedToSafeZone;
+            const isHomeAsFinalPosition = isOwnHome && (isFromSafeZone || is5thPegApproach);
             
             if (isHomeAsFinalPosition) {
                 if (stepsRemaining === 1) {
@@ -1563,6 +1572,7 @@ class GameState {
                 console.log(`🚫 [calculateDestinations] Path BLOCKED by own peg ${blockingPeg ? blockingPeg.id : '?'} at ${nextHoleId} after ${currentIndex} steps`);
                 break; // Cannot pass own peg
             }
+            
             // Special case: If trying to ENTER bullseye and own peg is there, block
             if (nextHoleId === 'center' && this.isPegOnHole('center', player.index)) {
                 // Can't enter bullseye if own peg is there
@@ -1604,67 +1614,49 @@ class GameState {
                     }
                     
                     // ============================================================
-                    // FASTTRACK PASSING CHECK - Cannot pass own pegs when exiting FastTrack
-                    // If a peg on FastTrack would land at a position ahead of another own peg,
-                    // it must exit earlier. If no valid exit exists, move is not allowed.
+                    // FINAL-POSITION PASSING CHECK
+                    // The FT peg's final landing position (on the perimeter) cannot
+                    // be equal to or further than another own peg's perimeter position.
+                    // FT hops are shortcuts — intermediate ft-* hops don't "visit" the
+                    // perimeter holes between corners, so passing is only checked at
+                    // the FINAL landing spot.
                     // ============================================================
                     let passingViolation = false;
-                    let validExitHoleId = nextHoleId;
-                    let validPath = [...path];
                     
                     if (peg.onFasttrack) {
-                        const blockedByPeg = this.wouldPassOwnPeg(peg, nextHoleId, player);
+                        const startPerim = this.getPerimeterIndex(peg.holeId);
+                        const destPerim = this.getPerimeterIndex(nextHoleId);
                         
-                        if (blockedByPeg) {
-                            console.log(`🚧 [FASTTRACK PASS] ${peg.id} would pass ${blockedByPeg.id} by landing at ${nextHoleId} - finding earlier exit`);
-                            
-                            // Find an earlier exit point that doesn't cause passing
-                            // Search backwards through the path for ft-* holes we can exit from
-                            let foundValidExit = false;
-                            for (let pathIdx = path.length - 2; pathIdx >= 0; pathIdx--) {
-                                const candidateHole = path[pathIdx];
-                                if (candidateHole.startsWith('ft-') && candidateHole !== peg.holeId) {
-                                    // This is an ft-* hole we passed through
-                                    // Calculate where exiting here would put us
-                                    const ftIdx = parseInt(candidateHole.replace('ft-', ''));
-                                    
-                                    // Exit would go to side-left-X-1 (first side hole from this ft)
-                                    const exitDestination = `side-left-${ftIdx}-1`;
-                                    
-                                    // Check if this exit would still pass another peg
-                                    const stillBlocked = this.wouldPassOwnPeg(peg, exitDestination, player);
-                                    
-                                    if (!stillBlocked) {
-                                        console.log(`🚧 [FASTTRACK PASS] Found valid earlier exit: ${candidateHole} → ${exitDestination}`);
-                                        validExitHoleId = exitDestination;
-                                        validPath = path.slice(0, pathIdx + 1);
-                                        validPath.push(exitDestination);
-                                        foundValidExit = true;
-                                        break;
-                                    } else {
-                                        console.log(`🚧 [FASTTRACK PASS] Exit at ${candidateHole} still passes ${stillBlocked.id}`);
-                                    }
+                        if (startPerim !== -1 && destPerim !== -1) {
+                            for (const otherPeg of player.peg) {
+                                if (otherPeg.id === peg.id) continue;
+                                if (otherPeg.holeType === 'holding' || otherPeg.completedCircuit) continue;
+                                if (otherPeg.holeId === 'center') continue;
+                                if (otherPeg.holeId.startsWith('safe-')) continue;
+                                
+                                const otherPerim = this.getPerimeterIndex(otherPeg.holeId);
+                                if (otherPerim === -1) continue;
+                                
+                                // Check if destination is at or past this peg
+                                // (in the clockwise arc from start to destination)
+                                if (this.isInClockwiseArc(startPerim, destPerim, otherPerim) ||
+                                    destPerim === otherPerim) {
+                                    passingViolation = true;
+                                    console.log(`🚧 [FT FINAL-POS] Landing at ${nextHoleId}(${destPerim}) would pass/land on own peg ${otherPeg.id} at ${otherPeg.holeId}(${otherPerim}). Start: ${peg.holeId}(${startPerim})`);
+                                    break;
                                 }
-                            }
-                            
-                            if (!foundValidExit) {
-                                // No valid exit exists - this move is not allowed
-                                console.log(`🚧 [FASTTRACK PASS] NO VALID EXIT - move is blocked, turn ends`);
-                                passingViolation = true;
                             }
                         }
                     }
                     
-                    // Only add destination if there's no unresolvable passing violation
+                    // Only add destination if there's no passing violation
                     if (!passingViolation) {
-                        // Add the regular destination (possibly modified for earlier exit)
                         destinations.push({
-                            holeId: validExitHoleId,
+                            holeId: nextHoleId,
                             steps: steps,
-                            path: validPath,
+                            path: [...path],
                             hopCount: hopTracker.hopsCount,
-                            hopValidated: hopTracker.validated,
-                            forcedEarlyExit: validExitHoleId !== nextHoleId
+                            hopValidated: hopTracker.validated
                         });
                     }
                     
@@ -1758,6 +1750,106 @@ class GameState {
         // You must move the EXACT number of steps on your card.
         // The only exception is the 7 card which can be split (handled separately).
         
+        // ============================================================
+        // FASTTRACK EARLY EXIT — peg blocked on FT ring, or final destination 
+        // has a passing violation, or the while loop couldn't complete.
+        // Rule: The peg moves the FULL card value. Some hops on FT ring,
+        // remaining hops on the outer perimeter after exiting.
+        // FT hops + perimeter hops = card value.
+        // The peg exits at the LATEST ft-* hole where the remaining perimeter
+        // hops don't cause it to land on or pass another own peg.
+        // Example: Card=10, peg at ft-1. 2 FT hops to ft-3, then 8 perimeter hops.
+        // ============================================================
+        if (peg.onFasttrack && destinations.length === 0) {
+            // Collect all ft-* holes in the path we already walked (excluding start hole)
+            const ftExitCandidates = [];
+            for (let i = path.length - 1; i >= 1; i--) {
+                if (path[i].startsWith('ft-')) {
+                    ftExitCandidates.push({ hole: path[i], pathIndex: i });
+                }
+            }
+            
+            // Also try exiting from the starting ft-* hole (0 FT hops, all perimeter)
+            if (peg.holeId.startsWith('ft-')) {
+                ftExitCandidates.push({ hole: peg.holeId, pathIndex: 0 });
+            }
+            
+            console.log(`🚧 [FT EARLY EXIT] Searching for valid exit. Blocked at ${blockedAt}, ${ftExitCandidates.length} ft-* exit candidates`);
+            
+            // Try each candidate from FURTHEST to NEAREST
+            for (const candidate of ftExitCandidates) {
+                const ftHops = candidate.pathIndex; // hops on FT ring to reach this exit
+                const remainingHops = steps - ftHops;
+                
+                if (remainingHops <= 0) continue; // Already past card value at this FT hole
+                
+                // Build perimeter path from this ft-* hole
+                const tempPeg = { ...peg, onFasttrack: false, fasttrackEntryHole: null, holeId: candidate.hole };
+                const perimeterSeq = this.getTrackSequence(tempPeg, player, direction);
+                
+                if (perimeterSeq.length < remainingHops) continue; // Not enough perimeter track
+                
+                // Walk perimeter for remainingHops, checking for blocks
+                let canReach = true;
+                const exitPath = path.slice(0, candidate.pathIndex + 1); // FT portion
+                for (let s = 0; s < remainingHops; s++) {
+                    const nextH = perimeterSeq[s];
+                    if (this.isPegBlockingPath(nextH, player.index, peg.id)) {
+                        canReach = false;
+                        break;
+                    }
+                    exitPath.push(nextH);
+                }
+                
+                if (canReach) {
+                    const dest = exitPath[exitPath.length - 1];
+                    const destOccupied = this.isPegOnHole(dest, player.index);
+                    if (!destOccupied) {
+                        // Final-position check: combined FT+perimeter move cannot pass own pegs
+                        const startPerim = this.getPerimeterIndex(peg.holeId);
+                        const destPerim = this.getPerimeterIndex(dest);
+                        let wouldPass = false;
+                        
+                        if (startPerim !== -1 && destPerim !== -1) {
+                            for (const otherPeg of player.peg) {
+                                if (otherPeg.id === peg.id) continue;
+                                if (otherPeg.holeType === 'holding' || otherPeg.completedCircuit) continue;
+                                if (otherPeg.holeId === 'center' || otherPeg.holeId.startsWith('safe-')) continue;
+                                
+                                const otherPerim = this.getPerimeterIndex(otherPeg.holeId);
+                                if (otherPerim === -1) continue;
+                                
+                                if (this.isInClockwiseArc(startPerim, destPerim, otherPerim) ||
+                                    destPerim === otherPerim) {
+                                    wouldPass = true;
+                                    console.log(`🚧 [FT EARLY EXIT] Exit at ${candidate.hole} → ${dest}(${destPerim}) would pass ${otherPeg.id} at ${otherPeg.holeId}(${otherPerim})`);
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (!wouldPass) {
+                            destinations.push({
+                                holeId: dest,
+                                steps: steps,
+                                path: exitPath,
+                                isForcedFTExit: true,
+                                isLeaveFastTrack: true,
+                                description: `⚠️ FastTrack exit at ${candidate.hole} → ${dest}`
+                            });
+                            console.log(`🚧 [FT EARLY EXIT] Valid exit at ${candidate.hole}: ${ftHops} FT hops + ${remainingHops} perimeter hops = ${steps} total → ${dest}`);
+                            break; // Use the FURTHEST valid exit
+                        }
+                    }
+                }
+            }
+            
+            // If absolutely no valid exit exists (all perimeter paths blocked too), skip turn
+            if (destinations.length === 0) {
+                console.log(`🚧 [FT EARLY EXIT] NO valid exit found for peg ${peg.id} — all paths blocked`);
+            }
+        }
+        
         // BULLSEYE ENTRY WITH 1-STEP CARD from ft-* hole on FastTrack
         // RULE: A peg on FastTrack can enter bullseye with a 1-step card from any ft-* hole
         // EXCEPT their own color FT hole (ft-{boardPosition}). That's a backwards move.
@@ -1824,7 +1916,9 @@ class GameState {
         // LOCKED TO SAFE ZONE ENFORCEMENT
         // If peg is lockedToSafeZone, filter out any outer track destinations
         // The peg MUST enter safe zone (or HOME if safe zone is full)
-        if (peg.lockedToSafeZone) {
+        // EXCEPTION: Backward moves (4 card) are always allowed — a locked peg can still
+        // move backward on the outer track. The lock only prevents forward deviation.
+        if (peg.lockedToSafeZone && direction !== 'backward') {
             const pegsInSafeZone = player.peg.filter(p => p.holeType === 'safezone').length;
             console.log(`🔒 [LOCK ENFORCEMENT] Peg ${peg.id} is LOCKED to safe zone, pegsInSafeZone=${pegsInSafeZone}`);
             
@@ -2001,18 +2095,11 @@ class GameState {
                 const safePlayerIdx = parseInt(match[1]);
                 const safeHoleNum = parseInt(match[2]);
                 
-                // Count pegs in safe zone
-                const pegsInSafeZone = player.peg.filter(p => p.holeType === 'safezone').length;
-                
                 // Can only move forward in safe zone to higher numbered holes
+                // Pegs IN the safe zone can NEVER exit to home — they are permanently placed.
+                // Only the 5th peg (on the outer track) bypasses a full safe zone to reach home.
                 for (let h = safeHoleNum + 1; h <= 4; h++) {
                     sequence.push(`safe-${safePlayerIdx}-${h}`);
-                }
-                
-                // Can only reach HOME hole if safe zone is completely full (4 pegs)
-                // This allows the 5th peg (passing through) to complete the circuit
-                if (pegsInSafeZone === 4) {
-                    sequence.push(`home-${safePlayerIdx}`);
                 }
             }
             return sequence;
@@ -2607,6 +2694,94 @@ class GameState {
         return null;  // No passing violation
     }
     
+    // ============================================================
+    // CROSS-TRACK FASTTRACK PASSING HELPERS
+    // ft-* holes are part of the outer perimeter at specific positions.
+    // When an FT peg hops between ft-* holes, it effectively "covers"
+    // the perimeter arc between them. If an own outer-track peg sits
+    // in that arc, the FT peg is "passing" it and must stop.
+    // ============================================================
+    
+    // Map any outer-track hole to its perimeter index (0-83)
+    // Returns -1 for non-perimeter holes (safe zone, center, holding)
+    getPerimeterIndex(holeId) {
+        if (!holeId) return -1;
+        
+        // ft-N: ft-{(p+1)%6} is at section p's last position = p*14 + 13
+        // So section = (ftNum - 1 + 6) % 6
+        if (holeId.startsWith('ft-')) {
+            const ftNum = parseInt(holeId.replace('ft-', ''));
+            const section = (ftNum - 1 + 6) % 6;
+            return section * 14 + 13;
+        }
+        
+        // side-left-P-H: index = P*14 + (H - 1)
+        const sideLeftMatch = holeId.match(/^side-left-(\d+)-(\d+)$/);
+        if (sideLeftMatch) {
+            return parseInt(sideLeftMatch[1]) * 14 + (parseInt(sideLeftMatch[2]) - 1);
+        }
+        
+        // outer-P-H: index = P*14 + 4 + H
+        const outerMatch = holeId.match(/^outer-(\d+)-(\d+)$/);
+        if (outerMatch) {
+            return parseInt(outerMatch[1]) * 14 + 4 + parseInt(outerMatch[2]);
+        }
+        
+        // home-P: index = P*14 + 8
+        const homeMatch = holeId.match(/^home-(\d+)$/);
+        if (homeMatch) {
+            return parseInt(homeMatch[1]) * 14 + 8;
+        }
+        
+        // side-right-P-H: H goes 4,3,2,1 at indices P*14 + 9, +10, +11, +12
+        const sideRightMatch = holeId.match(/^side-right-(\d+)-(\d+)$/);
+        if (sideRightMatch) {
+            const section = parseInt(sideRightMatch[1]);
+            const h = parseInt(sideRightMatch[2]);
+            return section * 14 + 9 + (4 - h);
+        }
+        
+        return -1; // Not on perimeter (safe zone, center, holding)
+    }
+    
+    // Check if 'position' falls in the clockwise arc from 'from' (exclusive) to 'to' (inclusive)
+    // on an 84-hole circular track. Used for cross-track FT passing detection.
+    isInClockwiseArc(from, to, position) {
+        if (from === to) return false; // Same position = no arc
+        const arcLen = (to - from + 84) % 84;
+        const distFromStart = (position - from + 84) % 84;
+        return distFromStart > 0 && distFromStart <= arcLen;
+    }
+    
+    // Check if an FT hop from one hole to another would pass any own peg on the outer track.
+    // fromHoleId: the FT peg's current position (ft-* hole or starting position)
+    // toFtHoleId: the candidate next ft-* hole
+    // Returns the blocking peg if found, null otherwise.
+    wouldFtHopPassOwnPeg(fromHoleId, toFtHoleId, player, movingPegId) {
+        const fromPerim = this.getPerimeterIndex(fromHoleId);
+        const toPerim = this.getPerimeterIndex(toFtHoleId);
+        
+        if (fromPerim === -1 || toPerim === -1) return null;
+        
+        for (const otherPeg of player.peg) {
+            if (otherPeg.id === movingPegId) continue;
+            if (otherPeg.holeType === 'holding' || otherPeg.completedCircuit) continue;
+            if (otherPeg.holeId === 'center') continue; // Bullseye doesn't block
+            if (otherPeg.holeId.startsWith('safe-')) continue; // Safe zone doesn't block
+            if (otherPeg.onFasttrack) continue; // Other FT pegs handled by isPegBlockingPath
+            
+            const otherPerim = this.getPerimeterIndex(otherPeg.holeId);
+            if (otherPerim === -1) continue;
+            
+            if (this.isInClockwiseArc(fromPerim, toPerim, otherPerim)) {
+                console.log(`🚧 [FT CROSS-TRACK] FT hop ${fromHoleId}(${fromPerim}) → ${toFtHoleId}(${toPerim}) would pass own peg ${otherPeg.id} at ${otherPeg.holeId}(${otherPerim})`);
+                return otherPeg;
+            }
+        }
+        
+        return null;
+    }
+    
     // Check if a peg blocks a path (excludes bullseye pegs - they don't block the track)
     // excludePegId: optionally exclude a specific peg (the one that's moving)
     isPegBlockingPath(holeId, playerIndex, excludePegId = null) {
@@ -2764,12 +2939,16 @@ class GameState {
             // peg.onFasttrack stays true (don't change it)
             
             // CRITICAL: If landing on own ft-* hole (exit point) AFTER TRAVERSING, LOCK to safe zone
-            // Must have entered from a DIFFERENT ft-* hole to exit here
+            // Must have entered from a DIFFERENT ft-* hole OR traversed away from entry and returned
             const ftHoleIdx = parseInt(move.toHoleId.replace('ft-', ''));
             if (ftHoleIdx === player.boardPosition) {
                 // Check if they entered from a different hole (meaning they traversed)
+                // OR if they entered from own hole but have traversed away (move proves traversal)
                 const entryHole = peg.fasttrackEntryHole;
-                if (entryHole && entryHole !== move.toHoleId) {
+                const enteredAtOwnHole = entryHole === move.toHoleId;
+                // If entry was at a different hole, or entry was own hole but move came FROM a different ft-*
+                // (which proves traversal around the ring), then exit
+                if (entryHole && (!enteredAtOwnHole || (enteredAtOwnHole && move.fromHoleId !== move.toHoleId))) {
                     peg.eligibleForSafeZone = true;
                     peg.lockedToSafeZone = true;
                     peg.inHomeStretch = true;  // Now in home stretch - can only go to safe zone
@@ -2857,11 +3036,30 @@ class GameState {
             }
         }
         
-        // Track circuit completion - landing on home hole after going through safe zone
+        // Track circuit completion - landing on home hole
         const homeHoleId = `home-${player.boardPosition}`;
         if (move.toHoleId === homeHoleId && oldHoleType === 'safezone') {
             peg.completedCircuit = true;
             console.log(`Peg ${peg.id} COMPLETED CIRCUIT - landed on home from safe zone!`);
+        }
+        
+        // 5th peg bypass: safe zone is full (4 pegs), peg lands on home from perimeter
+        // BUG FIX: Also check if the CURRENT move's path passes through the safe zone
+        // entry hole (outer-{p}-2). SmartPeg's sim correctly updates eligibility mid-path,
+        // but the real peg's eligibleForSafeZone is set LATER in executeMove (after this
+        // check). When the peg passes through the entry AND lands on home in the SAME
+        // move, eligibleForSafeZone is still false here. The path check covers that case.
+        const safeZoneEntryForCircuit = `outer-${player.boardPosition}-2`;
+        const pathPassesThroughSafeEntry = move.path && move.path.includes(safeZoneEntryForCircuit);
+        if (move.toHoleId === homeHoleId && !peg.completedCircuit &&
+            oldHoleType !== 'holding' &&
+            (peg.eligibleForSafeZone || pathPassesThroughSafeEntry)) {
+            const safeZoneCount = player.peg.filter(p => p.holeType === 'safezone' && p.id !== peg.id).length;
+            if (safeZoneCount >= 4) {
+                peg.completedCircuit = true;
+                peg.eligibleForSafeZone = true; // Sync real peg state with what SmartPeg's sim computed
+                console.log(`🏆 Peg ${peg.id} COMPLETED CIRCUIT - 5th peg bypassed full safe zone and landed on home!`);
+            }
         }
         
         // ============================================================
@@ -3109,6 +3307,9 @@ class GameState {
         peg.lockedToSafeZone = false; // Reset safe zone lock when sent home
         peg.fasttrackEntryTurn = null; // Reset FastTrack entry tracking
         peg.fasttrackEntryHole = null; // Reset FastTrack entry hole tracking
+        peg.mustExitFasttrack = false; // Reset FT exit flag
+        peg.inHomeStretch = false;     // Reset home stretch flag
+        peg.hasExitedBullseye = false; // Reset bullseye exit flag — peg can enter again after being cut
         
         console.log(`${player.name}'s peg sent back to ${targetHoleId}`);
     }

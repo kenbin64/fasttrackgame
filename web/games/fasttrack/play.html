@@ -2,855 +2,263 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FastTrack! - Create Private Game</title>
-    <link rel="icon" href="assets/images/ftLogo.png" type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fast Track — Free Board Game | Play Now</title>
+
+    <!-- ButterflyFX Analytics Substrate (GA4 + Dimensional Journey) -->
+    <script src="analytics_substrate.js"></script>
+
+    <!-- Open Graph (Facebook, LinkedIn, iMessage) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Fast Track — The Board Game Reimagined">
+    <meta property="og:description" content="Watch AI bots battle it out on a stunning 3D board, then jump in and play free! Strategy, speed, sabotage — 2-4 players.">
+    <meta property="og:url" content="https://kensgames.com/fasttrack/play.html">
+    <meta property="og:image" content="https://kensgames.com/fasttrack/assets/images/og-preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Ken's Games">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Fast Track — Free Board Game">
+    <meta name="twitter:description" content="Watch AI bots battle on a 3D board, then play free! Strategy meets speed.">
+    <meta name="twitter:image" content="https://kensgames.com/fasttrack/assets/images/og-preview.png">
+
+    <!-- Standard Meta -->
+    <meta name="description" content="Fast Track — a free multiplayer board game. Watch live AI demo or play against bots and friends. 7 stunning themes, cinematic 3D board.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://kensgames.com/fasttrack/play.html">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="icon" type="image/png" href="assets/images/ftLogo.png">
     <link rel="apple-touch-icon" href="assets/images/ftLogo.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/play.css">
+
+    <!-- ButterflyFX SEO Substrate (JSON-LD + Breadcrumbs — replaces inline schema) -->
+    <script src="seo_substrate.js"></script>
+
+    <!-- ButterflyFX Growth Substrate (Viral Spiral Engine) -->
+    <script src="growth_substrate.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a1a;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ─── HERO SECTION ─── */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(255,215,0,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(147,51,234,0.06) 0%, transparent 60%),
+                linear-gradient(180deg, #0a0a1a 0%, #111128 40%, #1a1a2e 100%);
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.15), transparent),
+                radial-gradient(2px 2px at 80% 20%, rgba(255,255,255,0.1), transparent),
+                radial-gradient(1px 1px at 50% 60%, rgba(255,255,255,0.08), transparent),
+                radial-gradient(1px 1px at 70% 70%, rgba(255,255,255,0.06), transparent);
+            pointer-events: none;
+        }
+
+        .suits {
+            font-size: 36px;
+            letter-spacing: 0.3em;
+            margin-bottom: 10px;
+            opacity: 0.7;
+        }
+
+        .logo {
+            font-size: clamp(48px, 10vw, 96px);
+            font-weight: 900;
+            color: #FFD700;
+            letter-spacing: 0.2em;
+            text-shadow: 0 0 60px rgba(255,215,0,0.3), 0 4px 20px rgba(0,0,0,0.5);
+            margin-bottom: 8px;
+        }
+
+        .tagline {
+            font-size: clamp(14px, 2.5vw, 20px);
+            color: #aaa;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            font-weight: 300;
+            margin-bottom: 50px;
+        }
+
+        /* ─── BUTTONS ─── */
+        .btn-row {
+            display: flex; gap: 16px; flex-wrap: wrap;
+            justify-content: center; align-items: center;
+            position: relative; z-index: 2;
+        }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 16px 36px; border-radius: 14px;
+            font-size: 17px; font-weight: 700; letter-spacing: 0.08em;
+            text-decoration: none; text-transform: uppercase;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer; border: none;
+        }
+        .btn:hover { transform: translateY(-2px); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            box-shadow: 0 4px 24px rgba(255,215,0,0.35);
+            animation: glow 3s ease-in-out infinite;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 6px 32px rgba(255,215,0,0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.08);
+            color: #FFD700;
+            border: 1px solid rgba(255,215,0,0.25);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+        .btn-secondary:hover {
+            background: rgba(255,215,0,0.12);
+            box-shadow: 0 4px 20px rgba(255,215,0,0.15);
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 4px 24px rgba(255,215,0,0.35); }
+            50% { box-shadow: 0 4px 36px rgba(255,215,0,0.55); }
+        }
+
+        /* ─── FEATURES ─── */
+        .features {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px; margin-top: 60px; max-width: 800px; width: 100%;
+            position: relative; z-index: 2;
+        }
+        .feature {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px; padding: 24px 20px; text-align: center;
+        }
+        .feature-icon { font-size: 36px; margin-bottom: 10px; }
+        .feature-title { font-size: 16px; font-weight: 700; color: #FFD700; margin-bottom: 6px; }
+        .feature-desc { font-size: 13px; color: #888; line-height: 1.5; }
+
+        /* ─── FOOTER ─── */
+        .footer {
+            text-align: center; padding: 30px 20px; color: #555;
+            font-size: 13px; border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .footer a { color: #FFD700; text-decoration: none; }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 600px) {
+            .btn-row { flex-direction: column; align-items: stretch; }
+            .btn { justify-content: center; padding: 14px 20px; }
+            .features { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
-    <div class="bg-animation"></div>
 
-    <!-- Header -->
-    <div class="header">
-        <h1 class="logo">FastTrack!</h1>
-        <p class="tagline">🔒 Create a Private Game</p>
-    </div>
+<section class="hero" id="hero-section">
+    <div class="suits">♠ ♥ ♦ ♣</div>
+    <div class="logo">FAST TRACK</div>
+    <div class="tagline" id="tagline">Strategy • Speed • Sabotage</div>
 
-    <!-- ========== STEP 1: CREATE GAME FORM ========== -->
-    <div id="step-create" class="screen active">
-        <div class="card">
-            <h2 class="card-title">🚀 Create Private Game</h2>
-            <p style="color: var(--text-muted); margin-bottom: 20px;">
-                Set up your game, get a code, and invite friends!
-            </p>
+    <!-- Challenge banner injected here by growth substrate -->
+    <div id="challenge-slot"></div>
 
-            <div class="form-group">
-                <label>Your Username</label>
-                <input type="text" id="create-username" placeholder="Enter your name..." maxlength="20" autocomplete="off">
-            </div>
-
-            <div class="avatar-section">
-                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-muted);">
-                    Choose Your Avatar
-                </label>
-                <div class="avatar-preview">
-                    <div class="avatar-preview-large" id="avatar-preview">👤</div>
-                    <div>
-                        <div style="font-weight: 600;" id="avatar-name">Select an avatar</div>
-                        <div style="font-size: 0.85em; color: var(--text-muted);">100+ to choose from!</div>
-                    </div>
-                </div>
-
-                <div class="avatar-categories" id="avatar-categories"></div>
-                <div class="avatar-grid" id="avatar-grid"></div>
-
-                <div class="upload-avatar">
-                    <input type="file" id="avatar-upload" accept="image/*">
-                    <label for="avatar-upload">📷 Upload Custom Avatar</label>
-                </div>
-            </div>
-
-            <!-- Game Settings -->
-            <h3 style="margin: 25px 0 15px; color: var(--text); font-size: 1.1em;">⚙️ Game Settings</h3>
-
-            <div class="settings-row">
-                <span class="settings-label">Max Players</span>
-                <div class="settings-value">
-                    <select id="create-max-players">
-                        <option value="2">2 Players</option>
-                        <option value="3">3 Players</option>
-                        <option value="4" selected>4 Players</option>
-                        <option value="5">5 Players</option>
-                        <option value="6">6 Players</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="settings-row">
-                <span class="settings-label">Allow AI Bots</span>
-                <div class="settings-value">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="setting-allow-bots" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="settings-row">
-                <span class="settings-label">Allow Late Joiners</span>
-                <div class="settings-value">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="setting-late-join" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="settings-row">
-                <span class="settings-label">Music</span>
-                <div class="settings-value">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="setting-music" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="btn-group">
-                <a href="index.html" class="btn btn-secondary">← Back</a>
-                <button class="btn btn-success btn-lg" id="create-btn" onclick="createGame()">
-                    🚀 Create Game
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ========== STEP 2: GAME CREATED — SHARE CODE ========== -->
-    <div id="step-created" class="screen">
-        <div class="session-code-display">
-            <div class="session-code-label">Your Game Code — share with friends:</div>
-            <div class="session-code" id="game-code">------</div>
-            <div class="session-code-actions">
-                <button class="copy-btn" onclick="copyCode()">📋 Copy Code</button>
-                <button class="copy-btn" onclick="copyLink()">🔗 Copy Link</button>
-                <button class="invite-btn" onclick="showInviteModal()">📨 Invite Players</button>
-            </div>
-        </div>
-
-        <div class="card" style="text-align: center;">
-            <h2 class="card-title" style="justify-content: center;">✅ Game Created!</h2>
-            <p style="color: var(--text-muted); margin-bottom: 15px;">
-                Share the code above with your friends. They can join at:
-            </p>
-            <p style="color: var(--secondary); font-weight: 600; margin-bottom: 25px; word-break: break-all;" id="join-url-display"></p>
-
-            <div class="btn-group" style="flex-direction: column; gap: 12px;">
-                <button class="btn btn-success btn-lg" onclick="enterWaitingRoom()" style="padding: 18px;">
-                    🎮 Enter Waiting Room
-                </button>
-                <p style="color: var(--text-muted); font-size: 0.85em;">
-                    Wait for players to join, then start when ready.
-                </p>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3 style="margin-bottom: 12px; font-size: 1em;">📜 Quick Rules</h3>
-            <ul style="color: var(--text-muted); font-size: 0.9em; line-height: 1.8; padding-left: 18px;">
-                <li>Play cards to move pegs around the board</li>
-                <li>Get all 4 pegs from Start to Home to win</li>
-                <li>Jack or Joker needed to leave Start</li>
-                <li>Land on an opponent to send them back</li>
-                <li>Joker is wild — can be any card</li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- ========== STEP 3: HOST WAITING ROOM ========== -->
-    <div id="step-waiting" class="screen">
-        <div class="session-code-display">
-            <div class="session-code-label">Game Code — share with friends:</div>
-            <div class="session-code" id="waiting-game-code">------</div>
-            <div class="session-code-actions">
-                <button class="copy-btn" onclick="copyCode()">📋 Copy Code</button>
-                <button class="copy-btn" onclick="copyLink()">🔗 Copy Link</button>
-                <button class="invite-btn" onclick="showInviteModal()">📨 Invite</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2 class="card-title" style="justify-content: center;">⏳ Waiting Room</h2>
-            <p style="color: var(--text-muted); text-align: center; margin-bottom: 20px;">
-                Waiting for players to join... Share the code above!
-            </p>
-
-            <!-- Player Slots -->
-            <div id="player-slots" style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 20px;"></div>
-
-            <!-- Host Ready Toggle -->
-            <div style="text-align: center; margin-bottom: 20px;">
-                <button class="btn btn-secondary btn-lg" id="ready-toggle-btn" onclick="toggleReady()" style="padding: 14px 32px; min-width: 200px;">
-                    ☐ I'm Ready
-                </button>
-            </div>
-
-            <!-- Host Controls -->
-            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 15px;">
-                <button class="btn btn-secondary" onclick="addBot()" id="add-bot-btn">🤖 Add Bot</button>
-                <button class="btn btn-secondary" onclick="removeBot()" id="remove-bot-btn" style="display: none;">➖ Remove Bot</button>
-            </div>
-
-            <div id="player-count-info" style="text-align: center; color: var(--text-muted); font-size: 0.9em; margin-bottom: 20px;"></div>
-
-            <div style="text-align: center;">
-                <button class="btn btn-success btn-lg" id="start-game-btn" onclick="startGame()" disabled style="padding: 18px; min-width: 250px;">
-                    🎮 Start Game
-                </button>
-                <p id="start-game-note" style="color: var(--text-muted); font-size: 0.85em; margin-top: 10px;">
-                    Everyone must be ready to start
-                </p>
-            </div>
-        </div>
-
-        <div class="card" style="text-align: center;">
-            <button class="btn btn-secondary" onclick="cancelGame()" style="opacity: 0.7;">
-                ✖ Cancel Game
-            </button>
-        </div>
-    </div>
-
-    <!-- Toast -->
-    <div id="toast" class="toast"></div>
-
-    <!-- Invite Modal -->
-    <div id="invite-modal" class="modal-overlay" onclick="closeInviteModal(event)">
-        <div class="modal" onclick="event.stopPropagation()">
-            <div class="modal-title">📨 Invite Friends to Play!</div>
-            <div class="modal-subtitle">Share the game code so your friends can join</div>
-
-            <div class="share-code-box">
-                <div class="share-code-label">Game Code</div>
-                <div class="share-code-value" id="modal-game-code">------</div>
-            </div>
-
-            <div class="share-buttons">
-                <button class="share-btn native" onclick="shareNative()" id="native-share-btn">
-                    <span class="share-btn-icon">📤</span> Share
-                </button>
-                <button class="share-btn whatsapp" onclick="shareWhatsApp()">
-                    <span class="share-btn-icon">💬</span> WhatsApp
-                </button>
-                <button class="share-btn telegram" onclick="shareTelegram()">
-                    <span class="share-btn-icon">✈️</span> Telegram
-                </button>
-                <button class="share-btn twitter" onclick="shareTwitter()">
-                    <span class="share-btn-icon">🐦</span> Twitter/X
-                </button>
-                <button class="share-btn facebook" onclick="shareFacebook()">
-                    <span class="share-btn-icon">📘</span> Facebook
-                </button>
-                <button class="share-btn sms" onclick="shareSMS()">
-                    <span class="share-btn-icon">💬</span> SMS
-                </button>
-                <button class="share-btn email" onclick="shareEmail()">
-                    <span class="share-btn-icon">📧</span> Email
-                </button>
-            </div>
-
-            <button class="modal-close" onclick="closeInviteModal()">Close</button>
-        </div>
+    <div class="btn-row" id="btn-row">
+        <a class="btn btn-primary" id="play-btn" href="board_3d.html" onclick="if(window.FTAnalytics)FTAnalytics.ctaClick('play_page_play_now')">
+            ▶ Play Now — Free
+        </a>
+        <a class="btn btn-secondary" href="board_3d.html?demo=1" onclick="if(window.FTAnalytics)FTAnalytics.ctaClick('play_page_watch_demo')">
+            👁 Watch Live Demo
+        </a>
     </div>
 
     <script>
-        // =================================================================
-        // AVATAR DATA
-        // =================================================================
-        const AVATARS = {
-            people: {
-                label: '👥 People',
-                items: [
-                    '👨🏻', '👨🏼', '👨🏽', '👨🏾', '👨🏿', '👩🏻', '👩🏼', '👩🏽', '👩🏾', '👩🏿',
-                    '🧑🏻', '🧑🏼', '🧑🏽', '🧑🏾', '🧑🏿', '👦🏻', '👦🏽', '👦🏿', '👧🏻', '👧🏽', '👧🏿',
-                    '👴🏻', '👴🏽', '👴🏿', '👵🏻', '👵🏽', '👵🏿', '🧓🏻', '🧓🏽', '🧓🏿',
-                    '👨🏻‍🦰', '👨🏽‍🦰', '👨🏿‍🦰', '👩🏼‍🦰', '👩🏾‍🦰', '👩🏿‍🦰',
-                    '👨🏻‍🦱', '👨🏽‍🦱', '👨🏿‍🦱', '👩🏼‍🦱', '👩🏾‍🦱', '👩🏿‍🦱',
-                    '👨🏻‍🦲', '👨🏽‍🦲', '👨🏿‍🦲', '👩🏼‍🦲', '👩🏾‍🦲',
-                    '👨🏻‍🦳', '👨🏽‍🦳', '👨🏿‍🦳', '👩🏼‍🦳', '👩🏾‍🦳', '👩🏿‍🦳',
-                    '👱🏻‍♂️', '👱🏽‍♂️', '👱🏿‍♂️', '👱🏻‍♀️', '👱🏽‍♀️', '👱🏿‍♀️',
-                    '🧔🏻', '🧔🏽', '🧔🏿', '🧔🏻‍♂️', '🧔🏽‍♂️', '🧔🏿‍♂️',
-                    '👲🏻', '👲🏽', '👲🏿', '👳🏻‍♂️', '👳🏽‍♂️', '👳🏿‍♂️', '👳🏻‍♀️', '👳🏽‍♀️', '👳🏿‍♀️',
-                    '🧕🏻', '🧕🏽', '🧕🏿', '👮🏻‍♂️', '👮🏽‍♀️', '👮🏿‍♂️',
-                    '👷🏻‍♂️', '👷🏽‍♀️', '👷🏿‍♂️', '💂🏻‍♂️', '💂🏽‍♀️', '💂🏿‍♂️',
-                    '🕵🏻️‍♂️', '🕵🏽️‍♀️', '🕵🏿️‍♂️',
-                    '👨🏻‍⚕️', '👩🏽‍⚕️', '👨🏿‍⚕️', '👨🏼‍🌾', '👩🏾‍🌾', '👨🏿‍🍳', '👩🏻‍🍳',
-                    '👨🏽‍🎓', '👩🏿‍🎓', '👨🏻‍🎤', '👩🏾‍🎤', '👨🏿‍🏫', '👩🏼‍🏫',
-                    '👨🏽‍💻', '👩🏿‍💻', '👨🏻‍💼', '👩🏾‍💼', '👨🏿‍🔬', '👩🏼‍🔬',
-                    '👨🏻‍🎨', '👩🏽‍🎨', '👨🏿‍🚀', '👩🏼‍🚀', '👨🏾‍✈️', '👩🏻‍✈️',
-                    '🥷', '🥷🏻', '🥷🏽', '🥷🏿', '🦸🏻‍♂️', '🦸🏽‍♀️', '🦸🏿‍♂️',
-                    '🦹🏻‍♀️', '🦹🏽‍♂️', '🦹🏿‍♀️', '🧙🏻‍♂️', '🧙🏽‍♀️', '🧙🏿‍♂️',
-                    '🧚🏻‍♀️', '🧚🏽‍♂️', '🧚🏿‍♀️', '🧛🏻‍♂️', '🧛🏽‍♀️', '🧛🏿‍♂️',
-                    '🧜🏻‍♀️', '🧜🏽‍♂️', '🧜🏿‍♀️', '🧝🏻‍♂️', '🧝🏽‍♀️', '🧝🏿‍♂️',
-                    '💃🏻', '💃🏽', '💃🏿', '🕺🏻', '🕺🏽', '🕺🏿', '🤴🏻', '🤴🏽', '🤴🏿', '👸🏻', '👸🏽', '👸🏿'
-                ]
-            },
-            animals: {
-                label: '🐾 Animals',
-                items: [
-                    '🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐻‍❄️',
-                    '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🙈', '🙉', '🙊',
-                    '🐔', '🐧', '🐦', '🐤', '🐣', '🦆', '🦅', '🦉', '🦇',
-                    '🐺', '🐗', '🐴', '🦄', '🐝', '🪱', '🐛', '🦋', '🐌',
-                    '🐞', '🐜', '🪰', '🪲', '🪳', '🦟', '🦗', '🕷️', '🦂',
-                    '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞',
-                    '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊',
-                    '🐅', '🐆', '🦓', '🦍', '🦧', '🐘', '🦛', '🦏', '🐪', '🐫',
-                    '🦒', '🦘', '🦬', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑',
-                    '🦙', '🐐', '🦌', '🐕', '🐩', '🦮', '🐕‍🦺', '🐈', '🐈‍⬛'
-                ]
-            },
-            fantasy: {
-                label: '🦄 Fantasy',
-                items: [
-                    '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😈', '👿',
-                    '👹', '👺', '🧠', '👁️', '🫀', '🦴', '🌟', '⭐', '💫',
-                    '✨', '🔥', '💧', '🌊', '🌈', '☀️', '🌙', '⚡', '❄️',
-                    '🌸', '🌺', '🌻', '🌹', '🍀', '🌴', '🌵', '🎄', '🌲',
-                    '🍄', '🪨', '💎', '🔮', '🪄', '🛸', '🚀', '🌍', '🌎', '🌏'
-                ]
-            },
-            food: {
-                label: '🍕 Food',
-                items: [
-                    '🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍒',
-                    '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🥑', '🥦', '🥬',
-                    '🥕', '🌽', '🌶️', '🫑', '🥒', '🥜', '🧄', '🧅', '🥔',
-                    '🍠', '🍕', '🍔', '🍟', '🌭', '🍿', '🥪', '🌮', '🌯',
-                    '🥗', '🥘', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟',
-                    '🍤', '🍙', '🍚', '🍘', '🥮', '🍥', '🥠', '🍦', '🍧',
-                    '🍨', '🍩', '🍪', '🎂', '🍰', '🧁', '🥧', '🍫', '🍬',
-                    '🍭', '🍮', '☕', '🍵', '🧋', '🥤', '🧃', '🍺', '🍻'
-                ]
-            },
-            objects: {
-                label: '🎮 Objects',
-                items: [
-                    '⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏',
-                    '🎱', '🪀', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '🪃',
-                    '🥅', '⛳', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽',
-                    '🛹', '🛼', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂',
-                    '🏋️', '🤼', '🤸', '⛹️', '🤾', '🏌️', '🧘', '🎪', '🎭',
-                    '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🪘', '🎷',
-                    '🎺', '🪗', '🎸', '🪕', '🎻', '🎲', '♟️', '🎯', '🎳',
-                    '🎮', '🕹️', '🧩', '🎰', '🧸', '🪆', '🖼️', '🧵', '🧶'
-                ]
-            }
-        };
+    // ButterflyFX Growth: Challenge detection
+    // When someone arrives via challenge link → show challenger stats
+    (function() {
+        if (!window.GrowthSubstrate) return;
+        const params = new URLSearchParams(window.location.search);
+        const challenge = GrowthSubstrate.parseChallenge(params);
+        if (!challenge) return;
 
-        // =================================================================
-        // STATE
-        // =================================================================
-        let ws = null;
-        let myUserId = null;
-        let myUsername = null;
-        let selectedAvatar = '👤';
-        let customAvatarUrl = null;
-        let sessionCode = null;
-        let sessionData = null;
-
-        // WebSocket URL
-        const WS_URL = (() => {
-            const isSecure = window.location.protocol === 'https:';
-            const hostname = window.location.hostname;
-            const wsProtocol = isSecure ? 'wss:' : 'ws:';
-            if (hostname === 'localhost' || hostname === '127.0.0.1') {
-                return wsProtocol + '//' + hostname + ':8765';
-            }
-            return wsProtocol + '//' + hostname + '/ws';
-        })();
-
-        // =================================================================
-        // UI
-        // =================================================================
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
-            document.getElementById(id).classList.add('active');
+        // Transform tagline into challenge
+        const tagline = document.getElementById('tagline');
+        if (tagline) {
+            tagline.innerHTML = `⚔️ <strong>${challenge.challengerName}</strong> beat this game in <strong>${challenge.challengerTurns} turns</strong>.<br>Can you do better?`;
+            tagline.style.color = '#ff6b35';
+            tagline.style.fontSize = '18px';
         }
 
-        function showToast(message, type) {
-            type = type || 'info';
-            var toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast show ' + type;
-            setTimeout(function() { toast.classList.remove('show'); }, 3000);
+        // Change play button to "Accept Challenge"
+        const playBtn = document.getElementById('play-btn');
+        if (playBtn) {
+            playBtn.textContent = '⚔️ Accept Challenge — Play Free';
+            playBtn.href = `board_3d.html?p=${challenge.players}&th=${challenge.theme}`;
+            playBtn.style.background = 'linear-gradient(135deg, #ff6b35, #ff3c00)';
+            playBtn.style.borderColor = '#ff6b35';
+            playBtn.style.animation = 'pulse 2s ease-in-out infinite';
         }
 
-        // =================================================================
-        // AVATARS
-        // =================================================================
-        function renderAvatarGrid() {
-            var cats = document.getElementById('avatar-categories');
-            var grid = document.getElementById('avatar-grid');
-            var keys = Object.keys(AVATARS);
+        // Add pulse animation
+        const style = document.createElement('style');
+        style.textContent = '@keyframes pulse { 0%,100% { box-shadow: 0 0 20px rgba(255,107,53,0.4); } 50% { box-shadow: 0 0 40px rgba(255,107,53,0.8); } }';
+        document.head.appendChild(style);
 
-            cats.innerHTML = keys.map(function(key, i) {
-                return '<button class="avatar-category-btn ' + (i === 0 ? 'active' : '') + '" onclick="switchCategory(\'' + key + '\')">' + AVATARS[key].label + '</button>';
-            }).join('');
-
-            switchCategory(keys[0]);
-
-            document.getElementById('avatar-upload').addEventListener('change', function(e) {
-                var file = e.target.files[0];
-                if (file) {
-                    var reader = new FileReader();
-                    reader.onload = function(ev) {
-                        customAvatarUrl = ev.target.result;
-                        selectedAvatar = 'custom';
-                        document.getElementById('avatar-preview').innerHTML =
-                            '<img src="' + customAvatarUrl + '" alt="Custom" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-                        document.getElementById('avatar-name').textContent = 'Custom Avatar';
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        }
-
-        function switchCategory(category) {
-            var cats = document.getElementById('avatar-categories');
-            var grid = document.getElementById('avatar-grid');
-            var label = AVATARS[category].label;
-
-            cats.querySelectorAll('.avatar-category-btn').forEach(function(btn) {
-                btn.classList.toggle('active', btn.textContent === label);
-            });
-
-            grid.innerHTML = AVATARS[category].items.map(function(avatar) {
-                return '<div class="avatar-option ' + (selectedAvatar === avatar ? 'selected' : '') + '" onclick="selectAvatar(\'' + avatar + '\')">' + avatar + '</div>';
-            }).join('');
-        }
-
-        function selectAvatar(avatar) {
-            selectedAvatar = avatar;
-            customAvatarUrl = null;
-            document.getElementById('avatar-preview').textContent = avatar;
-            document.getElementById('avatar-name').textContent = 'Selected!';
-            document.querySelectorAll('#avatar-grid .avatar-option').forEach(function(el) {
-                el.classList.toggle('selected', el.textContent === avatar);
-            });
-        }
-
-        // =================================================================
-        // WEBSOCKET
-        // =================================================================
-        function connectWebSocket() {
-            return new Promise(function(resolve, reject) {
-                if (ws && ws.readyState === WebSocket.OPEN) return resolve();
-
-                ws = new WebSocket(WS_URL);
-                ws.onopen = function() {
-                    console.log('[Create] WebSocket connected');
-                    resolve();
-                };
-                ws.onmessage = function(event) {
-                    try {
-                        var data = JSON.parse(event.data);
-                        handleMessage(data);
-                    } catch (e) {
-                        console.error('[Create] Parse error:', e);
-                    }
-                };
-                ws.onerror = function(err) {
-                    console.error('[Create] WebSocket error:', err);
-                    reject(err);
-                };
-                ws.onclose = function() {
-                    console.log('[Create] WebSocket closed');
-                    ws = null;
-                    // Auto-reconnect if in waiting room
-                    if (sessionCode && document.getElementById('step-waiting').classList.contains('active')) {
-                        console.log('[Create] Reconnecting in 3s...');
-                        setTimeout(function() {
-                            connectWebSocket().then(function() {
-                                send({ type: 'guest_login', name: myUsername, avatar_id: selectedAvatar });
-                            }).catch(function() {
-                                showToast('Connection lost. Trying to reconnect...', 'error');
-                            });
-                        }, 3000);
-                    }
-                };
-                setTimeout(function() {
-                    if (ws && ws.readyState !== WebSocket.OPEN) {
-                        reject(new Error('Connection timeout'));
-                    }
-                }, 5000);
-            });
-        }
-
-        function send(data) {
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify(data));
-            }
-        }
-
-        function handleMessage(data) {
-            console.log('[Create] Server:', data.type, data);
-
-            switch (data.type) {
-                case 'auth_success':
-                    myUserId = data.user.user_id;
-                    myUsername = data.user.username;
-                    console.log('[Create] Logged in as', myUsername, myUserId);
-                    sendCreateSession();
-                    break;
-
-                case 'session_created':
-                    sessionCode = data.share_code || (data.session && data.session.session_code);
-                    sessionData = data.session;
-                    showGameCreated();
-                    break;
-
-                case 'player_joined':
-                    // A player was admitted to the session
-                    if (sessionData) {
-                        sessionData.players = data.players;
-                    }
-                    showToast((data.player ? data.player.username : 'A player') + ' joined!', 'success');
-                    renderWaitingRoom();
-                    break;
-
-                case 'player_left':
-                    if (sessionData) {
-                        sessionData.players = data.players;
-                    }
-                    showToast((data.username || 'A player') + ' left', 'info');
-                    renderWaitingRoom();
-                    break;
-
-                case 'player_ready_changed':
-                    // A player toggled ready
-                    if (sessionData) {
-                        sessionData.players = data.players;
-                    }
-                    renderWaitingRoom();
-                    break;
-
-                case 'game_started':
-                    // Server confirmed game start — navigate to board
-                    sessionData = data.session || sessionData;
-                    navigateToBoard();
-                    break;
-
-                case 'session_updated':
-                    if (data.session) {
-                        sessionData = data.session;
-                        renderWaitingRoom();
-                    }
-                    break;
-
-                case 'error':
-                    showToast(data.message || 'Something went wrong', 'error');
-                    var btn = document.getElementById('create-btn');
-                    if (btn) {
-                        btn.disabled = false;
-                        btn.innerHTML = '🚀 Create Game';
-                    }
-                    break;
-            }
-        }
-
-        // =================================================================
-        // CREATE GAME FLOW
-        // =================================================================
-        function createGame() {
-            var username = document.getElementById('create-username').value.trim();
-
-            if (!username) {
-                showToast('Please enter a username', 'error');
-                return;
-            }
-            if (username.length < 2) {
-                showToast('Username must be at least 2 characters', 'error');
-                return;
-            }
-            if (selectedAvatar === '👤') {
-                showToast('Please select an avatar', 'error');
-                return;
-            }
-
-            var btn = document.getElementById('create-btn');
-            btn.disabled = true;
-            btn.innerHTML = '⏳ Creating...';
-
-            connectWebSocket().then(function() {
-                // Step 1: Guest login
-                myUsername = username;
-                send({
-                    type: 'guest_login',
-                    name: username,
-                    avatar_id: selectedAvatar
-                });
-                // Step 2 (sendCreateSession) is triggered by auth_success handler
-            }).catch(function(e) {
-                console.error('[Create] Connection failed:', e);
-                showToast('Could not connect to server. Please try again.', 'error');
-                btn.disabled = false;
-                btn.innerHTML = '🚀 Create Game';
-            });
-        }
-
-        function sendCreateSession() {
-            var maxPlayers = parseInt(document.getElementById('create-max-players').value);
-            var allowBots = document.getElementById('setting-allow-bots').checked;
-            var allowLateJoin = document.getElementById('setting-late-join').checked;
-            var musicEnabled = document.getElementById('setting-music').checked;
-
-            send({
-                type: 'create_session',
-                private: true,
-                max_players: maxPlayers,
-                settings: {
-                    allow_bots: allowBots,
-                    allow_late_join: allowLateJoin,
-                    music_enabled: musicEnabled
-                }
-            });
-        }
-
-        // =================================================================
-        // GAME CREATED — SHOW CODE
-        // =================================================================
-        function showGameCreated() {
-            document.getElementById('game-code').textContent = sessionCode;
-            document.getElementById('modal-game-code').textContent = sessionCode;
-
-            var joinUrl = window.location.origin + '/fasttrack/join.html?code=' + sessionCode;
-            document.getElementById('join-url-display').textContent = joinUrl;
-
-            showScreen('step-created');
-        }
-
-        function enterWaitingRoom() {
-            document.getElementById('waiting-game-code').textContent = sessionCode;
-            showScreen('step-waiting');
-            // Host is always ready — send toggle_ready immediately
-            send({ type: 'toggle_ready' });
-            renderWaitingRoom();
-        }
-
-        // =================================================================
-        // WAITING ROOM LOGIC
-        // =================================================================
-        function renderWaitingRoom() {
-            if (!sessionData) return;
-
-            var maxPlayers = sessionData.max_players || 4;
-            var players = sessionData.players || [];
-            var slotsHtml = '';
-
-            for (var i = 0; i < maxPlayers; i++) {
-                var player = players.find(function(p) { return p.slot === i; });
-                if (player) {
-                    var isHost = player.user_id === (sessionData.host_id || myUserId);
-                    var isAI = player.is_ai;
-                    var isReady = player.is_ai || player.ready;
-                    var borderColor = isReady ? '#4ade80' : (isHost ? '#f59e0b' : '#666');
-                    slotsHtml += '<div style="background: rgba(255,255,255,0.1); border: 2px solid ' + borderColor + '; border-radius: 14px; padding: 14px 18px; min-width: 110px; text-align: center; position: relative;">';
-                    slotsHtml += '<div style="font-size: 2em;">' + getAvatarEmoji(player.avatar_id) + '</div>';
-                    slotsHtml += '<div style="font-weight: 600; color: #fff; margin-top: 4px;">' + escapeHtml(player.username) + '</div>';
-                    if (isHost) slotsHtml += '<div style="font-size: 0.75em; color: #f59e0b;">👑 Host</div>';
-                    if (isAI) {
-                        slotsHtml += '<div style="font-size: 0.75em; color: #8b5cf6;">🤖 Bot</div>';
-                    } else {
-                        slotsHtml += '<div style="font-size: 0.8em; margin-top: 4px; color: ' + (isReady ? '#4ade80' : '#888') + ';">' + (isReady ? '✅ Ready' : '⏳ Not Ready') + '</div>';
-                    }
-                    slotsHtml += '</div>';
-                } else {
-                    slotsHtml += '<div style="background: rgba(255,255,255,0.03); border: 2px dashed rgba(255,255,255,0.15); border-radius: 14px; padding: 14px 18px; min-width: 110px; text-align: center;">';
-                    slotsHtml += '<div style="font-size: 2em; opacity: 0.3;">❓</div>';
-                    slotsHtml += '<div style="color: rgba(255,255,255,0.3); margin-top: 4px;">Waiting...</div>';
-                    slotsHtml += '</div>';
-                }
-            }
-            document.getElementById('player-slots').innerHTML = slotsHtml;
-
-            // Update host ready toggle button
-            var myPlayer = players.find(function(p) { return p.user_id === myUserId; });
-            var readyBtn = document.getElementById('ready-toggle-btn');
-            if (readyBtn && myPlayer) {
-                var amReady = myPlayer.ready;
-                readyBtn.innerHTML = amReady ? '✅ I\'m Ready!' : '☐ I\'m Ready';
-                readyBtn.className = amReady ? 'btn btn-success btn-lg' : 'btn btn-secondary btn-lg';
-            }
-
-            // Update bot buttons
-            var aiCount = players.filter(function(p) { return p.is_ai; }).length;
-            var totalPlayers = players.length;
-            var canAddBot = totalPlayers < maxPlayers && aiCount < 3;
-            document.getElementById('add-bot-btn').style.display = canAddBot ? 'inline-flex' : 'none';
-            document.getElementById('remove-bot-btn').style.display = aiCount > 0 ? 'inline-flex' : 'none';
-
-            // Player count info
-            var humanCount = totalPlayers - aiCount;
-            var readyCount = players.filter(function(p) { return p.is_ai || p.ready; }).length;
-            document.getElementById('player-count-info').textContent =
-                readyCount + '/' + totalPlayers + ' ready — ' + totalPlayers + '/' + maxPlayers + ' slots filled';
-
-            // Start button — need at least 2 players AND all non-host humans ready
-            var startBtn = document.getElementById('start-game-btn');
-            var nonHostHumans = players.filter(function(p) { return !p.is_ai && p.user_id !== myUserId; });
-            var allOthersReady = nonHostHumans.length === 0 || nonHostHumans.every(function(p) { return p.ready; });
-            var canStart = totalPlayers >= 2 && allOthersReady;
-            startBtn.disabled = !canStart;
-            if (totalPlayers < 2) {
-                document.getElementById('start-game-note').textContent = 'Need at least 2 players';
-            } else if (!allOthersReady) {
-                var notReady = nonHostHumans.filter(function(p) { return !p.ready; }).map(function(p) { return p.username; });
-                document.getElementById('start-game-note').textContent = 'Waiting for: ' + notReady.join(', ');
-            } else {
-                document.getElementById('start-game-note').textContent = 'Everyone\'s ready! Start the game!';
-            }
-        }
-
-        function toggleReady() {
-            send({ type: 'toggle_ready' });
-        }
-
-        function addBot() {
-            send({ type: 'add_ai_player' });
-        }
-
-        function removeBot() {
-            if (!sessionData || !sessionData.players) return;
-            var bots = sessionData.players.filter(function(p) { return p.is_ai; });
-            if (bots.length > 0) {
-                send({ type: 'remove_ai_player', player_id: bots[bots.length - 1].user_id });
-            }
-        }
-
-        function startGame() {
-            var btn = document.getElementById('start-game-btn');
-            btn.disabled = true;
-            btn.innerHTML = '⏳ Starting...';
-            send({ type: 'start_game' });
-        }
-
-        function cancelGame() {
-            if (confirm('Are you sure you want to cancel this game?')) {
-                send({ type: 'leave_session' });
-                if (ws) ws.close();
-                ws = null;
-                sessionCode = null;
-                sessionData = null;
-                showScreen('step-create');
-                showToast('Game cancelled', 'info');
-            }
-        }
-
-        function navigateToBoard() {
-            // Store session info for board_3d.html
-            var gameData = {
-                session: sessionData,
-                playerId: myUserId,
-                username: myUsername,
-                avatarId: selectedAvatar,
-                avatarUrl: customAvatarUrl,
-                wsUrl: WS_URL,
-                isHost: true,
-                sessionCode: sessionCode,
-                timestamp: Date.now()
-            };
-            sessionStorage.setItem('fasttrack_session', JSON.stringify(gameData));
-            window.location.href = 'board_3d.html?session=' + sessionCode + '&multiplayer=true&host=true';
-        }
-
-        function getAvatarEmoji(id) {
-            if (!id || id === 'custom') return '🎮';
-            return id;
-        }
-
-        function escapeHtml(text) {
-            var div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // =================================================================
-        // SHARE / INVITE
-        // =================================================================
-        function getShareData() {
-            var code = sessionCode || '------';
-            var link = window.location.origin + '/fasttrack/join.html?code=' + code;
-            var title = 'Join my FastTrack game!';
-            var text = '🎮 Let\'s play FastTrack together!\n\n🔗 Join here: ' + link + '\n\n🎫 Game Code: ' + code + '\n\nIt\'s a fun competitive board game - see you there!';
-            return { code: code, link: link, title: title, text: text };
-        }
-
-        function copyCode() {
-            navigator.clipboard.writeText(sessionCode).then(function() { showToast('Code copied!', 'success'); });
-        }
-
-        function copyLink() {
-            var data = getShareData();
-            navigator.clipboard.writeText(data.link).then(function() { showToast('Link copied!', 'success'); });
-        }
-
-        function showInviteModal() {
-            var modal = document.getElementById('invite-modal');
-            var nativeBtn = document.getElementById('native-share-btn');
-            nativeBtn.style.display = navigator.share ? 'flex' : 'none';
-            modal.classList.add('active');
-        }
-
-        function closeInviteModal(event) {
-            if (event && event.target !== event.currentTarget) return;
-            document.getElementById('invite-modal').classList.remove('active');
-        }
-
-        function shareNative() {
-            var data = getShareData();
-            navigator.share({ title: data.title, text: data.text, url: data.link }).then(function() {
-                closeInviteModal();
-            }).catch(function() {});
-        }
-
-        function shareWhatsApp() {
-            var data = getShareData();
-            window.open('https://wa.me/?text=' + encodeURIComponent(data.text), '_blank');
-            closeInviteModal();
-        }
-
-        function shareTelegram() {
-            var data = getShareData();
-            window.open('https://t.me/share/url?url=' + encodeURIComponent(data.link) + '&text=' + encodeURIComponent(data.text), '_blank');
-            closeInviteModal();
-        }
-
-        function shareTwitter() {
-            var data = getShareData();
-            var tweet = '🎮 Let\'s play FastTrack! Join my game with code: ' + sessionCode;
-            window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweet) + '&url=' + encodeURIComponent(data.link), '_blank');
-            closeInviteModal();
-        }
-
-        function shareFacebook() {
-            var data = getShareData();
-            window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(data.link), '_blank');
-            closeInviteModal();
-        }
-
-        function shareSMS() {
-            var data = getShareData();
-            window.location.href = 'sms:?body=' + encodeURIComponent(data.text);
-            closeInviteModal();
-        }
-
-        function shareEmail() {
-            var data = getShareData();
-            var subject = 'Join my FastTrack game! (Code: ' + data.code + ')';
-            window.location.href = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(data.text);
-            closeInviteModal();
-        }
-
-        // =================================================================
-        // INIT
-        // =================================================================
-        document.addEventListener('DOMContentLoaded', function() {
-            renderAvatarGrid();
-
-            // Restore username from last session
-            var saved = localStorage.getItem('fasttrack_username');
-            if (saved) {
-                document.getElementById('create-username').value = saved;
-            }
-
-            // Save username on input
-            document.getElementById('create-username').addEventListener('input', function(e) {
-                localStorage.setItem('fasttrack_username', e.target.value.trim());
-            });
-        });
+        // Track challenge view
+        if (window.FTAnalytics) FTAnalytics.ctaClick('challenge_viewed');
+    })();
     </script>
+
+    <div class="features">
+        <div class="feature">
+            <div class="feature-icon">🎲</div>
+            <div class="feature-title">Draw & Move</div>
+            <div class="feature-desc">Draw cards to advance your pegs around the board — first to get all 5 home wins!</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">Fast Track Shortcut</div>
+            <div class="feature-desc">Cut through the center of the board and leap ahead of your opponents.</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">💥</div>
+            <div class="feature-title">Capture & Sabotage</div>
+            <div class="feature-desc">Land on an opponent's peg to send them back to start. No one is safe!</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🎨</div>
+            <div class="feature-title">7 Stunning Themes</div>
+            <div class="feature-desc">Play in ancient Rome, deep space, underwater kingdoms, and more — each with unique music &amp; effects.</div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    &copy; 2026 <a href="https://kensgames.com">Ken's Games</a> • Fast Track Board Game •
+    Play free in your browser — no download required
+</footer>
+
 </body>
 </html>

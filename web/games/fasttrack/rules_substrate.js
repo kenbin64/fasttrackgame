@@ -619,6 +619,28 @@ RulesSubstrate.register({
     ]
 });
 
+RulesSubstrate.register({
+    id: 'SPECIAL_004',
+    name: 'Mrs. Kravits Rule (Neighbor Awareness)',
+    category: RulesSubstrate.categories.SPECIAL,
+    priority: 4,
+    description: 'Every point and dimension in the substrate knows the location of its immediate neighbors and keeps a protective watch over them',
+    details: [
+        'Each token maintains awareness of adjacent tokens in the manifold',
+        'Neighbors know location and state signature but NOT payload or full context',
+        'This is a neighborhood watch, not a window — you can tell when something changed next door but you cannot read the mail',
+        'Change propagation is instant — O(1) ripple through neighbor links, no polling or event bus',
+        'Self-healing — if a token is lost the substrate reconstructs it from neighbor knowledge',
+        'Named after Mrs. Kravits from Bewitched — always watching what the neighbors are up to'
+    ],
+    properties: {
+        propagation: 'instant',
+        selfHealing: true,
+        contextVisibility: 'location_and_signature_only',
+        payloadVisibility: false
+    }
+});
+
 // ============================================================
 // BOARD SUBSTRATE: Topology Definition
 // ============================================================

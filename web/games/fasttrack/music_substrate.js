@@ -27,7 +27,7 @@ const MusicSubstrate = {
     // State
     isPlaying: false,
     currentTheme: 'DEFAULT',
-    volume: 0.35,
+    volume: 0.20,
     _schedulerTimer: null,
     _currentTick: 0,
     _sectionIndex: 0,
@@ -131,9 +131,9 @@ const MusicSubstrate = {
         },
 
         SPACE_ACE: {
-            name: 'Stellar Drift',
-            bpm: 110,
-            swing: 0.08,
+            name: 'Cosmic Whirl',
+            bpm: 116,
+            swing: 0.06,
             sections: [
                 { name: 'intro',  tickLength: 64 },
                 { name: 'verse',  tickLength: 128 },
@@ -144,7 +144,7 @@ const MusicSubstrate = {
             ],
             chords: {
                 intro:  ['Dm3','Dm3','Bb3','Bb3'],
-                verse:  ['Dm3','Am3','Bb3','C4',  'Dm3','Am3','Bb3','A3'],
+                verse:  ['Dm3','Am3','Bb3','C4',  'Dm3','Am3','Gm3','A3'],
                 chorus: ['Bb3','C4','Dm3','Am3',  'Bb3','C4','Dm3','Dm3'],
                 bridge: ['Gm3','Am3','Bb3','A3'],
             },
@@ -156,36 +156,60 @@ const MusicSubstrate = {
             },
             melody: {
                 intro: [
-                    null,null,null,null, null,null,null,null, 'D5',null,'F5',null, 'A5',null,null,null,
-                    null,null,null,null, null,null,null,null, 'C5',null,'D5',null, 'F5',null,null,null,
-                    null,null,null,null, null,null,null,null, 'Bb4',null,'D5',null, 'F5',null,null,null,
-                    null,null,null,null, null,null,null,null, 'A4',null,'Bb4',null, 'D5',null,null,null,
+                    // Bar 1 — Eerie winding approach
+                    null,null,null,null, null,null,'A4',null, null,'D5',null,null, null,null,'F5',null,
+                    // Bar 2 — Sweeping up then vanish
+                    null,'A5',null,null, null,null,'D5',null, null,null,null,null, null,null,null,null,
+                    // Bar 3 — Second spiral
+                    null,null,null,null, null,null,'Bb4',null, null,'D5',null,null, null,null,'G5',null,
+                    // Bar 4 — Resolve
+                    null,'F5',null,null, null,null,'D5',null, null,null,null,null, null,null,null,null,
                 ],
                 verse: [
-                    'D5',null,null,'D5', null,'E5',null,null, 'F5',null,null,null, null,null,'E5',null,
-                    'D5',null,null,'C5', null,null,null,null, 'A4',null,null,null, null,null,null,null,
-                    'Bb4',null,null,'C5', null,'D5',null,null, 'C5',null,null,'Bb4', null,'A4',null,null,
-                    'A4',null,null,null, null,null,null,null, null,null,null,null, null,null,null,null,
-                    'D5',null,null,'D5', null,'E5',null,null, 'F5',null,'E5',null, 'D5',null,null,null,
-                    'F5',null,null,'D5', null,'C5',null,null, 'A4',null,null,null, null,null,null,null,
-                    'Bb4',null,'C5',null, 'D5',null,'F5',null, 'E5',null,'D5',null, 'C5',null,null,null,
+                    // Bar 1 — Whirling theme with wide leaps
+                    'D5',null,'A5',null, null,'D5',null,'F5', null,'A5',null,null, null,null,'G5',null,
+                    // Bar 2
+                    null,'F5',null,'E5', null,'D5',null,null, 'A4',null,null,null, null,null,null,null,
+                    // Bar 3 — Swooping down and up
+                    'Bb4',null,'F5',null, null,'Bb4',null,'D5', null,'F5',null,null, null,null,'E5',null,
+                    // Bar 4
+                    null,'D5',null,'C5', null,null,null,null, null,null,null,null, null,null,null,null,
+                    // Bar 5 — Ascending spiral
+                    'D5',null,'F5',null, null,'A5',null,'D6', null,'A5',null,null, null,null,'F5',null,
+                    // Bar 6 — Cascading back
+                    null,'D5',null,'Bb4', null,'A4',null,null, 'G4',null,null,null, null,null,null,null,
+                    // Bar 7 — Rapid whirl
+                    'F5',null,'D5',null, null,'A4',null,'F5', null,'D5',null,'A4', null,'D5',null,null,
+                    // Bar 8
                     'D5',null,null,null, null,null,null,null, null,null,null,null, null,null,null,null,
                 ],
                 chorus: [
-                    'D5','D5',null,'F5', null,'A5',null,'Bb5','A5',null,null,null, null,null,null,null,
-                    'G4','G4',null,'Bb4',null,'C5',null,'D5', 'C5',null,null,null, null,null,'D5',null,
-                    'D5','D5',null,'F5', null,'A5',null,'D6', 'D6',null,null,'A5', null,null,null,null,
-                    'G4',null,null,'F4', null,null,'G4',null, 'A4',null,null,null, null,null,null,null,
-                    'D5','D5',null,'F5', null,'A5',null,'Bb5','A5',null,'F5',null, 'A5',null,null,null,
-                    'G4','G4',null,'Bb4',null,'C5',null,'D5', 'D5',null,null,null, null,null,'C5',null,
-                    'D5',null,'F5',null, 'A5',null,'D6',null, 'A5',null,'F5',null, 'D5',null,null,null,
+                    // Bar 1 — Soaring wide intervals
+                    'D5','D5',null,'A5', null,'D6',null,null, 'Bb5',null,null,null, null,null,'A5',null,
+                    // Bar 2
+                    'G5',null,'F5',null, null,'D5',null,'F5', 'E5',null,null,null, null,null,null,null,
+                    // Bar 3 — Cosmic sweep
+                    'D5','D5',null,'F5', null,'A5',null,'D6', 'D6',null,null,'C6', null,'Bb5',null,null,
+                    // Bar 4
+                    'A5',null,'G5',null, null,'F5',null,'E5', 'D5',null,null,null, null,null,null,null,
+                    // Bar 5 — Echo phrase higher
+                    'D5','D5',null,'A5', null,'D6',null,'F6', 'D6',null,null,null, null,'A5',null,null,
+                    // Bar 6
+                    'Bb5',null,'A5',null, null,'G5',null,'F5', 'E5',null,null,null, null,null,'D5',null,
+                    // Bar 7 — Whirl down
+                    'A5',null,'F5',null, 'D5',null,'A4',null, 'F5',null,'D5',null, 'A4',null,null,null,
+                    // Bar 8
                     'D5',null,null,null, null,null,null,null, null,null,null,null, null,null,null,null,
                 ],
                 bridge: [
-                    'G4',null,'Bb4',null,'D5',null,null,null, 'C5',null,'Bb4',null,'A4',null,null,null,
-                    'A4',null,'C5',null, 'E5',null,null,null, 'D5',null,'C5',null, 'Bb4',null,null,null,
-                    'Bb4',null,'D5',null,'F5',null,null,null, 'E5',null,'D5',null, 'C5',null,null,null,
-                    'A4',null,null,'G4', null,'F4',null,'E4', 'D4',null,null,null, null,null,null,null,
+                    // Bar 1 — Wide atmospheric intervals
+                    'G4',null,'D5',null, 'Bb5',null,null,null, 'A5',null,'G5',null, 'F5',null,null,null,
+                    // Bar 2
+                    'A4',null,'E5',null, 'C#5',null,null,null, 'D5',null,'E5',null, 'F5',null,null,null,
+                    // Bar 3 — Octave leaps
+                    'Bb4',null,'F5',null, 'D6',null,null,null, 'C6',null,'Bb5',null, 'A5',null,null,null,
+                    // Bar 4 — Cascading resolve
+                    'A5',null,'G5',null, 'F5',null,'E5',null, 'D5',null,null,null, null,null,null,null,
                 ],
             },
             arp: {
@@ -197,21 +221,22 @@ const MusicSubstrate = {
             drums: {
                 intro:  { kick: [0,8], snare: [], hihat: [0,4,8,12], openhat: [6,14] },
                 verse:  { kick: [0,8,10], snare: [4,12], hihat: [0,2,4,6,8,10,12,14], openhat: [] },
-                chorus: { kick: [0,4,8,12], snare: [4,12], hihat: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], openhat: [] },
+                chorus: { kick: [0,4,8,12], snare: [4,12], hihat: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], openhat: [], crash: [0] },
                 bridge: { kick: [0,12], snare: [4,12], hihat: [0,4,8,12], openhat: [2,6,10,14] },
             },
             instruments: {
-                bass:    { wave: 'triangle', volume: 0.16, octave: 2, filterFreq: 350, release: 0.15 },
-                melody:  { wave: 'triangle', volume: 0.10, octave: 0, filterFreq: 2000, release: 0.2, vibratoRate: 4, vibratoDepth: 5 },
-                arp:     { wave: 'sine',     volume: 0.05, octave: 5, filterFreq: 2500, release: 0.08 },
-                pad:     { wave: 'sine',     volume: 0.06, octave: 3, filterFreq: 800, release: 0.5 },
+                // Heavy vibrato on sine = theremin-like whirling
+                bass:    { wave: 'triangle', volume: 0.16, octave: 2, filterFreq: 300, release: 0.18 },
+                melody:  { wave: 'sine',     volume: 0.11, octave: 0, filterFreq: 2200, release: 0.22, vibratoRate: 7, vibratoDepth: 8 },
+                arp:     { wave: 'sine',     volume: 0.06, octave: 5, filterFreq: 3000, release: 0.10 },
+                pad:     { wave: 'sine',     volume: 0.07, octave: 3, filterFreq: 700, release: 0.6 },
             }
         },
 
         UNDERSEA: {
-            name: 'Coral Groove',
-            bpm: 118,
-            swing: 0.05,
+            name: 'Calypso Reef',
+            bpm: 126,
+            swing: 0.15,
             sections: [
                 { name: 'intro',  tickLength: 64 },
                 { name: 'verse',  tickLength: 128 },
@@ -221,74 +246,100 @@ const MusicSubstrate = {
                 { name: 'chorus', tickLength: 128 },
             ],
             chords: {
-                intro:  ['G3','G3','Em3','Em3'],
-                verse:  ['G3','D3','Em3','C3',  'G3','D3','Em3','C3'],
+                intro:  ['G3','G3','C3','C3'],
+                verse:  ['G3','C3','D3','Em3',  'G3','C3','Am3','D3'],
                 chorus: ['C3','D3','G3','Em3',  'C3','D3','G3','G3'],
                 bridge: ['Am3','Bm3','C4','D3'],
             },
             bass: {
-                intro:   { ticks: [0,8],       intervals: [0,0] },
-                verse:   { ticks: [0,4,8,12],  intervals: [0,5,0,7] },
-                chorus:  { ticks: [0,2,4,8,10,12], intervals: [0,12,0,0,12,7] },
-                bridge:  { ticks: [0,6,8,14],  intervals: [0,7,0,5] },
+                // Calypso island bass — offbeat bounce, root-5th pumping
+                intro:   { ticks: [0,6],        intervals: [0,7] },
+                verse:   { ticks: [0,6,8,14],   intervals: [0,7,0,12] },
+                chorus:  { ticks: [0,4,6,8,12,14], intervals: [0,12,7,0,12,7] },
+                bridge:  { ticks: [0,6,8,14],   intervals: [0,7,0,5] },
             },
             melody: {
                 intro: [
-                    null,null,null,null, null,null,null,null, 'B4',null,'D5',null, 'G5',null,null,null,
-                    null,null,null,null, null,null,null,null, 'A4',null,'B4',null, 'D5',null,null,null,
-                    null,null,null,null, null,null,null,null, 'E4',null,'G4',null, 'B4',null,null,null,
-                    null,null,null,null, null,null,null,null, 'D4',null,'E4',null, 'G4',null,null,null,
+                    // Bar 1 — Steel drum intro — syncopated plinks
+                    null,'G4',null,null, 'B4',null,null,'D5', null,null,'G5',null, null,null,null,null,
+                    // Bar 2
+                    null,'G5',null,null, 'E5',null,null,'D5', null,null,'B4',null, null,null,null,null,
+                    // Bar 3
+                    null,'G4',null,null, 'A4',null,null,'B4', null,null,'D5',null, 'E5',null,null,null,
+                    // Bar 4
+                    null,'D5',null,null, 'B4',null,null,'G4', null,null,null,null, null,null,null,null,
                 ],
                 verse: [
-                    'B4',null,null,'B4', null,'A4',null,null, 'G4',null,null,null, null,null,'A4',null,
-                    'B4',null,null,'B4', null,'D5',null,null, 'B4',null,null,null, null,null,null,null,
-                    'E4',null,null,'E4', null,'G4',null,null, 'A4',null,null,'G4', null,'E4',null,null,
-                    'D4',null,null,null, 'E4',null,'G4',null, 'E4',null,null,null, null,null,null,null,
-                    'B4',null,null,'B4', null,'A4',null,null, 'G4',null,'A4',null, 'B4',null,null,null,
-                    'D5',null,null,'B4', null,'A4',null,null, 'G4',null,null,null, null,null,null,null,
-                    'E4',null,'G4',null, 'A4',null,'B4',null, 'A4',null,'G4',null, 'E4',null,null,null,
-                    'D4',null,null,null, null,null,null,null, null,null,null,null, null,null,null,null,
+                    // Bar 1 — Calypso bounce
+                    'G4',null,'B4',null, null,'D5',null,'B4', null,'G4',null,null, null,'A4',null,null,
+                    // Bar 2
+                    null,'B4',null,'D5', null,'E5',null,null, 'D5',null,null,null, null,null,null,null,
+                    // Bar 3
+                    'D5',null,'E5',null, null,'G5',null,'E5', null,'D5',null,null, null,'B4',null,null,
+                    // Bar 4
+                    null,'A4',null,'B4', null,'G4',null,null, null,null,null,null, null,null,null,null,
+                    // Bar 5 — Second phrase
+                    'G4',null,'A4',null, null,'B4',null,'D5', null,'E5',null,null, 'G5',null,null,null,
+                    // Bar 6
+                    null,'E5',null,'D5', null,'B4',null,null, 'A4',null,null,null, null,null,null,null,
+                    // Bar 7
+                    'B4',null,'D5',null, null,'E5',null,'D5', null,'B4',null,'A4', null,'G4',null,null,
+                    // Bar 8
+                    null,'A4',null,'G4', null,null,null,null, null,null,null,null, null,null,null,null,
                 ],
                 chorus: [
-                    'G4','G4',null,'B4', null,'D5',null,'E5', 'D5',null,null,null, null,null,null,null,
-                    'E4','E4',null,'G4', null,'A4',null,'B4', 'A4',null,null,null, null,null,'B4',null,
-                    'G4','G4',null,'B4', null,'D5',null,'G5', 'G5',null,null,'D5', null,null,null,null,
-                    'E4',null,null,'D4', null,null,'E4',null, 'G4',null,null,null, null,null,null,null,
-                    'G4','G4',null,'B4', null,'D5',null,'E5', 'D5',null,'B4',null, 'D5',null,null,null,
-                    'E4','E4',null,'G4', null,'A4',null,'B4', 'B4',null,null,null, null,null,'A4',null,
-                    'G4',null,'B4',null, 'D5',null,'G5',null, 'D5',null,'B4',null, 'G4',null,null,null,
+                    // Bar 1 — Big calypso chorus
+                    'G5',null,'G5',null, null,'E5',null,'D5', null,'B4',null,null, 'D5',null,null,null,
+                    // Bar 2
+                    null,'D5',null,'E5', null,'G5',null,null, 'A5',null,null,null, null,null,'G5',null,
+                    // Bar 3
+                    'G5',null,'B5',null, null,'A5',null,'G5', null,'E5',null,null, 'D5',null,null,null,
+                    // Bar 4
+                    null,'E5',null,'D5', null,null,'B4',null, 'G4',null,null,null, null,null,null,null,
+                    // Bar 5
+                    'G5',null,'A5',null, null,'B5',null,'A5', null,'G5',null,null, 'E5',null,null,null,
+                    // Bar 6
+                    null,'D5',null,'E5', null,'G5',null,null, 'B5',null,null,null, null,null,'A5',null,
+                    // Bar 7
+                    'G5',null,'E5',null, null,'D5',null,'B4', null,'G4',null,'B4', null,'D5',null,null,
+                    // Bar 8
                     'G4',null,null,null, null,null,null,null, null,null,null,null, null,null,null,null,
                 ],
                 bridge: [
-                    'A4',null,'C5',null, 'E5',null,null,null, 'D5',null,'C5',null, 'B4',null,null,null,
-                    'B4',null,'D5',null, 'F#4',null,null,null,'G4',null,'A4',null, 'B4',null,null,null,
-                    'C5',null,'E5',null, 'G5',null,null,null, 'F#5',null,'E5',null,'D5',null,null,null,
-                    'D5',null,null,'C5', null,'B4',null,'A4', 'G4',null,null,null, null,null,null,null,
+                    // Bar 1
+                    'A4',null,'C5',null, null,'E5',null,'C5', null,'A4',null,null, 'B4',null,null,null,
+                    // Bar 2
+                    'B4',null,'D5',null, null,'F#5',null,'D5', null,'B4',null,null, 'A4',null,null,null,
+                    // Bar 3
+                    'C5',null,'E5',null, null,'G5',null,'E5', null,'C5',null,null, 'D5',null,null,null,
+                    // Bar 4
+                    null,'D5',null,'B4', null,'A4',null,'G4', null,null,null,null, null,null,null,null,
                 ],
             },
             arp: {
-                intro:   { speed: 4, pattern: [0,4,7,12] },
+                intro:   { speed: 2, pattern: [0,4,7,12,7,4] },
                 verse:   { speed: 2, pattern: [0,4,7,12,7,4] },
                 chorus:  { speed: 2, pattern: [0,7,12,7] },
                 bridge:  { speed: 3, pattern: [0,4,7,11,7,4] },
             },
             drums: {
-                intro:  { kick: [0,8], snare: [], hihat: [0,4,8,12], openhat: [6,14] },
-                verse:  { kick: [0,6,8], snare: [4,12], hihat: [0,2,4,6,8,10,12,14], openhat: [] },
-                chorus: { kick: [0,2,8,10], snare: [4,12], hihat: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], openhat: [] },
-                bridge: { kick: [0,10], snare: [4,12], hihat: [0,4,8,12], openhat: [2,6,10,14] },
+                // Calypso beat patterns
+                intro:  { kick: [0], snare: [], hihat: [0,2,4,6,8,10,12,14], openhat: [4,12], clap: [] },
+                verse:  { kick: [0,6,10], snare: [4,12], hihat: [0,2,4,6,8,10,12,14], openhat: [], clap: [4,12] },
+                chorus: { kick: [0,6,8,14], snare: [4,12], hihat: [0,2,4,6,8,10,12,14], openhat: [6,14], clap: [4,12] },
+                bridge: { kick: [0,10], snare: [4,12], hihat: [0,4,8,12], openhat: [2,6,10,14], clap: [] },
             },
             instruments: {
-                bass:    { wave: 'triangle', volume: 0.16, octave: 2, filterFreq: 500, release: 0.12 },
-                melody:  { wave: 'square',   volume: 0.09, octave: 0, filterFreq: 2200, release: 0.15, vibratoRate: 5, vibratoDepth: 3 },
-                arp:     { wave: 'triangle', volume: 0.05, octave: 5, filterFreq: 2800, release: 0.06 },
-                pad:     { wave: 'sine',     volume: 0.05, octave: 3, filterFreq: 1000, release: 0.45 },
+                bass:    { wave: 'triangle', volume: 0.18, octave: 2, filterFreq: 600, release: 0.10 },
+                melody:  { wave: 'square',   volume: 0.11, octave: 0, filterFreq: 2800, release: 0.12, vibratoRate: 6, vibratoDepth: 2 },
+                arp:     { wave: 'triangle', volume: 0.06, octave: 5, filterFreq: 3500, release: 0.05 },
+                pad:     { wave: 'sine',     volume: 0.05, octave: 3, filterFreq: 1200, release: 0.4 },
             }
         },
 
         ROMAN_COLISEUM: {
-            name: 'Gladiator March',
-            bpm: 100,
+            name: "Imperator's March",
+            bpm: 92,
             swing: 0,
             sections: [
                 { name: 'intro',  tickLength: 64 },
@@ -300,67 +351,95 @@ const MusicSubstrate = {
             ],
             chords: {
                 intro:  ['Am3','Am3','Dm3','Dm3'],
-                verse:  ['Am3','Em3','Dm3','Am3',  'Am3','Em3','F3','E3'],
-                chorus: ['Dm3','Em3','Am3','F3',   'Dm3','Em3','Am3','Am3'],
+                verse:  ['Am3','E3','Dm3','Am3',  'Am3','G3','F3','E3'],
+                chorus: ['Dm3','G3','Am3','E3',   'Dm3','G3','Am3','Am3'],
                 bridge: ['F3','G3','Am3','E3'],
             },
             bass: {
-                intro:   { ticks: [0,8],       intervals: [0,0] },
+                intro:   { ticks: [0,4,8,12],  intervals: [0,0,0,0] },
                 verse:   { ticks: [0,4,8,12],  intervals: [0,0,7,5] },
-                chorus:  { ticks: [0,4,8,12],  intervals: [0,12,0,7] },
-                bridge:  { ticks: [0,6,8],     intervals: [0,7,0] },
+                chorus:  { ticks: [0,4,8,12],  intervals: [0,7,0,12] },
+                bridge:  { ticks: [0,8],        intervals: [0,7] },
             },
             melody: {
                 intro: [
-                    null,null,null,null, 'A4',null,null,null, 'C5',null,null,null, 'E5',null,null,null,
-                    null,null,null,null, null,null,null,null, 'E5',null,'D5',null, 'C5',null,null,null,
-                    null,null,null,null, 'D4',null,null,null, 'F4',null,null,null, 'A4',null,null,null,
-                    null,null,null,null, null,null,null,null, 'A4',null,'G4',null, 'F4',null,null,null,
+                    // Bar 1 — Horn call from darkness
+                    null,null,null,null, 'A3',null,null,null, null,null,null,null, 'E4',null,null,null,
+                    // Bar 2 — Answer
+                    null,null,null,null, 'A4',null,null,null, null,null,null,null, null,null,null,null,
+                    // Bar 3 — Expanding fanfare
+                    'A3',null,null,'A3', null,null,'C4',null, 'E4',null,null,null, 'A4',null,null,null,
+                    // Bar 4 — Resolve
+                    'E4',null,'D4',null, 'C4',null,null,null, 'A3',null,null,null, null,null,null,null,
                 ],
                 verse: [
-                    'A4',null,null,'A4', null,'B4',null,null, 'C5',null,null,null, null,null,'B4',null,
-                    'A4',null,null,'G4', null,null,null,null, 'E4',null,null,null, null,null,null,null,
-                    'D4',null,null,'E4', null,'F4',null,null, 'E4',null,null,'D4', null,'C4',null,null,
-                    'A3',null,null,null, null,null,null,null, null,null,null,null, null,null,null,null,
-                    'A4',null,null,'A4', null,'B4',null,null, 'C5',null,'B4',null, 'A4',null,null,null,
-                    'C5',null,null,'A4', null,'G4',null,null, 'E4',null,null,null, null,null,null,null,
-                    'F4',null,'A4',null, 'C5',null,'E5',null, 'D5',null,'C5',null, 'B4',null,null,null,
-                    'A4',null,null,null, null,null,null,null, null,null,null,null, null,null,null,null,
+                    // Bar 1 — March theme — strong downbeats
+                    'A4',null,null,'A4', null,null,'A4',null, 'C5',null,'D5',null, 'E5',null,null,null,
+                    // Bar 2
+                    'E5',null,null,'D5', null,null,'C5',null, 'A4',null,null,null, null,null,null,null,
+                    // Bar 3
+                    'D4',null,null,'D4', null,null,'F4',null, 'A4',null,null,null, 'A4',null,'G4',null,
+                    // Bar 4 — Cadence
+                    'F4',null,'E4',null, 'D4',null,null,null, 'E4',null,null,null, null,null,null,null,
+                    // Bar 5 — Repeat higher
+                    'A4',null,null,'A4', null,null,'B4',null, 'C5',null,'E5',null, 'A5',null,null,null,
+                    // Bar 6
+                    'A5',null,null,'G4', null,null,'F4',null, 'E4',null,null,null, null,null,null,null,
+                    // Bar 7 — Descending march
+                    'C5',null,'B4',null, 'A4',null,'G4',null, 'F4',null,'E4',null, 'D4',null,null,null,
+                    // Bar 8 — Resolve
+                    'E4',null,null,null, 'A3',null,null,null, null,null,null,null, null,null,null,null,
                 ],
                 chorus: [
-                    'A4','A4',null,'C5', null,'E5',null,'A5', 'E5',null,null,null, null,null,null,null,
-                    'D4','D4',null,'F4', null,'A4',null,'D5', 'C5',null,null,null, null,null,'B4',null,
-                    'A4','A4',null,'C5', null,'E5',null,'A5', 'A5',null,null,'E5', null,null,null,null,
-                    'F4',null,null,'E4', null,null,'D4',null, 'E4',null,null,null, null,null,null,null,
-                    'A4','A4',null,'C5', null,'E5',null,'A5', 'E5',null,'C5',null, 'E5',null,null,null,
-                    'D4','D4',null,'F4', null,'A4',null,'D5', 'D5',null,null,null, null,null,'C5',null,
-                    'A4',null,'C5',null, 'E5',null,'A5',null, 'E5',null,'C5',null, 'A4',null,null,null,
+                    // Bar 1 — TRIUMPH! Fanfare leaps
+                    'A4','A4',null,'E5', null,'A5',null,null, 'A5',null,null,null, null,null,'G5',null,
+                    // Bar 2
+                    'E5','E5',null,'A4', null,'C5',null,'E5', 'D5',null,null,null, null,null,null,null,
+                    // Bar 3
+                    'D5','D5',null,'F5', null,'A5',null,null, 'A5',null,null,'E5', null,null,'D5',null,
+                    // Bar 4
+                    'C5',null,null,'B4', null,null,'A4',null, 'E4',null,null,null, null,null,null,null,
+                    // Bar 5 — Second phrase
+                    'A4','A4',null,'E5', null,'A5',null,'C6', 'A5',null,'E5',null, 'A5',null,null,null,
+                    // Bar 6
+                    'G5',null,null,'F5', null,'E5',null,'D5', 'C5',null,null,null, null,null,'D5',null,
+                    // Bar 7 — Power ending 4ths & 5ths
+                    'E5',null,'A5',null, 'E5',null,'A4',null, 'E5',null,'A5',null, 'E5',null,null,null,
+                    // Bar 8 — Resolve
                     'A4',null,null,null, null,null,null,null, null,null,null,null, null,null,null,null,
                 ],
                 bridge: [
-                    'F4',null,'A4',null, 'C5',null,null,null, 'B4',null,'A4',null, 'G4',null,null,null,
-                    'G4',null,'B4',null, 'D5',null,null,null, 'C5',null,'B4',null, 'A4',null,null,null,
-                    'A4',null,'C5',null, 'E5',null,null,null, 'D5',null,'C5',null, 'B4',null,null,null,
-                    'E4',null,null,'D4', null,'C4',null,'B3', 'A3',null,null,null, null,null,null,null,
+                    // Bar 1 — Building tension
+                    'F4',null,'A4',null, 'C5',null,'F5',null, 'E5',null,'D5',null, 'C5',null,null,null,
+                    // Bar 2
+                    'G4',null,'B4',null, 'D5',null,'G5',null, 'F5',null,'E5',null, 'D5',null,null,null,
+                    // Bar 3
+                    'A4',null,'C5',null, 'E5',null,'A5',null, 'G5',null,'E5',null, 'C5',null,null,null,
+                    // Bar 4 — Tension resolve
+                    'B4',null,'A4',null, 'G#4',null,null,null, 'A4',null,null,null, null,null,null,null,
                 ],
             },
             arp: {
                 intro:   { speed: 4, pattern: [0,3,7,12] },
-                verse:   { speed: 2, pattern: [0,3,7,12,7,3] },
-                chorus:  { speed: 2, pattern: [0,7,12,7] },
-                bridge:  { speed: 3, pattern: [0,3,7,10,7,3] },
+                verse:   { speed: 4, pattern: [0,7,12,7] },
+                chorus:  { speed: 2, pattern: [0,3,7,12,7,3] },
+                bridge:  { speed: 4, pattern: [0,3,7,10] },
             },
             drums: {
-                intro:  { kick: [0,4,8,12], snare: [], hihat: [0,8], openhat: [] },
-                verse:  { kick: [0,8], snare: [4,12], hihat: [0,2,4,6,8,10,12,14], openhat: [] },
-                chorus: { kick: [0,4,8,12], snare: [4,12], hihat: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], openhat: [] },
-                bridge: { kick: [0,12], snare: [4,8], hihat: [0,4,8,12], openhat: [2,10] },
+                // Intro: Building military drums — kick on every beat, toms on offbeats
+                intro:  { kick: [0,4,8,12], snare: [], tom: [2,6,10,14], hihat: [] },
+                // Verse: Full march cadence — kick 1&3, snare 2&4, toms fill
+                verse:  { kick: [0,8], snare: [4,12], tom: [2,6,10,14], hihat: [] },
+                // Chorus: Maximum power — everything!
+                chorus: { kick: [0,4,8,12], snare: [4,12], tom: [2,6,10,14], hihat: [0,2,4,6,8,10,12,14], crash: [0] },
+                // Bridge: Snare drum roll (every 16th)
+                bridge: { kick: [0,8], snare: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], tom: [], hihat: [] },
             },
             instruments: {
-                bass:    { wave: 'sawtooth', volume: 0.17, octave: 2, filterFreq: 380, release: 0.14 },
-                melody:  { wave: 'sawtooth', volume: 0.09, octave: 0, filterFreq: 1800, release: 0.18, vibratoRate: 4, vibratoDepth: 4 },
-                arp:     { wave: 'square',   volume: 0.05, octave: 5, filterFreq: 2500, release: 0.06 },
-                pad:     { wave: 'triangle', volume: 0.06, octave: 3, filterFreq: 1000, release: 0.5 },
+                bass:    { wave: 'sawtooth', volume: 0.20, octave: 2, filterFreq: 350, release: 0.14 },
+                melody:  { wave: 'sawtooth', volume: 0.12, octave: 0, filterFreq: 1600, release: 0.20, vibratoRate: 3, vibratoDepth: 4 },
+                arp:     { wave: 'square',   volume: 0.05, octave: 4, filterFreq: 2000, release: 0.08 },
+                pad:     { wave: 'triangle', volume: 0.07, octave: 3, filterFreq: 800, release: 0.5 },
             }
         },
     },
@@ -419,11 +498,14 @@ const MusicSubstrate = {
             return;
         }
 
-        console.log('[MusicSubstrate v2] Playing:', theme.name, theme.bpm + 'BPM');
+        console.log('[MusicSubstrate v2] Playing:', theme.name, theme.bpm + 'BPM — 4 procedural variations will rotate');
         this.isPlaying = true;
         this._currentTick = 0;
         this._sectionIndex = 0;
         this._tickInSection = 0;
+        // Variation system — start fresh, variation 0 = original
+        this._variationIndex = 0;
+        this._activeVariation = null; // null = use original theme
 
         const sixteenthMs = (60000 / theme.bpm) / 4;
         this._schedulerTimer = setInterval(() => this._tick(theme), sixteenthMs);
@@ -470,19 +552,22 @@ const MusicSubstrate = {
     _tick(theme) {
         if (!this.isPlaying) return;
 
-        var sections = theme.sections;
+        // Use active variation if available, otherwise original theme
+        var active = this._activeVariation || theme;
+
+        var sections = active.sections;
         var sec = sections[this._sectionIndex];
         var secName = sec.name;
         var tickInBar = this._tickInSection % 16;
         var barInSection = Math.floor(this._tickInSection / 16);
 
-        this._tickDrums(theme, secName, tickInBar);
-        this._tickBass(theme, secName, tickInBar, barInSection);
-        this._tickMelody(theme, secName);
-        this._tickArp(theme, secName, tickInBar, barInSection);
+        this._tickDrums(active, secName, tickInBar);
+        this._tickBass(active, secName, tickInBar, barInSection);
+        this._tickMelody(active, secName);
+        this._tickArp(active, secName, tickInBar, barInSection);
 
         if (tickInBar === 0) {
-            this._tickPad(theme, secName, barInSection);
+            this._tickPad(active, secName, barInSection);
         }
 
         this._currentTick++;
@@ -490,7 +575,136 @@ const MusicSubstrate = {
         if (this._tickInSection >= sec.tickLength) {
             this._tickInSection = 0;
             this._sectionIndex = (this._sectionIndex + 1) % sections.length;
+            // When the song loops back to start, apply next variation
+            if (this._sectionIndex === 0) {
+                this._variationIndex = ((this._variationIndex || 0) + 1) % 4;
+                this._activeVariation = this._generateVariation(theme, this._variationIndex);
+                console.log('[MusicSubstrate v2] 🎶 Variation', this._variationIndex + 1, 'of 4 — procedurally generated on the fly');
+            }
         }
+    },
+
+    // ============================================================
+    // VARIATION GENERATOR — 4 procedural mutations per theme
+    // ============================================================
+    // Demonstrates the substrate's power: no stored songs, everything
+    // generated on the fly. Each variation mutates BPM, swing,
+    // instrument voicings, arp patterns, and drum fills.
+
+    _variationIndex: 0,
+    _activeVariation: null,
+
+    _generateVariation(base, idx) {
+        // Deep-clone the base theme so mutations don't corrupt the original
+        var v = JSON.parse(JSON.stringify(base));
+
+        // Seeded pseudo-random based on variation index for reproducibility
+        var seed = idx * 2654435761;
+        function rand() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed & 0xffff) / 0xffff; }
+
+        switch (idx) {
+            case 0:
+                // Variation 1: "Energy Shift" — tempo bump, tighter drums, arp acceleration
+                v.name = base.name + ' (Energy)';
+                v.bpm = Math.round(base.bpm * (1.08 + rand() * 0.07));
+                v.swing = Math.max(0, base.swing - 0.02);
+                // Double-time hihats in verse
+                if (v.drums.verse) {
+                    v.drums.verse.hihat = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+                }
+                // Faster arp in chorus
+                if (v.arp.chorus) v.arp.chorus.speed = Math.max(1, (base.arp.chorus.speed || 2) - 1);
+                // Slightly louder melody
+                if (v.instruments.melody) v.instruments.melody.volume = Math.min(0.18, base.instruments.melody.volume * 1.25);
+                // Add snare ghost notes in bridge
+                if (v.drums.bridge && v.drums.bridge.snare) {
+                    v.drums.bridge.snare = [2,4,6,8,10,12,14];
+                }
+                break;
+
+            case 1:
+                // Variation 2: "Deep Groove" — slower, heavier bass, swing increase
+                v.name = base.name + ' (Deep)';
+                v.bpm = Math.round(base.bpm * (0.88 + rand() * 0.04));
+                v.swing = Math.min(0.3, base.swing + 0.08 + rand() * 0.06);
+                // Heavier bass — more notes
+                if (v.bass.verse) {
+                    v.bass.verse.ticks = [0,2,4,6,8,10,12,14];
+                    v.bass.verse.intervals = [0,0,7,12,0,0,5,7];
+                }
+                // Drop melody octave by 1
+                if (v.instruments.melody) v.instruments.melody.octave = (base.instruments.melody.octave || 0) - 1;
+                // Pad volume up — lush chords
+                if (v.instruments.pad) v.instruments.pad.volume = Math.min(0.12, base.instruments.pad.volume * 1.6);
+                // Kick pattern variation
+                if (v.drums.chorus) {
+                    v.drums.chorus.kick = [0,3,6,8,11,14];
+                }
+                break;
+
+            case 2:
+                // Variation 3: "Stripped Back" — minimal drums, arp prominent, melody sparse
+                v.name = base.name + ' (Stripped)';
+                v.bpm = Math.round(base.bpm * (0.96 + rand() * 0.06));
+                // Remove snare from verse, go minimal
+                if (v.drums.verse) {
+                    v.drums.verse.snare = [];
+                    v.drums.verse.kick = [0,8];
+                    v.drums.verse.hihat = [0,4,8,12];
+                }
+                // Arp louder + different pattern
+                if (v.instruments.arp) v.instruments.arp.volume = Math.min(0.14, base.instruments.arp.volume * 2.0);
+                if (v.arp.verse) v.arp.verse.pattern = [0,7,12,19,12,7];
+                // Melody: every other note nulled for space
+                var secNames = ['verse', 'chorus'];
+                for (var s = 0; s < secNames.length; s++) {
+                    var melArr = v.melody[secNames[s]];
+                    if (melArr) {
+                        for (var n = 0; n < melArr.length; n++) {
+                            if (n % 4 === 2 && melArr[n]) melArr[n] = null;
+                        }
+                    }
+                }
+                // Bridge gets open hihat groove
+                if (v.drums.bridge) {
+                    v.drums.bridge.openhat = [0,4,8,12];
+                    v.drums.bridge.hihat = [];
+                }
+                break;
+
+            case 3:
+                // Variation 4: "Hyperspace" — fastest, most energetic, all instruments maxed
+                v.name = base.name + ' (Hyperspace)';
+                v.bpm = Math.round(base.bpm * (1.15 + rand() * 0.08));
+                v.swing = 0;
+                // All drums full tilt in chorus
+                if (v.drums.chorus) {
+                    v.drums.chorus.kick = [0,2,4,6,8,10,12,14];
+                    v.drums.chorus.hihat = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+                    if (!v.drums.chorus.crash) v.drums.chorus.crash = [];
+                    v.drums.chorus.crash = [0,8];
+                }
+                // Arp: fastest possible, wide intervals
+                if (v.arp.chorus) {
+                    v.arp.chorus.speed = 1;
+                    v.arp.chorus.pattern = [0,5,12,17,12,5];
+                }
+                // All instruments slightly boosted
+                var instKeys = ['bass', 'melody', 'arp', 'pad'];
+                for (var k = 0; k < instKeys.length; k++) {
+                    if (v.instruments[instKeys[k]]) {
+                        v.instruments[instKeys[k]].volume = Math.min(0.22, v.instruments[instKeys[k]].volume * 1.3);
+                    }
+                }
+                // Melody vibrato intensified
+                if (v.instruments.melody) {
+                    v.instruments.melody.vibratoRate = (base.instruments.melody.vibratoRate || 5) + 3;
+                    v.instruments.melody.vibratoDepth = (base.instruments.melody.vibratoDepth || 3) + 4;
+                }
+                break;
+        }
+
+        return v;
     },
 
     _tickDrums(theme, secName, tickInBar) {
@@ -500,6 +714,9 @@ const MusicSubstrate = {
         if (dp.snare && dp.snare.indexOf(tickInBar) !== -1)   this._playSnare();
         if (dp.hihat && dp.hihat.indexOf(tickInBar) !== -1)   this._playHiHat(0.06);
         if (dp.openhat && dp.openhat.indexOf(tickInBar) !== -1) this._playOpenHat();
+        if (dp.tom && dp.tom.indexOf(tickInBar) !== -1)       this._playTom();
+        if (dp.clap && dp.clap.indexOf(tickInBar) !== -1)     this._playClap();
+        if (dp.crash && dp.crash.indexOf(tickInBar) !== -1)   this._playCrash();
     },
 
     _tickBass(theme, secName, tickInBar, barInSection) {
@@ -784,6 +1001,71 @@ const MusicSubstrate = {
         src.start(now);
     },
 
+    _playTom() {
+        if (!this.audioContext) return;
+        var ctx = this.audioContext;
+        var now = ctx.currentTime;
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(120, now);
+        osc.frequency.exponentialRampToValueAtTime(55, now + 0.15);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.22);
+    },
+
+    _playClap() {
+        if (!this.audioContext) return;
+        var ctx = this.audioContext;
+        var now = ctx.currentTime;
+        for (var c = 0; c < 3; c++) {
+            var t = now + c * 0.012;
+            var len = Math.floor(ctx.sampleRate * 0.025);
+            var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+            var d = buf.getChannelData(0);
+            for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+            var src = ctx.createBufferSource();
+            src.buffer = buf;
+            var filt = ctx.createBiquadFilter();
+            filt.type = 'bandpass';
+            filt.frequency.value = 1200;
+            filt.Q.value = 0.6;
+            var gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.14, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+            src.connect(filt);
+            filt.connect(gain);
+            gain.connect(this.masterGain);
+            src.start(t);
+        }
+    },
+
+    _playCrash() {
+        if (!this.audioContext) return;
+        var ctx = this.audioContext;
+        var now = ctx.currentTime;
+        var len = Math.floor(ctx.sampleRate * 0.5);
+        var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+        var d = buf.getChannelData(0);
+        for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 0.3);
+        var src = ctx.createBufferSource();
+        src.buffer = buf;
+        var filt = ctx.createBiquadFilter();
+        filt.type = 'highpass';
+        filt.frequency.value = 4000;
+        var gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+        src.connect(filt);
+        filt.connect(gain);
+        gain.connect(this.masterGain);
+        src.start(now);
+    },
+
     // ============================================================
     // STINGERS
     // ============================================================
@@ -850,8 +1132,10 @@ const MusicSubstrate = {
         var resolved = map[themeName] || themeName;
         if (this.themes[resolved]) {
             var wasPlaying = this.isPlaying;
+            if (wasPlaying) this.stop();  // stop old song first
             this.currentTheme = resolved;
-            if (wasPlaying) this.play();
+            if (wasPlaying) this.play();  // start new song
+            console.log('[MusicSubstrate v2] Theme switched to:', this.themes[resolved].name);
         }
     },
 

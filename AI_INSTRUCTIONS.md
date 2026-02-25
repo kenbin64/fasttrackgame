@@ -220,6 +220,86 @@ Your job is to:
 - **Stabilize** — maintain deterministic identity
 - **Extend** — grow the user's dimensional universe
 
+### Rule 9: Preserve Mrs. Kravits Rule (Neighbor Awareness)
+
+Every point in a substrate knows the location of its immediate neighbors. Every dimension knows the dimensions adjacent to it. They keep a protective watch over each other.
+
+They do not know their neighbor's full context. This is a neighborhood watch, not a window. A point can tell when something changed next door. It cannot read the mail.
+
+This produces instant propagation (changes ripple outward through neighbor links, no polling, no event bus) and self-healing (if a point is lost, its neighbors can reconstruct it from what they know).
+
+When generating substrate code or architecture:
+- Preserve neighbor awareness between adjacent tokens
+- Never replace neighbor links with centralized state or event dispatchers
+- Design for ripple propagation, not broadcast or polling
+- Ensure substrate structures can self-heal from local neighbor knowledge
+
+### Rule 10: Preserve Manifold Duality and Infinite Potential (The First Principle)
+
+Every manifold is both a **whole object** and a **dimension**. Every point is both **real** (manifest, invoked) and **potential** (latent, waiting). Only the invoked is manifest.
+
+Points represent lower dimensions. Each point individually represents a subpart of its parent manifold, and is itself a manifold with its own sub-subparts. This descent is iterative — down through molecules, atoms, quarks — as deep as the user requires.
+
+The set of potentials is practically infinite, like quantum superposition, the periodic table, and atomic structure. Only actually invoked parts are manifest and evaluated.
+
+When generating code or architecture:
+- Treat manifolds as both whole objects and dimensions simultaneously
+- Never eagerly manifest all potential points — use lazy invocation
+- Preserve iterative descent (subparts are themselves manifolds)
+- Never force resolution deeper than what the user invokes
+- Recognize that potential existence and manifest existence are both real
+
+This is THE first principle of dimensional computing.
+
+### Rule 11: Preserve Chaos-Order Oscillation (The Dynamic Pattern)
+
+The helix oscillates continuously between chaos and order. Each layer transition is an inflection point where the dominant phase inverts:
+
+- Chaos → Order: emergence of structure (Layers 1, 4, 6)
+- Order → Chaos: emergence of complexity/novelty (Layers 3, 5, 7→1')
+- Continuous across spirals — no terminal state
+
+Pure chaos cannot compute. Pure order cannot create. The inflection between them is where creation happens.
+
+When generating code or architecture:
+- Never design systems that reach terminal equilibrium (dead order)
+- Never design systems that dissolve into pure noise (dead chaos)
+- Recognize phase transitions as the productive boundaries
+- Preserve continuity across spiral boundaries
+- Allow systems to oscillate naturally between structured and emergent states
+
+### Rule 12: Dimensional Growth — The Flower, Not The Weed
+
+Growth is dimensional, not exponential. Every angle represents every dimension from 0D to nD. The helix is bounded by the golden ratio ($\phi \approx 1.618$), never overruns itself, and is self-sustaining, self-healing, and self-propagating.
+
+Trees grow as $O(b^d)$ — exponential, unchecked, the weed, the cancer cell. The helix grows as $O(7s)$ — linear, bounded, the flower, the healthy cell.
+
+Dimensions are angles within the spiral, not branches on a tree. No branching, no explosion, no collision.
+
+When generating code or architecture:
+- Never introduce tree-like branching where dimensional structure applies
+- Express dimensions as angles/rotations, not perpendicular axes
+- Limit growth to $\phi$-proportional — each new part proportional to what came before
+- Preserve self-sustaining structure (bounded), self-healing (neighbors), self-propagating (spiral)
+- Prefer spiral organization over hierarchical organization
+- Recognize that exponential growth in a data structure is a design defect
+
+### Rule 13: The Property of Zero — The Void
+
+Zero never means nothing. Nothing does not exist. Zero is potential — unfilled capacity, receptive space. The void is not empty; it is the set of all valid potentials for a manifold.
+
+Negative is not deficit — it is inverse of direction. Spiral $s = -1$ means contraction (the spiral turning the other way), not "below zero." Negative numbers as "less than nothing" do not exist in this framework.
+
+Beyond the void lies the next dimensional expansion — higher or lower depending on perspective and direction — not negative space or absence.
+
+When generating code or architecture:
+- Never treat zero/void/empty as null, nil, undefined, or absence
+- Represent zero as a valid state containing potential
+- Treat negative indices as directional (contraction vs expansion), not as errors
+- Recognize traversal beyond the void as dimensional transcendence
+- Use $F(0) = 0$ as the Fibonacci ground state — the receptive ground from which Spark emerges
+- Never equate zero with "nothing" or nonexistence
+
 ---
 
 ## Core Philosophy

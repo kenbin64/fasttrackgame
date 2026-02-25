@@ -47,6 +47,15 @@ function connectToLobby() {
             state.connected = true;
             state.reconnectAttempts = 0;
             showToast('Connected to lobby', 'success');
+            
+            // Auto guest-login for URL actions (private game, join by code) — no login required
+            if (state.pendingAction && !state.user) {
+                send({
+                    type: 'guest_login',
+                    name: `Player_${Math.random().toString(36).slice(2, 6)}`,
+                    avatar_id: 'person_smile'
+                });
+            }
         };
         
         state.socket.onclose = () => {
@@ -148,6 +157,13 @@ function onConnected(data) {
         } catch (e) {
             localStorage.removeItem('ft_user');
         }
+    } else if (state.pendingAction) {
+        // Auto-guest-login for private/join actions (no login required)
+        send({
+            type: 'guest_login',
+            name: `Player_${Math.random().toString(36).slice(2, 6)}`,
+            avatar_id: 'person_smile'
+        });
     }
 }
 
@@ -164,6 +180,24 @@ function onAuthSuccess(data) {
     refreshGames();
     
     showToast(`Welcome, ${data.user.username}!`, 'success');
+    
+    // Handle pending actions (from URL params or auth-screen buttons)
+    if (state.pendingAction) {
+        const action = state.pendingAction;
+        const pendingCode = state.pendingCode;
+        state.pendingAction = null;
+        state.pendingCode = null;
+        setTimeout(() => {
+            if (action === 'private') {
+                showCreatePrivateGame();
+            } else if (action === 'join') {
+                showJoinByCode();
+            } else if (action === 'code' && pendingCode) {
+                document.getElementById('join-code-input').value = pendingCode;
+                showJoinByCode();
+            }
+        }, 300);
+    }
 }
 
 function onError(data) {
@@ -199,7 +233,20 @@ function onProfile(data) {
 
 function onSessionCreated(data) {
     state.currentSession = data.session;
-    showWaitingRoom(data.session, data.share_code, data.share_url);
+    
+    // If wizard is open, populate step 1 with room code
+    const wizardModal = document.getElementById('private-wizard-modal');
+    if (wizardModal && wizardModal.classList.contains('active')) {
+        const code = data.share_code || data.session.session_code;
+        const url = data.share_url || `${window.location.origin}${window.location.pathname.replace('lobby.html', 'join.html')}?code=${code}`;
+        document.getElementById('wizard-room-code').textContent = code;
+        document.getElementById('wizard-share-url').value = url;
+        state.wizardShareUrl = url;
+        state.wizardShareCode = code;
+    } else {
+        // Fallback: non-wizard flow (public games etc.)
+        showWaitingRoom(data.session, data.share_code, data.share_url);
+    }
     showToast('Game created!', 'success');
 }
 
@@ -227,10 +274,12 @@ function onPlayerLeft(data) {
 function onLeftSession() {
     state.currentSession = null;
     closeModal('waiting-room-modal');
+    closeModal('private-wizard-modal');
 }
 
 function onGameStarted(data) {
     closeModal('waiting-room-modal');
+    closeModal('private-wizard-modal');
     
     // Redirect to game board with session info
     const params = new URLSearchParams({
@@ -407,6 +456,32 @@ function onPrestigeAwarded(data) {
 // Authentication
 // =============================================================================
 
+function createPrivateAsGuest() {
+    state.pendingAction = 'private';
+    if (state.connected) {
+        send({
+            type: 'guest_login',
+            name: `Player_${Math.random().toString(36).slice(2, 6)}`,
+            avatar_id: 'person_smile'
+        });
+    } else {
+        showToast('Connecting to server...', 'error');
+    }
+}
+
+function joinByCodeAsGuest() {
+    state.pendingAction = 'join';
+    if (state.connected) {
+        send({
+            type: 'guest_login',
+            name: `Player_${Math.random().toString(36).slice(2, 6)}`,
+            avatar_id: 'person_smile'
+        });
+    } else {
+        showToast('Connecting to server...', 'error');
+    }
+}
+
 function showAuthTab(tab) {
     document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
     document.querySelector(`.auth-tab:${tab === 'login' ? 'first-child' : 'last-child'}`).classList.add('active');
@@ -535,58 +610,227 @@ function createPublicGame() {
 }
 
 function showCreatePrivateGame() {
-    // Open private game modal
-    updatePrivateGameOptions(); // Initialize bot options
-    openModal('create-private-modal');
-}
-
-function createPrivateGame(event) {
-    event.preventDefault();
+    // Open wizard at step 1 and immediately create session to get room code
+    state.wizardStep = 1;
+    state.wizardAvatar = state.user?.avatar_id || 'person_smile';
     
-    const playerCount = parseInt(document.getElementById('private-player-count').value);
-    const botCount = parseInt(document.getElementById('private-bot-count').value);
+    // Reset wizard UI
+    document.getElementById('wizard-room-code').textContent = '------';
+    document.getElementById('wizard-share-url').value = '';
     
-    // Get game rule options
-    const requireApproval = document.getElementById('private-require-approval')?.checked || false;
-    let replaceWithBot = document.getElementById('private-replace-with-bot')?.checked ?? true;
-    const noReturns = document.getElementById('private-no-returns')?.checked || false;
-    const turnTimer = document.getElementById('private-turn-timer')?.checked || false;
-    
-    // Validate bot limits
-    if (playerCount === 6 && botCount > 0) {
-        showToast('6 player games require all human players', 'error');
-        return;
+    // Pre-fill username from logged-in user
+    const usernameInput = document.getElementById('wizard-username');
+    if (usernameInput) {
+        usernameInput.value = state.user?.username || '';
     }
+    document.getElementById('wizard-avatar-preview').textContent = getAvatarEmoji(state.wizardAvatar);
     
-    if (playerCount > 4 && botCount > 0) {
-        showToast('Games with bots are limited to 4 total players', 'error');
-        return;
-    }
+    // Reset settings
+    document.getElementById('wiz-music').checked = true;
+    document.getElementById('wiz-allow-ai').checked = true;
+    document.getElementById('wiz-turn-timer').checked = false;
+    document.getElementById('wiz-late-arrivals').checked = true;
+    document.getElementById('wiz-max-players').value = '4';
     
-    // 5-6 player games: Force no bot replacement (all human only)
-    const allHumanGame = playerCount >= 5;
-    if (allHumanGame) {
-        replaceWithBot = false; // Players who leave just vanish
-    }
+    // Show wizard
+    updateWizardSteps();
+    openModal('private-wizard-modal');
     
-    closeModal('create-private-modal');
-    
+    // Create session immediately to get a room code
     send({
         type: 'create_session',
         private: true,
-        max_players: playerCount,
+        max_players: 4,
         settings: {
-            initial_bots: botCount,
-            allow_bots: playerCount <= 4 && (botCount > 0 || replaceWithBot),
-            all_human: allHumanGame,
-            require_approval: requireApproval,
-            replace_with_bot: replaceWithBot,
-            no_returns: noReturns,
-            turn_timer: turnTimer,
-            turn_timer_seconds: turnTimer ? 120 : 0, // 2 minutes
-            warning_seconds: 60 // 1 minute warning
+            initial_bots: 0,
+            allow_bots: true,
+            replace_with_bot: true,
+            turn_timer: false,
+            turn_timer_seconds: 0,
+            warning_seconds: 60
         }
     });
+}
+
+// =============================================================================
+// Private Game Wizard Navigation
+// =============================================================================
+
+function updateWizardSteps() {
+    const step = state.wizardStep;
+    
+    // Update step indicators
+    document.querySelectorAll('.wizard-step').forEach(el => {
+        const s = parseInt(el.dataset.step);
+        el.classList.toggle('active', s === step);
+        el.classList.toggle('done', s < step);
+    });
+    
+    // Update lines between steps
+    const lines = document.querySelectorAll('.wizard-step-line');
+    lines.forEach((line, i) => {
+        line.classList.toggle('done', (i + 1) < step);
+    });
+    
+    // Show/hide panels
+    for (let i = 1; i <= 4; i++) {
+        const panel = document.getElementById(`wizard-step-${i}`);
+        if (panel) panel.classList.toggle('active', i === step);
+    }
+    
+    // Update title
+    const titles = {
+        1: '🔒 Share Game Code',
+        2: '👤 Your Identity',
+        3: '⚙️ Game Settings',
+        4: '⏳ Waiting Lobby'
+    };
+    document.getElementById('wizard-title').textContent = titles[step] || '';
+    
+    // Step-specific init
+    if (step === 2) {
+        wizardInitAvatarPicker();
+        wizardCheckUsername();
+    }
+    if (step === 4) {
+        wizardApplySettings();
+        updateWaitingRoom();
+    }
+}
+
+function wizardNext() {
+    if (state.wizardStep >= 4) return;
+    state.wizardStep++;
+    updateWizardSteps();
+}
+
+function wizardBack() {
+    if (state.wizardStep <= 1) return;
+    state.wizardStep--;
+    updateWizardSteps();
+}
+
+function closePrivateWizard() {
+    if (state.currentSession && state.wizardStep < 4) {
+        // Cancel the session if they close before the lobby
+        send({ type: 'leave_session' });
+        state.currentSession = null;
+    } else if (state.currentSession) {
+        send({ type: 'leave_session' });
+        state.currentSession = null;
+    }
+    closeModal('private-wizard-modal');
+}
+
+function wizardCheckUsername() {
+    const name = document.getElementById('wizard-username').value.trim();
+    const nextBtn = document.getElementById('wizard-next-2');
+    if (nextBtn) nextBtn.disabled = name.length === 0;
+}
+
+function wizardInitAvatarPicker() {
+    const catsContainer = document.getElementById('wizard-avatar-cats');
+    const cats = Object.entries(AVATAR_CATALOG);
+    
+    catsContainer.innerHTML = cats.map(([id, cat], idx) => `
+        <button class="${idx === 0 ? 'active' : ''}" data-cat="${id}" onclick="wizardSelectCategory('${id}')">${cat.icon} ${cat.name}</button>
+    `).join('');
+    
+    wizardRenderAvatarGrid(cats[0][0]);
+}
+
+function wizardSelectCategory(catId) {
+    document.querySelectorAll('.wizard-avatar-cats button').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.wizard-avatar-cats button[data-cat="${catId}"]`).classList.add('active');
+    wizardRenderAvatarGrid(catId);
+}
+
+function wizardRenderAvatarGrid(catId) {
+    const cat = AVATAR_CATALOG[catId];
+    const grid = document.getElementById('wizard-avatar-grid');
+    
+    grid.innerHTML = cat.avatars.map(a => `
+        <div class="avatar-opt ${state.wizardAvatar === a.id ? 'selected' : ''}" 
+             data-id="${a.id}" onclick="wizardPickAvatar('${a.id}')" title="${a.name}">
+            ${a.emoji}
+        </div>
+    `).join('');
+}
+
+function wizardPickAvatar(avatarId) {
+    state.wizardAvatar = avatarId;
+    document.getElementById('wizard-avatar-preview').textContent = getAvatarEmoji(avatarId);
+    
+    document.querySelectorAll('.wizard-avatar-grid .avatar-opt').forEach(el => {
+        el.classList.toggle('selected', el.dataset.id === avatarId);
+    });
+}
+
+function wizardApplySettings() {
+    // Apply wizard step 2 + 3 settings to the session
+    if (!state.currentSession) return;
+    
+    const username = document.getElementById('wizard-username').value.trim() || state.user?.username;
+    const avatarId = state.wizardAvatar || 'person_smile';
+    const allowAi = document.getElementById('wiz-allow-ai').checked;
+    const turnTimer = document.getElementById('wiz-turn-timer').checked;
+    const lateArrivals = document.getElementById('wiz-late-arrivals').checked;
+    const maxPlayers = parseInt(document.getElementById('wiz-max-players').value);
+    const music = document.getElementById('wiz-music').checked;
+    
+    // Update player name/avatar in session (works for guests and logged-in users)
+    if (username || avatarId) {
+        send({ type: 'update_player_info', username: username, avatar_id: avatarId });
+        if (state.user) {
+            if (username) state.user.username = username;
+            if (avatarId) state.user.avatar_id = avatarId;
+        }
+    }
+    
+    // Send session settings update
+    send({
+        type: 'update_session_settings',
+        settings: {
+            allow_bots: allowAi,
+            turn_timer: turnTimer,
+            turn_timer_seconds: turnTimer ? 120 : 0,
+            warning_seconds: 60,
+            late_arrivals: lateArrivals,
+            music: music
+        },
+        max_players: maxPlayers
+    });
+    
+    // Store music pref locally
+    state.musicEnabled = music;
+}
+
+// Sharing helpers for the wizard
+function shareToWhatsApp() {
+    const url = state.wizardShareUrl || document.getElementById('wizard-share-url').value;
+    const code = state.wizardShareCode || document.getElementById('wizard-room-code').textContent;
+    const text = encodeURIComponent(`Join my Fast Track game! Code: ${code}\n${url}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+}
+
+function shareToTwitter() {
+    const url = state.wizardShareUrl || document.getElementById('wizard-share-url').value;
+    const code = state.wizardShareCode || document.getElementById('wizard-room-code').textContent;
+    const text = encodeURIComponent(`Join my Fast Track game! Code: ${code}`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`, '_blank');
+}
+
+function shareToEmail() {
+    const url = state.wizardShareUrl || document.getElementById('wizard-share-url').value;
+    const code = state.wizardShareCode || document.getElementById('wizard-room-code').textContent;
+    const subject = encodeURIComponent('Join my Fast Track game!');
+    const body = encodeURIComponent(`Hey! Join my Fast Track board game.\n\nGame Code: ${code}\nDirect Link: ${url}\n\nSee you at the board!`);
+    window.open(`mailto:?subject=${subject}&body=${body}`);
+}
+
+function createPrivateGame(event) {
+    // Legacy — no longer used, wizard handles everything
+    if (event) event.preventDefault();
 }
 
 function createPublicGameWithSettings(event) {
@@ -622,43 +866,7 @@ function createPublicGameWithSettings(event) {
 }
 
 function updatePrivateGameOptions() {
-    const playerCount = parseInt(document.getElementById('private-player-count').value);
-    const botGroup = document.getElementById('bot-options-group');
-    const botSelect = document.getElementById('private-bot-count');
-    const noteEl = document.getElementById('private-game-note');
-    
-    if (playerCount >= 5) {
-        // 5-6 players: No bots allowed at all
-        botGroup.style.display = 'none';
-        botSelect.value = '0';
-        if (playerCount === 6) {
-            noteEl.innerHTML = `
-                <span style="color: var(--warning);">⚠️ 6 players = ALL HUMAN only</span><br>
-                <span style="font-size: 0.75rem;">If any player leaves or gets booted, they are simply removed (no bot replacement).</span>
-            `;
-        } else {
-            noteEl.innerHTML = `
-                <span style="color: var(--warning);">⚠️ 5 players = ALL HUMAN only</span><br>
-                <span style="font-size: 0.75rem;">If any player leaves or gets booted, they are simply removed (no bot replacement).</span>
-            `;
-        }
-    } else {
-        // 2-4 players: Show bot options, limit based on player count
-        botGroup.style.display = 'block';
-        const maxBots = Math.min(3, playerCount - 1); // At least 1 human required
-        
-        // Update bot options
-        let options = '<option value="0">No Bots (All Human)</option>';
-        for (let i = 1; i <= maxBots; i++) {
-            options += `<option value="${i}">${i} Bot${i > 1 ? 's' : ''}</option>`;
-        }
-        botSelect.innerHTML = options;
-        
-        noteEl.innerHTML = `
-            Private games: Max 4 with any bots, Max 6 all-human.<br>
-            <span style="font-size: 0.75rem;">Players who leave can be replaced by bots (if enabled).</span>
-        `;
-    }
+    // Legacy — no longer used, wizard handles settings in step 3
 }
 
 function joinSession(sessionId) {
@@ -705,6 +913,15 @@ function joinByCode(event) {
 }
 
 function showWaitingRoom(session, code, shareUrl) {
+    // Check if wizard is open — if so, jump to step 4
+    const wizardModal = document.getElementById('private-wizard-modal');
+    if (wizardModal && wizardModal.classList.contains('active')) {
+        state.wizardStep = 4;
+        updateWizardSteps();
+        return;
+    }
+    
+    // Legacy waiting room for non-wizard flows (public games, join-by-code)
     document.getElementById('waiting-room-code').textContent = code;
     
     const url = shareUrl || `${window.location.origin}${window.location.pathname.replace('lobby.html', 'join.html')}?code=${code}`;
@@ -718,9 +935,12 @@ function updateWaitingRoom() {
     if (!state.currentSession) return;
     
     const session = state.currentSession;
-    const container = document.getElementById('waiting-players');
+    const isHost = session.host_id === state.user?.user_id;
+    const aiCount = session.players.filter(p => p.is_ai).length;
+    const humanCount = session.players.filter(p => !p.is_ai).length;
+    const totalPlayers = session.players.length;
     
-    // Show player slots
+    // Build player slot HTML
     const slots = [];
     for (let i = 0; i < session.max_players; i++) {
         const player = session.players.find(p => p.slot === i);
@@ -743,12 +963,58 @@ function updateWaitingRoom() {
         }
     }
     
-    container.innerHTML = slots.join('');
+    // Update wizard step 4 (if it exists)
+    const wizardPlayers = document.getElementById('wizard-waiting-players');
+    if (wizardPlayers) {
+        wizardPlayers.innerHTML = slots.join('');
+    }
     
-    // Update buttons and bot controls
-    const isHost = session.host_id === state.user?.user_id;
-    const aiCount = session.players.filter(p => p.is_ai).length;
-    const totalPlayers = session.players.length;
+    // Wizard bot controls
+    const allowAi = session.settings?.allow_bots !== false;
+    const gameIsFull = totalPlayers >= session.max_players;
+    const maxBotsReached = aiCount >= 3;
+    const canAddBots = isHost && allowAi && !gameIsFull && !maxBotsReached;
+    
+    const wizAddAi = document.getElementById('wizard-add-ai');
+    const wizRemoveAi = document.getElementById('wizard-remove-ai');
+    const wizBotControls = document.getElementById('wizard-bot-controls');
+    const wizBotInfo = document.getElementById('wizard-bot-info');
+    
+    if (wizBotControls) {
+        wizBotControls.style.display = (isHost && allowAi) ? 'flex' : 'none';
+    }
+    if (wizAddAi) {
+        wizAddAi.style.display = canAddBots ? 'inline-flex' : 'none';
+    }
+    if (wizRemoveAi) {
+        wizRemoveAi.style.display = (isHost && aiCount > 0) ? 'inline-flex' : 'none';
+    }
+    if (wizBotInfo) {
+        wizBotInfo.textContent = aiCount > 0 ? `🤖 ${aiCount} bot${aiCount > 1 ? 's' : ''} in game` : '';
+    }
+    
+    // Start button — require 2+ total players (human + bots)
+    const wizStartBtn = document.getElementById('wizard-start-btn');
+    const wizStartNote = document.getElementById('wizard-start-note');
+    if (wizStartBtn) {
+        const canStart = isHost && totalPlayers >= 2;
+        wizStartBtn.disabled = !canStart;
+        if (wizStartNote) {
+            if (!isHost) {
+                wizStartNote.textContent = 'Waiting for host to start the game...';
+            } else if (totalPlayers < 2) {
+                wizStartNote.textContent = 'Add at least 1 bot or invite a friend to start';
+            } else {
+                wizStartNote.textContent = `${totalPlayers} player${totalPlayers > 1 ? 's' : ''} ready — let\'s go!`;
+            }
+        }
+    }
+    
+    // Also update legacy waiting room elements (for public games / join-by-code)
+    const legacyContainer = document.getElementById('waiting-players');
+    if (legacyContainer) {
+        legacyContainer.innerHTML = slots.join('');
+    }
     
     const addAiBtn = document.getElementById('add-ai-btn');
     const removeAiBtn = document.getElementById('remove-ai-btn');
@@ -756,49 +1022,26 @@ function updateWaitingRoom() {
     const botLimitWarning = document.getElementById('bot-limit-warning');
     const gameSetupOptions = document.getElementById('game-setup-options');
     
-    // Check bot limits
-    const gameIsFull = totalPlayers >= session.max_players;
-    const noBots = session.settings?.no_bots;
-    const maxBotsReached = aiCount >= 3;
-    const fourPlayerLimit = session.is_private && totalPlayers >= 4 && aiCount > 0;
-    const canAddBots = isHost && !gameIsFull && !noBots && !maxBotsReached && !fourPlayerLimit;
-    
-    // Show/hide controls
     if (gameSetupOptions) {
         gameSetupOptions.style.display = isHost ? 'block' : 'none';
     }
-    
     if (addAiBtn) {
         addAiBtn.style.display = canAddBots ? 'inline-flex' : 'none';
     }
-    
     if (removeAiBtn) {
         removeAiBtn.style.display = (isHost && aiCount > 0) ? 'inline-flex' : 'none';
     }
-    
     if (botCountInfo) {
-        if (aiCount > 0) {
-            botCountInfo.textContent = `🤖 ${aiCount} bot${aiCount > 1 ? 's' : ''} in game`;
-        } else if (noBots) {
-            botCountInfo.textContent = '🚫 This game is set to no bots';
-        } else {
-            botCountInfo.textContent = '';
-        }
+        botCountInfo.textContent = aiCount > 0 ? `🤖 ${aiCount} bot${aiCount > 1 ? 's' : ''} in game` : '';
     }
-    
     if (botLimitWarning) {
-        if (session.is_private && aiCount > 0 && totalPlayers >= 4) {
-            botLimitWarning.style.display = 'block';
-            botLimitWarning.textContent = '⚠️ Private games with bots limited to 4 players';
-        } else if (maxBotsReached) {
-            botLimitWarning.style.display = 'block';
-            botLimitWarning.textContent = '⚠️ Maximum 3 bots per game';
-        } else {
-            botLimitWarning.style.display = 'none';
-        }
+        botLimitWarning.style.display = 'none';
     }
     
-    document.getElementById('start-game-btn').disabled = !isHost || session.players.length < 2;
+    const startBtn = document.getElementById('start-game-btn');
+    if (startBtn) {
+        startBtn.disabled = !isHost || session.players.length < 2;
+    }
 }
 
 function addAIPlayer() {
@@ -858,18 +1101,21 @@ function startGame() {
 function leaveWaitingRoom() {
     send({ type: 'leave_session' });
     closeModal('waiting-room-modal');
+    closeModal('private-wizard-modal');
 }
 
 function copyShareUrl() {
-    const url = document.getElementById('share-url').value;
-    navigator.clipboard.writeText(url).then(() => {
-        showToast('Link copied!', 'success');
-    });
+    const url = document.getElementById('wizard-share-url')?.value || document.getElementById('share-url')?.value || state.wizardShareUrl;
+    if (url) {
+        navigator.clipboard.writeText(url).then(() => {
+            showToast('Link copied!', 'success');
+        });
+    }
 }
 
 function shareViaMessenger() {
-    const url = document.getElementById('share-url').value;
-    const code = document.getElementById('waiting-room-code').textContent;
+    const url = document.getElementById('wizard-share-url')?.value || document.getElementById('share-url')?.value || state.wizardShareUrl;
+    const code = state.wizardShareCode || document.getElementById('waiting-room-code')?.textContent || '';
     const text = `Join my Fast Track game! Code: ${code}\n${url}`;
     
     if (navigator.share) {
@@ -879,7 +1125,6 @@ function shareViaMessenger() {
             url: url
         });
     } else {
-        // Fallback to clipboard
         navigator.clipboard.writeText(text).then(() => {
             showToast('Share link copied!', 'success');
         });
@@ -2235,15 +2480,18 @@ function escapeHtml(text) {
 
 function init() {
     // Check URL for join code
+    // Check URL for actions that should auto-login as guest
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
+    const action = params.get('action');
     
     if (code) {
-        // Show join modal with code pre-filled
-        setTimeout(() => {
-            document.getElementById('join-code-input').value = code;
-            showJoinByCode();
-        }, 500);
+        state.pendingAction = 'code';
+        state.pendingCode = code;
+    } else if (action === 'private') {
+        state.pendingAction = 'private';
+    } else if (action === 'join') {
+        state.pendingAction = 'join';
     }
     
     // Load block cooldowns from localStorage
