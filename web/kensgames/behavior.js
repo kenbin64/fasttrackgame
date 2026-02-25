@@ -572,38 +572,148 @@
 
 
   /* ─────────────────────────────────────────────────
-     ARCADE SYNTH — φ-manifold procedural 80s music
-     Web Audio API · square/sawtooth oscillators
-     Fibonacci timing · pentatonic + chromatic runs
+     ARCADE SYNTH — Structured 80s song engine
+     Verse → Chorus → Verse → Chorus → Hook → Resolution
+     4/4 time · 130 BPM · A minor key
+     Web Audio API · zero audio files
      ───────────────────────────────────────────────── */
 
   const ArcadeSynth = (() => {
     let ctx = null;
     let master = null;
+    let compressor = null;
     let playing = false;
     let loopTimer = null;
 
-    /* φ-scaled pentatonic + minor scale (Hz) — multiple octaves */
-    const SCALES = {
-      /* C minor pentatonic across octaves */
-      bass:   [65.41, 73.42, 82.41, 98.00, 110.00, 130.81],
-      lead:   [261.63, 293.66, 311.13, 349.23, 392.00, 466.16, 523.25],
-      high:   [523.25, 587.33, 622.25, 698.46, 783.99, 932.33, 1046.50],
-      arp:    [130.81, 155.56, 174.61, 196.00, 233.08, 261.63, 311.13, 349.23],
+    /* ── Musical constants ── */
+    const BPM = 130;
+    const BEAT = 60 / BPM;              /* quarter note duration */
+    const BAR  = BEAT * 4;              /* 4/4 time: 4 beats per bar */
+    const EIGHTH = BEAT / 2;
+    const SIXTEENTH = BEAT / 4;
+
+    /* A minor scale frequencies — 3 octaves */
+    /* A  B  C  D  E  F  G  */
+    const NOTE = {
+      /* Octave 2 (bass) */
+      A2: 110.00, B2: 123.47, C3: 130.81, D3: 146.83,
+      E3: 164.81, F3: 174.61, G3: 196.00,
+      /* Octave 3 (mid) */
+      A3: 220.00, B3: 246.94, C4: 261.63, D4: 293.66,
+      E4: 329.63, F4: 349.23, G4: 392.00,
+      /* Octave 4 (lead) */
+      A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33,
+      E5: 659.26, F5: 698.46, G5: 783.99,
+      /* Octave 5 (sparkle) */
+      A5: 880.00, C6: 1046.50, E6: 1318.51,
+    };
+    const R = 0; /* rest */
+
+    /* ── Chord progressions (Am key) ── */
+    /* Verse:  Am → F → C → G   (i → VI → III → VII) */
+    /* Chorus: F → G → Am → Am  (VI → VII → i → i)   */
+    /* Hook:   F → G → C → Am   (VI → VII → III → i)  */
+    const CHORDS = {
+      Am: [NOTE.A2, NOTE.C3, NOTE.E3],
+      F:  [NOTE.F3, NOTE.A3, NOTE.C4],
+      C:  [NOTE.C3, NOTE.E3, NOTE.G3],
+      G:  [NOTE.G3, NOTE.B3, NOTE.D4],
+      Dm: [NOTE.D3, NOTE.F3, NOTE.A3],
     };
 
-    /* Fibonacci beat durations in seconds */
-    const BEATS = [0.089, 0.144, 0.233, 0.377, 0.610];
+    const VERSE_PROG   = ['Am', 'F',  'C',  'G'];
+    const CHORUS_PROG  = ['F',  'G',  'Am', 'Am'];
+    const HOOK_PROG    = ['F',  'G',  'C',  'Am'];
+    const RESOLVE_PROG = ['Dm', 'G',  'Am', 'Am'];
+
+    /* ── Melody patterns (scale degrees, 0=A, R=rest) ── */
+    /* Each entry: [noteFreq, durationInBeats] */
+
+    const VERSE_MELODY = [
+      /* Bar 1: pickup into the phrase */
+      [NOTE.E4, 1], [NOTE.E4, 0.5], [NOTE.D4, 0.5], [NOTE.C4, 1], [R, 1],
+      /* Bar 2: answering phrase */
+      [NOTE.D4, 0.5], [NOTE.E4, 0.5], [NOTE.F4, 1], [NOTE.E4, 1.5], [R, 0.5],
+      /* Bar 3: tension up */
+      [NOTE.G4, 1], [NOTE.A4, 0.5], [NOTE.G4, 0.5], [NOTE.E4, 1], [NOTE.D4, 1],
+      /* Bar 4: resolve down */
+      [NOTE.C4, 1], [NOTE.D4, 0.5], [NOTE.C4, 0.5], [NOTE.A3, 2],
+    ];
+
+    const CHORUS_MELODY = [
+      /* Bar 1: big jump — the HOOK phrase */
+      [NOTE.A4, 1], [NOTE.C5, 1], [NOTE.E5, 1.5], [R, 0.5],
+      /* Bar 2: step down */
+      [NOTE.D5, 0.5], [NOTE.C5, 0.5], [NOTE.A4, 1], [NOTE.G4, 1], [R, 0.5], [NOTE.G4, 0.5],
+      /* Bar 3: repeat hook high */
+      [NOTE.A4, 1], [NOTE.C5, 1], [NOTE.E5, 1], [NOTE.D5, 1],
+      /* Bar 4: resolution to root */
+      [NOTE.C5, 0.5], [NOTE.B4, 0.5], [NOTE.A4, 3],
+    ];
+
+    const HOOK_MELODY = [
+      /* Bar 1: catchy syncopated riff */
+      [NOTE.E5, 0.5], [NOTE.E5, 0.5], [R, 0.25], [NOTE.D5, 0.75], [NOTE.C5, 1], [R, 1],
+      /* Bar 2: answer */
+      [NOTE.D5, 0.5], [NOTE.E5, 0.5], [NOTE.G5, 1.5], [R, 0.5], [NOTE.E5, 1],
+      /* Bar 3: climb */
+      [NOTE.A4, 0.5], [NOTE.C5, 0.5], [NOTE.E5, 0.5], [NOTE.G5, 0.5], [NOTE.A5, 2],
+      /* Bar 4: dramatic resolve */
+      [NOTE.G5, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 1], [NOTE.A4, 2],
+    ];
+
+    const RESOLVE_MELODY = [
+      /* Bar 1: gentle descent */
+      [NOTE.E5, 1.5], [NOTE.D5, 0.5], [NOTE.C5, 1], [NOTE.A4, 1],
+      /* Bar 2: sigh */
+      [NOTE.B4, 1], [NOTE.A4, 1], [NOTE.G4, 2],
+      /* Bar 3: echo */
+      [NOTE.A4, 0.5], [R, 0.5], [NOTE.A4, 0.5], [R, 0.5], [NOTE.E4, 2],
+      /* Bar 4: final rest on root */
+      [NOTE.A3, 2], [R, 2],
+    ];
+
+    /* ── Bass patterns per chord (beats) ── */
+    const VERSE_BASS = [
+      /* root, 8th root, 5th walk, root */
+      [0, 1], [0, 0.5], [R, 0.5], [2, 1], [0, 1],
+    ];
+    const CHORUS_BASS = [
+      /* driving 8ths — root root 5th root */
+      [0, 0.5], [0, 0.5], [2, 0.5], [0, 0.5], [0, 0.5], [2, 0.5], [0, 0.5], [R, 0.5],
+    ];
+
+    /* ── Arp patterns (chord tone indices, per bar) ── */
+    const ARP_UP    = [0, 1, 2, 1, 0, 1, 2, 1];
+    const ARP_DOWN  = [2, 1, 0, 1, 2, 1, 0, 1];
+    const ARP_HOOK  = [0, 2, 1, 2, 0, 2, 1, 0];
+
+    /* ── Drum patterns (16 steps per bar) ── */
+    /*  K=kick  S=snare  H=closed-hat  O=open-hat  .=rest */
+    const DRUM_VERSE  = 'K.H.S.H.K.HOK.S.';
+    const DRUM_CHORUS = 'K.H.S.HOK.H.S.HO';
+    const DRUM_HOOK   = 'KKH.S.H.KKH.S.HO';
+    const DRUM_FILL   = 'K.SSS.SSK.SKS.KS';
 
     function init() {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+      /* Compressor for glue */
+      compressor = ctx.createDynamicsCompressor();
+      compressor.threshold.value = -20;
+      compressor.knee.value = 10;
+      compressor.ratio.value = 4;
+      compressor.connect(ctx.destination);
+
       master = ctx.createGain();
-      master.gain.value = 0.18;
-      master.connect(ctx.destination);
+      master.gain.value = 0.22;
+      master.connect(compressor);
     }
 
-    /* Create a note with envelope */
+    /* ── Sound generators ── */
+
     function playNote(freq, type, duration, startTime, vol, detune) {
+      if (freq === 0) return; /* rest */
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       const filter = ctx.createBiquadFilter();
@@ -613,208 +723,247 @@
       if (detune) osc.detune.value = detune;
 
       filter.type = 'lowpass';
-      filter.frequency.value = 2000 + freq * 2;
-      filter.Q.value = 1.5;
+      filter.frequency.value = Math.min(freq * 4, 6000);
+      filter.Q.value = 1.2;
 
       osc.connect(filter);
       filter.connect(gain);
       gain.connect(master);
 
       const t = startTime;
-      const v = vol || 0.3;
+      const v = vol || 0.15;
+      const attack = Math.min(0.015, duration * 0.1);
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(v, t + 0.01);
-      gain.gain.setValueAtTime(v, t + duration * 0.6);
+      gain.gain.linearRampToValueAtTime(v, t + attack);
+      gain.gain.setValueAtTime(v * 0.9, t + duration * 0.5);
       gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
 
       osc.start(t);
       osc.stop(t + duration + 0.05);
     }
 
-    /* Kick drum — low sine burst */
+    /* Chorus effect — dual detuned oscillators */
+    function playLead(freq, duration, startTime, vol) {
+      if (freq === 0) return;
+      playNote(freq, 'sawtooth', duration, startTime, vol * 0.6, 6);
+      playNote(freq * 1.003, 'sawtooth', duration, startTime, vol * 0.4, -6);
+    }
+
+    /* Pad — soft sustained chord tones */
+    function playPad(freq, duration, startTime, vol) {
+      if (freq === 0) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+
+      filter.type = 'lowpass';
+      filter.frequency.value = 1200;
+      filter.Q.value = 0.5;
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(master);
+
+      const t = startTime;
+      const v = vol || 0.04;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(v, t + duration * 0.15);
+      gain.gain.setValueAtTime(v * 0.8, t + duration * 0.7);
+      gain.gain.linearRampToValueAtTime(0, t + duration);
+
+      osc.start(t);
+      osc.stop(t + duration + 0.1);
+    }
+
     function kick(time) {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(150, time);
-      osc.frequency.exponentialRampToValueAtTime(30, time + 0.15);
-      gain.gain.setValueAtTime(0.5, time);
-      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
-      osc.connect(gain);
-      gain.connect(master);
-      osc.start(time);
-      osc.stop(time + 0.25);
+      osc.frequency.setValueAtTime(160, time);
+      osc.frequency.exponentialRampToValueAtTime(35, time + 0.12);
+      gain.gain.setValueAtTime(0.45, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
+      osc.connect(gain); gain.connect(master);
+      osc.start(time); osc.stop(time + 0.22);
     }
 
-    /* Hi-hat — noise burst */
-    function hihat(time, open) {
-      const bufferSize = ctx.sampleRate * 0.05;
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-
-      const noise = ctx.createBufferSource();
-      noise.buffer = buffer;
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'highpass';
-      filter.frequency.value = open ? 5000 : 8000;
-
-      const gain = ctx.createGain();
-      const dur = open ? 0.12 : 0.04;
-      gain.gain.setValueAtTime(open ? 0.12 : 0.08, time);
-      gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
-
-      noise.connect(filter);
-      filter.connect(gain);
-      gain.connect(master);
-      noise.start(time);
-      noise.stop(time + dur + 0.01);
-    }
-
-    /* Snare — noise + triangle */
     function snare(time) {
-      /* Noise part */
-      const bufSize = ctx.sampleRate * 0.1;
+      const bufSize = ctx.sampleRate * 0.08;
       const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
       const d = buf.getChannelData(0);
       for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
-      const ns = ctx.createBufferSource();
-      ns.buffer = buf;
-      const nf = ctx.createBiquadFilter();
-      nf.type = 'bandpass';
-      nf.frequency.value = 3000;
+      const ns = ctx.createBufferSource(); ns.buffer = buf;
+      const nf = ctx.createBiquadFilter(); nf.type = 'bandpass'; nf.frequency.value = 3500;
       const ng = ctx.createGain();
-      ng.gain.setValueAtTime(0.2, time);
-      ng.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
+      ng.gain.setValueAtTime(0.18, time);
+      ng.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
       ns.connect(nf); nf.connect(ng); ng.connect(master);
-      ns.start(time); ns.stop(time + 0.15);
+      ns.start(time); ns.stop(time + 0.12);
 
-      /* Tone part */
       const osc = ctx.createOscillator();
       const og = ctx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(200, time);
-      osc.frequency.exponentialRampToValueAtTime(80, time + 0.08);
-      og.gain.setValueAtTime(0.3, time);
-      og.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+      osc.frequency.setValueAtTime(180, time);
+      osc.frequency.exponentialRampToValueAtTime(70, time + 0.06);
+      og.gain.setValueAtTime(0.2, time);
+      og.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
       osc.connect(og); og.connect(master);
-      osc.start(time); osc.stop(time + 0.12);
+      osc.start(time); osc.stop(time + 0.1);
     }
 
-    /* ── Pattern generators ── */
-
-    /* Bass line — slow, pulsing square wave */
-    function scheduleBass(startTime, bars) {
-      let t = startTime;
-      for (let bar = 0; bar < bars; bar++) {
-        const rootIdx = [0, 0, 3, 2][bar % 4];
-        const root = SCALES.bass[rootIdx];
-        const fifth = SCALES.bass[(rootIdx + 3) % SCALES.bass.length];
-
-        playNote(root,  'square', 0.35, t, 0.2);
-        playNote(root,  'square', 0.2,  t + 0.5, 0.12);
-        playNote(fifth, 'square', 0.25, t + 0.75, 0.15);
-        playNote(root,  'square', 0.3,  t + 1.25, 0.18);
-
-        t += 1.6; /* ~φ seconds per bar */
-      }
-      return t;
+    function hihat(time, open) {
+      const len = open ? 0.08 : 0.03;
+      const bufSize = ctx.sampleRate * len;
+      const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+      const ns = ctx.createBufferSource(); ns.buffer = buf;
+      const f = ctx.createBiquadFilter(); f.type = 'highpass';
+      f.frequency.value = open ? 6000 : 9000;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(open ? 0.10 : 0.06, time);
+      g.gain.exponentialRampToValueAtTime(0.001, time + len);
+      ns.connect(f); f.connect(g); g.connect(master);
+      ns.start(time); ns.stop(time + len + 0.01);
     }
 
-    /* Lead melody — sawtooth arpeggios */
-    function scheduleLead(startTime, bars) {
-      let t = startTime;
-      const seq = [0, 2, 4, 6, 5, 3, 1, 3, 4, 2, 6, 5, 3, 0, 1, 4];
+    /* ── Section schedulers ── */
 
+    /* Schedule drums for N bars */
+    function scheduleDrums(t0, bars, pattern) {
       for (let bar = 0; bar < bars; bar++) {
-        const notesInBar = 3 + (bar % 3); /* 3-5 notes, Fibonacci-ish */
-        for (let n = 0; n < notesInBar; n++) {
-          const idx = seq[(bar * 5 + n) % seq.length];
-          const freq = SCALES.lead[idx % SCALES.lead.length];
-          const dur = BEATS[1 + (n % 3)];
-          /* Slight detuning for that 80s chorus effect */
-          playNote(freq, 'sawtooth', dur, t, 0.08, 5);
-          playNote(freq * 1.002, 'sawtooth', dur, t, 0.06, -5);
-          t += dur * PHI_I + 0.02;
+        const pat = (bar === bars - 1 && bars > 3) ? DRUM_FILL : pattern;
+        for (let s = 0; s < 16; s++) {
+          const t = t0 + bar * BAR + s * SIXTEENTH;
+          const ch = pat[s];
+          if (ch === 'K') kick(t);
+          else if (ch === 'S') snare(t);
+          else if (ch === 'H') hihat(t, false);
+          else if (ch === 'O') hihat(t, true);
         }
-        /* Rest between phrases */
-        t += BEATS[2];
       }
-      return t;
     }
 
-    /* Arpeggiator — fast repeating pattern */
-    function scheduleArp(startTime, bars) {
-      let t = startTime;
+    /* Schedule bass for N bars with chord progression */
+    function scheduleBass(t0, bars, chordProg, pattern) {
       for (let bar = 0; bar < bars; bar++) {
-        const pattern = bar % 2 === 0
-          ? [0, 2, 4, 6, 4, 2]
-          : [1, 3, 5, 7, 5, 3];
+        const chord = CHORDS[chordProg[bar % chordProg.length]];
+        let t = t0 + bar * BAR;
+        for (const [idx, dur] of pattern) {
+          if (idx !== R) {
+            const freq = chord[idx % chord.length];
+            playNote(freq, 'square', dur * BEAT * 0.9, t, 0.15);
+          }
+          t += dur * BEAT;
+        }
+      }
+    }
 
-        pattern.forEach((idx, i) => {
-          const freq = SCALES.arp[idx % SCALES.arp.length];
-          const dur = 0.089;
-          playNote(freq, 'square', dur, t, 0.05);
-          t += 0.1;
+    /* Schedule melody for 4 bars */
+    function scheduleMelody(t0, melody, vol) {
+      let t = t0;
+      for (const [freq, dur] of melody) {
+        playLead(freq, dur * BEAT * 0.85, t, vol || 0.10);
+        t += dur * BEAT;
+      }
+    }
+
+    /* Schedule arpeggiator for N bars */
+    function scheduleArp(t0, bars, chordProg, pattern, vol) {
+      for (let bar = 0; bar < bars; bar++) {
+        const chord = CHORDS[chordProg[bar % chordProg.length]];
+        for (let i = 0; i < pattern.length; i++) {
+          const t = t0 + bar * BAR + i * EIGHTH;
+          const freq = chord[pattern[i] % chord.length] * 2; /* octave up */
+          playNote(freq, 'square', EIGHTH * 0.7, t, vol || 0.04);
+        }
+      }
+    }
+
+    /* Schedule pad (sustained chord) for N bars */
+    function schedulePad(t0, bars, chordProg) {
+      for (let bar = 0; bar < bars; bar++) {
+        const chord = CHORDS[chordProg[bar % chordProg.length]];
+        chord.forEach(freq => {
+          playPad(freq * 2, BAR * 0.95, t0 + bar * BAR, 0.03);
         });
-        t += 0.2; /* breath */
       }
-      return t;
     }
 
-    /* Drums — 4-on-the-floor with syncopation */
-    function scheduleDrums(startTime, bars) {
-      let t = startTime;
-      const BPM = 120;
-      const beat = 60 / BPM;
+    /* ── Song structure ── */
+    /*  Intro (4) → Verse (4) → Chorus (4) → Verse2 (4) →
+        Chorus (4) → Hook (4) → Resolution (4) → [loop] = 28 bars */
 
-      for (let bar = 0; bar < bars; bar++) {
-        for (let step = 0; step < 8; step++) {
-          const st = t + step * (beat / 2);
-
-          /* Kick on 1, 3, and sometimes 4+ */
-          if (step === 0 || step === 4) kick(st);
-          if (step === 6 && bar % 2 === 1) kick(st);
-
-          /* Snare on 2 and 6 */
-          if (step === 2 || step === 6) snare(st);
-
-          /* Hi-hat pattern */
-          if (step % 2 === 0) hihat(st, false);
-          else hihat(st, step === 3 || step === 7);
-        }
-        t += beat * 4;
-      }
-      return t;
-    }
-
-    /* ── Sequencer — schedules overlapping layers ── */
-    function scheduleLoop() {
+    function scheduleSong() {
       if (!playing) return;
 
-      const now = ctx.currentTime + 0.1;
-      const BARS = 8; /* 8 bars per cycle */
+      const t0 = ctx.currentTime + 0.1;
+      let t = t0;
 
-      /* Layer all parts simultaneously */
-      scheduleDrums(now, BARS);
-      scheduleBass(now, BARS);
-      scheduleLead(now + 0.4, BARS); /* offset lead slightly */
-      scheduleArp(now + 0.2, BARS);
+      /* ── INTRO: 4 bars — drums build + arp only ── */
+      scheduleDrums(t, 2, 'K...H...K...H...');  /* sparse first 2 bars */
+      scheduleDrums(t + 2 * BAR, 2, DRUM_VERSE); /* full pattern bars 3-4 */
+      scheduleArp(t, 4, VERSE_PROG, ARP_UP, 0.03);
+      schedulePad(t, 4, VERSE_PROG);
+      t += 4 * BAR;
 
-      /* High twinkle accent every other cycle */
-      if (Math.random() > 0.4) {
-        let at = now + 1.6;
-        for (let i = 0; i < 5; i++) {
-          const freq = SCALES.high[Math.floor(Math.random() * SCALES.high.length)];
-          playNote(freq, 'sine', 0.3, at, 0.03);
-          at += BEATS[2 + Math.floor(Math.random() * 2)];
-        }
-      }
+      /* ── VERSE 1: 4 bars — melody enters ── */
+      scheduleDrums(t, 4, DRUM_VERSE);
+      scheduleBass(t, 4, VERSE_PROG, VERSE_BASS);
+      scheduleMelody(t, VERSE_MELODY, 0.10);
+      scheduleArp(t, 4, VERSE_PROG, ARP_UP, 0.025);
+      schedulePad(t, 4, VERSE_PROG);
+      t += 4 * BAR;
 
-      /* Schedule next loop chunk before this one ends */
-      const cycleDuration = (60 / 120) * 4 * BARS; /* seconds */
-      loopTimer = setTimeout(scheduleLoop, (cycleDuration - 1) * 1000);
+      /* ── CHORUS 1: 4 bars — energy up, driving bass ── */
+      scheduleDrums(t, 4, DRUM_CHORUS);
+      scheduleBass(t, 4, CHORUS_PROG, CHORUS_BASS);
+      scheduleMelody(t, CHORUS_MELODY, 0.13);
+      scheduleArp(t, 4, CHORUS_PROG, ARP_DOWN, 0.04);
+      schedulePad(t, 4, CHORUS_PROG);
+      t += 4 * BAR;
+
+      /* ── VERSE 2: 4 bars — melody with variation ── */
+      scheduleDrums(t, 4, DRUM_VERSE);
+      scheduleBass(t, 4, VERSE_PROG, VERSE_BASS);
+      /* Vary melody: transpose some notes up */
+      const verse2 = VERSE_MELODY.map(([f, d]) =>
+        [f === R ? R : f * (1 + (Math.random() > 0.7 ? 0.5 : 0)), d]
+      );
+      scheduleMelody(t, verse2, 0.09);
+      scheduleArp(t, 4, VERSE_PROG, ARP_DOWN, 0.03);
+      schedulePad(t, 4, VERSE_PROG);
+      t += 4 * BAR;
+
+      /* ── CHORUS 2: 4 bars — bigger ── */
+      scheduleDrums(t, 4, DRUM_CHORUS);
+      scheduleBass(t, 4, CHORUS_PROG, CHORUS_BASS);
+      scheduleMelody(t, CHORUS_MELODY, 0.15);
+      scheduleArp(t, 4, CHORUS_PROG, ARP_HOOK, 0.05);
+      schedulePad(t, 4, CHORUS_PROG);
+      t += 4 * BAR;
+
+      /* ── HOOK: 4 bars — catchy peak, maximum energy ── */
+      scheduleDrums(t, 4, DRUM_HOOK);
+      scheduleBass(t, 4, HOOK_PROG, CHORUS_BASS);
+      scheduleMelody(t, HOOK_MELODY, 0.16);
+      scheduleArp(t, 4, HOOK_PROG, ARP_HOOK, 0.055);
+      schedulePad(t, 4, HOOK_PROG);
+      t += 4 * BAR;
+
+      /* ── RESOLUTION: 4 bars — wind down, resolve to Am ── */
+      scheduleDrums(t, 4, DRUM_VERSE);
+      scheduleBass(t, 4, RESOLVE_PROG, VERSE_BASS);
+      scheduleMelody(t, RESOLVE_MELODY, 0.08);
+      schedulePad(t, 4, RESOLVE_PROG);
+      t += 4 * BAR;
+
+      /* Total: 28 bars. Schedule next cycle before this ends. */
+      const totalDuration = 28 * BAR; /* ~51.7 seconds at 130bpm */
+      loopTimer = setTimeout(scheduleSong, (totalDuration - 2) * 1000);
     }
 
     function start() {
@@ -822,7 +971,7 @@
       if (!ctx) init();
       if (ctx.state === 'suspended') ctx.resume();
       playing = true;
-      scheduleLoop();
+      scheduleSong();
     }
 
     function stop() {
