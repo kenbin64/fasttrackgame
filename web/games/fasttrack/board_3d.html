@@ -1081,6 +1081,9 @@
 
     const PLAYER_NAMES = ['Red', 'Teal', 'Violet', 'Gold', 'Azure', 'Pink'];
 
+    // Track safe zone planes for theme color updates
+    const safeZonePlanes = [];
+
     // ============================================================
     // MANIFOLD SUBSTRATE: Hole Registry (ButterflyFX)
     // Each hole has identity, type, position, and relationships
@@ -1451,12 +1454,14 @@
         // Lighting
         setupLighting();
 
-        // Board group
+        // Board group — render above backdrop layers
         boardGroup = new THREE.Group();
+        boardGroup.renderOrder = 1;
         scene.add(boardGroup);
 
-        // Peg group
+        // Peg group — render above board and backdrop
         pegGroup = new THREE.Group();
+        pegGroup.renderOrder = 2;
         scene.add(pegGroup);
 
         // Expose 3D globals for external modules (tooltips, tutorial)
@@ -1995,6 +2000,7 @@
             safePlaneMesh.rotation.z = -wedgeMidAngle;  // Align radially with wedge
             safePlaneMesh.position.set(safeCenterX, LINE_HEIGHT - 0.5, safeCenterZ);  // Raised to prevent flickering
             boardGroup.add(safePlaneMesh);
+            safeZonePlanes.push({ mesh: safePlaneMesh, playerIndex: i });
             
             // Place 4 holes using same t = h/5 interpolation as side holes
             for (let h = 1; h <= 4; h++) {
@@ -4267,6 +4273,14 @@
                 const newColor = palette.playerColors[playerIndex];
                 mesh.material.color.setHex(newColor);
                 if (mesh.material.emissive) mesh.material.emissive.setHex(newColor);
+                mesh.material.needsUpdate = true;
+            }
+        });
+        
+        // Update safe zone plane colors to match theme player colors
+        safeZonePlanes.forEach(({ mesh, playerIndex }) => {
+            if (palette.playerColors && palette.playerColors[playerIndex] && mesh.material) {
+                mesh.material.color.setHex(palette.playerColors[playerIndex]);
                 mesh.material.needsUpdate = true;
             }
         });

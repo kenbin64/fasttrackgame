@@ -226,6 +226,23 @@ const FastTrackThemes = {
             
             console.log('[FastTrackThemes] Theme created successfully. Backdrop layers:', this.backdropLayers.length, 'Scene objects:', this._sceneObjects.length);
             
+            // Ensure all backdrop/theme objects render behind the board and pegs
+            // Board renderOrder=1, Pegs renderOrder=2, so backdrop must be 0 or below
+            this._sceneObjects.forEach(obj => {
+                obj.renderOrder = -1;
+                if (obj.traverse) {
+                    obj.traverse(child => {
+                        child.renderOrder = -1;
+                        if (child.material) {
+                            const mats = Array.isArray(child.material) ? child.material : [child.material];
+                            mats.forEach(m => {
+                                m.depthWrite = false;
+                            });
+                        }
+                    });
+                }
+            });
+            
             // Trigger board retheming if function exists
             if (typeof window.applyBoardTheme === 'function') {
                 window.applyBoardTheme(this.getBoardPalette());
