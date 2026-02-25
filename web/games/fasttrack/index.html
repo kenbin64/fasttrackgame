@@ -492,40 +492,42 @@
                 <div class="bfx-info reveal">
                     <h3>Powered by ButterflyFX</h3>
                     <p>
-                        FastTrack runs on ButterflyFX Dimensional Programming — a revolutionary 
-                        computing paradigm that replaces traditional hierarchical structures with 
-                        a 7-level dimensional helix model based on ordered growth (Fibonacci/Golden Ratio).
+                        FastTrack runs on ButterflyFX Dimensional Programming — a computing 
+                        paradigm where dimensions ARE the computation. Seven Genesis layers, 
+                        each carrying all lower dimensions within it, governed by the golden 
+                        ratio (φ = 1.618) and the Fibonacci sequence.
                     </p>
                     <p>
-                        Just as nature spirals through DNA, galaxies, and growth patterns, ButterflyFX 
-                        navigates through dimensional transitions instead of iterating through data. 
-                        The result? Faster, smarter, more elegant software.
+                        Every point in the system exists in one of three states: Potential 
+                        (unaddressed possibility), Null (addressed but valueless — pure location), 
+                        or Manifest (addressed and valued). From these states, dimensions unfold — 
+                        not stacked, but carried. Each dimension IS an entire lower dimension.
                     </p>
                     
                     <div class="dimension-list">
                         <div class="dimension-item">
-                            <span>○</span> <span>D0: Void (Potential)</span>
+                            <span>✦</span> <span>1 · Spark — The First Light</span>
                         </div>
                         <div class="dimension-item">
-                            <span>•</span> <span>D1: Point (Identity)</span>
+                            <span>◈</span> <span>2 · Mirror — Reflection</span>
                         </div>
                         <div class="dimension-item">
-                            <span>━</span> <span>D2: Line (Relationship)</span>
+                            <span>⟷</span> <span>3 · Relation — Connection</span>
                         </div>
                         <div class="dimension-item">
-                            <span>▭</span> <span>D3: Width (Structure)</span>
+                            <span>◇</span> <span>4 · Form — Structure</span>
                         </div>
                         <div class="dimension-item">
-                            <span>▦</span> <span>D4: Plane (Manifestation)</span>
+                            <span>❋</span> <span>5 · Life — Animation</span>
                         </div>
                         <div class="dimension-item">
-                            <span>▣</span> <span>D5: Volume (Multiplicity)</span>
+                            <span>◎</span> <span>6 · Mind — Coherence</span>
                         </div>
                         <div class="dimension-item">
-                            <span>◉</span> <span>D6: Whole (Meaning)</span>
+                            <span>🦋</span> <span>7 · Completion — The Whole</span>
                         </div>
                         <div class="dimension-item">
-                            <span>🦋</span> <span>→ Next Spiral</span>
+                            <span>∞</span> <span>→ Next Spiral (φ unfolds)</span>
                         </div>
                     </div>
                     
@@ -824,114 +826,217 @@
     </footer>
     
     <script>
-        // Create floating particles
+        // ═══════════════════════════════════════════════════════════════════
+        // DIMENSIONAL PARTICLE SYSTEM
+        // Golden spiral field — Fibonacci-count particles, φ-scaled motion
+        // ═══════════════════════════════════════════════════════════════════
+        
         function createParticles() {
             const container = document.getElementById('particles');
-            const colors = ['#e74c3c', '#f39c12', '#3498db', '#9b59b6', '#27ae60'];
+            // Genesis layer colors — 7 layers
+            const colors = [
+                '#ff4466', // Spark (red)
+                '#ff6b9d', // Mirror (pink)
+                '#9b59b6', // Relation (purple)
+                '#3498db', // Form (blue)
+                '#40ffff', // Life (cyan)
+                '#ffd700', // Mind (gold)
+                '#27ae60'  // Completion (green)
+            ];
             
-            for (let i = 0; i < 30; i++) {
+            // Fibonacci count: 34 particles
+            for (let i = 0; i < 34; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 15 + 's';
-                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
-                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-                particle.style.width = (2 + Math.random() * 4) + 'px';
-                particle.style.height = particle.style.width;
+                // Golden spiral distribution
+                const angle = i * 2.39996322972865; // golden angle in radians
+                const r = Math.sqrt(i / 34) * 100;
+                particle.style.left = (50 + r * Math.cos(angle) * 0.5) + '%';
+                // Fibonacci-based animation timing
+                const fibDurations = [8, 13, 21, 34];
+                const dur = fibDurations[i % fibDurations.length];
+                particle.style.animationDelay = (i * 0.618) + 's';
+                particle.style.animationDuration = dur + 's';
+                particle.style.background = colors[i % colors.length];
+                // φ-scaled sizes: 2, 3, 5 pixels (Fibonacci)
+                const sizes = [2, 3, 5];
+                const size = sizes[i % sizes.length];
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
                 container.appendChild(particle);
             }
         }
         createParticles();
         
-        // 3D Background with Three.js
+        // ═══════════════════════════════════════════════════════════════════
+        // DIMENSIONAL 3D BACKDROP — Golden Spiral Geometry
+        // 7-layer depth, φ-governed proportions, Fibonacci structure
+        // ═══════════════════════════════════════════════════════════════════
+        
         function init3DBackground() {
             const canvas = document.getElementById('bg-canvas');
             const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            // Golden ratio FOV
+            const camera = new THREE.PerspectiveCamera(
+                55.6, // 360/φ³ ≈ golden FOV
+                window.innerWidth / window.innerHeight,
+                0.1, 1000
+            );
             const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
             
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             
-            // Create rotating hexagon wireframes
-            const hexagons = [];
-            const hexGeometry = new THREE.TorusGeometry(2, 0.02, 6, 6);
+            const PHI = 1.618033988749895;
+            const genesisColors = [
+                0xff4466, // Layer 1: Spark
+                0xff6b9d, // Layer 2: Mirror
+                0x9b59b6, // Layer 3: Relation
+                0x3498db, // Layer 4: Form
+                0x40ffff, // Layer 5: Life
+                0xffd700, // Layer 6: Mind
+                0x27ae60  // Layer 7: Completion
+            ];
             
-            for (let i = 0; i < 8; i++) {
-                const material = new THREE.MeshBasicMaterial({ 
-                    color: new THREE.Color().setHSL(i * 0.1, 0.7, 0.5),
+            // === GOLDEN SPIRAL RINGS ===
+            // 7 rings at Fibonacci radii, each a different Genesis layer
+            const rings = [];
+            const fibRadii = [1, 1.618, 2.618, 4.236, 6.854, 11.09, 17.944];
+            
+            for (let i = 0; i < 7; i++) {
+                const radius = fibRadii[i] * 0.3;
+                const geometry = new THREE.TorusGeometry(radius, 0.015, 8, 64);
+                const material = new THREE.MeshBasicMaterial({
+                    color: genesisColors[i],
                     transparent: true,
-                    opacity: 0.3
+                    opacity: 0.25 - i * 0.02
                 });
-                const hex = new THREE.Mesh(hexGeometry, material);
-                hex.position.z = -5 - i * 2;
-                hex.rotation.x = Math.random() * Math.PI;
-                hex.userData = { speed: 0.002 + Math.random() * 0.005 };
-                hexagons.push(hex);
-                scene.add(hex);
+                const ring = new THREE.Mesh(geometry, material);
+                ring.position.z = -3 - i * PHI;
+                ring.rotation.x = Math.PI * 0.3 + i * 0.1;
+                ring.rotation.y = i * (Math.PI * 2 / PHI); // golden angle rotation
+                ring.userData = {
+                    baseSpeed: 0.003 / (i + 1),
+                    layer: i + 1
+                };
+                rings.push(ring);
+                scene.add(ring);
             }
             
-            // Add some floating spheres
-            const spheres = [];
-            for (let i = 0; i < 20; i++) {
-                const geometry = new THREE.SphereGeometry(0.05 + Math.random() * 0.1, 8, 8);
-                const material = new THREE.MeshBasicMaterial({ 
-                    color: new THREE.Color().setHSL(Math.random(), 0.8, 0.6),
+            // === FIBONACCI SPIRAL POINTS ===
+            // 55 points (Fibonacci) arranged in golden spiral
+            const spiralPoints = [];
+            const goldenAngle = Math.PI * (3 - Math.sqrt(5)); // ~137.5°
+            
+            for (let i = 0; i < 55; i++) {
+                const theta = i * goldenAngle;
+                const r = Math.sqrt(i) * 0.5;
+                const layerIndex = i % 7;
+                
+                const geometry = new THREE.SphereGeometry(
+                    0.02 + (i % 3) * 0.015, // Fibonacci-varied sizes
+                    6, 6
+                );
+                const material = new THREE.MeshBasicMaterial({
+                    color: genesisColors[layerIndex],
                     transparent: true,
-                    opacity: 0.6
+                    opacity: 0.5
                 });
                 const sphere = new THREE.Mesh(geometry, material);
+                
                 sphere.position.set(
-                    (Math.random() - 0.5) * 10,
-                    (Math.random() - 0.5) * 10,
-                    -Math.random() * 10 - 2
+                    r * Math.cos(theta),
+                    r * Math.sin(theta),
+                    -5 - (i / 55) * 13  // Fibonacci depth spread
                 );
-                sphere.userData = { 
-                    speedX: (Math.random() - 0.5) * 0.02,
-                    speedY: (Math.random() - 0.5) * 0.02
+                
+                sphere.userData = {
+                    origX: sphere.position.x,
+                    origY: sphere.position.y,
+                    origZ: sphere.position.z,
+                    phase: i * PHI,
+                    speed: 0.001 + (i % 5) * 0.0005,
+                    layer: layerIndex
                 };
-                spheres.push(sphere);
+                
+                spiralPoints.push(sphere);
                 scene.add(sphere);
             }
             
+            // === DIMENSIONAL HELIX ===
+            // Double helix (DNA-like) at center — the manifold spine
+            const helixPoints1 = [];
+            const helixPoints2 = [];
+            const helixSteps = 89; // Fibonacci
+            
+            for (let i = 0; i < helixSteps; i++) {
+                const t = i / helixSteps;
+                const angle = t * Math.PI * 8;
+                const r = 0.8;
+                const z = -20 + t * 15;
+                
+                helixPoints1.push(new THREE.Vector3(
+                    r * Math.cos(angle), r * Math.sin(angle), z
+                ));
+                helixPoints2.push(new THREE.Vector3(
+                    r * Math.cos(angle + Math.PI), r * Math.sin(angle + Math.PI), z
+                ));
+            }
+            
+            const helixMat1 = new THREE.LineBasicMaterial({ color: 0xff6b9d, transparent: true, opacity: 0.15 });
+            const helixMat2 = new THREE.LineBasicMaterial({ color: 0x40ffff, transparent: true, opacity: 0.15 });
+            
+            const helixGeo1 = new THREE.BufferGeometry().setFromPoints(helixPoints1);
+            const helixGeo2 = new THREE.BufferGeometry().setFromPoints(helixPoints2);
+            
+            const helix1 = new THREE.Line(helixGeo1, helixMat1);
+            const helix2 = new THREE.Line(helixGeo2, helixMat2);
+            scene.add(helix1);
+            scene.add(helix2);
+            
             camera.position.z = 5;
             
-            // Mouse interaction
+            // Mouse parallax — φ-scaled sensitivity
             let mouseX = 0, mouseY = 0;
             document.addEventListener('mousemove', (e) => {
-                mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-                mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+                mouseX = (e.clientX / window.innerWidth - 0.5) * PHI;
+                mouseY = (e.clientY / window.innerHeight - 0.5) * PHI;
             });
             
+            let frame = 0;
             function animate() {
                 requestAnimationFrame(animate);
+                frame++;
                 
-                // Rotate hexagons
-                hexagons.forEach((hex, i) => {
-                    hex.rotation.x += hex.userData.speed;
-                    hex.rotation.z += hex.userData.speed * 0.5;
+                // Rotate rings at layer-specific speeds
+                rings.forEach((ring) => {
+                    ring.rotation.x += ring.userData.baseSpeed;
+                    ring.rotation.z += ring.userData.baseSpeed * 0.618;
                 });
                 
-                // Move spheres
-                spheres.forEach(sphere => {
-                    sphere.position.x += sphere.userData.speedX;
-                    sphere.position.y += sphere.userData.speedY;
-                    
-                    if (Math.abs(sphere.position.x) > 5) sphere.userData.speedX *= -1;
-                    if (Math.abs(sphere.position.y) > 5) sphere.userData.speedY *= -1;
+                // Pulse spiral points along golden angle paths
+                spiralPoints.forEach((sphere) => {
+                    const ud = sphere.userData;
+                    const t = frame * ud.speed;
+                    sphere.position.x = ud.origX + Math.sin(t + ud.phase) * 0.15;
+                    sphere.position.y = ud.origY + Math.cos(t * PHI + ud.phase) * 0.15;
+                    sphere.material.opacity = 0.3 + Math.sin(t * 2 + ud.phase) * 0.2;
                 });
                 
-                // Camera follows mouse slightly
-                camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.02;
-                camera.position.y += (-mouseY * 0.5 - camera.position.y) * 0.02;
-                camera.lookAt(scene.position);
+                // Rotate helices slowly
+                helix1.rotation.z += 0.001;
+                helix2.rotation.z += 0.001;
+                
+                // Camera follows mouse — φ-damped
+                camera.position.x += (mouseX * 0.618 - camera.position.x) * 0.02;
+                camera.position.y += (-mouseY * 0.618 - camera.position.y) * 0.02;
+                camera.lookAt(0, 0, -5);
                 
                 renderer.render(scene, camera);
             }
             
             animate();
             
-            // Handle resize
             window.addEventListener('resize', () => {
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
@@ -939,7 +1044,6 @@
             });
         }
         
-        // Initialize 3D
         if (typeof THREE !== 'undefined') {
             init3DBackground();
         }
@@ -977,31 +1081,28 @@
             });
         });
         
-        // Parallax on scroll
+        // Dimensional parallax — 7-layer depth
         window.addEventListener('scroll', () => {
             const scrolled = window.pageYOffset;
             const hero = document.querySelector('.hero');
             if (hero) {
-                hero.style.transform = `translateY(${scrolled * 0.3}px)`;
+                hero.style.transform = `translateY(${scrolled * 0.236}px)`; // φ^-2 parallax
+                hero.style.opacity = Math.max(0, 1 - scrolled * 0.001);
             }
         });
 
         // Force clear old service worker caches & re-register latest SW
         if ('serviceWorker' in navigator) {
-            // Clear ALL caches from old SW versions
             caches.keys().then(names => {
                 names.forEach(name => {
                     if (!name.includes('v2.0.0')) {
                         caches.delete(name);
-                        console.log('[SW] Deleted old cache:', name);
                     }
                 });
             });
-            // Register latest SW (network-first for HTML)
             navigator.serviceWorker.register('sw.js').then(reg => {
                 reg.update();
-                console.log('[SW] Registered & updated');
-            }).catch(err => console.warn('[SW] Registration failed:', err));
+            }).catch(() => {});
         }
     </script>
 </body>
