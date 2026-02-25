@@ -1,5 +1,12 @@
-/* board-3d.css - Extracted from board_3d.html inline styles */
-/* ButterflyFX FastTrack Game Board Styles */
+/**
+ * ═══════════════════════════════════════════════════════════════
+ * FAST TRACK — 3D Game Board Styles (Dimensional Design System)
+ * ═══════════════════════════════════════════════════════════════
+ * Layer 4 (Form) — The game board is structure becoming shape.
+ * Golden ratio proportions, Fibonacci spacing.
+ * The board IS a manifold — every cell a dimension.
+ * @canonical dimensional-responsive.css, DIMENSIONAL_GENESIS.md
+ */
 
 /* === Main Game Styles === */
         * { margin: 0; padding: 0; box-sizing: border-box; }
