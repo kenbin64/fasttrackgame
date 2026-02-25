@@ -572,6 +572,295 @@
 
 
   /* ─────────────────────────────────────────────────
+     ARCADE SYNTH — φ-manifold procedural 80s music
+     Web Audio API · square/sawtooth oscillators
+     Fibonacci timing · pentatonic + chromatic runs
+     ───────────────────────────────────────────────── */
+
+  const ArcadeSynth = (() => {
+    let ctx = null;
+    let master = null;
+    let playing = false;
+    let loopTimer = null;
+
+    /* φ-scaled pentatonic + minor scale (Hz) — multiple octaves */
+    const SCALES = {
+      /* C minor pentatonic across octaves */
+      bass:   [65.41, 73.42, 82.41, 98.00, 110.00, 130.81],
+      lead:   [261.63, 293.66, 311.13, 349.23, 392.00, 466.16, 523.25],
+      high:   [523.25, 587.33, 622.25, 698.46, 783.99, 932.33, 1046.50],
+      arp:    [130.81, 155.56, 174.61, 196.00, 233.08, 261.63, 311.13, 349.23],
+    };
+
+    /* Fibonacci beat durations in seconds */
+    const BEATS = [0.089, 0.144, 0.233, 0.377, 0.610];
+
+    function init() {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      master = ctx.createGain();
+      master.gain.value = 0.18;
+      master.connect(ctx.destination);
+    }
+
+    /* Create a note with envelope */
+    function playNote(freq, type, duration, startTime, vol, detune) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = type;
+      osc.frequency.value = freq;
+      if (detune) osc.detune.value = detune;
+
+      filter.type = 'lowpass';
+      filter.frequency.value = 2000 + freq * 2;
+      filter.Q.value = 1.5;
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(master);
+
+      const t = startTime;
+      const v = vol || 0.3;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(v, t + 0.01);
+      gain.gain.setValueAtTime(v, t + duration * 0.6);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+
+      osc.start(t);
+      osc.stop(t + duration + 0.05);
+    }
+
+    /* Kick drum — low sine burst */
+    function kick(time) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(150, time);
+      osc.frequency.exponentialRampToValueAtTime(30, time + 0.15);
+      gain.gain.setValueAtTime(0.5, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
+      osc.connect(gain);
+      gain.connect(master);
+      osc.start(time);
+      osc.stop(time + 0.25);
+    }
+
+    /* Hi-hat — noise burst */
+    function hihat(time, open) {
+      const bufferSize = ctx.sampleRate * 0.05;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = open ? 5000 : 8000;
+
+      const gain = ctx.createGain();
+      const dur = open ? 0.12 : 0.04;
+      gain.gain.setValueAtTime(open ? 0.12 : 0.08, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(master);
+      noise.start(time);
+      noise.stop(time + dur + 0.01);
+    }
+
+    /* Snare — noise + triangle */
+    function snare(time) {
+      /* Noise part */
+      const bufSize = ctx.sampleRate * 0.1;
+      const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+      const ns = ctx.createBufferSource();
+      ns.buffer = buf;
+      const nf = ctx.createBiquadFilter();
+      nf.type = 'bandpass';
+      nf.frequency.value = 3000;
+      const ng = ctx.createGain();
+      ng.gain.setValueAtTime(0.2, time);
+      ng.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
+      ns.connect(nf); nf.connect(ng); ng.connect(master);
+      ns.start(time); ns.stop(time + 0.15);
+
+      /* Tone part */
+      const osc = ctx.createOscillator();
+      const og = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(200, time);
+      osc.frequency.exponentialRampToValueAtTime(80, time + 0.08);
+      og.gain.setValueAtTime(0.3, time);
+      og.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+      osc.connect(og); og.connect(master);
+      osc.start(time); osc.stop(time + 0.12);
+    }
+
+    /* ── Pattern generators ── */
+
+    /* Bass line — slow, pulsing square wave */
+    function scheduleBass(startTime, bars) {
+      let t = startTime;
+      for (let bar = 0; bar < bars; bar++) {
+        const rootIdx = [0, 0, 3, 2][bar % 4];
+        const root = SCALES.bass[rootIdx];
+        const fifth = SCALES.bass[(rootIdx + 3) % SCALES.bass.length];
+
+        playNote(root,  'square', 0.35, t, 0.2);
+        playNote(root,  'square', 0.2,  t + 0.5, 0.12);
+        playNote(fifth, 'square', 0.25, t + 0.75, 0.15);
+        playNote(root,  'square', 0.3,  t + 1.25, 0.18);
+
+        t += 1.6; /* ~φ seconds per bar */
+      }
+      return t;
+    }
+
+    /* Lead melody — sawtooth arpeggios */
+    function scheduleLead(startTime, bars) {
+      let t = startTime;
+      const seq = [0, 2, 4, 6, 5, 3, 1, 3, 4, 2, 6, 5, 3, 0, 1, 4];
+
+      for (let bar = 0; bar < bars; bar++) {
+        const notesInBar = 3 + (bar % 3); /* 3-5 notes, Fibonacci-ish */
+        for (let n = 0; n < notesInBar; n++) {
+          const idx = seq[(bar * 5 + n) % seq.length];
+          const freq = SCALES.lead[idx % SCALES.lead.length];
+          const dur = BEATS[1 + (n % 3)];
+          /* Slight detuning for that 80s chorus effect */
+          playNote(freq, 'sawtooth', dur, t, 0.08, 5);
+          playNote(freq * 1.002, 'sawtooth', dur, t, 0.06, -5);
+          t += dur * PHI_I + 0.02;
+        }
+        /* Rest between phrases */
+        t += BEATS[2];
+      }
+      return t;
+    }
+
+    /* Arpeggiator — fast repeating pattern */
+    function scheduleArp(startTime, bars) {
+      let t = startTime;
+      for (let bar = 0; bar < bars; bar++) {
+        const pattern = bar % 2 === 0
+          ? [0, 2, 4, 6, 4, 2]
+          : [1, 3, 5, 7, 5, 3];
+
+        pattern.forEach((idx, i) => {
+          const freq = SCALES.arp[idx % SCALES.arp.length];
+          const dur = 0.089;
+          playNote(freq, 'square', dur, t, 0.05);
+          t += 0.1;
+        });
+        t += 0.2; /* breath */
+      }
+      return t;
+    }
+
+    /* Drums — 4-on-the-floor with syncopation */
+    function scheduleDrums(startTime, bars) {
+      let t = startTime;
+      const BPM = 120;
+      const beat = 60 / BPM;
+
+      for (let bar = 0; bar < bars; bar++) {
+        for (let step = 0; step < 8; step++) {
+          const st = t + step * (beat / 2);
+
+          /* Kick on 1, 3, and sometimes 4+ */
+          if (step === 0 || step === 4) kick(st);
+          if (step === 6 && bar % 2 === 1) kick(st);
+
+          /* Snare on 2 and 6 */
+          if (step === 2 || step === 6) snare(st);
+
+          /* Hi-hat pattern */
+          if (step % 2 === 0) hihat(st, false);
+          else hihat(st, step === 3 || step === 7);
+        }
+        t += beat * 4;
+      }
+      return t;
+    }
+
+    /* ── Sequencer — schedules overlapping layers ── */
+    function scheduleLoop() {
+      if (!playing) return;
+
+      const now = ctx.currentTime + 0.1;
+      const BARS = 8; /* 8 bars per cycle */
+
+      /* Layer all parts simultaneously */
+      scheduleDrums(now, BARS);
+      scheduleBass(now, BARS);
+      scheduleLead(now + 0.4, BARS); /* offset lead slightly */
+      scheduleArp(now + 0.2, BARS);
+
+      /* High twinkle accent every other cycle */
+      if (Math.random() > 0.4) {
+        let at = now + 1.6;
+        for (let i = 0; i < 5; i++) {
+          const freq = SCALES.high[Math.floor(Math.random() * SCALES.high.length)];
+          playNote(freq, 'sine', 0.3, at, 0.03);
+          at += BEATS[2 + Math.floor(Math.random() * 2)];
+        }
+      }
+
+      /* Schedule next loop chunk before this one ends */
+      const cycleDuration = (60 / 120) * 4 * BARS; /* seconds */
+      loopTimer = setTimeout(scheduleLoop, (cycleDuration - 1) * 1000);
+    }
+
+    function start() {
+      if (playing) return;
+      if (!ctx) init();
+      if (ctx.state === 'suspended') ctx.resume();
+      playing = true;
+      scheduleLoop();
+    }
+
+    function stop() {
+      playing = false;
+      if (loopTimer) { clearTimeout(loopTimer); loopTimer = null; }
+    }
+
+    function toggle() {
+      if (playing) stop(); else start();
+      return playing;
+    }
+
+    function isPlaying() { return playing; }
+
+    return { start, stop, toggle, isPlaying };
+  })();
+
+
+  /* ─────────────────────────────────────────────────
+     MUSIC TOGGLE — Wired to DOM button
+     ───────────────────────────────────────────────── */
+
+  function initMusicToggle() {
+    const btn = document.getElementById('music-toggle');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+      const on = ArcadeSynth.toggle();
+      btn.classList.toggle('music-on', on);
+      btn.classList.toggle('music-off', !on);
+      btn.setAttribute('aria-label', on ? 'Mute arcade music' : 'Play arcade music');
+      btn.querySelector('.music-icon').textContent = on ? '🔊' : '🔇';
+      btn.querySelector('.music-label').textContent = on ? 'MUSIC ON' : 'MUSIC OFF';
+    });
+  }
+
+
+  /* ─────────────────────────────────────────────────
      ANIMATION LOOP — z = x·y manifold surface
      ───────────────────────────────────────────────── */
 
@@ -591,6 +880,7 @@
     initScrollReveal();
     initCRTFlicker();
     initMouse();
+    initMusicToggle();
 
     function loop(time) {
       if (drawStars) drawStars(time);
