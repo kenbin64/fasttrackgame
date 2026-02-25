@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ken's Games — Play Free Online Board Games</title>
+  <meta name="description" content="Play free online board games at Ken's Games. Fast Track — a strategic card &amp; peg racing board game for 2-4 players with 7 stunning 3D themes, smart AI, and multiplayer.">
+  <meta name="keywords" content="free online games, board games online, fast track, card game, strategy game, multiplayer games, Ken's Games">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://kensgames.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Ken's Games">
+  <meta property="og:title" content="Ken's Games — Free Online Board Games">
+  <meta property="og:description" content="Play free multiplayer board games. Fast Track, strategy, cards — all in your browser. No download!">
+  <meta property="og:url" content="https://kensgames.com/">
+  <meta property="og:image" content="https://kensgames.com/fasttrack/assets/images/og-preview.png">
+  <meta property="og:image:width" content="1527">
+  <meta property="og:image:height" content="1024">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ken's Games — Free Online Board Games">
+  <meta name="twitter:description" content="Play free multiplayer board games. Strategy, racing, cards — all in your browser!">
+  <meta name="twitter:image" content="https://kensgames.com/fasttrack/assets/images/og-preview.png">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/fasttrack/assets/images/ftLogo.png" type="image/png">
+  <link rel="apple-touch-icon" href="/fasttrack/assets/images/ftLogo.png">
+
+  <!-- Fonts — Orbitron for titles, Rajdhani for body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Manifold substrate — ZERO inline CSS -->
+  <link rel="stylesheet" href="substrate.css">
+</head>
+<body>
+
+  <!-- ═══ LAYER 1 · SPARK — Void canvases ═══ -->
+  <canvas id="starfield" data-layer="void"></canvas>
+  <canvas id="game-sparks" data-layer="void"></canvas>
+
+  <!-- ═══ LAYER 2 · MIRROR — Multi-layer parallax depth field ═══ -->
+  <div class="parallax-bg" aria-hidden="true">
+    <div class="depth-layer" data-depth="2">
+      <span class="float-piece">♠</span>
+      <span class="float-piece">♦</span>
+    </div>
+    <div class="depth-layer" data-depth="3">
+      <span class="float-piece">🎲</span>
+      <span class="float-piece">♣</span>
+    </div>
+    <div class="depth-layer" data-depth="4">
+      <span class="float-piece">♥</span>
+      <span class="float-piece">🏆</span>
+    </div>
+    <div class="depth-layer" data-depth="5">
+      <span class="float-piece">🃏</span>
+    </div>
+    <div class="light-cone"></div>
+  </div>
+
+  <!-- ═══ LAYER 6 · MIND — Navigation ═══ -->
+  <header>
+    <a href="/" class="logo">
+      <span class="logo-glow">KEN'S GAMES</span>
+    </a>
+    <nav>
+      <a href="#games">Games</a>
+      <a href="#fasttrack">Fast Track</a>
+      <a href="#play">Play Now</a>
+      <a href="#coming-soon">Coming Soon</a>
+    </nav>
+    <button class="burger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- Mobile drawer -->
+  <div class="overlay" id="overlay"></div>
+  <aside class="drawer" id="drawer">
+    <button class="drawer-close" aria-label="Close menu">&times;</button>
+    <nav>
+      <a href="#games">Games</a>
+      <a href="#fasttrack">Fast Track</a>
+      <a href="#play">Play Now</a>
+      <a href="#coming-soon">Coming Soon</a>
+    </nav>
+  </aside>
+
+  <!-- ═══ CONTENT — 3D depth world ═══ -->
+  <div class="depth-world">
+    <main>
+
+      <!-- ═══ LAYER 7 · HERO ═══ -->
+      <section class="hero" id="home">
+        <h1 class="hero-title reveal">
+          <span class="line1">Welcome to</span>
+          <span class="line2">Ken's Games</span>
+        </h1>
+        <p class="hero-subtitle reveal">
+          Free multiplayer board games in your browser.
+          Strategy. Skill. Fun. No download. No ads. Just play.
+        </p>
+        <div class="play-buttons reveal">
+          <a href="/fasttrack/" class="btn btn-fire btn-lg">Play Fast Track</a>
+          <a href="#games" class="btn btn-glass btn-lg">Browse Games</a>
+        </div>
+        <div class="scroll-hint reveal">
+          <span>Scroll to explore</span>
+          <span class="scroll-arrow"></span>
+        </div>
+      </section>
+
+      <!-- ═══ FEATURED GAME — FAST TRACK ═══ -->
+      <section id="fasttrack">
+        <div class="section-head reveal">
+          <span class="section-tag">Featured Game</span>
+          <h2>Fast Track</h2>
+          <p class="sub">A strategic card &amp; peg racing board game for 2–4 players</p>
+        </div>
+
+        <div class="featured-card reveal">
+          <span class="game-badge">Most Popular</span>
+          <img class="game-logo" src="/fasttrack/assets/images/ftLogo.png" alt="Fast Track Logo"
+               width="233" height="233">
+          <h3>Race to Victory</h3>
+          <p>Draw cards. Move pegs. Take shortcuts. Capture opponents.
+            Race around a stunning 3D board across 7 unique themes —
+            from the fiery cosmos of Space Ace to the neon-lit Cyberpunk Track.</p>
+
+          <div class="stats">
+            <div class="stat">
+              <span class="stat-value fire-text">2–4</span>
+              <span class="stat-label">Players</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value fire-text">7</span>
+              <span class="stat-label">3D Themes</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value fire-text">13</span>
+              <span class="stat-label">Card Types</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value fire-text">AI</span>
+              <span class="stat-label">Smart Bots</span>
+            </div>
+          </div>
+
+          <div class="play-buttons">
+            <a href="/fasttrack/" class="btn btn-fire btn-lg">Play Now — Free</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ PLAY MODES ═══ -->
+      <section id="play">
+        <div class="section-head reveal">
+          <span class="section-tag">Choose Your Game</span>
+          <h2>Ways to Play</h2>
+          <p class="sub">Jump in alone, invite friends, or play strangers worldwide</p>
+        </div>
+
+        <div class="grid grid-4 reveal">
+          <a href="/fasttrack/ai_setup.html" class="mode-card">
+            <span class="mode-icon">🤖</span>
+            <span class="mode-badge">Solo</span>
+            <h4>vs AI Bots</h4>
+            <p>Play against 1–3 smart AI opponents. Practice strategies. Learn the board.</p>
+          </a>
+
+          <a href="/fasttrack/lobby.html?action=private" class="mode-card">
+            <span class="mode-icon">🔒</span>
+            <span class="mode-badge">Private</span>
+            <h4>Private Game</h4>
+            <p>Create a room. Share the code. Play with friends — remote game night!</p>
+          </a>
+
+          <a href="/fasttrack/lobby.html?action=join" class="mode-card">
+            <span class="mode-icon">🎫</span>
+            <span class="mode-badge">Join</span>
+            <h4>Join by Code</h4>
+            <p>Have a code? Enter it to jump into a friend's private game.</p>
+          </a>
+
+          <a href="/fasttrack/play.html" class="mode-card">
+            <span class="mode-icon">🌍</span>
+            <span class="mode-badge">Live</span>
+            <h4>Multiplayer</h4>
+            <p>Instant match with players worldwide. Competitive. Real-time. Thrilling.</p>
+          </a>
+        </div>
+      </section>
+
+      <!-- ═══ GALLERY ═══ -->
+      <section id="gallery">
+        <div class="section-head reveal">
+          <span class="section-tag">Screenshots</span>
+          <h2>See It in Action</h2>
+        </div>
+
+        <div class="gallery reveal">
+          <figure class="gallery-item">
+            <img src="/fasttrack/assets/images/promoSpaceAceFT.png"
+                 alt="Fast Track — Space Ace theme with 3D board" loading="lazy">
+            <figcaption class="caption">Space Ace Theme</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <img src="/fasttrack/assets/images/ftpromo1.png"
+                 alt="Fast Track — gameplay with cards and pegs" loading="lazy">
+            <figcaption class="caption">Strategic Gameplay</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <img src="/fasttrack/assets/images/og-preview.png"
+                 alt="Fast Track — game overview" loading="lazy">
+            <figcaption class="caption">Race to Victory</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- ═══ ALL GAMES ═══ -->
+      <section id="games">
+        <div class="section-head reveal">
+          <span class="section-tag">Game Library</span>
+          <h2>All Games</h2>
+          <p class="sub">More games in development — Ken's workshop never sleeps</p>
+        </div>
+
+        <div class="grid grid-3 reveal">
+          <!-- Fast Track — live -->
+          <a href="/fasttrack/" class="game-card">
+            <span class="info-icon">🏁</span>
+            <h3>Fast Track</h3>
+            <p>Card &amp; peg racing. 7 3D themes. 2–4 players. AI bots. Multiplayer.</p>
+            <span class="mode-badge">Play Now</span>
+          </a>
+
+          <!-- Coming soon titles -->
+          <div class="game-card coming-soon">
+            <span class="info-icon">♟️</span>
+            <h3>Dimensional Chess</h3>
+            <p>Chess reimagined across 3 dimensional boards with new pieces and rules.</p>
+          </div>
+
+          <div class="game-card coming-soon">
+            <span class="info-icon">🃏</span>
+            <h3>Helix Hold'em</h3>
+            <p>Poker meets dimensional theory. Cards exist in superposition until observed.</p>
+          </div>
+
+          <div class="game-card coming-soon">
+            <span class="info-icon">🎯</span>
+            <h3>Manifold Darts</h3>
+            <p>Physics-based darts on a curved manifold surface. φ-scored precision.</p>
+          </div>
+
+          <div class="game-card coming-soon">
+            <span class="info-icon">🧩</span>
+            <h3>Fibonacci Puzzle</h3>
+            <p>Arrange golden-ratio tiles on a spiral board. Meditative. Infinite.</p>
+          </div>
+
+          <div class="game-card coming-soon">
+            <span class="info-icon">⚔️</span>
+            <h3>Peg Wars</h3>
+            <p>Territorial strategy. Move pegs to claim hexes. Last standing wins.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ HOW IT WORKS — Fast Track ═══ -->
+      <section id="how-to-play">
+        <div class="section-head reveal">
+          <span class="section-tag">Learn Fast Track</span>
+          <h2>How to Play</h2>
+          <p class="sub">Simple rules, deep strategy. Master it in one round.</p>
+        </div>
+
+        <div class="grid grid-3 reveal">
+          <div class="info-card">
+            <span class="info-number">1</span>
+            <h4>Draw a Card</h4>
+            <p>Each turn, draw from your deck. Number cards move, face cards trigger special actions.</p>
+          </div>
+          <div class="info-card">
+            <span class="info-number">2</span>
+            <h4>Move Your Peg</h4>
+            <p>Move the number of spaces shown. Aces enter from home, Kings start from base.</p>
+          </div>
+          <div class="info-card">
+            <span class="info-number">3</span>
+            <h4>Take Shortcuts</h4>
+            <p>Land on a fast-track arrow to jump ahead. Strategic positioning wins.</p>
+          </div>
+          <div class="info-card">
+            <span class="info-number">4</span>
+            <h4>Capture Opponents</h4>
+            <p>Land on an enemy peg to send them home. But safe zones protect!</p>
+          </div>
+          <div class="info-card">
+            <span class="info-number">5</span>
+            <h4>Use Specials</h4>
+            <p>Jacks jump, Queens reverse, Jokers are wild! Master every card's power.</p>
+          </div>
+          <div class="info-card">
+            <span class="info-number">6</span>
+            <h4>Reach Home</h4>
+            <p>First player to move all 4 pegs into the finish zone wins. Victory is golden!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ CTA — PLAY NOW ═══ -->
+      <section class="cta-final reveal">
+        <h2>Ready to Play?</h2>
+        <p class="sub">Free. Instant. No download. Just pure games.</p>
+        <div class="play-buttons">
+          <a href="/fasttrack/" class="btn btn-fire btn-lg">Launch Fast Track</a>
+          <a href="/fasttrack/ai_setup.html" class="btn btn-gold btn-lg">Quick Play vs AI</a>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Games</h4>
+        <a href="/fasttrack/">Fast Track</a>
+        <a href="/fasttrack/ai_setup.html">Play vs AI</a>
+        <a href="/fasttrack/lobby.html?action=private">Private Game</a>
+        <a href="/fasttrack/play.html">Multiplayer</a>
+      </div>
+      <div class="footer-col">
+        <h4>Learn</h4>
+        <a href="/fasttrack/docs.html">Game Guide</a>
+        <a href="/fasttrack/#rules">Rules</a>
+        <a href="/fasttrack/#card-reference">Card Reference</a>
+      </div>
+      <div class="footer-col">
+        <h4>More</h4>
+        <a href="https://butterflyfx.us">ButterflyFX</a>
+        <a href="/fasttrack/#credits">Credits</a>
+      </div>
+    </div>
+    <p>&copy; 2025-2026 Ken's Games. Powered by <a href="https://butterflyfx.us">ButterflyFX</a> Dimensional Computing.</p>
+  </footer>
+
+  <!-- Manifold behavior — ZERO inline JS -->
+  <script src="behavior.js"></script>
+</body>
+</html>
