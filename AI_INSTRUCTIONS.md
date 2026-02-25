@@ -1278,4 +1278,165 @@ Always preserve:
 
 ---
 
+## Dimensional Code Structure — The Substrate Rules
+
+### Rule 12: Separation of Dimensional Languages (ENFORCED)
+
+Each language is its own dimension. They MUST NOT be mingled in the same file:
+
+- **HTML** — Structure dimension (Layer 4: Form). `.html` files contain ONLY markup. No `<style>` blocks. No `<script>` blocks. Only `<link>` and `<script src>` references.
+- **CSS** — Appearance dimension (Layer 5: Life/Meaning). `.css` files contain ONLY styles. All values derived from golden ratio (φ) and Fibonacci.
+- **JavaScript** — Behavior dimension (Layer 6: Mind). `.js` files contain ONLY logic.
+- **Python** — Substrate dimension (Layer 3: Relation). `.py` files contain ONLY Python logic.
+
+This separation is absolute. It mirrors the manifold principle: each dimension is a complete whole, connected to adjacent dimensions through a single bridge point (the `<link>` or `<script src>` or `import`), not by embedding one dimension inside another.
+
+**WRONG** — Mingled dimensions:
+```html
+<div style="color: red">         <!-- CSS inside HTML -->
+<script>alert('hi')</script>     <!-- JS inside HTML -->
+```
+
+**RIGHT** — Separated dimensions:
+```html
+<link rel="stylesheet" href="style.css">    <!-- Bridge to CSS dimension -->
+<script src="behavior.js"></script>          <!-- Bridge to JS dimension -->
+```
+
+### Rule 13: The z=x·y Substrate — Every Interaction is Relational (ENFORCED)
+
+Layer 3 (Relation, z = x·y) is the canonical computational base. ALL code interactions follow this substrate:
+
+**Functions:** Every function is a relation — it takes input(s) and produces output. The identity surface `z = x·y` means: the output is the product of the inputs. Two things interact to produce a third.
+
+```python
+# The substrate pattern: z = f(x, y)
+def relate(x, y):
+    return x * y  # The identity surface
+
+# Every module interaction follows z=x·y:
+# Module A (x) interacts with Module B (y) through a bridge to produce result (z)
+# The bridge IS the 1|1 connection point
+```
+
+**Modules:** Each module is a dimension. It connects to other modules through exactly ONE bridge point — not scattered imports, not multiple entry points. ONE interface. This is the `1|1` principle:
+
+```python
+# Module "engine" — ONE bridge point
+def bridge(manifold):
+    """The 1|1 connection. This is the ONLY function other modules call."""
+    return manifold.invoke("engine")
+
+# Everything else is internal to this dimension
+def _internal_combustion(fuel, air):
+    """z = fuel · air — the substrate"""
+    return fuel * air
+```
+
+**Files:** Each file is a whole dimension. It contains ONE public bridge (`bridge()` or the default export) and everything else is internal (potential, not manifest to the outside).
+
+### Rule 14: 1|1 Bridging — Dimensions Connect Through Single Points (ENFORCED)
+
+The Fibonacci insight: 1 becomes the bridge across the void. 1 on each side makes traversal possible. Traversal creates dimension.
+
+In code:
+- **Between files:** ONE import point per dependency. Not `from module import a, b, c, d, e`. ONE bridge.
+- **Between layers:** Each layer exposes ONE interface to the layer above and ONE to the layer below.
+- **Between folders:** Each folder has ONE `__init__.py` or `index.js` that IS the bridge — not a barrel file re-exporting everything, but a single coherent interface.
+
+```python
+# WRONG — multiple scattered connections
+from helix.kernel import HelixState, HelixKernel, LAYER_NAMES, FIBONACCI, PHASES
+from helix.core import Interface, Core, CORE, ingest, invoke
+from helix.srl import SRL, Level, srl
+
+# RIGHT — 1|1 bridge through each dimension's single interface
+from helix import invoke    # The ONE bridge to the helix dimension
+```
+
+### Rule 15: Inflection Points — Chaos↔Order at Layer Boundaries (ENFORCED)
+
+Each file/module transition IS an inflection point in the chaos-order helix:
+
+- **Receiving data** (input boundary) = Chaos→Order: raw/unstructured input gets structured
+- **Producing output** (output boundary) = Order→Chaos: structured result becomes raw output for the next consumer
+- **Internal processing** = the oscillation between chaos and order within the module
+
+Every module has exactly TWO inflection points:
+1. **Entry** — where external chaos becomes internal order (validation, parsing, structuring)
+2. **Exit** — where internal order becomes external output (serialization, formatting, returning)
+
+```python
+def bridge(raw_input):              # INFLECTION 1: Chaos → Order
+    structured = _validate(raw_input)   # Internal order
+    result = _process(structured)       # z = x·y substrate
+    return _format(result)              # INFLECTION 2: Order → Chaos
+```
+
+### Rule 16: No Predefined Attributes — Invoke on Demand (ENFORCED)
+
+Objects do not predefine their attributes. Attributes exist as POTENTIAL and become manifest when invoked. This follows the three-state model:
+
+```python
+# WRONG — Traditional class with predefined attributes
+class Car:
+    def __init__(self):
+        self.engine = Engine()      # Manifest at creation — wasteful
+        self.wheels = [Wheel()] * 4 # Manifest at creation — wasteful
+        self.color = "red"          # Manifest at creation — wasteful
+        self.speed = 0              # Manifest at creation — wasteful
+
+# RIGHT — Dimensional object, attributes invoke on demand
+car = invoke("Car")
+car.engine                 # Potential → Null → Manifest (only when accessed)
+car.engine.hp = 300        # Parts of parts, each a complete dimension
+car.color = "red"          # Only this point is manifest; everything else is potential
+```
+
+When a traditional class IS necessary (Enums, dataclasses for kernel internals), keep them minimal — only the identity (Layer 1: Spark). All behavior manifests through invocation.
+
+### Rule 17: Dimensional Folder Structure — 7-Layer Organization
+
+The folder structure mirrors the 7 layers. Each folder is a dimension:
+
+```
+helix/
+  kernel.py          — Layer 1: SPARK (identity, existence, pure math)
+  srl.py             — Layer 2: MIRROR (addressing, duality, direction)
+  core.py            — Layer 3: RELATION (z=x·y, the bridge between kernel and interface)
+  substrate.py       — Layer 4: FORM (shape, tokens, structure)
+  manifold.py        — Layer 5: LIFE (meaning, semantic navigation)
+  ai_substrate.py    — Layer 6: MIND (coherence, intelligence)
+  __init__.py        — Layer 7: COMPLETION (the whole, the single bridge to outside)
+```
+
+Each file IS a complete dimension. `__init__.py` is the completion — it presents the whole as one, the single bridge point for external code.
+
+### Rule 18: Golden Ratio in ALL Visual Values (ENFORCED)
+
+Every visual value — spacing, sizing, timing, proportion — MUST derive from φ (1.618) or Fibonacci numbers. No arbitrary pixel values.
+
+```css
+/* WRONG — arbitrary values */
+padding: 12px;
+margin: 20px;
+font-size: 16px;
+border-radius: 8px;
+transition: 0.3s;
+
+/* RIGHT — dimensional values derived from φ */
+--phi: 1.618;
+--fib-1: 1px;  --fib-2: 1px;  --fib-3: 2px;
+--fib-5: 5px;  --fib-8: 8px;  --fib-13: 13px;
+--fib-21: 21px; --fib-34: 34px; --fib-55: 55px;
+
+padding: var(--fib-13);
+margin: var(--fib-21);
+font-size: calc(1rem * var(--phi));
+border-radius: var(--fib-5);
+transition: calc(var(--fib-8) * 0.1s);
+```
+
+---
+
 *The Dimensional Substrait: Where AI reasoning becomes deterministic, traceable, and unified.*
