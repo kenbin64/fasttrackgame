@@ -2363,6 +2363,23 @@
             opacity: 0.7;
         }
 
+        /* Mobile-friendly dropdown placement */
+        @media (max-width: 768px) {
+            #peg-move-dropdown {
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                bottom: 12px !important;
+                top: auto !important;
+                min-width: 80% !important;
+                max-width: 92% !important;
+                max-height: 40vh !important;
+                overflow-y: auto !important;
+                padding: 6px 0 !important;
+                border-radius: 10px !important;
+            }
+            #peg-move-dropdown .dropdown-item { padding: 10px 12px; }
+        }
+
         /* ============================================================
          * MOVE CHOICE MODAL — Prominent popup when multiple moves exist
          * UX: Nielsen #1 (Visibility), #3 (User Control), #6 (Recognition)

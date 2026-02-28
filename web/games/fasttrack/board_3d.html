@@ -1348,6 +1348,22 @@
         discMesh.position.y = PEG_HEIGHT + 1.5;
         discMesh.castShadow = true;
         pegGroup.add(discMesh);
+
+        // Add invisible touch zone to increase clickable area for pegs (helps mobile)
+        try {
+            const touchGeo = new THREE.CylinderGeometry(PEG_DOME_RADIUS * 2.8, PEG_DOME_RADIUS * 2.8, 6, 24);
+            const touchMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 });
+            const touchMesh = new THREE.Mesh(touchGeo, touchMat);
+            touchMesh.position.y = PEG_HEIGHT + 1.5;
+            touchMesh.name = 'peg-touch-zone';
+            // Make sure it doesn't cast/receive shadows or affect visuals
+            touchMesh.castShadow = false;
+            touchMesh.receiveShadow = false;
+            pegGroup.add(touchMesh);
+            peg.touchMesh = touchMesh;
+        } catch (e) {
+            console.warn('[createPeg] touch zone creation failed', e);
+        }
         
         // Position on top of hole
         if (hole) {
@@ -1376,7 +1392,16 @@
         };
         
         pegRegistry.set(id, peg);
-        scene.add(pegGroup);
+        // Add peg group to global pegGroup container if present so raycasts against boardGroup/pegGroup find them
+        try {
+            if (typeof window.pegGroup !== 'undefined' && window.pegGroup && window.pegGroup.add) {
+                window.pegGroup.add(pegGroup);
+            } else {
+                scene.add(pegGroup);
+            }
+        } catch (e) {
+            scene.add(pegGroup);
+        }
         
         return peg;
     }
@@ -9373,6 +9398,23 @@
                     }
                 }
             });
+
+            // Animate peg destination highlight rings (pulse and subtle opacity shift)
+            if (pegDestHighlightObjects && pegDestHighlightObjects.length > 0) {
+                pegDestHighlightObjects.forEach(r => {
+                    try {
+                        const ps = (r.userData && r.userData.pulseSpeed) ? r.userData.pulseSpeed : 2.0;
+                        const base = (r.userData && r.userData.baseScale) ? r.userData.baseScale : 1.0;
+                        const s = base + Math.sin(time * ps) * 0.08;
+                        r.scale.set(s, s, s);
+                        if (r.material) {
+                            r.material.opacity = 0.6 + (Math.sin(time * ps) + 1) * 0.15;
+                        }
+                    } catch (e) {
+                        // ignore animation errors for ad-hoc rings
+                    }
+                });
+            }
             
             if (highlightedHoles.length > 0 || highlightedPathHoles.length > 0 || flashingCutTargets.length > 0 || blinkingMovablePegs.length > 0) {
                 highlightAnimationId = requestAnimationFrame(animate);
@@ -9729,7 +9771,11 @@
             }
 
             // Add a bright ring around destination
-            const ringGeom = new THREE.RingGeometry(3, 4.5, 24);
+            // Larger ring for easier clicking; scale up on mobile
+            const isMobile = window.innerWidth <= 768;
+            const innerR = isMobile ? 12 : 6;
+            const outerR = isMobile ? 28 : 9;
+            const ringGeom = new THREE.RingGeometry(innerR, outerR, 48);
             const ringMat = new THREE.MeshBasicMaterial({
                 color: color, transparent: true, opacity: 0.9, side: THREE.DoubleSide
             });
@@ -9737,6 +9783,10 @@
             ring.position.copy(destHole.mesh.position);
             ring.position.y += 0.4;
             ring.rotation.x = -Math.PI / 2;
+            // Add subtle pulsing metadata so animate loop can pulse the ring
+            ring.userData = ring.userData || {};
+            ring.userData.pulseSpeed = 2 + Math.random() * 1.5;
+            ring.userData.baseScale = 1;
             boardGroup.add(ring);
             pegDestHighlightObjects.push(ring);
         });
@@ -9795,6 +9845,7 @@
                     if (pegData.isSplitSelectable && 
                         (pegData.bodyMesh === intersect.object || 
                          pegData.discMesh === intersect.object ||
+                         pegData.touchMesh === intersect.object ||
                          pegData.mesh === intersect.object)) {
                         console.log('[Split Click] ✅ Peg clicked:', pegId);
                         if (handleSplitPegClick(pegId)) {
@@ -9839,6 +9890,7 @@
                 if (pegData.isBlinking && 
                     (pegData.bodyMesh === intersect.object || 
                      pegData.discMesh === intersect.object ||
+                     pegData.touchMesh === intersect.object ||
                      pegData.mesh === intersect.object)) {
                     // Find all moves for this peg
                     const pegMoves = legalMoves.filter(m => m.pegId === pegId);
@@ -9867,6 +9919,7 @@
             for (const [pegId, pegData] of pegRegistry) {
                 if (pegData.bodyMesh === intersect.object || 
                     pegData.discMesh === intersect.object ||
+                    pegData.touchMesh === intersect.object ||
                     pegData.mesh === intersect.object) {
                     // Get the hole this peg is on
                     const pegHoleId = pegData.currentHole || pegData.holeId;
@@ -10105,9 +10158,22 @@
             itemsContainer.appendChild(item);
         });
         
-        // Position dropdown near the click point
-        dropdown.style.left = `${Math.min(x, window.innerWidth - 220)}px`;
-        dropdown.style.top = `${Math.min(y, window.innerHeight - 300)}px`;
+        // Position dropdown near the click point; on mobile place at bottom center to avoid covering board
+        if (window.innerWidth <= 768) {
+            dropdown.style.left = '50%';
+            dropdown.style.transform = 'translateX(-50%)';
+            dropdown.style.bottom = '12px';
+            dropdown.style.top = 'auto';
+            dropdown.style.maxHeight = '40vh';
+            dropdown.style.overflowY = 'auto';
+        } else {
+            dropdown.style.left = `${Math.min(x, window.innerWidth - 260)}px`;
+            dropdown.style.top = `${Math.min(y, window.innerHeight - 300)}px`;
+            dropdown.style.transform = '';
+            dropdown.style.bottom = 'auto';
+            dropdown.style.maxHeight = '';
+            dropdown.style.overflowY = '';
+        }
         dropdown.classList.add('visible');
     }
     
