@@ -77,32 +77,29 @@
 
     <!-- Mobile PWA CSS (loaded conditionally) -->
     <script>
-        // Detect mobile mode from URL parameter or device
+        // 🌊 DIMENSIONAL: Mobile mode exists as potential, manifest CSS when observed
         const urlParams = new URLSearchParams(window.location.search);
-        const isMobilePWA = urlParams.get('mobile') === 'true';
-        const isMobileDevice = window.innerWidth <= 768 || 
+        const MOBILE_MODE = urlParams.get('mobile') === 'true' ||
+            window.innerWidth <= 768 ||
             /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const MOBILE_MODE = isMobilePWA || isMobileDevice;
-        
-        if (MOBILE_MODE) {
-            // Load mobile CSS
+
+        // Manifest mobile CSS (no if-statement needed)
+        MOBILE_MODE && (() => {
             const mobileCSS = document.createElement('link');
             mobileCSS.rel = 'stylesheet';
             mobileCSS.href = 'assets/css/mobile.css';
             document.head.appendChild(mobileCSS);
-            
-            // Add mobile class to body
-            document.addEventListener('DOMContentLoaded', () => {
-                document.body.classList.add('mobile-mode');
-            });
-        }
-        
-        // Notify parent if in iframe (for PWA wrapper)
-        if (window.parent !== window) {
-            window.addEventListener('load', () => {
-                window.parent.postMessage({ type: 'game-ready' }, '*');
-            });
-        }
+
+            // Observe DOM ready, then manifest mobile class
+            document.addEventListener('DOMContentLoaded', () =>
+                document.body.classList.add('mobile-mode')
+            );
+        })();
+
+        // 🌊 DIMENSIONAL: Manifest iframe notification when parent exists
+        (window.parent !== window) && window.addEventListener('load', () =>
+            window.parent.postMessage({ type: 'game-ready' }, '*')
+        );
         
         // ========================================
         // PWA SUPPORT - Service Worker & Install
@@ -929,7 +926,13 @@
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    
+
+    <!-- 🌊 DIMENSIONAL PROGRAMMING CORE SUBSTRATES -->
+    <!-- "Everything exists. Only observation manifests reality." -->
+    <script src="observation_substrate.js?v=20260228"></script>
+    <script src="intent_manifold.js?v=20260228"></script>
+    <script src="potential_substrate.js?v=20260228"></script>
+
     <!-- FastTrack Substrates -->
     <script src="themes.js?v=20260225c"></script>
     <script src="themes/vr_immersive.js?v=20260227"></script>
@@ -971,8 +974,8 @@
     <script src="mobile_dimensional_fixes.js?v=20260228"></script>
     <!-- Advanced Mobile Touch Engine (NEW) -->
     <script src="mobile_touch_engine.js?v=20260228"></script>
-    <!-- Meta Quest VR Support (NEW) -->
-    <script src="vr_meta_quest.js?v=20260228"></script>
+    <!-- 🌊 Meta Quest VR - Entangled Substrate Protocol (ESP) -->
+    <script src="vr_esp.js?v=20260228"></script>
     <script src="move_selection_modal.js?v=20260226"></script>
     <script src="lobby_ui.js?v=20260223"></script>
     <script src="auth_ui.js?v=20260223"></script>
@@ -5265,190 +5268,160 @@
         });
     }
     
-    // Handle lobby messages
+    // 🌊 DIMENSIONAL: Lobby message intent manifold (replaces switch statement)
+    const LobbyMessageIntents = {
+        connected: (data) => {
+            myUserId = data.user?.user_id ?? data.user_id;
+            myUsername = data.user?.username ?? data.username;
+            console.log('[Lobby] Authenticated as:', myUsername, myUserId);
+        },
+        welcome: (data) => LobbyMessageIntents.connected(data),
+        guest_joined: (data) => LobbyMessageIntents.connected(data),
+        auth_success: (data) => LobbyMessageIntents.connected(data),
+
+        session_created: (data) => {
+            privateSessionData = data.session;
+            isLobbyHost = true;
+            showPrivateLobby(data.session, data.share_code, data.share_url);
+        },
+
+        session_joined: (data) => {
+            privateSessionData = data.session;
+            isLobbyHost = data.session.host_id === myUserId;
+            showPrivateLobby(data.session, data.session.session_code,
+                `https://kensgames.com/fasttrack/join.html?code=${data.session.session_code}`);
+        },
+
+        join_request: (data) => {
+            isLobbyHost && addPendingRequest(data.player);
+            isLobbyHost && addSystemChat(`${data.player.username} is requesting to join...`);
+        },
+
+        join_request_cancelled: (data) => {
+            removePendingRequest(data.user_id);
+            addSystemChat(`${data.username} withdrew their request.`);
+        },
+
+        player_joined: (data) => {
+            privateSessionData && (privateSessionData.players = data.players ?? privateSessionData.players);
+            privateSessionData && updatePlayersWaiting();
+            const name = data.player?.username ?? data.username ?? 'Someone';
+            privateSessionData && addSystemChat(`${name} joined the game!`);
+        },
+
+        player_left: (data) => {
+            privateSessionData && (privateSessionData.players = data.players ?? privateSessionData.players);
+            privateSessionData && updatePlayersWaiting();
+            privateSessionData && addSystemChat(`${data.username} left the game.`);
+        },
+
+        player_ready_changed: (data) => {
+            privateSessionData && (privateSessionData.players = data.players ?? privateSessionData.players);
+            privateSessionData && updatePlayersWaiting();
+            privateSessionData && updateMyReadyButton();
+            const status = data.ready ? '✅ ready' : '⬜ not ready';
+            privateSessionData && addSystemChat(`${data.username} is now ${status}`);
+        },
+
+        player_kicked: (data) => {
+            privateSessionData && (privateSessionData.players = data.players ?? privateSessionData.players);
+            privateSessionData && updatePlayersWaiting();
+            privateSessionData && addSystemChat(`${data.username} was removed by the host.`);
+        },
+
+        kicked: (data) => {
+            hidePrivateLobby();
+            privateSessionData = null;
+            isLobbyHost = false;
+            const startScreen = document.getElementById('start-game-screen');
+            startScreen && (startScreen.style.display = 'flex');
+            showMsg(data.reason ?? 'You were removed from the game.', 4000);
+        },
+
+        session_settings_updated: (data) => {
+            privateSessionData && (privateSessionData.settings = data.settings);
+            privateSessionData && (privateSessionData.max_players = data.max_players);
+            privateSessionData && data.session && (privateSessionData = data.session);
+            privateSessionData && updatePlayersWaiting();
+            privateSessionData && updateHostSettingsUI();
+            // Apply music setting
+            (data.settings.music_enabled === false && typeof MusicSubstrate !== 'undefined') &&
+                MusicSubstrate.pause?.();
+            privateSessionData && addSystemChat('Host updated game settings.');
+        },
+
+        chat: (data) => addChatMessage(data.username, data.message, data.timestamp),
+
+        game_starting: (data) => {
+            addSystemChat('Game is starting!');
+            ObservationSubstrate.after(() => {
+                hidePrivateLobby();
+                startMultiplayerGame(data.session ?? privateSessionData);
+            }, 1000);
+        },
+        game_started: (data) => LobbyMessageIntents.game_starting(data),
+
+        late_join_request: (data) => {
+            (isLobbyHost || gameSessionSettings.isOrganizer) &&
+                addJoinRequest(data.player.user_id, data.player.username, data.player.avatar_id ?? '👤');
+        },
+
+        late_player_joined: (data) => {
+            data.session && (privateSessionData = data.session);
+            data.session && (multiplayerSession = data.session);
+
+            (gameState && data.player) && (() => {
+                const p = data.player;
+                const slot = data.assigned_slot;
+                const slotType = data.slot_type;
+                const avatarEmojis = { person_smile:'😊', person_cool:'😎', animal_lion:'🦁', animal_fox:'🦊', space_rocket:'🚀', fantasy_dragon:'🐲', scifi_robot:'🤖', sport_soccer:'⚽' };
+                const playerColors = ['#ff2020', '#2196ff', '#4caf50', '#ffeb3b', '#ff9800', '#9c27b0'];
+
+                (slotType === 'replace-bot' && gameState.players[slot]) ? (() => {
+                    gameState.players[slot].isAI = false;
+                    gameState.players[slot].name = p.username;
+                    gameState.players[slot].avatar = avatarEmojis[p.avatar_id] ?? '👤';
+                    gameState.players[slot].userId = p.user_id;
+                })() : (() => {
+                    const newPlayer = {
+                        name: p.username,
+                        avatar: avatarEmojis[p.avatar_id] ?? '👤',
+                        userId: p.user_id,
+                        colorHex: playerColors[slot % playerColors.length],
+                        isAI: false,
+                        pegs: [],
+                        pegsInHolding: 4,
+                        pegsInSafeZone: 0,
+                        pegsInBullseye: 0
+                    };
+                    (slot < gameState.players.length) ?
+                        (gameState.players[slot] = newPlayer) :
+                        gameState.players.push(newPlayer);
+                    (typeof initializePegsForPlayer === 'function') && initializePegsForPlayer(slot);
+                    activePlayerCount = gameState.players.length;
+                })();
+
+                window.GameUIMinimal?.setPlayers?.(gameState.players, gameState.currentPlayerIndex);
+                showBotAlert(`${p.username} Joined!`, 'A new player has entered the game');
+                updateOrganizerPlayerList();
+            })();
+        },
+
+        game_state_sync: (data) => {
+            (data.game_state && typeof applyRemoteGameState === 'function') &&
+                applyRemoteGameState(data.game_state);
+        },
+
+        error: (data) => {
+            showMsg(data.message ?? 'Error occurred', 3000);
+            console.error('[Lobby] Error:', data.message);
+        }
+    };
+
+    // 🌊 DIMENSIONAL: Invoke intent directly (replaces switch statement)
     function handleLobbyMessage(data) {
         console.log('[Lobby] Received:', data.type, data);
-        
-        switch (data.type) {
-            case 'connected':
-            case 'welcome':
-            case 'guest_joined':
-            case 'auth_success':
-                if (data.user?.user_id) myUserId = data.user.user_id;
-                else if (data.user_id) myUserId = data.user_id;
-                if (data.user?.username) myUsername = data.user.username;
-                else if (data.username) myUsername = data.username;
-                console.log('[Lobby] Authenticated as:', myUsername, myUserId);
-                break;
-                
-            case 'session_created':
-                privateSessionData = data.session;
-                isLobbyHost = true;
-                showPrivateLobby(data.session, data.share_code, data.share_url);
-                break;
-                
-            case 'session_joined':
-                privateSessionData = data.session;
-                isLobbyHost = data.session.host_id === myUserId;
-                showPrivateLobby(data.session, data.session.session_code, `https://kensgames.com/fasttrack/join.html?code=${data.session.session_code}`);
-                break;
-                
-            case 'join_request':
-                // Host sees a pending join request
-                if (isLobbyHost) {
-                    addPendingRequest(data.player);
-                    addSystemChat(`${data.player.username} is requesting to join...`);
-                }
-                break;
-                
-            case 'join_request_cancelled':
-                removePendingRequest(data.user_id);
-                addSystemChat(`${data.username} withdrew their request.`);
-                break;
-                
-            case 'player_joined':
-                if (privateSessionData) {
-                    privateSessionData.players = data.players || privateSessionData.players;
-                    updatePlayersWaiting();
-                    const name = data.player?.username || data.username || 'Someone';
-                    addSystemChat(`${name} joined the game!`);
-                }
-                break;
-                
-            case 'player_left':
-                if (privateSessionData) {
-                    privateSessionData.players = data.players || privateSessionData.players;
-                    updatePlayersWaiting();
-                    addSystemChat(`${data.username} left the game.`);
-                }
-                break;
-                
-            case 'player_ready_changed':
-                if (privateSessionData) {
-                    privateSessionData.players = data.players || privateSessionData.players;
-                    updatePlayersWaiting();
-                    updateMyReadyButton();
-                    const status = data.ready ? '✅ ready' : '⬜ not ready';
-                    addSystemChat(`${data.username} is now ${status}`);
-                }
-                break;
-                
-            case 'player_kicked':
-                if (privateSessionData) {
-                    privateSessionData.players = data.players || privateSessionData.players;
-                    updatePlayersWaiting();
-                    addSystemChat(`${data.username} was removed by the host.`);
-                }
-                break;
-                
-            case 'kicked':
-                // I was kicked
-                hidePrivateLobby();
-                privateSessionData = null;
-                isLobbyHost = false;
-                const startScreen = document.getElementById('start-game-screen');
-                if (startScreen) startScreen.style.display = 'flex';
-                showMsg(data.reason || 'You were removed from the game.', 4000);
-                break;
-                
-            case 'session_settings_updated':
-                if (privateSessionData) {
-                    privateSessionData.settings = data.settings;
-                    privateSessionData.max_players = data.max_players;
-                    if (data.session) privateSessionData = data.session;
-                    updatePlayersWaiting();
-                    updateHostSettingsUI();
-                    // Apply music setting
-                    if (data.settings.music_enabled === false && typeof MusicSubstrate !== 'undefined') {
-                        MusicSubstrate.pause?.();
-                    }
-                    addSystemChat('Host updated game settings.');
-                }
-                break;
-                
-            case 'chat':
-                addChatMessage(data.username, data.message, data.timestamp);
-                break;
-                
-            case 'game_starting':
-            case 'game_started':
-                addSystemChat('Game is starting!');
-                setTimeout(() => {
-                    hidePrivateLobby();
-                    startMultiplayerGame(data.session || privateSessionData);
-                }, 1000);
-                break;
-            
-            case 'late_join_request':
-                // Mid-game join request — show host the approval popup
-                if (isLobbyHost || gameSessionSettings.isOrganizer) {
-                    addJoinRequest(data.player.user_id, data.player.username, data.player.avatar_id || '👤');
-                }
-                break;
-            
-            case 'late_player_joined':
-                // A late joiner was admitted during the game
-                if (data.session) {
-                    privateSessionData = data.session;
-                    multiplayerSession = data.session;
-                }
-                if (gameState && data.player) {
-                    const p = data.player;
-                    const slot = data.assigned_slot;
-                    const slotType = data.slot_type;
-                    const avatarEmojis = { person_smile:'😊', person_cool:'😎', animal_lion:'🦁', animal_fox:'🦊', space_rocket:'🚀', fantasy_dragon:'🐲', scifi_robot:'🤖', sport_soccer:'⚽' };
-                    const playerColors = ['#ff2020', '#2196ff', '#4caf50', '#ffeb3b', '#ff9800', '#9c27b0'];
-                    
-                    if (slotType === 'replace-bot' && gameState.players[slot]) {
-                        // Replace bot in-place
-                        gameState.players[slot].isAI = false;
-                        gameState.players[slot].name = p.username;
-                        gameState.players[slot].avatar = avatarEmojis[p.avatar_id] || '👤';
-                        gameState.players[slot].userId = p.user_id;
-                    } else {
-                        // New slot
-                        const newPlayer = {
-                            name: p.username,
-                            avatar: avatarEmojis[p.avatar_id] || '👤',
-                            userId: p.user_id,
-                            colorHex: playerColors[slot % playerColors.length],
-                            isAI: false,
-                            pegs: [],
-                            pegsInHolding: 4,
-                            pegsInSafeZone: 0,
-                            pegsInBullseye: 0
-                        };
-                        if (slot < gameState.players.length) {
-                            gameState.players[slot] = newPlayer;
-                        } else {
-                            gameState.players.push(newPlayer);
-                        }
-                        if (typeof initializePegsForPlayer === 'function') {
-                            initializePegsForPlayer(slot);
-                        }
-                        activePlayerCount = gameState.players.length;
-                    }
-                    // Update panels
-                    if (window.GameUIMinimal) {
-                        window.GameUIMinimal.setPlayers(gameState.players, gameState.currentPlayerIndex);
-                    }
-                    showBotAlert(`${p.username} Joined!`, 'A new player has entered the game');
-                    updateOrganizerPlayerList();
-                }
-                break;
-            
-            case 'game_state_sync':
-                // Another player's state sync — apply it
-                if (data.game_state && typeof applyRemoteGameState === 'function') {
-                    applyRemoteGameState(data.game_state);
-                }
-                break;
-            
-            case 'error':
-                showMsg(data.message || 'Error occurred', 3000);
-                console.error('[Lobby] Error:', data.message);
-                break;
-        }
+        LobbyMessageIntents[data.type]?.(data);
     }
     
     // Game mode selection
@@ -14988,16 +14961,12 @@
                     window.location.href = 'index.html';
                 }, 2000);
             } else {
-                // Continue game - if it was this player's turn, AI takes over immediately
-                if (gameState.currentPlayerIndex === humanPlayerIdx && gameState.phase === 'play') {
-                    setTimeout(() => {
-                        aiSelectAndClickMove();
-                    }, 1000);
-                } else if (gameState.currentPlayerIndex === humanPlayerIdx && gameState.phase === 'draw') {
-                    setTimeout(() => {
-                        aiTakeTurn();
-                    }, 1000);
-                }
+                // 🌊 DIMENSIONAL: Manifest AI action based on phase (no if-else needed)
+                const isHumanTurn = gameState.currentPlayerIndex === humanPlayerIdx;
+                isHumanTurn && ObservationSubstrate.after(
+                    () => IntentManifold.invokePhase('ai'),
+                    1000
+                );
             }
         } else {
             // No player found, just go back
@@ -15061,42 +15030,36 @@
     }
     window.hideExitButton = hideExitButton;
 
-    // Check for board readiness - reduced delay for faster startup
+    // 🌊 DIMENSIONAL: Observe board manifestation (replaces polling loop)
+    // 🐛 TEMPORARY: Using setTimeout for debugging
+    setTimeout(() => updateLoadingStatus('Initializing board...'), 100);
+
+    // 🐛 TEMPORARY: Using setInterval for debugging
+    const boardReadyCheck = setInterval(() => {
+        const hr = window.holeRegistry || holeRegistry;
+        if (hr && hr.size > 0) {
+            clearInterval(boardReadyCheck);
+            boardReady = true;
+            window.boardReady = true;
+            updateLoadingStatus('✓ Board ready! Click START GAME', true);
+            console.log('Board initialized with', hr.size, 'holes');
+
+            // Seal every hole onto the z=xy / z=xy² manifold surface
+            window.BoardManifold?.sealBoard?.(hr);
+            window.BoardManifold && console.log('[BoardManifold] Hole truth table:',
+                JSON.stringify(BoardManifold.holeTruthTable()));
+        }
+    }, 100);
+
+    // Observe timeout condition
     setTimeout(() => {
-        updateLoadingStatus('Initializing board...');
+        if (!boardReady) {
+            updateLoadingStatus('⚠ Board loading taking long... please wait');
+        }
+    }, 10000);
 
-        // Wait for board to be ready
-        const checkBoard = setInterval(() => {
-            // Check both local and global holeRegistry
-            const hr = window.holeRegistry || holeRegistry;
-            if (hr && hr.size > 0) {
-                clearInterval(checkBoard);
-                boardReady = true;
-                window.boardReady = true;  // Expose globally for multiplayer integration
-                updateLoadingStatus('✓ Board ready! Click START GAME', true);
-                console.log('Board initialized with', hr.size, 'holes');
-
-                // Seal every hole onto the z=xy / z=xy² manifold surface
-                if (window.BoardManifold) {
-                    BoardManifold.sealBoard(hr);
-                    console.log('[BoardManifold] Hole truth table:', JSON.stringify(BoardManifold.holeTruthTable()));
-                }
-
-                // Board is ready — start screen shows mode picker (no auto-redirect)
-                // selectGameMode('solo') was removed since Solo now navigates to ai_setup.html
-            }
-        }, 50);  // Check every 50ms instead of 100ms for faster detection
-
-        // Timeout after 10 seconds
-        setTimeout(() => {
-            if (!boardReady) {
-                updateLoadingStatus('⚠ Board loading taking long... please wait');
-            }
-        }, 10000);
-    }, 100);  // Reduced from 500ms to 100ms for faster startup
-    
-    // Debug: Log all loaded globals after a short delay
-    setTimeout(() => {
+    // 🌊 DIMENSIONAL: Observe script loading (replaces setTimeout debug)
+    ObservationSubstrate.after(() => {
         console.log('=== SCRIPT LOAD CHECK ===');
         console.log('GameUIMinimal:', typeof window.GameUIMinimal);
         console.log('CardUI:', typeof window.CardUI);
