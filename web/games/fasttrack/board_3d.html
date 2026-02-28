@@ -9448,6 +9448,9 @@
             cancelAnimationFrame(highlightAnimationId);
             highlightAnimationId = null;
         }
+
+        // Hide confirm bar if visible
+        hideConfirmBar();
         
         // Clear mobile UI action bar (no light pillars anymore)
         if (window.mobileUI) {
@@ -9713,6 +9716,7 @@
     // Track peg-selected state for destination-click workflow
     let selectedPegId = null;
     let selectedPegMoves = null;
+    let selectedMoveToConfirm = null; // move object waiting for player confirmation
     let pegDestHighlightedHoles = [];   // holes highlighted for a specific peg's destinations
     let pegDestHighlightObjects = [];   // THREE.js objects (rings, labels) to clean up
 
@@ -9746,6 +9750,9 @@
                     opacity: 0.25 + progress * 0.3
                 });
                 pegDestHighlightedHoles.push(hole);
+                // store pulse index for forward-traveling pulse animation
+                hole.userData = hole.userData || {};
+                hole.userData.pulseIndex = i;
             }
 
             // Highlight DESTINATION hole (bright glow + ring)
@@ -9768,6 +9775,8 @@
                     opacity: 0.85
                 });
                 pegDestHighlightedHoles.push(destHole);
+                destHole.userData = destHole.userData || {};
+                destHole.userData.pulseIndex = path.length; // destination pulses last in sequence
             }
 
             // Add a bright ring around destination
@@ -9789,6 +9798,14 @@
             ring.userData.baseScale = 1;
             boardGroup.add(ring);
             pegDestHighlightObjects.push(ring);
+
+            // Attach pulse metadata to ring for coordinated animation
+            ring.userData.moveId = move.id || `${move.pegId}-${move.toHoleId}`;
+            ring.userData.pathLength = path.length;
+            // Save reference to pulse-info on move for later (used for confirmation UI)
+            move._pulse = move._pulse || {};
+            move._pulse.ring = ring;
+            move._pulse.path = path.slice();
         });
     }
 
@@ -9808,6 +9825,7 @@
         pegDestHighlightObjects = [];
         selectedPegId = null;
         selectedPegMoves = null;
+        selectedMoveToConfirm = null;
     }
     
     function handleHoleClick(event) {
@@ -9895,12 +9913,12 @@
                     // Find all moves for this peg
                     const pegMoves = legalMoves.filter(m => m.pegId === pegId);
                     if (pegMoves.length === 1) {
-                        // Single move — execute immediately (clear legal move)
+                        // Single move — execute immediately
                         console.log('[Click] Active peg clicked with single legal move - executing');
                         dismissCardRulePopup();
-                        
                         executeMoveDirectly(pegMoves[0]);
                         return;
+                    }
                     } else if (pegMoves.length > 1) {
                         // Multiple moves — light up ALL destination tracks for this peg
                         // PLUS show a popup/dropdown with tips for each option
@@ -9949,9 +9967,9 @@
                             clearPegDestinationHighlights();
                             hidePegMoveDropdown();
                             dismissCardRulePopup();
-                            
                             executeMoveDirectly(matchingMoves[0]);
                             return;
+                        }
                         } else if (matchingMoves.length > 1) {
                             // Multiple moves to same hole (e.g. FT entry vs perimeter)
                             showHoleMoveDropdown(matchingMoves, event.clientX, event.clientY);
@@ -9961,11 +9979,18 @@
                     // Accept click if highlighted OR if it's in the legalMoves destinations
                     const isLegalDest = legalMoves.some(m => m.toHoleId === holeId);
                     if (hole.isHighlighted || isLegalDest) {
-                        console.log('[Click] Glowing hole clicked - executing move');
-                        clearPegDestinationHighlights();
-                        dismissCardRulePopup();
-                        
-                        executeHoleClick(holeId);
+                        // Find all moves for this hole (could be FT entry vs perimeter)
+                        const movesForHole = legalMoves.filter(m => m.toHoleId === holeId);
+                        if (movesForHole.length === 1) {
+                            console.log('[Click] Glowing hole clicked - single move for hole, executing');
+                            clearPegDestinationHighlights();
+                            dismissCardRulePopup();
+                            executeMoveDirectly(movesForHole[0]);
+                        } else if (movesForHole.length > 1) {
+                            // Ambiguous — require confirmation/choice
+                            console.log('[Click] Glowing hole clicked - multiple moves for hole, showing choice');
+                            showHoleMoveDropdown(movesForHole, event.clientX, event.clientY);
+                        }
                         return;
                     }
                 }
@@ -10181,6 +10206,46 @@
         const dropdown = document.getElementById('peg-move-dropdown');
         dropdown.classList.remove('visible');
         selectedPegForDropdown = null;
+    }
+
+    // ===================== Confirm Bar =====================
+    function ensureConfirmBarExists() {
+        if (document.getElementById('confirm-move-bar')) return;
+        const bar = document.createElement('div');
+        bar.id = 'confirm-move-bar';
+        bar.innerHTML = `<div class="confirm-inner">
+            <button id="confirm-move-btn" class="btn primary">Confirm Move</button>
+            <button id="cancel-move-btn" class="btn">Cancel</button>
+        </div>`;
+        document.body.appendChild(bar);
+        document.getElementById('confirm-move-btn').addEventListener('click', () => {
+            if (selectedMoveToConfirm) {
+                console.log('[Confirm] Executing confirmed move:', selectedMoveToConfirm);
+                hideConfirmBar();
+                const mv = selectedMoveToConfirm;
+                selectedMoveToConfirm = null;
+                clearPegDestinationHighlights();
+                dismissCardRulePopup();
+                executeMoveDirectly(mv);
+            }
+        });
+        document.getElementById('cancel-move-btn').addEventListener('click', () => {
+            hideConfirmBar();
+            clearPegDestinationHighlights();
+        });
+    }
+
+    function showConfirmBar() {
+        ensureConfirmBarExists();
+        const bar = document.getElementById('confirm-move-bar');
+        bar.classList.add('visible');
+        // On mobile, ensure bar is bottom-anchored; on desktop place near center-bottom
+        return bar;
+    }
+
+    function hideConfirmBar() {
+        const bar = document.getElementById('confirm-move-bar');
+        if (bar) bar.classList.remove('visible');
     }
     
     // Expose to global scope for onclick
