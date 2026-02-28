@@ -1095,6 +1095,7 @@ class MobileUI {
         [header, actionBar, floatingCard, reactionBar].forEach(el => {
             if (el) {
                 el.classList.remove('auto-hidden', 'mini-mode');
+                try { el.style.zIndex = '30010'; } catch(e) {}
             }
         });
         
@@ -1122,6 +1123,7 @@ class MobileUI {
         [header, actionBar, floatingCard, reactionBar].forEach(el => {
             if (el) {
                 el.classList.add('auto-hidden');
+                try { el.style.zIndex = ''; } catch(e) {}
             }
         });
         

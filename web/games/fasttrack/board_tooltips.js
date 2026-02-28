@@ -40,7 +40,7 @@ window.BoardTooltips = (function () {
         tooltipEl.style.cssText = `
             position: fixed;
             pointer-events: none;
-            z-index: 99999;
+            z-index: 100000;
             max-width: 280px;
             padding: 8px 14px;
             border-radius: 10px;
@@ -80,6 +80,19 @@ window.BoardTooltips = (function () {
         if (posY + tipH > window.innerHeight - 8) posY = y - tipH - 8;
         if (posX < 4) posX = 4;
         if (posY < 4) posY = 4;
+
+        // Mobile: Avoid player panel at top (typically 80-120px tall)
+        // If tooltip would appear in top-left corner, push it down
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile && posY < 120) {
+            // Position tooltip below the player panel instead
+            posY = Math.max(120, y + offsetY);
+            // If that pushes it off screen, center it vertically
+            if (posY + tipH > window.innerHeight - 8) {
+                posY = Math.max(120, (window.innerHeight - tipH) / 2);
+            }
+        }
+
         tip.style.left = posX + 'px';
         tip.style.top = posY + 'px';
         tip.style.opacity = '1';

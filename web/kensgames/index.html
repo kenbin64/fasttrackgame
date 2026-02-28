@@ -14,6 +14,17 @@
   <!-- Manifold substrate: pure CSS, zero inline styles -->
   <link rel="stylesheet" href="substrate.css">
 
+  <style>
+    /* Brickbreaker clickabout panel */
+    .clickabout-panel{display:flex;align-items:center;gap:18px;padding:18px;border-radius:12px;background:linear-gradient(135deg, rgba(255,217,150,0.06), rgba(30,30,60,0.06));border:1px solid rgba(255,255,255,0.04);cursor:pointer}
+    .clickabout-panel .thumb{width:140px;height:90px;background:linear-gradient(45deg,#ff7b7b,#ffd36b);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#071019}
+    .clickabout-panel .meta{flex:1}
+    .clickabout-panel .meta h3{margin:0 0 6px 0}
+    .clickabout-panel .meta p{margin:0;color:rgba(255,255,255,0.85)}
+    .clickabout-panel .cta{margin-left:auto}
+    .clickabout-panel .btn{background:#ffd166;color:#071019;padding:8px 12px;border-radius:8px;text-decoration:none;font-weight:600}
+  </style>
+
   <!-- OG / Social -->
   <meta property="og:title" content="Ken's Games — Retro Arcade">
   <meta property="og:description" content="Step into the arcade. Play FastTrack and more retro-inspired games.">
@@ -64,7 +75,9 @@
       <a href="#games">Games</a>
       <a href="#gallery">Gallery</a>
       <a href="#howto">How to Play</a>
-      <a href="/fasttrack/" class="btn btn-fire">Play Now</a>
+        <a href="/fasttrack/" class="btn btn-fire">Play Now</a>
+        <a href="/kensgames/login.html" class="btn btn-glass">Login</a>
+        <a href="/kensgames/admin.html" class="btn btn-glass">Admin</a>
     </nav>
     <button id="music-toggle" class="music-toggle music-off" aria-label="Play arcade music">
       <span class="music-icon">🔇</span>
@@ -96,6 +109,38 @@
       <div class="scroll-hint reveal">
         <span>Scroll</span>
         <div class="scroll-arrow"></div>
+      </div>
+    </section>
+
+      <!-- Inline player modal -->
+      <div id="inline-player-modal" aria-hidden="true" style="display:none">
+        <div class="ip-overlay" id="ip-overlay"></div>
+        <div class="ip-container" role="dialog" aria-label="Play 3D Brickbreaker">
+          <button class="ip-close" id="ip-close" aria-label="Close player">✕</button>
+          <iframe id="ip-iframe" src="" frameborder="0" allow="fullscreen; accelerometer; gyroscope" style="width:100%;height:100%"></iframe>
+        </div>
+      </div>
+
+    <!-- ── BRICKBREAKER CLICKABOUT PANEL ── -->
+    <section id="brickbreaker-spotlight">
+      <div class="section-head reveal">
+        <span class="section-tag">Spotlight</span>
+        <h2>Now Showing: 3D Brickbreaker</h2>
+        <p class="sub">A bite-sized demo and landing page for the new 3D Brickbreaker experience.</p>
+      </div>
+
+      <div class="grid grid-1">
+        <div class="clickabout-panel reveal" role="group">
+          <div class="thumb">3D</div>
+          <div class="meta">
+            <h3>3D Brickbreaker — quick demo</h3>
+            <p>Click to see a colorful wireframe wrecking-ball demo and learn more about the full playable experience. Optimized for desktop and mobile.</p>
+          </div>
+          <div class="cta">
+            <a class="btn" href="/kensgames/bot_brickbreaker3d/">Visit</a>
+            <button class="btn" id="play-inline-btn" style="margin-left:8px;">Play</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -370,6 +415,14 @@
           <span class="game-status status-live">● Live</span>
         </a>
 
+        <!-- NEW: 3D Brickbreaker -->
+        <a href="/kensgames/bot_brickbreaker3d/" class="game-card reveal">
+          <span class="game-icon">🧱</span>
+          <h3>3D Brickbreaker</h3>
+          <p>A modern 3D take on the classic brickbreaker — paddle, bounce, and clear layered bricks in 3D space.</p>
+          <span class="game-status status-dev">Playable</span>
+        </a>
+
         <!-- COMING SOON: Dimensional Chess -->
         <div class="game-card coming-soon reveal">
           <span class="game-icon">♟️</span>
@@ -504,6 +557,41 @@
 
   </main>
 
+  <script>
+  // Inline player modal logic
+  function openInlinePlayer(src){
+    const modal = document.getElementById('inline-player-modal');
+    const iframe = document.getElementById('ip-iframe');
+    iframe.src = src;
+    modal.style.display = 'block';
+    modal.setAttribute('aria-hidden','false');
+  }
+  function closeInlinePlayer(){
+    const modal = document.getElementById('inline-player-modal');
+    const iframe = document.getElementById('ip-iframe');
+    iframe.src = '';
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden','true');
+  }
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const playBtn = document.getElementById('play-inline-btn');
+    if(playBtn){ playBtn.addEventListener('click', ()=> openInlinePlayer('/games/klassics3d/breakout3d/index.html')); }
+    const closeBtn = document.getElementById('ip-close');
+    if(closeBtn) closeBtn.addEventListener('click', closeInlinePlayer);
+    const overlay = document.getElementById('ip-overlay');
+    if(overlay) overlay.addEventListener('click', closeInlinePlayer);
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeInlinePlayer(); });
+  });
+  </script>
+
+  <style>
+  /* Inline player modal styles */
+  #inline-player-modal{position:fixed;inset:0;z-index:10050;display:none}
+  #inline-player-modal .ip-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75)}
+  #inline-player-modal .ip-container{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:88vw;height:78vh;background:#000;border-radius:10px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+  .ip-close{position:absolute;right:10px;top:10px;z-index:1001;background:rgba(255,255,255,0.08);border:0;padding:6px 10px;border-radius:6px;color:#fff;font-size:16px;cursor:pointer}
+  @media(max-width:700px){ #inline-player-modal .ip-container{width:98vw;height:92vh} }
+  </style>
 
   <!-- ═══ FOOTER ═══ -->
   <footer>

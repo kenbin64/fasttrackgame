@@ -5,6 +5,8 @@
 const FastTrackThemes = {
     currentTheme: null,
     backdropLayers: [],
+    // Global multiplier to scale backdrop motion. Set to 0 to freeze movement, <1 to slow.
+    motionScale: 1.0,
     _sceneObjects: [],  // All objects added to scene by themes
     spectators: [], // For interactive themes like Colosseum
     crowdState: 'idle', // idle, cheering, booing, excited
@@ -297,8 +299,10 @@ const FastTrackThemes = {
                 const maxDrift = layer.maxDrift || 300; // Maximum drift from initial position
                 const minDistance = 400; // Minimum distance from board center
                 
-                const targetX = -mouseX * layer.parallaxFactor * 50;
-                const targetZ = -mouseY * layer.parallaxFactor * 30;
+                // Scale parallax by global motionScale so we can slow/freeze background motion
+                const parallaxFactor = (layer.parallaxFactor || 0) * (this.motionScale === undefined ? 1 : this.motionScale);
+                const targetX = -mouseX * parallaxFactor * 50;
+                const targetZ = -mouseY * parallaxFactor * 30;
                 
                 // Apply parallax with damping
                 let newX = mesh.position.x + (targetX - mesh.position.x) * 0.001;
@@ -323,7 +327,8 @@ const FastTrackThemes = {
             // Subtle rotation for depth (time-based, not frame-based)
             if (layer.rotationSpeed) {
                 const dt = Math.min(0.033, 1/60); // Cap at ~30fps equivalent to prevent fast-monitor speedup
-                mesh.rotation.y += layer.rotationSpeed * dt * 60; // Normalize to 60fps
+                const rotationScale = (this.motionScale === undefined ? 1 : this.motionScale);
+                mesh.rotation.y += layer.rotationSpeed * rotationScale * dt * 60; // Normalize to 60fps
             }
             
             // Floating animation for geometric shapes
@@ -362,6 +367,13 @@ const FastTrackThemes = {
         if (this.themes[this.currentTheme]?.triggerCrowd) {
             this.themes[this.currentTheme].triggerCrowd(reaction, this);
         }
+    },
+
+    // Set global motion scale for backdrop layers (0 = frozen, 1 = normal, <1 = slower)
+    setMotionScale: function(scale) {
+        if (typeof scale !== 'number' || isNaN(scale)) return;
+        this.motionScale = Math.max(0, scale);
+        console.log('[FastTrackThemes] motionScale set to', this.motionScale);
     },
     
     // ============================================================
@@ -1899,6 +1911,49 @@ FastTrackThemes.register('colosseum', {
                 mesh.geometry.attributes.position.needsUpdate = true;
             }
         });
+
+        // Group all stadium/backdrop elements under a single root so the
+        // board can be unambiguously centered and backdrop render order
+        // kept behind the board. This prevents backdrop pieces from
+        // accidentally overlapping the board or being misaligned.
+        try {
+            const stadiumRoot = new THREE.Group();
+            stadiumRoot.name = 'stadiumRoot';
+            stadiumRoot.position.set(0, 0, 0);
+            stadiumRoot.renderOrder = -2;
+
+            // Reparent all backdropLayers meshes that were added directly to scene
+            manager.backdropLayers.forEach(layer => {
+                if (layer && layer.mesh && layer.mesh.parent === scene) {
+                    try { scene.remove(layer.mesh); } catch (e) {}
+                    stadiumRoot.add(layer.mesh);
+                }
+            });
+
+            // Move any spectators into the stadium root as well
+            if (manager.spectators && manager.spectators.length) {
+                manager.spectators.forEach(spec => {
+                    if (spec && spec.parent === scene) {
+                        try { scene.remove(spec); } catch (e) {}
+                        stadiumRoot.add(spec);
+                    }
+                });
+            }
+
+            // Move emperor box if present
+            if (manager.emperorBox && manager.emperorBox.parent === scene) {
+                try { scene.remove(manager.emperorBox); } catch (e) {}
+                stadiumRoot.add(manager.emperorBox);
+            }
+
+            // Finally add the root to the scene and expose on manager
+            scene.add(stadiumRoot);
+            manager.stadiumRoot = stadiumRoot;
+            // Also ensure the stadium root is available as a backdrop layer
+            manager.backdropLayers.unshift({ mesh: stadiumRoot, parallaxFactor: 0, rotationSpeed: 0 });
+        } catch (e) {
+            console.warn('[Colosseum] stadium grouping failed:', e);
+        }
     },
     
     // React to game events — Emperor reacts!

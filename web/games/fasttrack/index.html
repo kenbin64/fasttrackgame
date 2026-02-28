@@ -42,14 +42,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Three.js for 3D -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
-    <link rel="stylesheet" href="assets/css/index.css">
+    <script src="assets/js/three.min.js"></script>
+
+    <link rel="stylesheet" href="assets/css/index.css?v=20260228">
 </head>
 <body>
     <!-- 3D Background -->
     <canvas id="bg-canvas"></canvas>
-    
+
+    <!-- Background overlay for readability -->
+    <div id="bg-overlay"></div>
+
     <!-- Floating Particles -->
     <div class="particles" id="particles"></div>
     
@@ -876,165 +879,260 @@
         function init3DBackground() {
             const canvas = document.getElementById('bg-canvas');
             const scene = new THREE.Scene();
-            // Golden ratio FOV
             const camera = new THREE.PerspectiveCamera(
-                55.6, // 360/φ³ ≈ golden FOV
+                55.6,
                 window.innerWidth / window.innerHeight,
                 0.1, 1000
             );
             const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-            
+
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            
-            const PHI = 1.618033988749895;
-            const genesisColors = [
-                0xff4466, // Layer 1: Spark
-                0xff6b9d, // Layer 2: Mirror
-                0x9b59b6, // Layer 3: Relation
-                0x3498db, // Layer 4: Form
-                0x40ffff, // Layer 5: Life
-                0xffd700, // Layer 6: Mind
-                0x27ae60  // Layer 7: Completion
+
+            // 🌊 DIMENSIONAL MANIFOLD - 5 z=xy Saddle Surfaces
+            // Arranged in 3D Star of David pattern
+            const manifoldGroup = new THREE.Group();
+
+            // Vibrant colors for each surface
+            const surfaceColors = [
+                new THREE.Color(0x6366f1), // Indigo
+                new THREE.Color(0x22d3ee), // Cyan
+                new THREE.Color(0xff6b9d), // Pink
+                new THREE.Color(0x8b5cf6), // Purple
+                new THREE.Color(0xfbbf24), // Gold
             ];
-            
-            // === GOLDEN SPIRAL RINGS ===
-            // 7 rings at Fibonacci radii, each a different Genesis layer
-            const rings = [];
-            const fibRadii = [1, 1.618, 2.618, 4.236, 6.854, 11.09, 17.944];
-            
-            for (let i = 0; i < 7; i++) {
-                const radius = fibRadii[i] * 0.3;
-                const geometry = new THREE.TorusGeometry(radius, 0.015, 8, 64);
-                const material = new THREE.MeshBasicMaterial({
-                    color: genesisColors[i],
+
+            // Create z=xy saddle surface geometry
+            function createManifoldSurface() {
+                const resolution = 50;
+                const size = 40;
+                const geometry = new THREE.BufferGeometry();
+                const positions = [];
+                const indices = [];
+
+                // Generate z=xy surface vertices
+                for (let i = 0; i <= resolution; i++) {
+                    for (let j = 0; j <= resolution; j++) {
+                        const x = (i / resolution - 0.5) * size;
+                        const y = (j / resolution - 0.5) * size;
+                        const z = x * y / 10; // z=xy (scaled for visibility)
+
+                        positions.push(x, y, z);
+                    }
+                }
+
+                // Generate indices for triangles
+                for (let i = 0; i < resolution; i++) {
+                    for (let j = 0; j < resolution; j++) {
+                        const a = i * (resolution + 1) + j;
+                        const b = a + resolution + 1;
+                        const c = a + 1;
+                        const d = b + 1;
+
+                        indices.push(a, b, c);
+                        indices.push(b, d, c);
+                    }
+                }
+
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+                geometry.setIndex(indices);
+                geometry.computeVertexNormals();
+
+                return geometry;
+            }
+
+            // Create 5 manifold surfaces at 90° intervals
+            // Forms a dimensional cross pattern
+            const surfaceCount = 5;
+            const manifoldSurfaces = [];
+
+            // Positions at 90° intervals (4 cardinal directions + 1 center)
+            const starPositions = [
+                { angle: 0, radius: 0, tilt: 0 },                    // Center
+                { angle: 0, radius: 25, tilt: Math.PI/6 },           // 0° (East)
+                { angle: Math.PI/2, radius: 25, tilt: Math.PI/6 },   // 90° (North)
+                { angle: Math.PI, radius: 25, tilt: Math.PI/6 },     // 180° (West)
+                { angle: Math.PI*3/2, radius: 25, tilt: Math.PI/6 }, // 270° (South)
+            ];
+
+            for (let i = 0; i < surfaceCount; i++) {
+                const geometry = createManifoldSurface();
+
+                // Semi-transparent glowing face
+                const faceMaterial = new THREE.MeshPhongMaterial({
+                    color: surfaceColors[i],
                     transparent: true,
-                    opacity: 0.25 - i * 0.02
+                    opacity: 0.15,
+                    side: THREE.DoubleSide,
+                    shininess: 100,
+                    emissive: surfaceColors[i],
+                    emissiveIntensity: 0.3,
+                    depthWrite: false
                 });
-                const ring = new THREE.Mesh(geometry, material);
-                ring.position.z = -3 - i * PHI;
-                ring.rotation.x = Math.PI * 0.3 + i * 0.1;
-                ring.rotation.y = i * (Math.PI * 2 / PHI); // golden angle rotation
-                ring.userData = {
-                    baseSpeed: 0.003 / (i + 1),
-                    layer: i + 1
-                };
-                rings.push(ring);
-                scene.add(ring);
+
+                const surface = new THREE.Mesh(geometry, faceMaterial);
+
+                // Position in Star of David pattern
+                const pos = starPositions[i];
+                surface.position.x = Math.cos(pos.angle) * pos.radius;
+                surface.position.y = Math.sin(pos.angle) * pos.radius;
+                surface.rotation.z = pos.angle;
+                surface.rotation.x = pos.tilt;
+
+                manifoldSurfaces.push(surface);
+                manifoldGroup.add(surface);
             }
-            
-            // === FIBONACCI SPIRAL POINTS ===
-            // 55 points (Fibonacci) arranged in golden spiral
-            const spiralPoints = [];
-            const goldenAngle = Math.PI * (3 - Math.sqrt(5)); // ~137.5°
-            
-            for (let i = 0; i < 55; i++) {
-                const theta = i * goldenAngle;
-                const r = Math.sqrt(i) * 0.5;
-                const layerIndex = i % 7;
-                
-                const geometry = new THREE.SphereGeometry(
-                    0.02 + (i % 3) * 0.015, // Fibonacci-varied sizes
-                    6, 6
-                );
-                const material = new THREE.MeshBasicMaterial({
-                    color: genesisColors[layerIndex],
+
+            // Add bright glowing wireframe edges for each surface
+            for (let i = 0; i < surfaceCount; i++) {
+                const geometry = createManifoldSurface();
+                const edgeMaterial = new THREE.MeshBasicMaterial({
+                    color: surfaceColors[i],
                     transparent: true,
-                    opacity: 0.5
+                    opacity: 0.8,
+                    wireframe: true,
+                    depthWrite: false
                 });
-                const sphere = new THREE.Mesh(geometry, material);
-                
-                sphere.position.set(
-                    r * Math.cos(theta),
-                    r * Math.sin(theta),
-                    -5 - (i / 55) * 13  // Fibonacci depth spread
-                );
-                
-                sphere.userData = {
-                    origX: sphere.position.x,
-                    origY: sphere.position.y,
-                    origZ: sphere.position.z,
-                    phase: i * PHI,
-                    speed: 0.001 + (i % 5) * 0.0005,
-                    layer: layerIndex
-                };
-                
-                spiralPoints.push(sphere);
-                scene.add(sphere);
+
+                const wireframe = new THREE.Mesh(geometry, edgeMaterial);
+                const pos = starPositions[i];
+                wireframe.position.x = Math.cos(pos.angle) * pos.radius;
+                wireframe.position.y = Math.sin(pos.angle) * pos.radius;
+                wireframe.rotation.z = pos.angle;
+                wireframe.rotation.x = pos.tilt;
+
+                manifoldGroup.add(wireframe);
             }
-            
-            // === DIMENSIONAL HELIX ===
-            // Double helix (DNA-like) at center — the manifold spine
-            const helixPoints1 = [];
-            const helixPoints2 = [];
-            const helixSteps = 89; // Fibonacci
-            
-            for (let i = 0; i < helixSteps; i++) {
-                const t = i / helixSteps;
-                const angle = t * Math.PI * 8;
-                const r = 0.8;
-                const z = -20 + t * 15;
-                
-                helixPoints1.push(new THREE.Vector3(
-                    r * Math.cos(angle), r * Math.sin(angle), z
-                ));
-                helixPoints2.push(new THREE.Vector3(
-                    r * Math.cos(angle + Math.PI), r * Math.sin(angle + Math.PI), z
-                ));
-            }
-            
-            const helixMat1 = new THREE.LineBasicMaterial({ color: 0xff6b9d, transparent: true, opacity: 0.15 });
-            const helixMat2 = new THREE.LineBasicMaterial({ color: 0x40ffff, transparent: true, opacity: 0.15 });
-            
-            const helixGeo1 = new THREE.BufferGeometry().setFromPoints(helixPoints1);
-            const helixGeo2 = new THREE.BufferGeometry().setFromPoints(helixPoints2);
-            
-            const helix1 = new THREE.Line(helixGeo1, helixMat1);
-            const helix2 = new THREE.Line(helixGeo2, helixMat2);
-            scene.add(helix1);
-            scene.add(helix2);
-            
-            camera.position.z = 5;
-            
-            // Mouse parallax — φ-scaled sensitivity
-            let mouseX = 0, mouseY = 0;
-            document.addEventListener('mousemove', (e) => {
-                mouseX = (e.clientX / window.innerWidth - 0.5) * PHI;
-                mouseY = (e.clientY / window.innerHeight - 0.5) * PHI;
+
+            // Create transparent sphere container
+            const sphereGeometry = new THREE.SphereGeometry(80, 32, 32);
+            const sphereMaterial = new THREE.MeshPhongMaterial({
+                color: 0x6366f1,
+                transparent: true,
+                opacity: 0.05,
+                side: THREE.DoubleSide,
+                shininess: 100,
+                depthWrite: false
             });
-            
-            let frame = 0;
+            const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            manifoldGroup.add(sphere);
+
+            // Add sphere wireframe
+            const sphereWireGeometry = new THREE.SphereGeometry(80, 16, 16);
+            const sphereWireMaterial = new THREE.MeshBasicMaterial({
+                color: 0x22d3ee,
+                transparent: true,
+                opacity: 0.12,
+                wireframe: true
+            });
+            const sphereWire = new THREE.Mesh(sphereWireGeometry, sphereWireMaterial);
+            manifoldGroup.add(sphereWire);
+
+            // Position the manifold group
+            manifoldGroup.position.set(0, 0, -80);
+            scene.add(manifoldGroup);
+
+            // Add lights for the manifold surfaces
+            const manifoldLight1 = new THREE.PointLight(0x6366f1, 1, 300);
+            manifoldLight1.position.set(100, 100, 0);
+            scene.add(manifoldLight1);
+
+            const manifoldLight2 = new THREE.PointLight(0x22d3ee, 1, 300);
+            manifoldLight2.position.set(-100, -100, 0);
+            scene.add(manifoldLight2);
+
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+            scene.add(ambientLight);
+
+            // 🌌 Add starfield for depth
+            const starGeometry = new THREE.BufferGeometry();
+            const starVertices = [];
+            for (let i = 0; i < 5000; i++) {
+                const x = (Math.random() - 0.5) * 2000;
+                const y = (Math.random() - 0.5) * 2000;
+                const z = -Math.random() * 2000 - 100;
+                starVertices.push(x, y, z);
+            }
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            const starMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 1.5,
+                transparent: true,
+                opacity: 0.8
+            });
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+
+            // 🌈 Add nebula clouds for organic depth
+            const nebulaGroup = new THREE.Group();
+            const nebulaColors = [0x6366f1, 0x22d3ee, 0xff6b9d];
+
+            for (let i = 0; i < 3; i++) {
+                const cloudGeometry = new THREE.SphereGeometry(150, 16, 16);
+                const cloudMaterial = new THREE.MeshBasicMaterial({
+                    color: nebulaColors[i],
+                    transparent: true,
+                    opacity: 0.03,
+                    side: THREE.BackSide
+                });
+                const cloud = new THREE.Mesh(cloudGeometry, cloudMaterial);
+                cloud.position.set(
+                    (Math.random() - 0.5) * 300,
+                    (Math.random() - 0.5) * 300,
+                    -200 - Math.random() * 300
+                );
+                cloud.scale.set(1 + Math.random(), 1 + Math.random(), 1 + Math.random());
+                nebulaGroup.add(cloud);
+            }
+            scene.add(nebulaGroup);
+
+            camera.position.z = 5;
+
+            // Mouse interaction for manifold rotation
+            let mouseX = 0, mouseY = 0;
+            let targetRotationX = 0, targetRotationY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+                mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+
+                // Mouse controls manifold rotation
+                targetRotationY = mouseX * Math.PI * 0.3;
+                targetRotationX = mouseY * Math.PI * 0.2;
+            });
+
             function animate() {
                 requestAnimationFrame(animate);
-                frame++;
-                
-                // Rotate rings at layer-specific speeds
-                rings.forEach((ring) => {
-                    ring.rotation.x += ring.userData.baseSpeed;
-                    ring.rotation.z += ring.userData.baseSpeed * 0.618;
+
+                const time = Date.now() * 0.0001;
+
+                // 🌊 Rotate manifold group - smooth interpolation to mouse position
+                manifoldGroup.rotation.y += (targetRotationY - manifoldGroup.rotation.y) * 0.05;
+                manifoldGroup.rotation.x += (targetRotationX - manifoldGroup.rotation.x) * 0.05;
+
+                // Add continuous slow rotation for Star of David effect
+                manifoldGroup.rotation.y += 0.002;
+                manifoldGroup.rotation.x += 0.001;
+                manifoldGroup.rotation.z += 0.0005;
+
+                // Pulse the sphere slightly
+                const sphereScale = 1 + Math.sin(time * 2) * 0.02;
+                sphere.scale.set(sphereScale, sphereScale, sphereScale);
+
+                // Pulse individual surfaces for depth
+                manifoldSurfaces.forEach((surface, i) => {
+                    const pulse = Math.sin(time * 3 + i * Math.PI * 0.4) * 0.05;
+                    surface.material.emissiveIntensity = 0.3 + pulse;
                 });
-                
-                // Pulse spiral points along golden angle paths
-                spiralPoints.forEach((sphere) => {
-                    const ud = sphere.userData;
-                    const t = frame * ud.speed;
-                    sphere.position.x = ud.origX + Math.sin(t + ud.phase) * 0.15;
-                    sphere.position.y = ud.origY + Math.cos(t * PHI + ud.phase) * 0.15;
-                    sphere.material.opacity = 0.3 + Math.sin(t * 2 + ud.phase) * 0.2;
-                });
-                
-                // Rotate helices slowly
-                helix1.rotation.z += 0.001;
-                helix2.rotation.z += 0.001;
-                
-                // Camera follows mouse — φ-damped
-                camera.position.x += (mouseX * 0.618 - camera.position.x) * 0.02;
-                camera.position.y += (-mouseY * 0.618 - camera.position.y) * 0.02;
-                camera.lookAt(0, 0, -5);
-                
+
+                // Camera follows mouse slightly
+                camera.position.x += (mouseX * 2 - camera.position.x) * 0.02;
+                camera.position.y += (-mouseY * 2 - camera.position.y) * 0.02;
+                camera.lookAt(0, 0, -80);
+
                 renderer.render(scene, camera);
             }
-            
+
             animate();
             
             window.addEventListener('resize', () => {
@@ -1044,8 +1142,13 @@
             });
         }
         
+        console.log("🦋 THREE.js loaded:", typeof THREE);
         if (typeof THREE !== 'undefined') {
+            console.log("🌊 Initializing 3D background...");
             init3DBackground();
+            console.log("✅ 3D background initialized");
+        } else {
+            console.error("❌ THREE.js not loaded!");
         }
         
         // Reveal animations on scroll
@@ -1091,18 +1194,15 @@
             }
         });
 
-        // Force clear old service worker caches & re-register latest SW
+        // 🦋 DIMENSIONAL PROGRAMMING: No caching - always observe current manifold state
+        // Service workers removed - reality manifests in real-time, not from cache
         if ('serviceWorker' in navigator) {
-            caches.keys().then(names => {
-                names.forEach(name => {
-                    if (!name.includes('v2.0.0')) {
-                        caches.delete(name);
-                    }
-                });
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                registrations.forEach(reg => reg.unregister());
             });
-            navigator.serviceWorker.register('sw.js').then(reg => {
-                reg.update();
-            }).catch(() => {});
+            caches.keys().then(names => {
+                names.forEach(name => caches.delete(name));
+            });
         }
     </script>
 </body>

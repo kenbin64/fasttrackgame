@@ -1235,52 +1235,32 @@
             color: #fff;
         }
         
-        /* Floating Rules Button (in-game) */
-        #rules-toggle-btn {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, rgba(100,200,255,0.3), rgba(60,150,255,0.3));
-            border: 2px solid rgba(100,200,255,0.5);
-            color: #fff;
-            font-size: 22px;
-            cursor: pointer;
-            z-index: 10002;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 20px rgba(100,200,255,0.3);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-        }
-        #rules-toggle-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(100,200,255,0.5);
-        }
-        
-        /* Camera Toggle Button */
-        #camera-toggle-btn {
-            position: fixed;
-            bottom: 200px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, rgba(255,180,100,0.3), rgba(255,140,60,0.3));
-            border: 2px solid rgba(255,180,100,0.5);
-            color: #fff;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 10002;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 20px rgba(255,180,100,0.3);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
+        /* ============================================================ */
+        /* LEGACY BUTTONS - HIDDEN (replaced by new standardized buttons) */
+        /* ============================================================ */
+
+        /* ============================================================ */
+        /* LEGACY BUTTONS - PERMANENTLY REMOVED */
+        /* These are completely hidden and removed from layout */
+        /* ============================================================ */
+
+        #rules-toggle-btn,
+        #camera-toggle-btn,
+        #pause-btn,
+        #menu-toggle-btn,
+        button[id*="pause"],
+        button[id*="rules-toggle"],
+        button[id*="camera-toggle"],
+        button[id*="menu-toggle"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            position: absolute !important;
+            left: -9999px !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
         }
         
         /* Camera View Selector Panel */
@@ -1397,70 +1377,68 @@
             color: rgba(255,255,255,0.6);
             margin-top: 4px;
         }
-        #camera-toggle-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(255,180,100,0.5);
-        }
-        #camera-toggle-btn.cinematic {
-            background: linear-gradient(135deg, rgba(100,255,150,0.3), rgba(60,200,100,0.3));
-            border-color: rgba(100,255,150,0.5);
-            box-shadow: 0 0 20px rgba(100,255,150,0.3);
-        }
-        #camera-toggle-btn.cinematic:hover {
-            box-shadow: 0 0 30px rgba(100,255,150,0.5);
-        }
-        
-        /* Exit Game Button */
-        #exit-game-btn {
+
+
+        /* ============================================================ */
+        /* RIGHT-HAND CONTROL BUTTONS - Standardized 5-button layout */
+        /* ============================================================ */
+
+        /* Camera Control Button */
+        #camera-btn {
             position: fixed;
             bottom: 380px;
             right: 20px;
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: linear-gradient(135deg, rgba(255,80,80,0.3), rgba(200,40,40,0.3));
-            border: 2px solid rgba(255,80,80,0.5);
+            background: linear-gradient(135deg, rgba(52,152,219,0.75), rgba(41,128,185,0.75));
+            border: 2px solid rgba(52,152,219,0.8);
             color: #fff;
             font-size: 20px;
             cursor: pointer;
             z-index: 10002;
-            display: none;
+            display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 20px rgba(255,80,80,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(52,152,219,0.3);
             backdrop-filter: blur(10px);
             transition: all 0.3s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
-        #exit-game-btn:hover {
+        #camera-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(255,80,80,0.5);
-            background: linear-gradient(135deg, rgba(255,100,100,0.5), rgba(220,60,60,0.5));
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(52,152,219,0.5);
+            background: linear-gradient(135deg, rgba(52,152,219,0.85), rgba(41,128,185,0.85));
         }
-        
-        /* Camera Button */
-        #camera-btn {
+
+        /* Theme Button */
+        #theme-btn {
             position: fixed;
             bottom: 320px;
             right: 20px;
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: linear-gradient(135deg, rgba(52,152,219,0.3), rgba(41,128,185,0.3));
-            border: 2px solid rgba(52,152,219,0.5);
+            background: linear-gradient(135deg, rgba(255,107,107,0.75), rgba(255,71,87,0.75));
+            border: 2px solid rgba(255,107,107,0.8);
             color: #fff;
             font-size: 20px;
             cursor: pointer;
             z-index: 10002;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(255,107,107,0.3);
             backdrop-filter: blur(10px);
             transition: all 0.3s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
-        #camera-btn:hover {
+        #theme-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(52,152,219,0.5);
-            background: linear-gradient(135deg, rgba(52,152,219,0.5), rgba(41,128,185,0.5));
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(255,107,107,0.5);
+            background: linear-gradient(135deg, rgba(255,107,107,0.85), rgba(255,71,87,0.85));
         }
-        
+
         /* Music Toggle Button */
         #music-toggle-btn {
             position: fixed;
@@ -1469,56 +1447,94 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(109,40,217,0.3));
-            border: 2px solid rgba(124,58,237,0.5);
+            background: linear-gradient(135deg, rgba(124,58,237,0.75), rgba(109,40,217,0.75));
+            border: 2px solid rgba(124,58,237,0.8);
             color: #fff;
             font-size: 20px;
             cursor: pointer;
             z-index: 10002;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(124,58,237,0.3);
             backdrop-filter: blur(10px);
             transition: all 0.3s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
         #music-toggle-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(124,58,237,0.5);
-            background: linear-gradient(135deg, rgba(124,58,237,0.5), rgba(109,40,217,0.5));
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(124,58,237,0.5);
+            background: linear-gradient(135deg, rgba(124,58,237,0.85), rgba(109,40,217,0.85));
         }
         #music-toggle-btn.music-on {
-            background: linear-gradient(135deg, rgba(74,222,128,0.3), rgba(34,197,94,0.3));
-            border-color: rgba(74,222,128,0.5);
-            box-shadow: 0 0 20px rgba(74,222,128,0.3);
+            background: linear-gradient(135deg, rgba(74,222,128,0.75), rgba(34,197,94,0.75));
+            border-color: rgba(74,222,128,0.8);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(74,222,128,0.3);
         }
         #music-toggle-btn.music-on:hover {
-            box-shadow: 0 0 30px rgba(74,222,128,0.5);
-            background: linear-gradient(135deg, rgba(74,222,128,0.5), rgba(34,197,94,0.5));
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(74,222,128,0.5);
+            background: linear-gradient(135deg, rgba(74,222,128,0.85), rgba(34,197,94,0.85));
         }
-        
-        /* Mom Help Button */
-        #mom-help-btn {
+
+        /* Leave Game Button */
+        #leave-game-btn {
             position: fixed;
             bottom: 200px;
             right: 20px;
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: linear-gradient(135deg, rgba(255,150,200,0.3), rgba(255,100,180,0.3));
-            border: 2px solid rgba(255,150,200,0.5);
+            background: linear-gradient(135deg, rgba(255,80,80,0.75), rgba(200,40,40,0.75));
+            border: 2px solid rgba(255,80,80,0.8);
             color: #fff;
-            font-size: 22px;
+            font-size: 20px;
             cursor: pointer;
             z-index: 10002;
-            display: none;
+            display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 20px rgba(255,150,200,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(255,80,80,0.3);
             backdrop-filter: blur(10px);
             transition: all 0.3s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
-        #mom-help-btn:hover {
+        #leave-game-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(255,150,200,0.5);
-            background: linear-gradient(135deg, rgba(255,180,220,0.5), rgba(255,130,200,0.5));
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(255,80,80,0.5);
+            background: linear-gradient(135deg, rgba(255,100,100,0.85), rgba(220,60,60,0.85));
+        }
+
+        /* Board View Button */
+        #board-view-btn {
+            position: fixed;
+            bottom: 140px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(74,222,128,0.75), rgba(34,197,94,0.75));
+            border: 2px solid rgba(74,222,128,0.8);
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(74,222,128,0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        #board-view-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(74,222,128,0.5);
+            background: linear-gradient(135deg, rgba(74,222,128,0.85), rgba(34,197,94,0.85));
+        }
+        #board-view-btn.active {
+            background: linear-gradient(135deg, rgba(255,180,100,0.75), rgba(255,140,60,0.75));
+            border-color: rgba(255,180,100,0.8);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 25px rgba(255,180,100,0.4);
         }
         
         /* Exit Confirmation Modal */
@@ -1699,23 +1715,7 @@
         
         /* Turn Timer — REMOVED */
         
-        /* Pause Button and Overlay */
-        #pause-btn {
-            position: fixed;
-            bottom: 140px;
-            right: 20px;
-            background: linear-gradient(135deg, #9333ea, #6366f1);
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            cursor: pointer;
-            font-size: 20px;
-            z-index: 5500;
-            box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
-            transition: all 0.2s;
-        }
-        #pause-btn:hover { transform: scale(1.1); }
+        /* Pause Button - Already handled in legacy buttons section above */
         
         /* Game Controls Bar */
         #game-controls-bar {

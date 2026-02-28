@@ -377,22 +377,22 @@
     
     <!-- Floating Rules Button — REMOVED (available in hamburger menu) -->
     
-    <!-- Camera View Selector Panel - REMOVED (now in GameUIMinimal menu) -->
-    
-    <!-- Exit Game Button -->
-    <button id="exit-game-btn" onclick="showExitConfirm()" title="Exit Game">🚪</button>
-    
-    <!-- Camera Button -->
+    <!-- Right-Hand Control Buttons (5 buttons with consistent styling) -->
+
+    <!-- Camera Control Button -->
     <button id="camera-btn" onclick="openCameraPanel()" title="Camera Options">📹</button>
-    
-    <!-- Music Toggle Button -->
+
+    <!-- Theme Button -->
+    <button id="theme-btn" onclick="openThemePanel()" title="Change Theme">🎨</button>
+
+    <!-- Music Toggle Button (Music only, not SFX) -->
     <button id="music-toggle-btn" onclick="toggleGameMusic()" title="Music: OFF">🔇</button>
-    
-    <!-- Tutorial Button -->
-    <button id="tutorial-btn" onclick="FastTrackTutorial.start()" title="Tutorial" style="display:none;">📖</button>
-    
-    <!-- Mom Help Button (Toggle Daemon) -->
-    <button id="mom-help-btn" onclick="toggleMomDaemon()" title="Toggle Mom Helper" class="">👩‍👧</button>
+
+    <!-- Leave Game Button -->
+    <button id="leave-game-btn" onclick="showExitConfirm()" title="Leave Game">🚪</button>
+
+    <!-- Fixed Views Button (persistent preset views) -->
+    <button id="board-view-btn" onclick="setBoardViewMode()" title="Fixed Views">🎯</button>
     
     <!-- Exit Confirmation Modal -->
     <div id="exit-confirm-modal">
@@ -921,11 +921,14 @@
     </div>
 
     <!-- jQuery (for reliable DOM ready handling) -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="assets/js/jquery-3.7.1.min.js"></script>
 
     <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="assets/js/three.min.js"></script>
+    <script src="assets/js/OrbitControls.js"></script>
+
+    <!-- Fibonacci Spiral Backdrop for Board View -->
+    <script src="fibonacci_backdrop.js?v=20260228"></script>
 
     <!-- 🌊 DIMENSIONAL PROGRAMMING CORE SUBSTRATES -->
     <!-- "Everything exists. Only observation manifests reality." -->
@@ -1029,7 +1032,7 @@
     // GOLDEN RATIO PROPORTIONS (φ = 1.618033988749895)
     // All dimensions cascade from a base unit using φ
     // ============================================================
-    const PHI = 1.618033988749895;
+    // PHI is already declared globally by external substrates
     const BASE_UNIT = 5;  // Fundamental unit
 
     // Board dimensions (anchor point)
@@ -1605,6 +1608,93 @@
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
+        // Protect camera from external scripts when Fixed Views or Manual are active.
+        (function protectCameraWrites() {
+            // Helper: capture a concise stack trace for debugging caller
+            function _captureStack() {
+                try {
+                    const raw = new Error().stack || '';
+                    return raw.split('\n').slice(2, 8).map(s => s.trim()).join('\n');
+                } catch (e) { return 'stack-unavailable'; }
+            }
+
+            // Expose last override attempt for debugging
+            window._lastCameraOverrideAttempt = null;
+            try {
+                if (!camera || !camera.position) return;
+                // Preserve originals
+                const _origPosSet = camera.position.set.bind(camera.position);
+                const _origPosCopy = camera.position.copy.bind(camera.position);
+                const _origLookAt = camera.lookAt.bind(camera);
+
+                camera.position.set = function(x, y, z) {
+                    if (window._allowCameraWrite) return _origPosSet(x, y, z);
+                    if (typeof fixedViewsActive !== 'undefined' && fixedViewsActive) {
+                        const stack = _captureStack();
+                        console.warn('[CameraGuard] Blocked position.set while fixedViewsActive', { x, y, z, stack });
+                        window._lastCameraOverrideAttempt = { method: 'position.set', args: [x,y,z], mode: 'fixedViewsActive', time: Date.now(), stack };
+                        return this;
+                    }
+                    if (currentCameraView === 'manual') {
+                        // Don't allow external scripts to override manual view
+                        const stack = _captureStack();
+                        console.warn('[CameraGuard] Blocked position.set while manual', { x, y, z, stack });
+                        window._lastCameraOverrideAttempt = { method: 'position.set', args: [x,y,z], mode: 'manual', time: Date.now(), stack };
+                        return this;
+                    }
+                    return _origPosSet(x, y, z);
+                };
+
+                camera.position.copy = function(v) {
+                    if (window._allowCameraWrite) return _origPosCopy(v);
+                    if (typeof fixedViewsActive !== 'undefined' && fixedViewsActive) {
+                        const stack = _captureStack();
+                        console.warn('[CameraGuard] Blocked position.copy while fixedViewsActive', { v, stack });
+                        window._lastCameraOverrideAttempt = { method: 'position.copy', args: [v], mode: 'fixedViewsActive', time: Date.now(), stack };
+                        return this;
+                    }
+                    if (currentCameraView === 'manual') {
+                        const stack = _captureStack();
+                        console.warn('[CameraGuard] Blocked position.copy while manual', { v, stack });
+                        window._lastCameraOverrideAttempt = { method: 'position.copy', args: [v], mode: 'manual', time: Date.now(), stack };
+                        return this;
+                    }
+                    return _origPosCopy(v);
+                };
+
+                camera.lookAt = function() {
+                    if (window._allowCameraWrite) return _origLookAt.apply(camera, arguments);
+                    if (typeof fixedViewsActive !== 'undefined' && fixedViewsActive) {
+                        const stack = _captureStack();
+                        console.warn('[CameraGuard] Blocked lookAt while fixedViewsActive', { args: arguments, stack });
+                        window._lastCameraOverrideAttempt = { method: 'lookAt', args: Array.from(arguments), mode: 'fixedViewsActive', time: Date.now(), stack };
+                        return;
+                    }
+                    if (currentCameraView === 'manual') {
+                        const stack = _captureStack();
+                        console.warn('[CameraGuard] Blocked lookAt while manual', { args: arguments, stack });
+                        window._lastCameraOverrideAttempt = { method: 'lookAt', args: Array.from(arguments), mode: 'manual', time: Date.now(), stack };
+                        return;
+                    }
+                    return _origLookAt.apply(camera, arguments);
+                };
+            } catch (e) {
+                console.warn('[CameraGuard] failed to wrap camera methods', e);
+            }
+        })();
+
+        // Ensure default camera mode on load is automatic ('chase') and
+        // fixed board view is off. Use force to bypass any guards during init.
+        try {
+            boardViewMode = 0;
+            fixedViewsActive = false;
+            currentCameraView = 'chase';
+            // UI: ensure board-view button is not marked active
+            const bv = document.getElementById('board-view-btn');
+            if (bv) bv.classList.remove('active');
+            // Apply automatic chase view immediately
+            if (typeof setCameraViewMode === 'function') setCameraViewMode('chase', { force: true });
+        } catch (e) {}
         controls.enablePan = true;
         controls.enableZoom = true;
         controls.enableRotate = true;
@@ -1666,6 +1756,10 @@
             // Apply theme
             if (window.FastTrackThemes) {
                 FastTrackThemes.apply(currentThemeName, scene, THREE);
+                // Freeze backdrop motion by default in production so background does not drift over the board.
+                if (typeof FastTrackThemes.setMotionScale === 'function') {
+                    FastTrackThemes.setMotionScale(0);
+                }
             }
         });
         
@@ -2520,6 +2614,10 @@
     let userInteractionTimeout = null;  // smooth-return delay timer
     let cameraMode = 'cinematic'; // 'cinematic' = auto-follow, 'manual' = user control
     let activePegTracking = null; // Ref to peg being tracked for smooth follow
+    // Pointer tracking to determine deliberate pan/rotate vs click
+    let _pointerStart = null;
+    let _pointerMoved = false;
+    const POINTER_MOVE_THRESHOLD = 8; // pixels
     
     // Saved camera state for smooth return after user releases mouse
     let savedCameraTarget = null;
@@ -2942,6 +3040,24 @@
         if (btn) btn.style.display = 'none';
     }
 
+    // Small informational popup for Fixed Views state
+    function showFixedViewInfo(text, duration = 2400) {
+        let el = document.getElementById('fixed-views-info');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'fixed-views-info';
+            el.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:20020;' +
+                'background:rgba(0,0,0,0.85);color:#fff;padding:10px 18px;border-radius:12px;' +
+                'font-family:Inter,Arial,sans-serif;font-size:14px;font-weight:600;pointer-events:none;' +
+                'box-shadow:0 6px 30px rgba(0,0,0,0.45);transition:opacity 0.25s ease;opacity:0;';
+            document.body.appendChild(el);
+        }
+        el.textContent = text;
+        el.style.opacity = '1';
+        if (el._hideTimeout) clearTimeout(el._hideTimeout);
+        el._hideTimeout = setTimeout(() => { el.style.opacity = '0'; }, duration);
+    }
+
     // Wire mouse events for peg eye (added once, checked inside handlers)
     document.addEventListener('click', _pegEyeOnClick);
     document.addEventListener('pointerdown', _pegEyePointerDown);
@@ -2974,8 +3090,29 @@
     window.toggleCameraPanel = toggleCameraPanel;
     
     // Set camera view mode
-    function setCameraViewMode(viewName) {
+    function setCameraViewMode(viewName, opts) {
+        opts = opts || {};
         if (!CAMERA_VIEWS[viewName]) return;
+
+        // If board fixed views are active (straight or angled), completely ignore
+        // any attempts to change camera mode. This guarantees strict separation
+        // between fixed straight / fixed angled and automatic modes.
+        if (typeof boardViewMode !== 'undefined' && boardViewMode > 0) {
+            try {
+                const stack = (new Error().stack || '').split('\n').slice(2, 8).map(s => s.trim()).join('\n');
+                console.warn('[Camera] Board fixed view active (mode', boardViewMode, ') — ignoring change to', viewName, { stack });
+                window._lastCameraOverrideCaller = { time: Date.now(), caller: viewName, mode: 'boardFixed', boardViewMode, stack };
+            } catch (e) {
+                console.log('[Camera] Board fixed view active — ignoring change to', viewName);
+            }
+            return;
+        }
+
+        // If fixedViewsActive is true for other reasons, ignore changes unless forced
+        if (typeof fixedViewsActive !== 'undefined' && fixedViewsActive && !opts.force) {
+            console.log('[Camera] Fixed views active — ignoring change to', viewName);
+            return;
+        }
         
         // Stop any existing orbit animation
         if (orbitAnimationId) {
@@ -3047,7 +3184,127 @@
         }
     }
     window.setCameraViewMode = setCameraViewMode;
-    
+
+    // Fixed Views Mode - Toggle between straight down and angled preset views
+    // These are persistent until the user toggles them off.
+    // 0 = off (automatic), 1 = straight down, 2 = angled
+    let boardViewMode = 0;
+    let fibonacciBackdrop = null;
+    // When fixedViewsActive is true, automatic camera changes are suppressed
+    // until the user explicitly disables fixed views.
+    let fixedViewsActive = false;
+
+    function setBoardViewMode() {
+        const btn = document.getElementById('board-view-btn');
+
+        // Cycle through: off -> straight down -> angled -> off
+        boardViewMode = (boardViewMode + 1) % 3;
+
+        if (boardViewMode === 0) {
+            // Exit board view mode - return to normal view
+            if (btn) {
+                btn.classList.remove('active');
+                try {
+                    btn.style.pointerEvents = '';
+                    btn.style.zIndex = '';
+                    btn.removeAttribute('data-fixed-views');
+                } catch (e) {}
+            }
+
+            // Hide lava lamp backdrop
+            if (fibonacciBackdrop) {
+                fibonacciBackdrop.hide();
+            }
+
+            // Re-enable controls (keep them enabled for mouse manipulation)
+            if (controls) {
+                controls.enabled = true;
+                controls.enableRotate = true;
+                controls.enableZoom = true;
+                controls.enablePan = true;
+            }
+            userOverrideCamera = false;
+            fixedViewsActive = false;
+
+            // Inform user
+            showFixedViewInfo('Automatic View — automatic camera enabled');
+
+            // Return to automatic camera (force to bypass fixed-views guard)
+            setCameraViewMode('chase', { force: true });
+            console.log('[Fixed Views] Exited - returned to automatic camera');
+        } else {
+            // Enter board view mode (straight down or angled)
+            if (btn) {
+                btn.classList.add('active');
+                // Ensure the fixed-views button stays clickable even when other
+                // overlays are shown (demo/promo). Bring to front and allow pointer events.
+                try {
+                    btn.style.pointerEvents = 'auto';
+                    btn.style.zIndex = '100001';
+                    btn.setAttribute('data-fixed-views', 'true');
+                } catch (e) {}
+            }
+
+            // Create and show lava lamp backdrop if not exists
+            if (!fibonacciBackdrop && window.FibonacciBackdrop) {
+                fibonacciBackdrop = new window.FibonacciBackdrop(scene);
+                fibonacciBackdrop.create();
+            }
+            if (fibonacciBackdrop) {
+                fibonacciBackdrop.show();
+            }
+
+            // Keep controls enabled so user can manipulate with mouse
+            if (controls) {
+                controls.enabled = true;
+                controls.enableRotate = true;
+                controls.enableZoom = true;
+                controls.enablePan = true;
+            }
+
+            // Apply camera placement first while allowing internal writes,
+            // then enable fixed view mode so external scripts cannot override.
+            try {
+                window._allowCameraWrite = true;
+            } catch (e) {}
+
+            if (camera && controls) {
+                if (boardViewMode === 1) {
+                    // Straight down view
+                    camera.position.set(0, 700, 0);
+                    camera.lookAt(0, 0, 0);
+                    controls.target.set(0, 0, 0);
+                    console.log('[Fixed Views] Mode 1: Straight Down - mouse controls enabled');
+                    showFixedViewInfo('Straight Down View (Fixed)');
+                    currentCameraView = 'fixed-straight';
+                } else if (boardViewMode === 2) {
+                    // Angled view (45 degrees)
+                    const distance = 700;
+                    const angle = Math.PI / 4; // 45 degrees
+                    camera.position.set(
+                        distance * Math.sin(angle),
+                        distance * Math.cos(angle),
+                        distance * Math.sin(angle)
+                    );
+                    camera.lookAt(0, 0, 0);
+                    controls.target.set(0, 0, 0);
+                    console.log('[Fixed Views] Mode 2: Angled View - mouse controls enabled');
+                    showFixedViewInfo('Angled View (Fixed)');
+                    currentCameraView = 'fixed-angled';
+                }
+            }
+
+            try {
+                window._allowCameraWrite = false;
+            } catch (e) {}
+
+            // Now mark as fixed so external writes are blocked
+            userOverrideCamera = true;
+            fixedViewsActive = true;
+        }
+    }
+    window.setBoardViewMode = setBoardViewMode;
+
     // Get active peg position (current player's leading peg)
     function getActivePegPosition() {
         if (!gameState) return null;
@@ -3112,9 +3369,10 @@
         const height = view.height;
         const speed = 0.0005 * cameraSpeedFactor; // radians per frame, scaled by speed
         
-        function animateOrbit() {
-            // Stop orbit if user takes over
+            function animateOrbit() {
+            // Stop orbit if user takes over or manual/fixed board views are active
             if (userIsInteracting || currentCameraView === 'manual') return;
+            if ((typeof boardViewMode !== 'undefined' && boardViewMode > 0) || (typeof fixedViewsActive !== 'undefined' && fixedViewsActive)) return;
             
             orbitAngle += speed;
             
@@ -3144,6 +3402,7 @@
             return;
         }
         if (userOverrideCamera || userIsInteracting || currentCameraView === 'manual') return;
+        if ((typeof boardViewMode !== 'undefined' && boardViewMode > 0) || (typeof fixedViewsActive !== 'undefined' && fixedViewsActive)) return;
         
         const view = CAMERA_VIEWS[currentCameraView];
         if (!view) return;
@@ -3231,10 +3490,12 @@
     // smooth transition back to the current camera mode's position.
     function setupCameraInteractionTracking() {
         if (!controls || !renderer) return;
-        
-        renderer.domElement.addEventListener('pointerdown', () => {
+        // Pointer down: mark interaction start and record start position
+        renderer.domElement.addEventListener('pointerdown', (e) => {
             userIsInteracting = true;
             userOverrideCamera = true;
+            _pointerMoved = false;
+            try { _pointerStart = { x: e.clientX, y: e.clientY }; } catch (ex) { _pointerStart = null; }
             // Cancel any pending smooth-return timer
             if (userInteractionTimeout) {
                 clearTimeout(userInteractionTimeout);
@@ -3249,7 +3510,50 @@
                 if (pendingCallback) pendingCallback();
             }
         });
-        
+
+        // Track pointer movement while interacting to detect deliberate pans/rotates
+        renderer.domElement.addEventListener('pointermove', (e) => {
+            // If pointer is not down we don't treat as drag here
+            if (!_pointerStart) return;
+            const cx = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || 0;
+            const cy = e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || 0;
+            const dx = cx - _pointerStart.x;
+            const dy = cy - _pointerStart.y;
+            if (!_pointerMoved && Math.sqrt(dx * dx + dy * dy) > POINTER_MOVE_THRESHOLD) {
+                _pointerMoved = true;
+                // Immediately treat deliberate drag as manual control
+                userOverrideCamera = true;
+                currentCameraView = 'manual';
+                cameraMode = 'manual';
+                // Cancel any cinematic transition
+                if (cameraTransition) {
+                    cancelAnimationFrame(cameraTransition.animId);
+                    const cb = cameraTransition.onComplete;
+                    cameraTransition = null;
+                    if (cb) cb();
+                }
+                showFixedViewInfo('Manual camera enabled — automatic camera disabled');
+            }
+        }, { passive: true });
+
+        // Wheel (zoom) should also switch to manual immediately
+        renderer.domElement.addEventListener('wheel', (e) => {
+            userOverrideCamera = true;
+            currentCameraView = 'manual';
+            cameraMode = 'manual';
+            showFixedViewInfo('Manual camera (wheel) — automatic camera disabled');
+        }, { passive: true });
+
+        // Touch gestures: if multiple touches or significant movement, treat as manual
+        renderer.domElement.addEventListener('touchmove', (e) => {
+            if (e.touches && e.touches.length > 1) {
+                userOverrideCamera = true;
+                currentCameraView = 'manual';
+                cameraMode = 'manual';
+                showFixedViewInfo('Manual camera (touch) — automatic camera disabled');
+            }
+        }, { passive: true });
+
         renderer.domElement.addEventListener('pointerup', onUserCameraRelease);
         renderer.domElement.addEventListener('pointerleave', onUserCameraRelease);
         renderer.domElement.addEventListener('pointercancel', onUserCameraRelease);
@@ -3258,12 +3562,24 @@
     function onUserCameraRelease() {
         if (!userIsInteracting) return;
         userIsInteracting = false;
-        
+
+        // If the user deliberately moved/dragged the camera, interpret as
+        // explicit manual control and do NOT auto-return — switch to manual mode.
+        if (_pointerMoved) {
+            userOverrideCamera = true;
+            currentCameraView = 'manual';
+            cameraMode = 'manual';
+            _pointerStart = null;
+            _pointerMoved = false;
+            showFixedViewInfo('Manual camera enabled — automatic camera disabled');
+            return; // stay where the user left it
+        }
+
         // In manual mode, stay where the user left the camera forever
         if (currentCameraView === 'manual') {
             return; // No smooth return — full user control
         }
-        
+
         // For other modes, wait 1.5s grace period then smoothly return
         if (userInteractionTimeout) clearTimeout(userInteractionTimeout);
         userInteractionTimeout = setTimeout(() => {
@@ -3276,7 +3592,9 @@
     
     // Smoothly transition back to the current camera view's default position
     function returnToViewDefault() {
+        // If user is interacting, in manual mode, or fixed board views are active, do nothing
         if (userIsInteracting || currentCameraView === 'manual') return;
+        if ((typeof boardViewMode !== 'undefined' && boardViewMode > 0) || (typeof fixedViewsActive !== 'undefined' && fixedViewsActive)) return;
         
         const view = CAMERA_VIEWS[currentCameraView];
         if (!view) return;
@@ -3304,10 +3622,18 @@
         }
     }
     
-    function smoothCameraTransition(targetPos, targetLookAt, duration = 2500, onComplete = null) {
+    function smoothCameraTransition(targetPos, targetLookAt, duration = 2500, onComplete = null, opts) {
+        opts = opts || {};
         // Never interrupt manual mode or active user interaction
         if (currentCameraView === 'manual' || userIsInteracting) {
             if (onComplete) onComplete();
+            return;
+        }
+
+        // If fixed views are active, suppress automatic transitions unless forced
+        if (typeof fixedViewsActive !== 'undefined' && fixedViewsActive && !opts.force) {
+            if (onComplete) onComplete();
+            console.log('[Camera] Fixed views active — suppressed smoothCameraTransition');
             return;
         }
         
@@ -3612,8 +3938,15 @@
     
     function resetCameraOverride() {
         // Only reset override if user is NOT actively interacting
-        // and camera is not in manual mode
-        if (userIsInteracting || currentCameraView === 'manual') return;
+        // and camera is not in manual mode or board view mode
+        // Also respect if user has explicitly set a camera mode
+        if (userIsInteracting ||
+            currentCameraView === 'manual' ||
+            boardViewMode > 0 ||
+            window.currentCameraMode === 'manual' ||
+            window.currentCameraMode === 'board') {
+            return;
+        }
         userOverrideCamera = false;
     }
 
@@ -3634,17 +3967,22 @@
     function animate() {
         requestAnimationFrame(animate);
         controls.update();
-        
+
         // Smooth mouse tracking for parallax
         mouseX += (targetMouseX - mouseX) * 0.05;
         mouseY += (targetMouseY - mouseY) * 0.05;
-        
+
         // Update theme parallax and animations
         if (window.FastTrackThemes) {
             FastTrackThemes.update(mouseX, mouseY);
             FastTrackThemes.updateSpectators(Date.now() * 0.001);
         }
-        
+
+        // Update Fibonacci backdrop animation (Board View mode)
+        if (fibonacciBackdrop && fibonacciBackdrop.isActive) {
+            fibonacciBackdrop.update(0.016); // ~60fps delta time
+        }
+
         // Animate golden crowns (oscillate + glow pulse)
         if (window._goldenCrowns) {
             const t = Date.now() * 0.001;
@@ -3695,6 +4033,10 @@
         try {
             currentThemeName = themeName;
             FastTrackThemes.apply(themeName, scene, THREE);
+            // Keep backdrop motion frozen when switching themes unless explicitly enabled
+            if (typeof FastTrackThemes.setMotionScale === 'function') {
+                FastTrackThemes.setMotionScale(0);
+            }
             console.log('[Theme] Applied successfully, backdrop layers:', FastTrackThemes.backdropLayers.length);
         } catch (err) {
             console.error('[Theme] Apply error:', err);
@@ -5039,6 +5381,9 @@
         showHighlights: true,     // Show legal move highlights
         showMoveAids: true,       // Show move helper popups
         hintMode: 'blink',        // 'blink' = blinking holes, 'dropdown' = suggestion list, 'voice' = audio hints, 'all' = all modes, 'none' = no hints
+        // Whether to auto-show the Mom introduction modal at game start.
+        // Default: false — helpers are off by default; players can open Ask Mom with the Help button.
+        showMomIntro: false,
         ftAutoTraverse: false,    // FastTrack auto-traverse: true = auto-move FT pegs around ring, false = manual choice each turn
         suggestionsDisabled: false // When true, move suggestion popups are suppressed — player uses blinking holes only
     };
@@ -6181,7 +6526,16 @@
         }
     }
     window.openCameraPanel = openCameraPanel;
-    
+
+    // Open theme panel (delegates to GameUIMinimal)
+    function openThemePanel() {
+        if (window.GameUIMinimal) {
+            window.GameUIMinimal.toggleMenu();
+            window.GameUIMinimal.drillDown('theme');
+        }
+    }
+    window.openThemePanel = openThemePanel;
+
     // Toggle Mom Daemon (persistent game helper)
     function toggleMomDaemon() {
         if (window.MomDaemon) {
@@ -6234,8 +6588,45 @@
         if (panel) {
             panel.classList.remove('visible');
         }
+        // Run cleanup synchronously when hide is invoked directly
+        try { _postHideMomCleanup(); } catch (e) { /* ignore if not ready */ }
     }
     window.hideMomHelp = hideMomHelp;
+    
+    // Ensure hiding Mom help unblocks UI and clears any temporary selection state
+    function _postHideMomCleanup() {
+        try {
+            // Clear any visual highlights left by advice
+            if (typeof clearHighlights === 'function') clearHighlights();
+
+            // Ensure card/deck UI is enabled for the human player
+            if (window.cardUI && typeof window.cardUI.setDeckEnabled === 'function') {
+                window.cardUI.setDeckEnabled(true);
+            }
+
+            // Hide move selection modal if present
+            if (window.moveSelectionModal && typeof window.moveSelectionModal.hide === 'function') {
+                window.moveSelectionModal.hide();
+            }
+
+            // Clear any pending banner-selection move so game logic isn't left waiting
+            if (typeof pendingMoveSelection !== 'undefined' && pendingMoveSelection !== null) {
+                pendingMoveSelection = null;
+            }
+        } catch (e) {
+            console.warn('[Mom] cleanup after hide failed', e);
+        }
+    }
+
+    // Attach global listener to ensure cleanup when panel is closed via outside clicks
+    document.addEventListener('click', (e) => {
+        const panel = document.getElementById('mom-help-panel');
+        if (panel && !panel.classList.contains('visible')) return; // only when visible
+        if (panel && panel.classList.contains('visible') && !panel.contains(e.target)) {
+            // Let existing handler hide the panel, then run cleanup shortly after
+            setTimeout(_postHideMomCleanup, 50);
+        }
+    });
     
     // Get contextual help based on current game state
     function getMomContextHelp() {
@@ -14694,22 +15085,10 @@
             console.log('Start screen removed from DOM');
         }
         
-        // Show exit game button
-        const exitBtn = document.getElementById('exit-game-btn');
-        if (exitBtn) {
-            exitBtn.style.display = 'flex';
-        }
-        
-        // Show mom help button
-        const momBtn = document.getElementById('mom-help-btn');
-        if (momBtn) {
-            momBtn.style.display = 'flex';
-        }
-        
-        // Show tutorial button
-        const tutBtn = document.getElementById('tutorial-btn');
-        if (tutBtn) {
-            tutBtn.style.display = 'flex';
+        // Show leave game button (always visible during game)
+        const leaveBtn = document.getElementById('leave-game-btn');
+        if (leaveBtn) {
+            leaveBtn.style.display = 'flex';
         }
         
         // Hide auth/lobby containers
@@ -14850,9 +15229,15 @@
                 });
             }, 100);
             
-            // Show Mom's introduction (if not hard mode)
+            // Show Mom's introduction (if enabled and not hard mode)
             setTimeout(() => {
-                showMomIntro();
+                try {
+                    if (GAME_CONFIG.showMomIntro) {
+                        showMomIntro();
+                    }
+                } catch (e) {
+                    console.warn('[startGameSession] showMomIntro skipped due to error', e);
+                }
             }, 500);
             
             console.log(`Game started! You are ${playerAvatar} ${playerName} (Player 1). Click the deck to draw.`);
@@ -15016,16 +15401,16 @@
         }, 3000);
     }
     
-    // Show exit button when game is active
+    // Show leave game button when game is active
     function showExitButton() {
-        const btn = document.getElementById('exit-game-btn');
+        const btn = document.getElementById('leave-game-btn');
         if (btn) btn.style.display = 'flex';
     }
     window.showExitButton = showExitButton;
-    
-    // Hide exit button
+
+    // Hide leave game button
     function hideExitButton() {
-        const btn = document.getElementById('exit-game-btn');
+        const btn = document.getElementById('leave-game-btn');
         if (btn) btn.style.display = 'none';
     }
     window.hideExitButton = hideExitButton;
@@ -15638,19 +16023,11 @@
                     window.boardReady = true;
                     
                     console.log('[initMultiplayerGame] Board ready, initializing game with', playerCount, 'players');
-                    
-                    // Show exit game button
-                    const exitBtn = document.getElementById('exit-game-btn');
-                    if (exitBtn) exitBtn.style.display = 'flex';
-                    
-                    // Show mom help button
-                    const momBtn = document.getElementById('mom-help-btn');
-                    if (momBtn) momBtn.style.display = 'flex';
-                    
-                    // Show tutorial button
-                    const tutBtn = document.getElementById('tutorial-btn');
-                    if (tutBtn) tutBtn.style.display = 'flex';
-                    
+
+                    // Show leave game button
+                    const leaveBtn = document.getElementById('leave-game-btn');
+                    if (leaveBtn) leaveBtn.style.display = 'flex';
+
                     // Initialize game with correct player count from session
                     if (typeof window.initGame === 'function') {
                         window.initGame(playerCount);
@@ -15825,7 +16202,7 @@
                 padding: 15px 30px;
                 border-radius: 10px;
                 font-weight: bold;
-                z-index: 10000;
+                z-index: 30020;
                 animation: slideDown 0.3s ease;
             `;
             notif.textContent = message;

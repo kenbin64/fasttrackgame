@@ -283,71 +283,11 @@ class DimensionalMobileOptimizer {
     }
 
     addMobileShortcuts() {
-        // Add quick action buttons
-        const shortcuts = document.createElement('div');
-        shortcuts.id = 'mobile-shortcuts';
-        shortcuts.innerHTML = `
-            <button id="quick-draw" class="mobile-shortcut-btn">🎴</button>
-            <button id="quick-center" class="mobile-shortcut-btn">🎯</button>
-            <button id="quick-settings" class="mobile-shortcut-btn">⚙️</button>
-        `;
-        
-        shortcuts.style.cssText = `
-            position: fixed;
-            bottom: 80px;
-            right: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 1001;
-        `;
-        
-        document.body.appendChild(shortcuts);
-
-        // Add styles
-        const style = document.createElement('style');
-        style.textContent = `
-            .mobile-shortcut-btn {
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                background: rgba(26, 26, 46, 0.9);
-                border: 2px solid #ffd700;
-                color: #ffd700;
-                font-size: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                transition: all 0.2s;
-            }
-            
-            .mobile-shortcut-btn:active {
-                transform: scale(0.9);
-                background: rgba(255, 215, 0, 0.2);
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Add functionality
-        document.getElementById('quick-draw')?.addEventListener('click', () => {
-            // Trigger card draw
-            const deck = document.querySelector('#deck, .mobile-deck');
-            if (deck) deck.click();
-        });
-
-        document.getElementById('quick-center')?.addEventListener('click', () => {
-            // Center camera
-            if (window.setCameraView) {
-                window.setCameraView('angle');
-            }
-        });
-
-        document.getElementById('quick-settings')?.addEventListener('click', () => {
-            // Toggle settings
-            const settings = document.querySelector('#mobile-settings-panel, .settings-btn');
-            if (settings) settings.click();
-        });
+        // Mobile shortcuts removed per UX request — do not create floating shortcut buttons.
+        // If you need them re-enabled in the future, restore this implementation behind a feature flag.
+        if (document && document.createElement) {
+            console.info('mobile shortcuts are disabled (removed permanently)');
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════

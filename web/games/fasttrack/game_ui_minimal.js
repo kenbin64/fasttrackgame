@@ -351,48 +351,16 @@ const GameUIMinimal = {
                 display: inline-flex;
             }
             
-            /* ===== MENU COG BUTTON ===== */
-            #menu-toggle-btn {
-                position: fixed;
-                top: 15px;
-                right: 15px;
-                z-index: 10010;
-                width: 50px;
-                height: 50px;
-                background: rgba(0, 0, 0, 0.85);
-                border: 2px solid #555;
-                border-radius: 12px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: all 0.3s;
-                backdrop-filter: blur(10px);
-            }
-            
-            #menu-toggle-btn:hover {
-                border-color: #3498db;
-                transform: scale(1.05);
-            }
-            
-            #menu-toggle-btn.open {
-                border-color: #e74c3c;
-            }
-            
-            .menu-cog {
-                width: 26px;
-                height: 26px;
-                fill: #fff;
-                transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
-            }
-            
-            #menu-toggle-btn:hover .menu-cog {
-                transform: rotate(45deg);
-            }
-            
+            /* ===== MENU COG BUTTON - COMPLETELY REMOVED ===== */
+            #menu-toggle-btn,
+            #menu-toggle-btn:hover,
+            #menu-toggle-btn.open,
+            .menu-cog,
+            #menu-toggle-btn:hover .menu-cog,
             #menu-toggle-btn.open .menu-cog {
-                transform: rotate(180deg);
-                fill: #e74c3c;
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
             }
             
             /* ===== SIDE MENU PANEL ===== */
@@ -500,6 +468,43 @@ const GameUIMinimal = {
                 font-family: 'Orbitron', 'Rajdhani', sans-serif;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
+            }
+            /* Header with title and dismiss button */
+            .dim-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px 16px;
+                margin-bottom: 12px;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            .dim-header-title {
+                color: #fff;
+                font-size: 1.1em;
+                font-family: 'Orbitron', 'Rajdhani', sans-serif;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+            }
+            .dim-dismiss-btn {
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.15);
+                color: #aaa;
+                padding: 6px 14px;
+                border-radius: 6px;
+                font-size: 0.85em;
+                font-family: 'Orbitron', 'Rajdhani', sans-serif;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .dim-dismiss-btn:hover {
+                background: rgba(255,255,255,0.15);
+                border-color: rgba(255,255,255,0.3);
+                color: #fff;
+            }
+            .dim-dismiss-btn:active {
+                transform: scale(0.95);
             }
             /* Dimension items — categories & actions */
             .dim-item {
@@ -1333,18 +1338,10 @@ const GameUIMinimal = {
         overlay.addEventListener('click', () => this.toggleMenu(false));
         document.body.appendChild(overlay);
         this.elements.overlay = overlay;
-        
-        // Create cog toggle button
-        const toggle = document.createElement('button');
-        toggle.id = 'menu-toggle-btn';
-        toggle.innerHTML = `
-            <svg class="menu-cog" viewBox="0 0 24 24">
-                <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/>
-            </svg>
-        `;
-        toggle.addEventListener('click', () => this.toggleMenu());
-        document.body.appendChild(toggle);
-        this.elements.menuToggle = toggle;
+
+        // REMOVED: Cog toggle button (replaced by new standardized control buttons)
+        // The menu functionality is now accessed through the new UI buttons
+        this.elements.menuToggle = null;
         
         // Create menu panel (dimensional shell)
         const menu = document.createElement('div');
@@ -1723,7 +1720,7 @@ const GameUIMinimal = {
             { id: 'theme',    icon: '🎨', label: 'Theme' },
             { id: 'sounds',   icon: '🔊', label: 'Sounds' },
             { id: 'controls', icon: '🎮', label: 'Controls' },
-            { id: 'camera',   icon: '📹', label: 'Camera' },
+            { id: 'camera',   icon: '📹', label: 'Camera Control' },
             { id: 'rules',    icon: '📖', label: 'Rules' },
             { id: 'tutorial', icon: '🎓', label: 'Tutorial' }
         ];
@@ -1841,34 +1838,29 @@ const GameUIMinimal = {
     },
 
     _renderCamera() {
-        const currentCam = window.currentCameraMode || 'board';
+        const currentCam = window.currentCameraMode || 'chase';
         const cams = [
-            { id: 'board',  icon: '🎯', label: 'Board',     about: 'Classic overhead view of the entire board' },
-            { id: 'ground', icon: '🏃', label: 'Ground',    about: 'Low-angle view from table level' },
-            { id: 'chase',  icon: '🎬', label: 'Chase',     about: 'Follows the action dynamically' },
-            { id: 'orbit',  icon: '🌀', label: 'Orbit',     about: 'Slowly circles the board' },
-            { id: 'manual', icon: '✋', label: 'Manual',    about: 'Free camera — drag to look around' },
-            { id: 'pegeye', icon: '👁️', label: "Peg's Eye", about: 'See the board from your peg\'s perspective' }
+            { id: 'chase',  icon: '🎬', label: 'Automatic',        about: 'Cinematic view that follows the action' },
+            { id: 'manual', icon: '✋', label: 'Manual',           about: 'Mouse-driven — drag to look around' },
+            { id: 'board',  icon: '🎯', label: 'Straight Down',   about: 'Overhead view of entire board' },
+            { id: 'pegeye', icon: '👁️', label: 'Follow Active Peg', about: 'Camera follows your active peg' }
         ];
-        const speedVal = document.getElementById('menu-cam-speed')?.value ?? 0.6;
-        const v = parseFloat(speedVal);
-        let speedLabel = 'Smooth';
-        if (v <= 0.4) speedLabel = 'Slow';
-        else if (v <= 0.8) speedLabel = 'Smooth';
-        else if (v <= 1.3) speedLabel = 'Fast';
-        else speedLabel = 'Blazing';
 
         return `
+            <div class="dim-header">
+                <span class="dim-header-title">📹 Camera Control</span>
+                <button class="dim-dismiss-btn" onclick="GameUIMinimal.toggleMenu(false)">Dismiss</button>
+            </div>
             <div class="dim-back" onclick="GameUIMinimal.drillUp()">
                 <span class="dim-back-arrow">◂</span>
                 <span class="dim-back-label">Back</span>
             </div>
             ${cams.map(c => {
-                const action = c.id === 'pegeye' 
-                    ? 'GameUIMinimal.enterPegEyeView()' 
+                const action = c.id === 'pegeye'
+                    ? 'GameUIMinimal.enterPegEyeView()'
                     : `GameUIMinimal.setCameraView('${c.id}')`;
                 return `
-                <div class="dim-item ${c.id === currentCam ? 'active-item' : ''}" 
+                <div class="dim-item ${c.id === currentCam ? 'active-item' : ''}"
                      onclick="${action}">
                     <span class="dim-item-icon">${c.icon}</span>
                     <div class="dim-item-text">
@@ -1877,12 +1869,6 @@ const GameUIMinimal = {
                     </div>
                 </div>
             `}).join('')}
-            <div class="dim-divider"></div>
-            <div class="dim-slider-row">
-                <span class="dim-slider-icon">🐢</span>
-                <input type="range" class="menu-volume-slider" id="menu-cam-speed" min="0.2" max="2.0" step="0.1" value="${speedVal}" oninput="GameUIMinimal.setCameraSpeed(this.value)">
-                <span class="dim-slider-val" id="menu-cam-speed-val">${speedLabel}</span>
-            </div>
         `;
     },
 
@@ -1940,10 +1926,10 @@ const GameUIMinimal = {
         if (typeof window.setCameraViewMode === 'function') {
             window.setCameraViewMode(viewName);
         }
-        // Re-render camera dimension to update active state
-        if (this.currentDimension === 'camera') {
-            this.renderDimension('camera');
-        }
+        // Update current camera mode for UI
+        window.currentCameraMode = viewName;
+        // Close menu after selection
+        this.toggleMenu(false);
     },
 
     setCameraSpeed(val) {

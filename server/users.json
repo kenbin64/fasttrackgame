@@ -1,0 +1,11 @@
+{
+  "users": [
+    {
+      "id": "u_super",
+      "username": "main",
+      "password": "change_me",
+      "role": "superuser",
+      "suspendedUntil": 0
+    }
+  ]
+}
