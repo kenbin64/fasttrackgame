@@ -208,11 +208,14 @@ const CARD_TYPES = (typeof CardSubstrate !== 'undefined')
             value: 0, 
             type: 'wild',
             movement: 1,                    // Moves 1 space when moving (not entering)
-            direction: 'clockwise',
+            direction: 'both',              // Can move forward OR backward 1 space
             extraTurn: true,
             canEnterFromHolding: true,
             canExitBullseye: false,         // Cannot exit bullseye (only J, Q, K can)
-            description: 'Enter from holding OR move 1 clockwise. Extra turn.'
+            canMoveBackward: true,          // Special: Can move 1 backward if opponent behind
+            backwardRequiresOpponent: true, // Only backward if opponent directly behind
+            cannotBackwardInto: ['home', 'safezone', 'fasttrack', 'center'], // Restrictions
+            description: 'Enter from holding OR move 1 forward/backward (backward only if opponent behind). Extra turn.'
         },
         SIX: { 
             rank: '6', 
@@ -343,15 +346,15 @@ const CARD_TYPES = (typeof CardSubstrate !== 'undefined')
         SEVEN: { 
             rank: '7', 
             value: 7, 
-            type: 'split',
+            type: 'wild',
             movement: 7,
             direction: 'clockwise',
             extraTurn: false,
             canEnterFromHolding: false,
             canExitBullseye: false,
-            canSplit: true,                 // Can split between 2 pegs
-            splitRequires: 2,               // Need 2+ pegs on board to split
-            description: 'Move 7 spaces OR split between 2 pegs (must use all 7).'
+            canSplit: false,                // No longer splits - it's a wild card
+            isWild: true,                   // Wild card - can move 1-7 spaces
+            description: '🎲 Wild Card: Move any token 1-7 spaces.'
         },
         FOUR: { 
             rank: '4', 
@@ -364,13 +367,14 @@ const CARD_TYPES = (typeof CardSubstrate !== 'undefined')
             canExitBullseye: false,
             // BACKWARD MOVEMENT RESTRICTIONS:
             // A peg moving backward (counter-clockwise) CANNOT enter:
-            //   - FastTrack holes (ft-* holes) — blocked entirely, cannot traverse or land
             //   - Bullseye (center hole)
             //   - Safe zone (safe-* holes)
-            // A peg CAN move backward through home-* holes on the perimeter.
+            // A peg CAN move backward through:
+            //   - FastTrack holes (ft-* holes) — they are perimeter corners, peg stays on outer track
+            //   - Home holes (home-* holes) on the perimeter
             // If 4 brings a peg to (or past) the safe zone entrance going counter-clockwise,
             // that DOES satisfy the circuit completion requirement (eligible for safe zone next forward move).
-            cannotEnterFastTrack: true,     // Cannot back into any ft-* hole
+            cannotEnterFastTrack: false,    // CAN land on ft-* holes, just stays on outer track
             cannotEnterCenter: true,        // Cannot back into Bullseye
             cannotEnterSafeZone: true,      // Cannot back into Safe Zone
             cannotEnterWinner: false,       // CAN move backward through home holes on perimeter
@@ -453,12 +457,12 @@ const HOLE_TYPES = {
         meaningfulName: 'Bullseye',
         altNames: ['Center Hole', 'Dead Center'],
         pattern: /^center$/,
-        canBeCut: false,                        // Safe while in bullseye
+        canBeCut: true,                         // Can be cut by another player entering bullseye
         canEnterFrom: ['fasttrack'],            // Only when exactly 1 past FT exit
         canExitTo: ['fasttrack'],               // Exit to own FT Exit hole only
         ownerOnly: false,
         requiresRoyalToExit: true,              // ONLY J/Q/K can exit
-        description: 'Bullseye - Center hole. Safe from cuts. Exit with J/Q/K to own FT Exit.'
+        description: 'Bullseye - Center hole. Can be cut. Exit with J/Q/K to own FT Exit.'
     },
     
     // SAFEZONE: Final stretch before winning
@@ -510,10 +514,10 @@ const HOLE_NAMES = {
     // Pattern: home-{playerIdx}
     // NOTE: This is NOT the Safe Zone Entry - that is outer-{p}-2
     home: {
-        shortName: 'Diamond',
-        fullName: 'Diamond Hole',
-        altNames: ['Starting Hole', 'Winner Hole'],
-        description: '5th token starts here. 5th token wins here (after 4 in safe zone)',
+        shortName: 'Home Hole',
+        fullName: 'Home Hole',
+        altNames: ['Starting Hole', 'Winner Hole', 'Diamond Hole'],
+        description: 'Entry point from holding AND the winning position for the 5th peg',
         emoji: '💎'
     },
     
@@ -521,19 +525,19 @@ const HOLE_NAMES = {
     // Pattern: outer-{playerIdx}-2
     // This is the penultimate hole before entering safe zone
     safeZoneEntry: {
-        shortName: 'SZ Entry',
-        fullName: 'Safe Zone Entry',
+        shortName: 'Safe Zone Gateway',
+        fullName: 'Safe Zone Gateway',
         altNames: ['Gateway', 'Circuit Finish'],
-        description: 'Penultimate hole before safe zone. Marks circuit completion.',
+        description: 'Turn-off point into your safe zone after completing a circuit',
         emoji: '🚪'
     },
     
     // Outer Perimeter - Side Left (4 per player section)
     // Pattern: side-left-{playerIdx}-{1-4}
     sideLeft: {
-        shortName: 'Left Track',
-        fullName: 'Left Side Track',
-        description: 'Path from FastTrack toward outer edge',
+        shortName: 'Perimeter',
+        fullName: 'Perimeter Track',
+        description: 'Part of the outer track pegs travel clockwise around',
         emoji: '⬅️'
     },
     
@@ -541,9 +545,9 @@ const HOLE_NAMES = {
     // Pattern: outer-{playerIdx}-{0-3}
     // SPECIAL: outer-{playerIdx}-2 = Safe Zone Entry (see safeZoneEntry above)
     outer: {
-        shortName: 'Outer',
-        fullName: 'Outer Track',
-        description: 'Main perimeter around board edge. outer-{p}-2 = Safe Zone Entry.',
+        shortName: 'Perimeter',
+        fullName: 'Perimeter Track',
+        description: 'The main track pegs travel clockwise around the board',
         emoji: '🔵'
     },
     
@@ -551,29 +555,29 @@ const HOLE_NAMES = {
     // Pattern: side-right-{playerIdx}-{4-1}
     // Flow: FT Exit → side-right-4 → 3 → 2 → 1 → Safe Zone Entry
     sideRight: {
-        shortName: 'Right Track',
-        fullName: 'Right Side Track',
-        description: 'Path from FastTrack Exit toward Safe Zone Entry',
+        shortName: 'Perimeter',
+        fullName: 'Perimeter Track',
+        description: 'Part of the outer track pegs travel clockwise around',
         emoji: '➡️'
     },
     
     // FastTrack Entry Holes (5 per player - all FT except own color)
     // Pattern: ft-{i} where i != playerBoardPosition
     ftEntry: {
-        shortName: 'FT Entry',
-        fullName: 'FastTrack Entry',
+        shortName: 'FastTrack Corner',
+        fullName: 'FastTrack Corner',
         altNames: ['Hyperspace Entry'],
-        description: 'Shortcut entry point (not own color pentagon)',
+        description: 'Land here exactly to take the FastTrack shortcut across the board',
         emoji: '🚀'
     },
     
     // FastTrack Exit Hole (1 per player - own color pentagon)
     // Pattern: ft-{playerBoardPosition}
     ftExit: {
-        shortName: 'FT Exit',
-        fullName: 'FastTrack Exit',
+        shortName: 'Your FastTrack Exit',
+        fullName: 'Your FastTrack Exit',
         altNames: ['Player Pentagon', 'Color Pentagon'],
-        description: 'Exit from FastTrack to own playing area',
+        description: 'Your exit from the FastTrack back to your section of the board',
         emoji: '🎯'
     },
     
@@ -581,9 +585,9 @@ const HOLE_NAMES = {
     // Pattern: center
     center: {
         shortName: 'Bullseye',
-        fullName: 'Bullseye / Center',
-        altNames: ['Dead Center', 'Center Hole'],
-        description: 'Board center, safe zone, needs J/Q/K to exit',
+        fullName: 'The Bullseye',
+        altNames: ['Center'],
+        description: 'Safe spot in the middle of the board — exit with a J, Q, or K',
         emoji: '🎯'
     },
     
@@ -593,7 +597,7 @@ const HOLE_NAMES = {
         shortName: 'Safe Zone',
         fullName: 'Safe Zone',
         altNames: ['Protected Holes', 'Final Stretch'],
-        description: '4 protected holes, owner only, forward only',
+        description: 'Protected holes only you can use — fill all 4 then land your 5th peg on your home hole to win',
         emoji: '🛡️'
     }
 };
@@ -628,11 +632,14 @@ function getHoleMeaningfulName(holeId, playerBoardPosition = null, format = 'sho
         return HOLE_NAMES.holding.shortName;
     }
     
-    // Diamond/Home holes
+    // Diamond/Home holes — include owner name
     if (holeId.startsWith('home-')) {
+        const bp = parseInt(holeId.split('-')[1]);
+        const COLOR_NAMES_GE = ['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Purple'];
+        const ownerName = COLOR_NAMES_GE[bp] || 'Player';
         return format === 'emoji' ? HOLE_NAMES.home.emoji :
-               format === 'full' ? HOLE_NAMES.home.fullName :
-               HOLE_NAMES.home.shortName;
+               format === 'full' ? `${ownerName}'s ${HOLE_NAMES.home.fullName}` :
+               `${ownerName}'s ${HOLE_NAMES.home.shortName}`;
     }
     
     // FastTrack holes - distinguish entry vs exit based on player's board position
@@ -668,26 +675,14 @@ function getHoleMeaningfulName(holeId, playerBoardPosition = null, format = 'sho
     
     // Side-left holes
     if (holeId.startsWith('side-left-')) {
-        const match = holeId.match(/side-left-(\d)-(\d)/);
-        if (match) {
-            const trackNum = match[2];
-            return format === 'emoji' ? HOLE_NAMES.sideLeft.emoji :
-                   format === 'full' ? `${HOLE_NAMES.sideLeft.fullName} ${trackNum}` :
-                   `Left ${trackNum}`;
-        }
-        return HOLE_NAMES.sideLeft.shortName;
+        return format === 'emoji' ? HOLE_NAMES.sideLeft.emoji :
+               HOLE_NAMES.sideLeft.shortName;
     }
     
     // Side-right holes
     if (holeId.startsWith('side-right-')) {
-        const match = holeId.match(/side-right-(\d)-(\d)/);
-        if (match) {
-            const trackNum = match[2];
-            return format === 'emoji' ? HOLE_NAMES.sideRight.emoji :
-                   format === 'full' ? `${HOLE_NAMES.sideRight.fullName} ${trackNum}` :
-                   `Right ${trackNum}`;
-        }
-        return HOLE_NAMES.sideRight.shortName;
+        return format === 'emoji' ? HOLE_NAMES.sideRight.emoji :
+               HOLE_NAMES.sideRight.shortName;
     }
     
     // Outer track holes
@@ -709,10 +704,8 @@ function getHoleMeaningfulName(holeId, playerBoardPosition = null, format = 'sho
                        HOLE_NAMES.safeZoneEntry.shortName;
             }
             
-            const outerNum = outerIdx + 1; // Make 1-indexed for display
             return format === 'emoji' ? HOLE_NAMES.outer.emoji :
-                   format === 'full' ? `${HOLE_NAMES.outer.fullName} ${outerNum}` :
-                   `Outer ${outerNum}`;
+                   HOLE_NAMES.outer.shortName;
         }
         return HOLE_NAMES.outer.shortName;
     }
@@ -1046,6 +1039,13 @@ class GameState {
 
         this.currentCard = this.deck.draw();
         console.log(`[GameState.drawCard] Card drawn: ${this.currentCard?.rank} of ${this.currentCard?.suit}`);
+        console.log(`[GameState.drawCard] Card properties:`, {
+            rank: this.currentCard.rank,
+            isWild: this.currentCard.isWild,
+            canSplit: this.currentCard.canSplit,
+            movement: this.currentCard.movement,
+            type: this.currentCard.type
+        });
         console.log(`${this.currentPlayer.name} drew: ${this.currentCard.rank} of ${this.currentCard.suit}`);
         
         // FASTTRACK LOSS: Drawing a 4 card causes ALL pegs on FastTrack (ALL players) to lose FT status.
@@ -1091,7 +1091,7 @@ class GameState {
 
         const player = this.currentPlayer;
         const card = this.currentCard;
-        const legalMoves = [];
+        let legalMoves = [];
         
         // Track per-peg results for debugging
         const pegResults = {};
@@ -1308,101 +1308,99 @@ class GameState {
             }
         }
 
-        // Handle 7-card split moves - generate moves for 1-7 steps for each peg
-        if (card.canSplit) {
-            // SPLIT RULES:
-            // - NOT in holding, NOT in bullseye (center), NOT completed circuit
-            // - A peg must "complete" FastTrack before splitting with an outer-track peg.
-            //   "Complete" = landed on own ft-{boardPos} OR already left FastTrack.
-            // - EXCEPTION: Two pegs BOTH on FastTrack CAN split with each other,
-            //   as long as one does not land on or overtake the other.
-            //   (The no-pass/no-land-on-own-peg rule handles collision naturally.)
-            const playerFtHole = `ft-${player.boardPosition}`;
+        // 7-card is SPLIT ONLY — must split 7 moves between exactly 2 pegs
+        // Split move generation is handled in board_3d.html startSplitMoveMode()
+        // calculateLegalMoves returns empty for 7-card; split validation done separately
+        if (card.rank === '7') {
+            console.log('[LegalMoves] 7 Card (Split) - split handled by board UI, returning empty');
+            legalMoves = [];
+        }
+        
+        // Handle JOKER special backward movement
+        if (card.canMoveBackward && card.rank === 'JOKER') {
+            console.log('[LegalMoves] JOKER - checking for backward moves (requires opponent behind)');
             
-            // Count pegs currently on FastTrack (for the two-FT-pegs exception)
-            const ftPegsOnRing = player.peg.filter(p =>
-                p.onFasttrack && p.holeId && p.holeId.startsWith('ft-') &&
-                !p.completedCircuit && !p.inBullseye
-            );
-            const multipleFTPegs = ftPegsOnRing.length >= 2;
+            const jokerBackwardMoves = [];
             
-            const pegsEligibleForSplit = player.peg.filter(p => {
-                // Exclude holding pegs
-                if (p.holeType === 'holding') return false;
+            for (const peg of player.peg) {
+                // Skip holding, bullseye, and completed pegs
+                if (peg.holeType === 'holding') continue;
+                if (peg.inBullseye || peg.holeType === 'bullseye') continue;
+                if (peg.completedCircuit) continue;
                 
-                // Exclude bullseye/center pegs
-                if (p.inBullseye || p.holeType === 'bullseye') return false;
-                
-                // Exclude pegs that completed their circuit (in safe zone / locked)
-                if (p.completedCircuit) return false;
-                
-                // Check if peg is on FastTrack
-                const isOnFastTrack = p.holeId && p.holeId.startsWith('ft-');
-                if (isOnFastTrack) {
-                    // Peg on FastTrack can split if:
-                    // 1. It has completed FastTrack (at own ft-{boardPos}), OR
-                    // 2. There are 2+ pegs on FT (they can split with each other)
-                    const hasCompletedFastTrack = p.holeId === playerFtHole;
-                    if (!hasCompletedFastTrack && !multipleFTPegs) {
-                        console.log(`[LegalMoves] Peg ${p.id} on ${p.holeId} - cannot split (only FT peg, needs to reach ${playerFtHole})`);
-                        return false;
+                // RESTRICTION: Cannot do backward move FROM these hole types
+                const currentHole = holeRegistry.get(peg.holeId);
+                if (currentHole) {
+                    // Cannot backward from FastTrack, safe zone, starting hole (home), center, or safe zone entrance
+                    if (currentHole.type === 'fasttrack') {
+                        console.log(`[LegalMoves] JOKER: Cannot move backward FROM FastTrack hole ${peg.holeId}`);
+                        continue;
+                    }
+                    if (currentHole.type === 'safezone') {
+                        console.log(`[LegalMoves] JOKER: Cannot move backward FROM safe zone ${peg.holeId}`);
+                        continue;
+                    }
+                    if (currentHole.type === 'home') {
+                        console.log(`[LegalMoves] JOKER: Cannot move backward FROM starting hole ${peg.holeId}`);
+                        continue;
+                    }
+                    if (currentHole.type === 'center') {
+                        console.log(`[LegalMoves] JOKER: Cannot move backward FROM bullseye ${peg.holeId}`);
+                        continue;
+                    }
+                    // Check if this is a safe zone entrance hole (the hole right before safe zone)
+                    if (currentHole.isSafeZoneEntry || peg.holeId === `p${player.boardPosition}-safezone-entry`) {
+                        console.log(`[LegalMoves] JOKER: Cannot move backward FROM safe zone entrance ${peg.holeId}`);
+                        continue;
                     }
                 }
                 
-                return true;
-            });
-            
-            console.log(`[LegalMoves] Split-eligible pegs: ${pegsEligibleForSplit.length} (${pegsEligibleForSplit.map(p => p.id + '@' + p.holeId).join(', ')})`);
-            
-            // Split requires 2+ pegs eligible (on outer track); with only 1 peg, move all 7 spaces
-            if (pegsEligibleForSplit.length >= 2) {
-                // Clear existing moves and generate all possible step counts (1-7)
-                const splitMoves = [];
+                // Get the hole directly behind this peg (1 space backward)
+                const backwardDest = this.getBackwardHole(peg, player);
                 
-                for (const peg of pegsEligibleForSplit) {
-                    for (let steps = 1; steps <= 7; steps++) {
-                        const tempCard = { movement: steps, direction: 'clockwise' };
-                        const destinations = this.calculateDestinations(peg, tempCard, player);
-                        
-                        for (const dest of destinations) {
-                            // Check if opponent can receive cut before adding move
-                            let canMakeMove = true;
-                            for (const opponent of this.players) {
-                                if (opponent.index === player.index) continue;
-                                const opponentPeg = opponent.peg.find(p => p.holeId === dest.holeId);
-                                if (opponentPeg && !this.canReceiveCutPeg(opponent)) {
-                                    canMakeMove = false;
-                                    break;
-                                }
-                            }
-                            
-                            if (canMakeMove) {
-                                splitMoves.push({
-                                    type: 'split_first',
-                                    pegId: peg.id,
-                                    fromHoleId: peg.holeId,
-                                    toHoleId: dest.holeId,
-                                    steps: steps,
-                                    remainingSteps: 7 - steps,
-                                    path: dest.path,
-                                    isFastTrackEntry: dest.isFastTrackEntry || false,  // Pass through FastTrack entry flag
-                                    isCenterOption: dest.isCenterOption || false,      // Pass through bullseye option flag
-                                    isLeaveFastTrack: dest.isLeaveFastTrack || false,  // Pass through leave-FT flag
-                                    isForcedFTExit: dest.isForcedFTExit || false,     // Pass through forced FT exit flag
-                                    description: dest.description || `Move ${steps} of 7 (${7 - steps} left for another peg)`
-                                });
-                            }
-                        }
+                if (!backwardDest) {
+                    console.log(`[LegalMoves] JOKER: No backward hole for peg ${peg.id}`);
+                    continue;
+                }
+                
+                // Check restrictions - cannot move backward INTO these hole types
+                const backwardHole = holeRegistry.get(backwardDest);
+                if (!backwardHole) continue;
+                
+                const restrictedTypes = card.cannotBackwardInto || [];
+                if (restrictedTypes.includes(backwardHole.type)) {
+                    console.log(`[LegalMoves] JOKER: Cannot move backward INTO ${backwardHole.type} (${backwardDest})`);
+                    continue;
+                }
+                
+                // Check if opponent is directly behind (required for backward move)
+                let opponentBehind = false;
+                for (const opponent of this.players) {
+                    if (opponent.index === player.index) continue;
+                    const opponentPeg = opponent.peg.find(p => p.holeId === backwardDest);
+                    if (opponentPeg) {
+                        opponentBehind = true;
+                        console.log(`[LegalMoves] JOKER: Opponent peg ${opponentPeg.id} found at ${backwardDest} - backward move allowed!`);
+                        break;
                     }
                 }
                 
-                // Replace regular moves with split moves for 7 card
-                legalMoves.length = 0;  // Clear existing
-                legalMoves.push(...splitMoves);
-                
-                console.log(`[LegalMoves] 7-card split moves: ${splitMoves.length} possible moves for ${pegsEligibleForSplit.length} pegs`);
+                if (opponentBehind) {
+                    // Add backward move (will cut the opponent)
+                    jokerBackwardMoves.push({
+                        type: 'joker_backward',
+                        pegId: peg.id,
+                        fromHoleId: peg.holeId,
+                        toHoleId: backwardDest,
+                        steps: -1,
+                        path: [peg.holeId, backwardDest],
+                        description: '🃏 Joker Backward (Cut Opponent!)'
+                    });
+                }
             }
-            // With only 1 peg in play, the normal move calculation handles moving 7 spaces
+            
+            console.log(`[LegalMoves] JOKER backward moves: ${jokerBackwardMoves.length}`);
+            legalMoves.push(...jokerBackwardMoves);
         }
 
         if (this.onLegalMovesCalculated) {
@@ -1503,10 +1501,9 @@ class GameState {
             }
             
             // Check backward movement restrictions (4 card)
+            // ft-* holes are perimeter corners — peg CAN land on/pass through them,
+            // it just stays on the outer track (no FastTrack traversal).
             if (nextHole && card.direction === 'backward') {
-                if (card.cannotEnterFastTrack && nextHole.type === 'fasttrack') {
-                    break; // Cannot backup into FastTrack
-                }
                 if (card.cannotEnterCenter && nextHole.type === 'center') {
                     break; // Cannot backup into center/bullseye
                 }
@@ -1532,18 +1529,17 @@ class GameState {
             // ============================================================
             
             // Home hole (as winning position) requires exact landing - can't pass it
-            // This applies to BOTH:
-            // a) Pegs coming through safe zone (path includes safe-* holes)
-            // b) 5th peg bypassing full safe zone (eligible peg approaching own home)
+            // This ONLY applies when approaching FROM THE SAFE ZONE (path includes safe-* holes).
+            // The 5th peg on the OUTER TRACK can freely pass through home — it continues
+            // around the board and must land exactly on home on a future turn.
             const isOwnHome = nextHole && nextHole.type === 'home' && 
                 nextHoleId === `home-${player.boardPosition}`;
             const isFromSafeZone = path.some(h => h.startsWith('safe-'));
-            const is5thPegApproach = peg.eligibleForSafeZone || peg.lockedToSafeZone;
-            const isHomeAsFinalPosition = isOwnHome && (isFromSafeZone || is5thPegApproach);
+            const isHomeAsFinalPosition = isOwnHome && isFromSafeZone;
             
             if (isHomeAsFinalPosition) {
                 if (stepsRemaining === 1) {
-                    // Exact landing - valid
+                    // Exact landing from safe zone - valid WIN
                     path.push(nextHoleId);
                     destinations.push({
                         holeId: nextHoleId,
@@ -1551,7 +1547,7 @@ class GameState {
                         path: [...path]
                     });
                 }
-                // Can't pass the final hole, stop searching
+                // Can't pass the final hole when coming from safe zone
                 break;
             }
             
@@ -1676,7 +1672,7 @@ class GameState {
                         //   b) Enter FastTrack mode (traverse ft-* ring next turn)
                         // EXCEPTION: Cannot enter FastTrack at your OWN ft-X (that's home stretch)
                         const playerOwnFtHole = `ft-${player.boardPosition}`;
-                        if (nextHoleId.startsWith('ft-') && !peg.onFasttrack && nextHoleId !== playerOwnFtHole) {
+                        if (nextHoleId.startsWith('ft-') && !peg.onFasttrack && nextHoleId !== playerOwnFtHole && direction !== 'backward') {
                             console.log(`⚡ SCENARIO 1: Landing exactly on ${nextHoleId} - offering FastTrack entry choice`);
                             // The regular destination was already added above (option a)
                             // Add a second destination for FastTrack entry (option b)
@@ -2126,10 +2122,29 @@ class GameState {
                     sequence.push(`safe-${player.boardPosition}-${h}`);
                 }
             } else {
-                // Safe zone full - 5th peg bypasses safe zone to home/winner
+                // Safe zone full - 5th peg continues on outer track past home
+                // Home requires EXACT landing to win. If peg overshoots, it continues
+                // around the board and must return to home on a future turn.
                 sequence.push(`outer-${player.boardPosition}-3`);
                 sequence.push(`home-${player.boardPosition}`);
-                console.log(`🏆 [5TH PEG] Safe zone full - 5th peg bypassing to HOME (winner hole)`);
+                // Continue past home on outer track (side-right → ft → next section...)
+                const bp = player.boardPosition;
+                for (let h = 4; h >= 1; h--) {
+                    sequence.push(`side-right-${bp}-${h}`);
+                }
+                const nextSection = (bp + 1) % 6;
+                sequence.push(`ft-${nextSection}`);
+                for (let h = 1; h <= 4; h++) {
+                    sequence.push(`side-left-${nextSection}-${h}`);
+                }
+                for (let h = 0; h < 4; h++) {
+                    sequence.push(`outer-${nextSection}-${h}`);
+                }
+                sequence.push(`home-${nextSection}`);
+                for (let h = 4; h >= 1; h--) {
+                    sequence.push(`side-right-${nextSection}-${h}`);
+                }
+                console.log(`🏆 [5TH PEG] Safe zone full - 5th peg on outer track, can pass through home`);
             }
             
             console.log(`🚪🔒 [ENTRY→SAFE] Safe zone sequence:`, sequence);
@@ -2278,10 +2293,16 @@ class GameState {
                     }
                     console.log(`🚪 [FastTrack HYPERSPACE] Routing through safe zone entry (outer-${player.boardPosition}-2) to safe zone`);
                 } else {
-                    // Safe zone full - 5th peg bypasses to home (winner hole)
+                    // Safe zone full - 5th peg continues on outer track past home
                     sequence.push(`outer-${player.boardPosition}-3`);
                     sequence.push(`home-${player.boardPosition}`);
-                    console.log(`🏆 [FastTrack HYPERSPACE] Safe zone full - 5th peg routing to HOME to WIN`);
+                    const bp = player.boardPosition;
+                    for (let h = 4; h >= 1; h--) sequence.push(`side-right-${bp}-${h}`);
+                    const ns = (bp + 1) % 6;
+                    sequence.push(`ft-${ns}`);
+                    for (let h = 1; h <= 4; h++) sequence.push(`side-left-${ns}-${h}`);
+                    for (let h = 0; h < 4; h++) sequence.push(`outer-${ns}-${h}`);
+                    console.log(`🏆 [FastTrack HYPERSPACE] Safe zone full - 5th peg on outer track, can pass through home`);
                 }
                 
                 console.log('🎯 [getTrackSequence] FastTrack HYPERSPACE exit sequence:', sequence);
@@ -2364,10 +2385,16 @@ class GameState {
                             sequence.push(`safe-${player.boardPosition}-${h}`);
                         }
                     } else {
-                        // Safe zone full - 5th peg bypasses to home (winner hole)
+                        // Safe zone full - 5th peg continues on outer track past home
                         sequence.push(`outer-${player.boardPosition}-3`);
                         sequence.push(`home-${player.boardPosition}`);
-                        console.log(`🏆 [FastTrack exit] Safe zone full - 5th peg routing to HOME to WIN`);
+                        const bp2 = player.boardPosition;
+                        for (let h = 4; h >= 1; h--) sequence.push(`side-right-${bp2}-${h}`);
+                        const ns2 = (bp2 + 1) % 6;
+                        sequence.push(`ft-${ns2}`);
+                        for (let h = 1; h <= 4; h++) sequence.push(`side-left-${ns2}-${h}`);
+                        for (let h = 0; h < 4; h++) sequence.push(`outer-${ns2}-${h}`);
+                        console.log(`🏆 [FastTrack exit] Safe zone full - 5th peg on outer track, can pass through home`);
                     }
                     
                     break;
@@ -2506,11 +2533,29 @@ class GameState {
                     }
                     console.log(`🔒 [SAFE ZONE] Peg entering safe zone - cannot continue on outer track`);
                 } else {
-                    // Safe zone is full (4 pegs) - 5th peg bypasses safe zone to home/winner
-                    // The 5th peg continues on outer track past outer-3 to home hole to WIN
+                    // Safe zone is full (4 pegs) - 5th peg continues on outer track past home
+                    // Home requires EXACT landing to win. If peg overshoots, it continues
+                    // around the board and must return to home on a future turn.
                     sequence.push(`outer-${player.boardPosition}-3`);
                     sequence.push(`home-${player.boardPosition}`);
-                    console.log(`🏆 [5TH PEG] Safe zone full - routing to HOME hole to WIN!`);
+                    // Continue past home on outer track
+                    const bp = player.boardPosition;
+                    for (let h = 4; h >= 1; h--) {
+                        sequence.push(`side-right-${bp}-${h}`);
+                    }
+                    const nextSec = (bp + 1) % 6;
+                    sequence.push(`ft-${nextSec}`);
+                    for (let h = 1; h <= 4; h++) {
+                        sequence.push(`side-left-${nextSec}-${h}`);
+                    }
+                    for (let h = 0; h < 4; h++) {
+                        sequence.push(`outer-${nextSec}-${h}`);
+                    }
+                    sequence.push(`home-${nextSec}`);
+                    for (let h = 4; h >= 1; h--) {
+                        sequence.push(`side-right-${nextSec}-${h}`);
+                    }
+                    console.log(`🏆 [5TH PEG] Safe zone full - 5th peg on outer track, can pass through home`);
                 }
                 break; // Stop adding outer track holes
             }
@@ -2567,6 +2612,41 @@ class GameState {
         }
         
         return sequence;
+    }
+
+    // Get the hole directly behind a peg (1 space backward) for JOKER card
+    getBackwardHole(peg, player) {
+        const currentHole = holeRegistry.get(peg.holeId);
+        if (!currentHole) return null;
+        
+        // Build the ordered track (same as getTrackSequence)
+        const buildOrderedTrack = () => {
+            const orderedTrack = [];
+            for (let p = 0; p < 6; p++) {
+                for (let h = 1; h <= 4; h++) orderedTrack.push(`side-left-${p}-${h}`);
+                for (let h = 0; h < 4; h++) orderedTrack.push(`outer-${p}-${h}`);
+                orderedTrack.push(`home-${p}`);
+                for (let h = 4; h >= 1; h--) orderedTrack.push(`side-right-${p}-${h}`);
+                orderedTrack.push(`ft-${(p + 1) % 6}`);
+            }
+            return orderedTrack;
+        };
+        
+        const clockwiseTrack = buildOrderedTrack();
+        const currentIdx = clockwiseTrack.indexOf(peg.holeId);
+        
+        if (currentIdx === -1) {
+            console.log(`[getBackwardHole] Peg ${peg.id} at ${peg.holeId} not found in track`);
+            return null;
+        }
+        
+        // Backward = counter-clockwise = go BACKWARD in array
+        const trackLength = clockwiseTrack.length;
+        const backwardIdx = (currentIdx - 1 + trackLength) % trackLength;
+        const backwardHoleId = clockwiseTrack[backwardIdx];
+        
+        console.log(`[getBackwardHole] Peg ${peg.id} at ${peg.holeId} (idx ${currentIdx}) -> backward hole: ${backwardHoleId} (idx ${backwardIdx})`);
+        return backwardHoleId;
     }
 
     // Check if a hole has a peg belonging to a specific player
@@ -3349,6 +3429,16 @@ class GameState {
 
     // End current turn
     endTurn() {
+        // Dispatch event for Mom Daemon
+        if (typeof document !== 'undefined') {
+            document.dispatchEvent(new CustomEvent('turnChanged', { 
+                detail: { 
+                    previousPlayerIndex: this.currentPlayerIndex,
+                    gameState: this 
+                } 
+            }));
+        }
+        
         // ════════════════════════════════════════════════════════════
         // FASTTRACK LOSS RULE — enforced at end of turn
         // If the player made a move this turn but did NOT traverse FastTrack,
@@ -3955,6 +4045,13 @@ if (typeof window !== 'undefined') {
     
     // Also expose gameManager directly for easy access
     window.gameManager = gameManager;
+    
+    // SecuritySubstrate: Seal card definitions and hole types on integrity manifold (z=xy² — φ³)
+    if (typeof SecuritySubstrate !== 'undefined') {
+        SecuritySubstrate.freezeCardDefinitions(CARD_TYPES);
+        SecuritySubstrate.sealObject('SUITS', SUITS);
+        SecuritySubstrate.sealObject('HOLE_TYPES', HOLE_TYPES);
+    }
     
     console.log('FastrackEngine loaded with GameManager and deterministic rule definitions');
 }

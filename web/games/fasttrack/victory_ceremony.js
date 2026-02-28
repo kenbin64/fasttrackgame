@@ -53,6 +53,8 @@ const VictoryCeremony = {
         this.active = true;
         this.onComplete = onComplete;
         this._startTime = Date.now();
+        this._boardGroup = null;
+        this._savedBoardRotation = 0;
 
         // Save camera state
         this._savedCameraPos = this.camera.position.clone();
@@ -60,9 +62,25 @@ const VictoryCeremony = {
             this._savedCameraTarget = window.controls.target.clone();
         }
 
+        // Find the board group for spinning
+        this.scene.traverse(child => {
+            if (child.name === 'boardGroup' || (child.isGroup && child.children.length > 50 && !this._boardGroup)) {
+                this._boardGroup = child;
+            }
+        });
+        if (this._boardGroup) {
+            this._savedBoardRotation = this._boardGroup.rotation.y;
+        }
+
         // Create ceremony container
         this.ceremonyGroup = new THREE.Group();
         this.scene.add(this.ceremonyGroup);
+
+        // ── Triumphal music starts immediately ──
+        if (window.MusicSubstrate && MusicSubstrate.playVictoryFanfare) {
+            MusicSubstrate.activate();
+            MusicSubstrate.playVictoryFanfare();
+        }
 
         // ── Phase 1: Crown envelops peg (0-1.5s) ──
         this._createCeremonyPeg(homePos, playerColor, winner);
@@ -74,14 +92,20 @@ const VictoryCeremony = {
             this._animateRiseAndZoom(homePos, winner);
         }, 1500);
 
-        // ── Phase 3: Victory text + bow + applause (3-4s) ──
+        // ── Phase 3: Victory text + bow + applause + cheering (3-4s) ──
         setTimeout(() => {
             if (!this.active) return;
             this._showVictoryText(winner);
-            this._animateBow();
-            // Play applause
+            this._animateBowAndSpin(homePos);
+            // Play applause + crowd cheering
             if (window.GameSFX) {
-                GameSFX.playApplause(5);
+                GameSFX.playApplause(6);
+            }
+            if (window.CrowdSubstrate && CrowdSubstrate.react) {
+                CrowdSubstrate.react('cheer');
+                setTimeout(() => {
+                    if (this.active && CrowdSubstrate.react) CrowdSubstrate.react('cheer');
+                }, 1500);
             }
         }, 3000);
 
@@ -302,14 +326,31 @@ const VictoryCeremony = {
                 letter-spacing: 3px;
                 font-family: 'Segoe UI', system-ui, sans-serif;
                 margin-bottom: 10px;
-            ">👑 VICTORY 👑</div>
+            ">👑</div>
             <div style="
-                font-size: clamp(22px, 4vw, 44px);
-                font-weight: 700;
+                font-size: clamp(26px, 5vw, 52px);
+                font-weight: 900;
                 color: ${colorHex};
-                text-shadow: 0 0 20px ${colorHex}80, 2px 2px 4px rgba(0,0,0,0.5);
+                text-shadow: 0 0 30px ${colorHex}80, 0 0 60px ${colorHex}40, 2px 2px 4px rgba(0,0,0,0.5);
+                letter-spacing: 2px;
                 font-family: 'Segoe UI', system-ui, sans-serif;
-            "><span style="font-size: 1.3em; margin-right: 8px;">${avatar}</span>${winner.name || 'Player'}</div>
+                margin-bottom: 8px;
+            "><span style="font-size: 1.2em; margin-right: 8px;">${avatar}</span>${winner.name || 'Player'}</div>
+            <div style="
+                font-size: clamp(32px, 6vw, 64px);
+                font-weight: 900;
+                color: #ffd700;
+                text-shadow: 0 0 40px rgba(255,215,0,0.9), 0 0 80px rgba(255,180,0,0.5), 3px 3px 6px rgba(0,0,0,0.6);
+                letter-spacing: 5px;
+                font-family: 'Segoe UI', system-ui, sans-serif;
+                animation: victoryPulse 1s ease-in-out infinite alternate;
+            ">WINS!</div>
+            <style>
+                @keyframes victoryPulse {
+                    from { transform: scale(1); text-shadow: 0 0 40px rgba(255,215,0,0.9); }
+                    to { transform: scale(1.08); text-shadow: 0 0 60px rgba(255,215,0,1), 0 0 100px rgba(255,180,0,0.6); }
+                }
+            </style>
         `;
 
         document.body.appendChild(overlay);
@@ -323,27 +364,44 @@ const VictoryCeremony = {
     },
 
     /**
-     * Phase 3b: Peg does a slight bowing gesture (tilt forward then back)
+     * Phase 3b: Peg bows while the entire board spins around it
      */
-    _animateBow() {
+    _animateBowAndSpin(homePos) {
         const peg = this._ceremonyPeg;
         if (!peg) return;
         const startTime = Date.now();
-        const duration = 1200;
+        const bowDuration = 1500;
+        const spinDuration = 5000; // Full board spin takes 5s
+        const board = this._boardGroup;
+        const boardStartRot = board ? board.rotation.y : 0;
 
         const animate = () => {
             if (!this.active) return;
             const elapsed = Date.now() - startTime;
-            const t = Math.min(1, elapsed / duration);
 
-            // Bow forward then return: sin curve 0→peak→0
-            const bowAngle = Math.sin(t * Math.PI) * 0.25; // ~14 degrees forward tilt
+            // Bow (first 1.5s): forward then back
+            const bowT = Math.min(1, elapsed / bowDuration);
+            const bowAngle = Math.sin(bowT * Math.PI) * 0.3;
             peg.rotation.x = bowAngle;
 
-            // Slow rotation throughout
-            peg.rotation.y += 0.008;
+            // Continuous slow peg rotation
+            peg.rotation.y += 0.01;
 
-            if (t < 1) requestAnimationFrame(animate);
+            // Board spins a full 360° over spinDuration
+            const spinT = Math.min(1, elapsed / spinDuration);
+            const easeInOut = spinT < 0.5
+                ? 2 * spinT * spinT
+                : 1 - Math.pow(-2 * spinT + 2, 2) / 2;
+            if (board) {
+                board.rotation.y = boardStartRot + easeInOut * Math.PI * 2;
+            }
+
+            if (spinT < 1) {
+                requestAnimationFrame(animate);
+            } else if (board) {
+                // Snap back to original rotation
+                board.rotation.y = boardStartRot;
+            }
         };
         requestAnimationFrame(animate);
     },
@@ -580,12 +638,18 @@ const VictoryCeremony = {
                 window.controls.update();
             }
 
+            // Restore board rotation
+            if (this._boardGroup && this._savedBoardRotation !== undefined) {
+                this._boardGroup.rotation.y = this._savedBoardRotation;
+            }
+
             this.active = false;
             this._ceremonyPeg = null;
             this._ceremonyCrown = null;
             this._crownMat = null;
             this._crownLight = null;
             this._gemMats = null;
+            this._boardGroup = null;
 
             // Trigger replay prompt
             if (this.onComplete) {
@@ -636,11 +700,17 @@ const VictoryCeremony = {
             window.controls.update();
         }
 
+        // Restore board rotation
+        if (this._boardGroup && this._savedBoardRotation !== undefined) {
+            this._boardGroup.rotation.y = this._savedBoardRotation;
+        }
+
         this._ceremonyPeg = null;
         this._ceremonyCrown = null;
         this._crownMat = null;
         this._crownLight = null;
         this._gemMats = null;
+        this._boardGroup = null;
         this._victoryOverlay = null;
         this._confettiOverlay = null;
     }

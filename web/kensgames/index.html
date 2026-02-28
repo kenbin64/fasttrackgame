@@ -124,12 +124,18 @@
             </div>
           </div>
 
-          <!-- Station 2: Empty cabinet -->
+          <!-- Station 2: Person playing Space Battle -->
           <div class="arcade-station">
             <div class="cabinet-sil cab-2">
               <div class="cabinet-screen"></div>
               <div class="cabinet-controls"></div>
-              <span class="cabinet-label">Neon Racer</span>
+              <span class="cabinet-label">Space Battle</span>
+            </div>
+            <div class="arcade-person">
+              <div class="person-head"></div>
+              <div class="person-arms"></div>
+              <div class="person-body"></div>
+              <div class="person-legs"><span></span><span></span></div>
             </div>
           </div>
 
@@ -177,8 +183,8 @@
 
       <div class="score-ticker reveal">
         <div class="score-item">
-          <span class="score-value">1</span>
-          <span class="score-label">Game Live</span>
+          <span class="score-value">2</span>
+          <span class="score-label">Games Live</span>
         </div>
         <div class="score-item">
           <span class="score-value">5</span>
@@ -353,6 +359,17 @@
           <span class="game-status status-live">● Live</span>
         </a>
 
+        <!-- LIVE: Space Battle -->
+        <a href="/spacebattle/" class="game-card reveal">
+          <span class="game-icon">🚀</span>
+          <h3>Space Battle</h3>
+          <p>80s arcade dogfighting in deep space. Pilot your fighter
+             through waves of enemy craft, lock on targets, fire twin
+             lasers, deploy countermeasures, and protect your allies.
+             Radar, cockpit HUD, and synth soundtrack.</p>
+          <span class="game-status status-live">● Live</span>
+        </a>
+
         <!-- COMING SOON: Dimensional Chess -->
         <div class="game-card coming-soon reveal">
           <span class="game-icon">♟️</span>
@@ -478,8 +495,8 @@
       </div>
       <p class="sub reveal">The arcade never closes. The leaderboard never sleeps.</p>
       <div class="play-buttons reveal">
-        <a href="/fasttrack/" class="btn btn-fire btn-lg">▶ Start Game</a>
-        <a href="/fasttrack/?mode=private" class="btn btn-gold btn-lg">🔒 Private Room</a>
+        <a href="/fasttrack/" class="btn btn-fire btn-lg">▶ Fast Track</a>
+        <a href="/spacebattle/" class="btn btn-gold btn-lg">🚀 Space Battle</a>
         <a href="/fasttrack/?mode=ai" class="btn btn-glass btn-lg">🤖 vs. AI</a>
       </div>
       <p class="insert-coin reveal">Insert Coin to Continue</p>
@@ -494,6 +511,7 @@
       <div class="footer-col">
         <h4>Games</h4>
         <a href="/fasttrack/">Fast Track</a>
+        <a href="/spacebattle/">Space Battle</a>
         <a href="#games">All Games</a>
         <a href="#arcade-floor">The Arcade</a>
       </div>

@@ -238,7 +238,8 @@ function onSessionCreated(data) {
     const wizardModal = document.getElementById('private-wizard-modal');
     if (wizardModal && wizardModal.classList.contains('active')) {
         const code = data.share_code || data.session.session_code;
-        const url = data.share_url || `${window.location.origin}${window.location.pathname.replace('lobby.html', 'join.html')}?code=${code}`;
+        let url = data.share_url || `${window.location.origin}${window.location.pathname.replace('lobby.html', 'join.html')}?code=${code}`;
+        if (url.startsWith('/')) url = window.location.origin + url;
         document.getElementById('wizard-room-code').textContent = code;
         document.getElementById('wizard-share-url').value = url;
         state.wizardShareUrl = url;
@@ -924,7 +925,8 @@ function showWaitingRoom(session, code, shareUrl) {
     // Legacy waiting room for non-wizard flows (public games, join-by-code)
     document.getElementById('waiting-room-code').textContent = code;
     
-    const url = shareUrl || `${window.location.origin}${window.location.pathname.replace('lobby.html', 'join.html')}?code=${code}`;
+    let url = shareUrl || `${window.location.origin}${window.location.pathname.replace('lobby.html', 'join.html')}?code=${code}`;
+    if (url.startsWith('/')) url = window.location.origin + url;
     document.getElementById('share-url').value = url;
     
     updateWaitingRoom();

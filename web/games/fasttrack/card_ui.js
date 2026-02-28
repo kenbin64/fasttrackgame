@@ -198,13 +198,13 @@ class CardUI {
             }
 
             .unified-deck {
-                width: 80px;
-                height: 120px;
+                width: 120px;
+                height: 180px;
             }
 
             .unified-deck .card {
-                width: 80px;
-                height: 120px;
+                width: 120px;
+                height: 180px;
             }
 
             .player-deck-wrapper {
@@ -222,8 +222,8 @@ class CardUI {
 
             .deck-stack {
                 position: relative;
-                width: 80px;
-                height: 120px;
+                width: 120px;
+                height: 180px;
                 cursor: pointer;
                 transition: transform 0.2s, opacity 0.2s;
             }
@@ -239,11 +239,11 @@ class CardUI {
             }
 
             .deck-stack:hover {
-                transform: scale(1.05);
+                transform: scale(1.08);
             }
 
             .deck-stack:hover .card {
-                box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+                box-shadow: 0 0 30px rgba(255, 215, 0, 0.7);
             }
 
             .draw-indicator {
@@ -251,10 +251,10 @@ class CardUI {
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                font-size: 36px;
+                font-size: 56px;
                 font-weight: bold;
                 color: white;
-                text-shadow: 0 0 10px black, 0 0 20px black, 0 0 30px var(--deck-color, gold);
+                text-shadow: 0 0 15px black, 0 0 25px black, 0 0 40px var(--deck-color, gold);
                 animation: pulseIndicator 1s ease-in-out infinite;
                 pointer-events: none;
                 z-index: 10;
@@ -276,10 +276,10 @@ class CardUI {
 
             .card {
                 position: absolute;
-                width: 80px;
-                height: 120px;
-                border-radius: 8px;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+                width: 120px;
+                height: 180px;
+                border-radius: 12px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
                 transition: all 0.3s ease;
             }
 
@@ -297,11 +297,11 @@ class CardUI {
                 position: absolute;
                 top: 50%;
                 left: 50%;
-                width: 30px;
-                height: 30px;
+                width: 45px;
+                height: 45px;
                 transform: translate(-50%, -50%) rotate(45deg);
-                border: 2px solid rgba(255, 255, 255, 0.6);
-                border-radius: 3px;
+                border: 3px solid rgba(255, 255, 255, 0.6);
+                border-radius: 4px;
                 pointer-events: none;
             }
 
@@ -310,11 +310,11 @@ class CardUI {
                 position: absolute;
                 top: 50%;
                 left: 50%;
-                width: 14px;
-                height: 14px;
+                width: 21px;
+                height: 21px;
                 transform: translate(-50%, -50%);
-                border: 1.5px solid rgba(255, 255, 255, 0.4);
-                border-radius: 2px;
+                border: 2px solid rgba(255, 255, 255, 0.4);
+                border-radius: 3px;
             }
 
             .card-back:nth-child(1), .card-back-player:nth-child(1) { top: 0; left: 0; }
@@ -457,10 +457,21 @@ class CardUI {
         this.currentCard = card;
         const area = document.getElementById('drawn-card-area');
         
+        // Map card ranks to icons
+        const cardIcons = {
+            'JOKER': '🃏',
+            'A': '🅰️',
+            'J': '🤴',
+            'Q': '👸',
+            'K': '👑'
+        };
+        
+        const displayRank = cardIcons[card.rank] || card.rank;
+        
         if (card.rank === 'JOKER') {
             area.innerHTML = `
                 <div class="card card-face card-joker card-highlight">
-                    <div>🃏</div>
+                    <div>${cardIcons['JOKER']}</div>
                     <div>JOKER</div>
                     ${card.extraTurn ? '<div class="extra-turn-badge">+1 TURN</div>' : ''}
                 </div>
@@ -477,12 +488,12 @@ class CardUI {
             area.innerHTML = `
                 <div class="card card-face card-highlight" style="position: relative;">
                     <div class="card-corner ${suitClass}">
-                        <span class="card-rank">${card.rank}</span>
+                        <span class="card-rank">${displayRank}</span>
                         <span class="card-suit">${suitSymbols[card.suit]}</span>
                     </div>
                     <div class="card-center ${suitClass}">${suitSymbols[card.suit]}</div>
                     <div class="card-corner bottom ${suitClass}">
-                        <span class="card-rank">${card.rank}</span>
+                        <span class="card-rank">${displayRank}</span>
                         <span class="card-suit">${suitSymbols[card.suit]}</span>
                     </div>
                     ${card.extraTurn ? '<div class="extra-turn-badge">+1 TURN</div>' : ''}

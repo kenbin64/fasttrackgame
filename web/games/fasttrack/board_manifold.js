@@ -138,11 +138,11 @@ const BoardManifold = (() => {
         center: {
             label: 'Bullseye (Center)',
             surface: 'z=xy2', x: PHI * PHI, y: PHI, // highest z — centre of power
-            canBeCut: false,
+            canBeCut: true,
             requiresRoyalToExit: true,
             ownerOnly: false,
             accepts: () => true,
-            ruleText: 'Safe. Exit only with J / Q / K to own FT hole.'
+            ruleText: 'Can be cut. Exit only with J / Q / K to own FT hole.'
         }
     };
 

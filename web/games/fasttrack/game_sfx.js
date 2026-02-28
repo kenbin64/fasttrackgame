@@ -935,6 +935,81 @@ const GameSFX = {
         console.log('➕ [GameSFX] Peg entry!');
     },
     
+    /**
+     * JOKER BACKWARD - Special effect for Joker cutting opponent by moving backward
+     * Jack-in-the-box pop + maniacal laugh + fanfare
+     */
+    playJokerBackward() {
+        if (!this.enabled || !this.activate()) return;
+        
+        const now = this.audioContext.currentTime;
+        
+        // 1. Jack-in-the-box "BOING" spring sound
+        const springOsc = this.audioContext.createOscillator();
+        const springGain = this.audioContext.createGain();
+        
+        springOsc.type = 'sawtooth';
+        springOsc.frequency.setValueAtTime(80, now);
+        springOsc.frequency.exponentialRampToValueAtTime(400, now + 0.15);
+        springOsc.frequency.exponentialRampToValueAtTime(150, now + 0.3);
+        
+        springGain.gain.setValueAtTime(0, now);
+        springGain.gain.linearRampToValueAtTime(this.volume * 0.4, now + 0.02);
+        springGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        
+        springOsc.connect(springGain);
+        springGain.connect(this.masterGain);
+        springOsc.start(now);
+        springOsc.stop(now + 0.4);
+        
+        // 2. Maniacal laugh (descending chromatic notes)
+        const laughNotes = [659, 622, 587, 554, 523, 494, 466]; // E5 down to Bb4
+        laughNotes.forEach((freq, i) => {
+            const noteStart = now + 0.3 + (i * 0.08);
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(freq, noteStart);
+            
+            gain.gain.setValueAtTime(0, noteStart);
+            gain.gain.linearRampToValueAtTime(this.volume * 0.25, noteStart + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001, noteStart + 0.12);
+            
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+            osc.start(noteStart);
+            osc.stop(noteStart + 0.15);
+        });
+        
+        // 3. Circus fanfare (ascending triumphant notes)
+        const fanfareNotes = [523, 659, 784, 1047]; // C5, E5, G5, C6
+        fanfareNotes.forEach((freq, i) => {
+            const noteStart = now + 0.9 + (i * 0.15);
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, noteStart);
+            
+            gain.gain.setValueAtTime(0, noteStart);
+            gain.gain.linearRampToValueAtTime(this.volume * 0.3, noteStart + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, noteStart + 0.2);
+            
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+            osc.start(noteStart);
+            osc.stop(noteStart + 0.25);
+        });
+        
+        // 4. Sparkle celebration at the end
+        setTimeout(() => {
+            this._playSparkle(this.audioContext.currentTime, 8);
+        }, 1400);
+        
+        console.log('🃏 [GameSFX] Joker Backward - SURPRISE!');
+    },
+    
     // ============================================================
     // HELPER SOUNDS
     // ============================================================

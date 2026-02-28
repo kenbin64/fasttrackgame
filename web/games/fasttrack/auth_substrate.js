@@ -44,7 +44,7 @@ const AuthSubstrate = {
     // REGISTRATION
     // ============================================================
     
-    register: function(username, email, password, displayName = null) {
+    register: async function(username, email, password, displayName = null) {
         // Validate username
         if (!username || username.length < 3 || username.length > 20) {
             return { success: false, error: 'Username must be 3-20 characters' };
@@ -80,7 +80,7 @@ const AuthSubstrate = {
             username: username.toLowerCase(),
             email: email.toLowerCase(),
             displayName: displayName || username,
-            passwordHash: this.hashPassword(password),
+            passwordHash: await this.hashPassword(password),
             
             // Profile
             avatarId: null,
@@ -128,7 +128,7 @@ const AuthSubstrate = {
     // LOGIN / LOGOUT
     // ============================================================
     
-    login: function(usernameOrEmail, password) {
+    login: async function(usernameOrEmail, password) {
         // Find user
         const user = this.getUserByUsername(usernameOrEmail) || 
                      this.getUserByEmail(usernameOrEmail);
@@ -138,7 +138,7 @@ const AuthSubstrate = {
         }
         
         // Check password
-        if (!this.verifyPassword(password, user.passwordHash)) {
+        if (!(await this.verifyPassword(password, user.passwordHash))) {
             return { success: false, error: 'Invalid password' };
         }
         
@@ -322,7 +322,7 @@ const AuthSubstrate = {
         return { success: true, user: this.sanitizeUser(this.currentUser) };
     },
     
-    changePassword: function(currentPassword, newPassword) {
+    changePassword: async function(currentPassword, newPassword) {
         if (!this.currentUser) {
             return { success: false, error: 'Not logged in' };
         }
@@ -335,29 +335,56 @@ const AuthSubstrate = {
             return { success: false, error: `Password must be at least ${this.PASSWORD_MIN_LENGTH} characters` };
         }
         
-        this.currentUser.passwordHash = this.hashPassword(newPassword);
+        this.currentUser.passwordHash = await this.hashPassword(newPassword);
         this.saveToStorage();
         
         return { success: true };
     },
     
     // ============================================================
-    // PASSWORD UTILITIES (simplified - in production use bcrypt)
+    // PASSWORD UTILITIES (PBKDF2-SHA256 via Web Crypto API)
     // ============================================================
     
-    hashPassword: function(password) {
-        // Simple hash for demo - in production use bcrypt or similar
+    hashPassword: async function(password) {
+        const encoder = new TextEncoder();
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
+        const keyMaterial = await crypto.subtle.importKey(
+            'raw', encoder.encode(password), 'PBKDF2', false, ['deriveBits']
+        );
+        const derivedBits = await crypto.subtle.deriveBits(
+            { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
+            keyMaterial, 256
+        );
+        const hashHex = Array.from(new Uint8Array(derivedBits)).map(b => b.toString(16).padStart(2, '0')).join('');
+        return `pbkdf2:${saltHex}:${hashHex}`;
+    },
+    
+    verifyPassword: async function(password, storedHash) {
+        if (storedHash && storedHash.startsWith('pbkdf2:')) {
+            const parts = storedHash.split(':');
+            if (parts.length !== 3) return false;
+            const [, saltHex, expectedHex] = parts;
+            const salt = new Uint8Array(saltHex.match(/.{2}/g).map(b => parseInt(b, 16)));
+            const encoder = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw', encoder.encode(password), 'PBKDF2', false, ['deriveBits']
+            );
+            const derivedBits = await crypto.subtle.deriveBits(
+                { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
+                keyMaterial, 256
+            );
+            const hashHex = Array.from(new Uint8Array(derivedBits)).map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex === expectedHex;
+        }
+        // Legacy fallback for old hashes
         let hash = 0;
         for (let i = 0; i < password.length; i++) {
             const char = password.charCodeAt(i);
             hash = ((hash << 5) - hash) + char;
             hash = hash & hash;
         }
-        return `hash_${Math.abs(hash).toString(36)}_${password.length}`;
-    },
-    
-    verifyPassword: function(password, hash) {
-        return this.hashPassword(password) === hash;
+        return `hash_${Math.abs(hash).toString(36)}_${password.length}` === storedHash;
     },
     
     // ============================================================

@@ -9,7 +9,7 @@
     <meta name="theme-color" content="#1a1a2e">
     <meta name="mobile-web-app-capable" content="yes">
     <title>Fast Track — Play Free Online | 3D Board Game</title>
-    <meta name="description" content="Play Fast Track free in your browser — a 3D card &amp; peg racing board game. Race around the board, take the Fast Track shortcut, capture opponents. 2-4 players, 7 themes, smart AI.">
+    <meta name="description" content="Play Fast Track free in your browser — a 3D card &amp; peg racing board game. Race around the board, take the Fast Track shortcut, capture opponents. 2-4 players, 7 themes, smart bots.">
     <meta name="keywords" content="fast track, board game, online game, free game, 3D board game, card game, multiplayer, peg racing">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://kensgames.com/fasttrack/board_3d.html">
@@ -27,7 +27,7 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Fast Track — Free 3D Board Game">
-    <meta name="twitter:description" content="Card &amp; peg racing for 2-4 players. 7 themes, smart AI. Play free now!">
+    <meta name="twitter:description" content="Card &amp; peg racing for 2-4 players. 7 themes, smart bots. Play free now!">
     <meta name="twitter:image" content="https://kensgames.com/fasttrack/assets/images/og-preview.png">
 
     <!-- Gate: board_3d.html is the game board only. No session params = redirect to lobby -->
@@ -62,6 +62,7 @@
     
     <!-- Responsive Game CSS -->
     <link rel="stylesheet" href="assets/css/responsive-game.css?v=20260223b">
+    <link rel="stylesheet" href="assets/css/move-selection-modal.css?v=20260226">
     
     <!-- Global Error Handler -->
     <script>
@@ -349,7 +350,7 @@
                         </select>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label style="color: #ccc; font-size: 14px;">Allow AI Bots</label>
+                        <label style="color: #ccc; font-size: 14px;">Allow Bots</label>
                         <label class="toggle-switch" style="position:relative;width:44px;height:24px;">
                             <input type="checkbox" id="private-allow-bots" checked style="display:none;">
                             <span style="position:absolute;inset:0;background:#444;border-radius:12px;cursor:pointer;transition:.3s;" onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.style.background=this.previousElementSibling.checked?'#4ade80':'#444';">
@@ -379,65 +380,28 @@
     
     <!-- Floating Rules Button — REMOVED (available in hamburger menu) -->
     
-    <!-- Camera Mode Toggle Button -->
-    <button id="camera-toggle-btn" class="cinematic" onclick="toggleCameraPanel()" title="Camera Views">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="23 7 16 12 23 17 23 7"></polygon>
-            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-            <circle cx="6" cy="3" r="1.5" fill="currentColor" stroke="none"></circle>
-        </svg>
-    </button>
-    
-    <!-- Camera View Selector Panel -->
-    <div id="camera-view-panel">
-        <h4>📹 Camera View</h4>
-        <button class="camera-view-btn active" data-view="board" onclick="setCameraViewMode('board')">
-            <span class="icon">🎯</span>
-            <span class="label">Board View</span>
-        </button>
-        <button class="camera-view-btn" data-view="ground" onclick="setCameraViewMode('ground')">
-            <span class="icon">🏃</span>
-            <span class="label">Ground Level</span>
-        </button>
-        <button class="camera-view-btn" data-view="chase" onclick="setCameraViewMode('chase')">
-            <span class="icon">🎬</span>
-            <span class="label">Chase Cam</span>
-        </button>
-        <button class="camera-view-btn" data-view="orbit" onclick="setCameraViewMode('orbit')">
-            <span class="icon">🌀</span>
-            <span class="label">Orbit</span>
-        </button>
-        <button class="camera-view-btn" data-view="manual" onclick="setCameraViewMode('manual')">
-            <span class="icon">🎮</span>
-            <span class="label">Manual</span>
-        </button>
-        <div class="camera-speed-section">
-            <div class="camera-speed-header">
-                <span class="camera-speed-label">🐢</span>
-                <span class="camera-speed-title">Speed</span>
-                <span class="camera-speed-label">🐇</span>
-            </div>
-            <input type="range" id="camera-speed-slider" class="camera-speed-slider" 
-                   min="0.2" max="2.0" step="0.1" value="0.6"
-                   oninput="setCameraSpeed(this.value)">
-            <div class="camera-speed-value" id="camera-speed-value">Smooth</div>
-        </div>
-    </div>
+    <!-- Camera View Selector Panel - REMOVED (now in GameUIMinimal menu) -->
     
     <!-- Exit Game Button -->
     <button id="exit-game-btn" onclick="showExitConfirm()" title="Exit Game">🚪</button>
     
+    <!-- Camera Button -->
+    <button id="camera-btn" onclick="openCameraPanel()" title="Camera Options">📹</button>
+    
+    <!-- Music Toggle Button -->
+    <button id="music-toggle-btn" onclick="toggleGameMusic()" title="Music: OFF">🔇</button>
+    
     <!-- Tutorial Button -->
     <button id="tutorial-btn" onclick="FastTrackTutorial.start()" title="Tutorial" style="display:none;">📖</button>
     
-    <!-- Mom Help Button -->
-    <button id="mom-help-btn" onclick="showMomHelp()" title="Ask Mom for Help">👩‍👧</button>
+    <!-- Mom Help Button (Toggle Daemon) -->
+    <button id="mom-help-btn" onclick="toggleMomDaemon()" title="Toggle Mom Helper" class="">👩‍👧</button>
     
     <!-- Exit Confirmation Modal -->
     <div id="exit-confirm-modal">
         <div id="exit-confirm-content">
             <h3>🚪 Exit Game?</h3>
-            <p>If you leave, an AI will take over your pegs. The game will continue for other players.</p>
+            <p>If you leave, a bot will take over your pegs. The game will continue for other players.</p>
             <div class="exit-modal-btns">
                 <button class="cancel-btn" onclick="hideExitConfirm()">Cancel</button>
                 <button class="lobby-btn" onclick="exitToLobby()" style="background: #3498db;">🏠 Lobby</button>
@@ -507,7 +471,7 @@
                     <span>⬅️</span> Card 4 = Back 4 spaces (can't enter FT, bullseye, or safe zone)
                 </li>
                 <li style="padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; gap: 8px;">
-                    <span>✂️</span> Card 7 = Split 7 between 2 pegs (both clockwise)
+                    <span>✨</span> Card 7 = Wild card - move any token 1-7 spaces
                 </li>
                 <li style="padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; gap: 8px;">
                     <span>💥</span> Land on opponent = Cut them back to holding
@@ -553,7 +517,7 @@
                     <div class="card-row"><span class="card-value" style="color:#ff6b6b;">4</span><span class="card-effect">Move 4 spaces BACKWARD</span></div>
                     <div class="card-row"><span class="card-value">5</span><span class="card-effect">Move 5 spaces forward</span></div>
                     <div class="card-row"><span class="card-value" style="color:#4ade80;">6</span><span class="card-effect">Enter track + Extra turn</span></div>
-                    <div class="card-row"><span class="card-value" style="color:#ffd700;">7</span><span class="card-effect">Split 7 between 2 pegs</span></div>
+                    <div class="card-row"><span class="card-value" style="color:#ffd700;">7</span><span class="card-effect">Wild card - move any token 1-7 spaces</span></div>
                     <div class="card-row"><span class="card-value">8-10</span><span class="card-effect">Move 8-10 spaces forward</span></div>
                     <div class="card-row"><span class="card-value" style="color:#9400ff;">J/Q/K</span><span class="card-effect">Move 1 + Extra turn + Exit Bullseye</span></div>
                     <div class="card-row"><span class="card-value" style="color:#ff00ff;">Joker</span><span class="card-effect">Enter track + Extra turn</span></div>
@@ -594,7 +558,7 @@
                 <ul>
                     <li>FT pegs <strong>lose status</strong> if you move a different (non-FT) peg</li>
                     <li>Drawing a <strong>4</strong> forces your FT peg off the fast track</li>
-                    <li>Two FT pegs can split a 7 with each other</li>
+                    <li>7 card is a wild card - move any token 1-7 spaces</li>
                 </ul>
             </div>
             
@@ -662,7 +626,7 @@
         <div id="lobby-host-settings" style="display: none; margin: 10px 0; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 12px;">
             <h4 style="color: #4ade80; margin-bottom: 10px; font-size: 14px;">⚙️ Host Settings</h4>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="private-btn" id="add-ai-btn" onclick="addAIPlayer()" style="font-size: 12px; padding: 6px 14px; background: #2563eb;">🤖 Add AI Bot</button>
+                <button class="private-btn" id="add-ai-btn" onclick="addAIPlayer()" style="font-size: 12px; padding: 6px 14px; background: #2563eb;">🤖 Add Bot</button>
                 <button class="private-btn" id="toggle-music-all-btn" onclick="toggleMusicForAll()" style="font-size: 12px; padding: 6px 14px; background: #7c3aed;">🎵 Music: ON</button>
             </div>
         </div>
@@ -902,13 +866,17 @@
     </div>
 
     <!-- Move Choice Modal (prominent popup for multiple moves) -->
-    <div id="move-choice-modal">
+    <div id="move-choice-modal" onclick="if(event.target===this)hideMoveChoiceModal()">
         <div class="modal-card">
-            <div class="modal-header">
+            <div class="modal-header" style="position:relative;">
                 <div class="modal-title" id="choice-modal-title">Choose Your Move</div>
                 <div class="modal-subtitle" id="choice-modal-subtitle"></div>
+                <button onclick="hideMoveChoiceModal()" style="position:absolute;top:6px;right:10px;background:none;border:none;color:#aaa;font-size:22px;cursor:pointer;padding:4px 8px;line-height:1;" title="Close and pick manually">&times;</button>
             </div>
             <div id="choice-modal-items"></div>
+            <div style="text-align:center;padding:8px 0 4px;border-top:1px solid rgba(255,255,255,0.1);margin-top:4px;">
+                <button onclick="hideMoveChoiceModal()" style="background:none;border:1px solid #666;color:#aaa;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:12px;">Inspect board &amp; pick manually</button>
+            </div>
         </div>
     </div>
     
@@ -941,10 +909,22 @@
         <button class="reaction-btn-desktop" onclick="sendDesktopReaction('👻', 'boo')" title="Boo">👻</button>
     </div>
     
+    <!-- Suggestions Toggle Button -->
+    <button id="suggestions-toggle" onclick="toggleSuggestions()" title="Toggle move suggestion popups on/off" style="
+        position: fixed; bottom: 16px; left: 16px; z-index: 10002;
+        background: rgba(30,30,50,0.9); color: #ffd700; border: 2px solid #ffd700;
+        border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer;
+        font-family: inherit; backdrop-filter: blur(4px); transition: all 0.2s;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    ">💡 Suggestions ON</button>
+
     <div id="info">
         <div>Drag to rotate | Scroll to zoom</div>
         <div id="stats" style="margin-top: 8px; font-size: 11px; color: #aaa;"></div>
     </div>
+
+    <!-- jQuery (for reliable DOM ready handling) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -952,20 +932,48 @@
     
     <!-- FastTrack Substrates -->
     <script src="themes.js?v=20260225c"></script>
+    <script src="themes/vr_immersive.js?v=20260227"></script>
     <script src="avatar_substrate.js?v=20260223"></script>
     <script src="social_substrate.js?v=20260223"></script>
-    <script src="auth_substrate.js?v=20260223"></script>
+    <script src="security.js?v=20260227"></script>
+    <script src="auth_substrate.js?v=20260227"></script>
     <script src="admin_substrate.js?v=20260223"></script>
     <script src="game_session_manager.js?v=20260223"></script>
     <script src="lobby_substrate.js?v=20260223"></script>
     <script src="game_ui_minimal.js?v=20260225c"></script>
     <!-- BoardManifold: Every hole, card, peg, rule on z=xy / z=xy² surfaces -->
     <script src="board_manifold.js?v=20260223"></script>
-    <!-- ManifoldAI: Geometric intelligence on z=xy and z=xy² surfaces -->
+    <!-- ValidationSubstrate: Universal validation - zero duplication -->
+    <script src="validation_substrate.js?v=20260226"></script>
+    <!-- EventSubstrate: Universal event management - zero duplication -->
+    <script src="event_substrate.js?v=20260226"></script>
+    <!-- StateSubstrate: Universal state management - zero duplication -->
+    <script src="state_substrate.js?v=20260226"></script>
+    <!-- ArraySubstrate: Dimensional array operations - zero duplication -->
+    <script src="array_substrate.js?v=20260226"></script>
+    <!-- SubstrateManifold: Meta-substrate - substrates as points on manifold -->
+    <script src="substrate_manifold.js?v=20260226"></script>
+    
+    <!-- Dimensional Game Engine Substrates -->
+    <script src="move_generation_substrate.js?v=20260226"></script>
+    <script src="card_logic_substrate.js?v=20260226"></script>
+    <script src="ui_manifold.js?v=20260226"></script>
+    <script src="ai_manifold.js?v=20260226"></script>
+    <script src="game_engine_manifold.js?v=20260226"></script>
+    
+    <!-- Test Suite -->
+    <script src="test_fasttrack_rules.js?v=20260226"></script>
+    
     <script src="manifold_ai.js?v=20260223"></script>
     <!-- Unified Game Initialization System -->
     <script src="game_init.js?v=20260223"></script>
     <script src="mobile_ui.js?v=20260223"></script>
+    <script src="mobile_dimensional_fixes.js?v=20260228"></script>
+    <!-- Advanced Mobile Touch Engine (NEW) -->
+    <script src="mobile_touch_engine.js?v=20260228"></script>
+    <!-- Meta Quest VR Support (NEW) -->
+    <script src="vr_meta_quest.js?v=20260228"></script>
+    <script src="move_selection_modal.js?v=20260226"></script>
     <script src="lobby_ui.js?v=20260223"></script>
     <script src="auth_ui.js?v=20260223"></script>
     
@@ -996,6 +1004,7 @@
     <!-- Tutorial & Ask Mom Advisor -->
     <script src="tutorial.js?v=20260225"></script>
     <script src="ask_mom.js?v=20260225"></script>
+    <script src="mom_daemon.js?v=20260227"></script>
     <script src="board_tooltips.js?v=20260225"></script>
 
     <script>
@@ -1067,19 +1076,18 @@
     const innerHexRadius = innerRadius / Math.cos(Math.PI / 6);    // ~114
     const wedgeFactor = 0.85;                                      // Visual balance (geometric)
 
-    // Golden ratio color wheel spacing (137.5° increments)
-    // Maximizes visual distinction between adjacent colors
+    // Maximally distinct player colors — no two are close
     const RAINBOW_COLORS = [
-        0xff0000, // Red (0°)
-        0x00ff4a, // Teal (137.5°)  
-        0x9400ff, // Violet (275°)
-        0xffdf00, // Gold (52.5°)
-        0x00d4ff, // Azure (190°)
-        0xff008a  // Pink (327.5°)
+        0xff2020, // Red
+        0x2196ff, // Blue
+        0x4caf50, // Green
+        0xffeb3b, // Yellow
+        0xff9800, // Orange
+        0x9c27b0  // Purple
     ];
     const COLORS = RAINBOW_COLORS;  // Alias for convenience
 
-    const PLAYER_NAMES = ['Red', 'Teal', 'Violet', 'Gold', 'Azure', 'Pink'];
+    const PLAYER_NAMES = ['Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple'];
 
     // Track safe zone planes for theme color updates
     const safeZonePlanes = [];
@@ -1174,6 +1182,61 @@
         return `${color} ${num}`;
     }
     
+    // ── Friendly hole name helper ──
+    // Converts raw hole IDs to simple, human-readable descriptions
+    function friendlyHoleName(holeId) {
+        if (!holeId) return 'Unknown';
+
+        // Helper: get player name or color from board position in hole ID
+        function ownerOf(boardPos) {
+            if (gameState && gameState.players) {
+                const owner = gameState.players.find(p => p.boardPosition == boardPos);
+                if (owner) return owner.name;
+            }
+            return COLOR_NAMES[boardPos] || 'Player';
+        }
+
+        // Bullseye / Center
+        if (holeId === 'center') return 'the Bullseye';
+
+        // Holding area
+        if (holeId.startsWith('hold-')) return 'Holding Area';
+
+        // Home hole — say whose
+        if (holeId.startsWith('home-')) {
+            const bp = parseInt(holeId.split('-')[1]);
+            return `${ownerOf(bp)}'s Home Hole`;
+        }
+
+        // Safe zone — say whose and which slot
+        if (holeId.startsWith('safe-')) {
+            const parts = holeId.split('-');
+            const bp = parseInt(parts[1]);
+            const num = parts[2];
+            return `${ownerOf(bp)}'s Safe Zone #${num}`;
+        }
+
+        // FastTrack corners
+        if (holeId.startsWith('ft-')) {
+            const bp = parseInt(holeId.split('-')[1]);
+            return `${COLOR_NAMES[bp] || ''} FastTrack corner`;
+        }
+
+        // Outer track — check for safe zone gateway
+        if (holeId.startsWith('outer-')) {
+            const parts = holeId.split('-');
+            const bp = parseInt(parts[1]);
+            const idx = parseInt(parts[2]);
+            if (idx === 2) return `${ownerOf(bp)}'s Safe Zone Gateway`;
+            return 'the perimeter track';
+        }
+
+        // Side tracks
+        if (holeId.startsWith('side-')) return 'the perimeter track';
+
+        return holeId;
+    }
+
     // Create a floating number sprite for a peg
     function createPegNumberSprite(number, pegColor) {
         const canvas = document.createElement('canvas');
@@ -1409,7 +1472,106 @@
     // Theme system variables
     let mouseX = 0, mouseY = 0;
     let targetMouseX = 0, targetMouseY = 0;
-    let currentThemeName = 'spaceace';
+    let currentThemeName = 'cosmic';
+    let isVRMode = false;
+    
+    // ============================================================
+    // VR DETECTION & SUPPORT
+    // ============================================================
+    async function detectVRMode() {
+        console.log('[VR Detection] Checking for VR headset...');
+        
+        // Check if WebXR is supported
+        if (!navigator.xr) {
+            console.log('[VR Detection] WebXR not supported');
+            return false;
+        }
+        
+        try {
+            // Check if VR is supported
+            const isVRSupported = await navigator.xr.isSessionSupported('immersive-vr');
+            
+            if (isVRSupported) {
+                console.log('[VR Detection] ✅ VR headset detected! Auto-switching to VR Immersive theme');
+                return true;
+            } else {
+                console.log('[VR Detection] VR not available');
+                return false;
+            }
+        } catch (error) {
+            console.log('[VR Detection] Error checking VR support:', error);
+            return false;
+        }
+    }
+    
+    function addVRButton() {
+        console.log('[VR] Adding VR button...');
+        
+        // Create VR button
+        const vrButton = document.createElement('button');
+        vrButton.id = 'vr-button';
+        vrButton.innerHTML = '🥽 ENTER VR';
+        vrButton.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
+            color: white;
+            border: 3px solid #ffffff;
+            border-radius: 10px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 10000;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+            transition: all 0.3s;
+        `;
+        
+        vrButton.addEventListener('mouseenter', () => {
+            vrButton.style.transform = 'scale(1.1)';
+            vrButton.style.boxShadow = '0 0 30px rgba(255, 0, 255, 0.8)';
+        });
+        
+        vrButton.addEventListener('mouseleave', () => {
+            vrButton.style.transform = 'scale(1)';
+            vrButton.style.boxShadow = '0 0 20px rgba(255, 0, 255, 0.6)';
+        });
+        
+        vrButton.addEventListener('click', async () => {
+            console.log('[VR] Entering VR mode...');
+            
+            try {
+                // Request VR session
+                const session = await navigator.xr.requestSession('immersive-vr', {
+                    requiredFeatures: ['local-floor']
+                });
+                
+                console.log('[VR] VR session started');
+                
+                // Enable XR on renderer
+                await renderer.xr.setSession(session);
+                renderer.xr.enabled = true;
+                
+                // Hide VR button when in VR
+                vrButton.style.display = 'none';
+                
+                // Handle session end
+                session.addEventListener('end', () => {
+                    console.log('[VR] VR session ended');
+                    renderer.xr.enabled = false;
+                    vrButton.style.display = 'block';
+                });
+                
+            } catch (error) {
+                console.error('[VR] Failed to enter VR mode:', error);
+                alert('Failed to enter VR mode. Please ensure your VR headset is connected and permissions are granted.');
+            }
+        });
+        
+        document.body.appendChild(vrButton);
+        console.log('[VR] VR button added');
+    }
     
     function init() {
         console.log('🔄 init() started');
@@ -1456,6 +1618,7 @@
 
         // Board group — render above backdrop layers
         boardGroup = new THREE.Group();
+        boardGroup.name = 'boardGroup';
         boardGroup.renderOrder = 1;
         scene.add(boardGroup);
 
@@ -1470,6 +1633,7 @@
         window.controls = controls;
         window.boardGroup = boardGroup;
         window.getNormalizedHoleType = getNormalizedHoleType;
+        window.renderer = renderer;
 
         // Build hexagon and borders only
         createHexagonBoard();
@@ -1483,10 +1647,24 @@
         // Create pegs and place in start positions
         createPegsAndPlace();
 
-        // Apply default theme
-        if (window.FastTrackThemes) {
-            FastTrackThemes.apply(currentThemeName, scene, THREE);
-        }
+        // Detect VR and apply appropriate theme
+        detectVRMode().then(vrDetected => {
+            isVRMode = vrDetected;
+            
+            if (vrDetected) {
+                // Auto-switch to VR Immersive theme
+                currentThemeName = 'vr_immersive';
+                console.log('[VR Detection] 🎮 Activating VR Immersive theme');
+                
+                // Add VR button for entering VR mode
+                addVRButton();
+            }
+            
+            // Apply theme
+            if (window.FastTrackThemes) {
+                FastTrackThemes.apply(currentThemeName, scene, THREE);
+            }
+        });
         
         // Log substrate status
         if (typeof FastTrackSubstrates !== 'undefined') {
@@ -2487,7 +2665,7 @@
     // CAMERA VIEW SYSTEM - Multiple Adjustable Camera Modes
     // ============================================================
     
-    let currentCameraView = 'board'; // 'board', 'ground', 'chase', 'orbit', 'manual'
+    let currentCameraView = 'smooth'; // 'smooth' (default), 'board', 'ground', 'chase', 'orbit', 'manual'
     let orbitAngle = 0;
     let orbitAnimationId = null;
     let chaseTargetPeg = null;
@@ -2513,6 +2691,16 @@
     
     // Camera view presets
     const CAMERA_VIEWS = {
+        smooth: {
+            name: 'Smooth Focus',
+            icon: '🎥',
+            description: 'Smoothly follows gameplay action (default)',
+            height: 280,
+            distance: 480,
+            followPeg: true,
+            autoOrbit: false,
+            smoothFollow: true  // Gentle tracking of active peg
+        },
         board: {
             name: 'Board View',
             icon: '🎯',
@@ -2761,7 +2949,19 @@
     window.enterPegEyeMode = enterPegEyeMode;
     window.exitPegEyeMode = exitPegEyeMode;
     
-    // Toggle camera panel visibility
+    // Cycle through camera modes (for quick toggle button)
+    function cycleCameraMode() {
+        const modes = ['smooth', 'board', 'chase', 'orbit', 'manual'];
+        const currentIndex = modes.indexOf(currentCameraView);
+        const nextIndex = (currentIndex + 1) % modes.length;
+        const nextMode = modes[nextIndex];
+        
+        console.log(`[Camera] Cycling from ${currentCameraView} to ${nextMode}`);
+        setCameraViewMode(nextMode);
+    }
+    window.cycleCameraMode = cycleCameraMode;
+    
+    // Toggle camera panel visibility (for settings menu)
     function toggleCameraPanel() {
         const panel = document.getElementById('camera-view-panel');
         if (panel) {
@@ -2930,6 +3130,9 @@
         animateOrbit();
     }
     
+    // Flag: true while a peg move animation is actively running
+    let _pegMoveInProgress = false;
+    
     // Update camera during peg movement (called from animatePegMove)
     function updateCameraForPegMove(pegX, pegZ) {
         if (pegEyeActive || pegEyeSelectMode) {
@@ -2942,12 +3145,29 @@
         const view = CAMERA_VIEWS[currentCameraView];
         if (!view) return;
         
-        if (view.followPeg) {
+        // During active peg movement, ALWAYS follow the peg regardless of view mode
+        if (_pegMoveInProgress || view.followPeg) {
             // Lerp factor scaled by speed: lower cameraSpeedFactor = smoother/slower follow
-            const baseLerp = view.behindPeg ? 0.05 : 0.08;
+            const baseLerp = view.behindPeg ? 0.025 : (view.smoothFollow ? 0.02 : 0.035);
             const lerp = baseLerp * cameraSpeedFactor;
             
-            if (view.behindPeg) {
+            if (view.smoothFollow) {
+                // Smooth focus - elevated angle that gently tracks gameplay
+                // Keep camera at fixed elevated position, just pan the target
+                const targetLerp = 0.025 * cameraSpeedFactor;
+                controls.target.x += (pegX - controls.target.x) * targetLerp;
+                controls.target.z += (pegZ - controls.target.z) * targetLerp;
+                
+                // Maintain elevated camera position relative to target
+                const camX = controls.target.x;
+                const camZ = controls.target.z + view.distance;
+                
+                camera.position.x += (camX - camera.position.x) * lerp;
+                camera.position.y += (view.height - camera.position.y) * lerp;
+                camera.position.z += (camZ - camera.position.z) * lerp;
+                
+                camera.lookAt(controls.target);
+            } else if (view.behindPeg) {
                 // Chase cam - smooth follow behind peg
                 const dx = pegX || 0.01;
                 const dz = pegZ || 0.01;
@@ -2962,8 +3182,10 @@
                 camera.position.y += (view.height - camera.position.y) * lerp;
                 camera.position.z += (camZ - camera.position.z) * lerp;
                 
-                controls.target.set(pegX, 10, pegZ);
-                camera.lookAt(pegX, 10, pegZ);
+                controls.target.x += (pegX - controls.target.x) * lerp;
+                controls.target.y += (10 - controls.target.y) * lerp;
+                controls.target.z += (pegZ - controls.target.z) * lerp;
+                camera.lookAt(controls.target);
             } else {
                 // Ground level - low angle tracking
                 const dx = pegX || 0.01;
@@ -2979,13 +3201,15 @@
                 camera.position.y += (view.height - camera.position.y) * lerp;
                 camera.position.z += (camZ - camera.position.z) * lerp;
                 
-                controls.target.set(pegX, 10, pegZ);
-                camera.lookAt(pegX, 10, pegZ);
+                controls.target.x += (pegX - controls.target.x) * lerp;
+                controls.target.y += (10 - controls.target.y) * lerp;
+                controls.target.z += (pegZ - controls.target.z) * lerp;
+                camera.lookAt(controls.target);
             }
         } else {
             // Board/orbit view — smoothly pan camera target to follow peg
             // Keep camera position, just shift where it looks
-            const lerp = 0.06 * cameraSpeedFactor;
+            const lerp = 0.025 * cameraSpeedFactor;
             controls.target.x += (pegX - controls.target.x) * lerp;
             controls.target.z += (pegZ - controls.target.z) * lerp;
             camera.lookAt(controls.target);
@@ -3139,11 +3363,14 @@
         // --- Camera focus PRIORITY ORDER ---
         // 1. Bullseye/center peg (highest priority)
         // 2. Fast track peg
-        // 3. Start/home hole (if any peg is still in holding)
-        // 4. Fallback: leading peg on the board
+        // 3. Leading peg on the board
+        // 4. Home hole ONLY if ALL pegs are in holding (no board pegs to focus on)
         
         let focusPeg = null;
         let focusOnHome = false;
+        
+        const isHolding = p => p.holeType === 'holding' || (p.holeId && p.holeId.startsWith('hold-'));
+        const allInHolding = player.peg.every(isHolding);
         
         // Priority 1: Check for a peg in the bullseye (center)
         const bullseyePeg = player.peg.find(p => p.holeId === 'center' || p.inBullseye);
@@ -3159,23 +3386,17 @@
             }
         }
         
-        // Priority 3: If any peg is in holding, focus on the start/home hole
+        // Priority 3: Leading peg on the board
         if (!focusPeg) {
-            const boardPos = player.boardPosition;
-            const hasHoldingPeg = player.peg.some(p => p.holeType === 'holding' || (p.holeId && p.holeId.startsWith('hold-')));
-            if (hasHoldingPeg) {
-                focusOnHome = true;
+            const leadingPeg = getLeadingPeg(playerIndex);
+            if (leadingPeg && !isHolding(leadingPeg)) {
+                focusPeg = leadingPeg;
             }
         }
         
-        // Priority 4: Fallback to leading peg
-        if (!focusPeg && !focusOnHome) {
-            const leadingPeg = getLeadingPeg(playerIndex);
-            if (!leadingPeg || leadingPeg.holeType === 'holding') {
-                focusOnHome = true;
-            } else {
-                focusPeg = leadingPeg;
-            }
+        // Priority 4: Home hole ONLY when ALL pegs are in holding
+        if (!focusPeg && allInHolding) {
+            focusOnHome = true;
         }
         
         // --- Determine camera closeness based on peg spread ---
@@ -3527,6 +3748,71 @@
         }
     }
     
+    // ── Music Toggle (floating button) ──────────────────────────
+    let gameMusicPlaying = false;
+    let musicAutoStarted = false;  // Track if music already auto-started on first card draw
+    
+    function toggleGameMusic() {
+        const btn = document.getElementById('music-toggle-btn');
+        if (gameMusicPlaying) {
+            // Turn OFF
+            gameMusicPlaying = false;
+            if (typeof MusicSubstrate !== 'undefined') {
+                MusicSubstrate.stop();
+            }
+            if (typeof StadiumController !== 'undefined' && StadiumController.systems.music) {
+                StadiumController.systems.music.stop?.();
+            }
+            if (btn) {
+                btn.textContent = '🔇';
+                btn.title = 'Music: OFF';
+                btn.classList.remove('music-on');
+            }
+            console.log('🎵 Music OFF');
+        } else {
+            // Turn ON
+            gameMusicPlaying = true;
+            if (typeof MusicSubstrate !== 'undefined') {
+                MusicSubstrate.activate();
+                if (MusicSubstrate.play) MusicSubstrate.play();
+            }
+            if (typeof StadiumController !== 'undefined' && StadiumController.systems.music) {
+                StadiumController.systems.music.play?.();
+            }
+            if (btn) {
+                btn.textContent = '🎵';
+                btn.title = 'Music: ON';
+                btn.classList.add('music-on');
+            }
+            console.log('🎵 Music ON');
+        }
+    }
+    window.toggleGameMusic = toggleGameMusic;
+    
+    // Auto-start music on first card draw by any player
+    function autoStartMusicOnFirstDraw() {
+        if (musicAutoStarted || gameMusicPlaying) return;
+        musicAutoStarted = true;
+        
+        console.log('🎵 Auto-starting music on first card draw');
+        gameMusicPlaying = true;
+        
+        if (typeof MusicSubstrate !== 'undefined') {
+            MusicSubstrate.activate();
+            if (MusicSubstrate.play) MusicSubstrate.play();
+        }
+        if (typeof StadiumController !== 'undefined' && StadiumController.systems.music) {
+            StadiumController.systems.music.play?.();
+        }
+        
+        const btn = document.getElementById('music-toggle-btn');
+        if (btn) {
+            btn.textContent = '🎵';
+            btn.title = 'Music: ON';
+            btn.classList.add('music-on');
+        }
+    }
+    
     function toggleStadiumCrowd() {
         if (typeof StadiumController !== 'undefined') {
             const enabled = StadiumController.toggleCrowd();
@@ -3732,6 +4018,30 @@
         }
     }
     
+    // Toggle move suggestion popups on/off
+    function toggleSuggestions() {
+        GAME_CONFIG.suggestionsDisabled = !GAME_CONFIG.suggestionsDisabled;
+        const btn = document.getElementById('suggestions-toggle');
+        if (btn) {
+            if (GAME_CONFIG.suggestionsDisabled) {
+                btn.textContent = '💡 Suggestions OFF';
+                btn.style.color = '#888';
+                btn.style.borderColor = '#555';
+            } else {
+                btn.textContent = '💡 Suggestions ON';
+                btn.style.color = '#ffd700';
+                btn.style.borderColor = '#ffd700';
+            }
+        }
+        // If a suggestion modal is currently visible, close it
+        hideMoveChoiceModal();
+        if (window.moveSelectionModal) {
+            window.moveSelectionModal.hide();
+        }
+        console.log('[Suggestions]', GAME_CONFIG.suggestionsDisabled ? 'DISABLED' : 'ENABLED');
+    }
+    window.toggleSuggestions = toggleSuggestions;
+    
     // Generate descriptive move label
     function getMoveDescription(move, includeToken = false) {
         const fromHole = holeRegistry.get(move.fromHoleId);
@@ -3757,7 +4067,7 @@
         
         // Entry from holding
         if (move.type === 'enter' || fromHole?.type === 'holding') {
-            return `${prefix}🚀 Escape Holding Area`;
+            return `${prefix}🚀 Enter the board`;
         }
         
         // Bullseye moves
@@ -4460,10 +4770,17 @@
     }
 
     // ============================================================
-    // START
+    // START - Using jQuery for reliable initialization
     // ============================================================
-    
-    window.onload = init;
+
+    // jQuery's $(function() {...}) waits for DOM to be ready AND all scripts loaded
+    // This is more reliable than window.onload or DOMContentLoaded alone
+    // Fixes the issue where board doesn't load until hard refresh
+    $(function() {
+        console.log('🎮 jQuery ready - initializing game board...');
+        init();
+    });
+
     window.setCameraView = setCameraView;
     window.setCameraViewMode = setCameraViewMode;
     window.setTheme = setTheme;
@@ -4719,7 +5036,8 @@
         showHighlights: true,     // Show legal move highlights
         showMoveAids: true,       // Show move helper popups
         hintMode: 'blink',        // 'blink' = blinking holes, 'dropdown' = suggestion list, 'voice' = audio hints, 'all' = all modes, 'none' = no hints
-        ftAutoTraverse: false     // FastTrack auto-traverse: true = auto-move FT pegs around ring, false = manual choice each turn
+        ftAutoTraverse: false,    // FastTrack auto-traverse: true = auto-move FT pegs around ring, false = manual choice each turn
+        suggestionsDisabled: false // When true, move suggestion popups are suppressed — player uses blinking holes only
     };
     
     // Difficulty presets - AI strategy scaling
@@ -4853,20 +5171,39 @@
     function showMsg(msg, duration) {
         console.log('[Message]', msg);
         const toast = document.createElement('div');
+        
+        // Special styling for "No legal moves" message - make it more prominent
+        const isNoLegalMoves = msg.toLowerCase().includes('no legal moves');
+        const bgColor = isNoLegalMoves ? 'rgba(220, 38, 38, 0.95)' : 'rgba(0,0,0,0.88)';
+        const borderColor = isNoLegalMoves ? 'rgba(255, 100, 100, 0.8)' : 'rgba(255,255,255,0.2)';
+        const fontSize = isNoLegalMoves ? '22px' : '16px';
+        const padding = isNoLegalMoves ? '20px 40px' : '12px 28px';
+        const boxShadow = isNoLegalMoves ? '0 0 30px rgba(220, 38, 38, 0.6), 0 4px 20px rgba(0,0,0,0.5)' : 'none';
+        
         toast.style.cssText = `
-            position:fixed; top:15%; left:50%; transform:translate(-50%,-50%);
-            background:rgba(0,0,0,0.88); color:#fff; padding:12px 28px;
-            border-radius:10px; font-size:16px; font-weight:600;
+            position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+            background:${bgColor}; color:#fff; padding:${padding};
+            border-radius:12px; font-size:${fontSize}; font-weight:700;
             z-index:20000; pointer-events:none; text-align:center;
-            border:1px solid rgba(255,255,255,0.2);
+            border:2px solid ${borderColor};
+            box-shadow:${boxShadow};
             animation: toastFade ${duration || 2500}ms ease-in-out forwards;
+            font-family: 'Press Start 2P', monospace;
+            letter-spacing: 1px;
         `;
-        toast.textContent = msg;
+        
+        // Add icon for no legal moves
+        if (isNoLegalMoves) {
+            toast.innerHTML = `<div style="font-size:32px; margin-bottom:10px;">🚫</div>${msg}`;
+        } else {
+            toast.textContent = msg;
+        }
+        
         // Inject animation if not present
         if (!document.getElementById('toast-anim-css')) {
             const s = document.createElement('style');
             s.id = 'toast-anim-css';
-            s.textContent = '@keyframes toastFade{0%{opacity:0;transform:translate(-50%,-50%) scale(0.9)}10%{opacity:1;transform:translate(-50%,-50%) scale(1)}85%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(0.95)}}';
+            s.textContent = '@keyframes toastFade{0%{opacity:0;transform:translate(-50%,-50%) scale(0.8)}10%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}15%{transform:translate(-50%,-50%) scale(1)}85%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(0.9)}}';
             document.head.appendChild(s);
         }
         document.body.appendChild(toast);
@@ -4953,7 +5290,7 @@
             case 'session_joined':
                 privateSessionData = data.session;
                 isLobbyHost = data.session.host_id === myUserId;
-                showPrivateLobby(data.session, data.session.session_code, `/fasttrack/join.html?code=${data.session.session_code}`);
+                showPrivateLobby(data.session, data.session.session_code, `https://kensgames.com/fasttrack/join.html?code=${data.session.session_code}`);
                 break;
                 
             case 'join_request':
@@ -5060,7 +5397,7 @@
                     const slot = data.assigned_slot;
                     const slotType = data.slot_type;
                     const avatarEmojis = { person_smile:'😊', person_cool:'😎', animal_lion:'🦁', animal_fox:'🦊', space_rocket:'🚀', fantasy_dragon:'🐲', scifi_robot:'🤖', sport_soccer:'⚽' };
-                    const playerColors = ['#ef4444', '#3b82f6', '#eab308', '#22c55e', '#a855f7', '#f97316'];
+                    const playerColors = ['#ff2020', '#2196ff', '#4caf50', '#ffeb3b', '#ff9800', '#9c27b0'];
                     
                     if (slotType === 'replace-bot' && gameState.players[slot]) {
                         // Replace bot in-place
@@ -5236,7 +5573,7 @@
             isLobbyHost = true;
             
             // Show the private lobby with the code
-            showPrivateLobby(localSession, localCode, joinUrl);
+            showPrivateLobby(localSession, localCode, fullUrl);
             
             showMsg('Game created! Share code: ' + localCode, 4000);
         }
@@ -5278,8 +5615,9 @@
         const codeDisplay = document.getElementById('private-share-code');
         if (codeDisplay) codeDisplay.textContent = code || '------';
         
-        // Update URL
-        const fullUrl = window.location.origin + (url || `/fasttrack/join.html?code=${code}`);
+        // Update URL — ensure absolute
+        let fullUrl = url || `/fasttrack/join.html?code=${code}`;
+        if (fullUrl.startsWith('/')) fullUrl = window.location.origin + fullUrl;
         const urlInput = document.getElementById('private-share-url');
         if (urlInput) urlInput.value = fullUrl;
         
@@ -5862,7 +6200,24 @@
     }
     window.closeMomIntro = closeMomIntro;
     
-    // Show Mom's contextual help based on current game state
+    // Open camera panel (delegates to GameUIMinimal)
+    function openCameraPanel() {
+        if (window.GameUIMinimal) {
+            window.GameUIMinimal.toggleMenu();
+            window.GameUIMinimal.drillDown('camera');
+        }
+    }
+    window.openCameraPanel = openCameraPanel;
+    
+    // Toggle Mom Daemon (persistent game helper)
+    function toggleMomDaemon() {
+        if (window.MomDaemon) {
+            window.MomDaemon.toggle();
+        }
+    }
+    window.toggleMomDaemon = toggleMomDaemon;
+    
+    // Show Mom's contextual help based on current game state (legacy - now uses daemon)
     function showMomHelp() {
         // Delegate to AskMomAdvisor if available (enhanced advisor with auto-execute)
         if (window.AskMomAdvisor && typeof window.AskMomAdvisor.showAdvice === 'function') {
@@ -6015,7 +6370,7 @@
         if (v === 'JOKER') return "Joker lets you enter from holding OR move 1 space. You get another turn!";
         if (v === 'J' || v === 'Q' || v === 'K') return "Royal card — move 1 space, get another turn, AND can exit the bullseye to your FastTrack corner!";
         if (v === '4') return "Four moves BACKWARDS 4 spaces. You cannot back into FastTrack, bullseye, or safe zone — but reaching your safe zone entry backwards DOES complete your circuit!";
-        if (v === '7') return "Seven can be split between two pegs (e.g. 3+4, 2+5). Both moves are clockwise. Once one peg moves, the other peg must use the rest. You can also move one peg all 7 spaces.";
+        if (v === '7') return "Seven is a WILD CARD - move any single token 1-7 spaces. Can enter safe zone, fast track, and center hole.";
         
         return `Move ${v} spaces clockwise.`;
     }
@@ -6045,7 +6400,8 @@
         remainingMoves: 7,
         firstMovePeg: null,
         selectedPeg: null,    // Currently selected peg waiting for destination click
-        selectablePegs: []    // Pegs that can be clicked in current phase
+        selectablePegs: [],   // Pegs that can be clicked in current phase
+        aiPlannedSecondMove: null  // AI stores its planned second move here
     };
     
     function resetSplitMoveState() {
@@ -6060,7 +6416,8 @@
             remainingMoves: 7,
             firstMovePeg: null,
             selectedPeg: null,
-            selectablePegs: []
+            selectablePegs: [],
+            aiPlannedSecondMove: null
         };
         
         // Remove split indicator
@@ -6396,6 +6753,139 @@
         return moves;
     }
 
+    // Validate whether a 7-card split is possible:
+    // At least 2 different pegs must be able to make moves that sum to exactly 7.
+    // Returns { valid: boolean, combinations: [{pegA, pegB, stepsA, stepsB, movesA, movesB}] }
+    function canSplitSeven() {
+        const player = gameState.currentPlayer;
+        if (!player || !player.peg) return { valid: false, combinations: [] };
+        
+        // Find all active pegs (not holding, not completed, not bullseye)
+        const activePegs = player.peg.filter(p =>
+            p.holeType !== 'holding' &&
+            !p.completedCircuit &&
+            !p.inBullseye && p.holeType !== 'bullseye' && p.holeId !== 'center' &&
+            p.holeId
+        );
+        
+        console.log(`[Split7] Checking split validity: ${activePegs.length} active pegs`);
+        
+        if (activePegs.length < 2) {
+            console.log('[Split7] Not enough active pegs for split');
+            return { valid: false, combinations: [] };
+        }
+        
+        // Cache moves per peg per step count
+        const pegMoves = {};
+        for (const peg of activePegs) {
+            pegMoves[peg.id] = {};
+            for (let steps = 1; steps <= 6; steps++) {
+                const moves = calculateMovesForPegRange(peg, steps, steps);
+                pegMoves[peg.id][steps] = moves;
+            }
+        }
+        
+        // Find all valid combinations: pegA moves X, pegB moves 7-X (X=1..6)
+        const combinations = [];
+        for (let i = 0; i < activePegs.length; i++) {
+            for (let j = 0; j < activePegs.length; j++) {
+                if (i === j) continue;
+                const pegA = activePegs[i];
+                const pegB = activePegs[j];
+                
+                for (let stepsA = 1; stepsA <= 6; stepsA++) {
+                    const stepsB = 7 - stepsA;
+                    if (stepsB < 1 || stepsB > 6) continue;
+                    
+                    const movesA = pegMoves[pegA.id][stepsA];
+                    const movesB = pegMoves[pegB.id][stepsB];
+                    
+                    if (movesA.length > 0 && movesB.length > 0) {
+                        combinations.push({
+                            pegA: pegA.id, pegB: pegB.id,
+                            stepsA, stepsB,
+                            movesA, movesB
+                        });
+                    }
+                }
+            }
+        }
+        
+        console.log(`[Split7] Found ${combinations.length} valid split combinations`);
+        return { valid: combinations.length > 0, combinations };
+    }
+    
+    // AI: Auto-execute the best split combination for 7-card
+    function aiExecuteSplit() {
+        const splitCheck = canSplitSeven();
+        if (!splitCheck.valid) {
+            console.log('🤖 [AI Split] No valid split — skipping turn');
+            gameState.skipTurn();
+            return;
+        }
+        
+        // Score each combination using simple heuristics
+        let bestCombo = null;
+        let bestScore = -Infinity;
+        
+        for (const combo of splitCheck.combinations) {
+            // Pick best move for each peg
+            const bestA = combo.movesA[0]; // First move is fine — they're all same step count
+            const bestB = combo.movesB[0];
+            
+            let score = 0;
+            
+            // Prefer cuts
+            if (bestA.isCut) score += 50;
+            if (bestB.isCut) score += 50;
+            
+            // Prefer FT entry
+            if (bestA.isFastTrackEntry) score += 30;
+            if (bestB.isFastTrackEntry) score += 30;
+            
+            // Prefer center
+            if (bestA.toHoleId === 'center') score += 25;
+            if (bestB.toHoleId === 'center') score += 25;
+            
+            // Prefer larger first move (more progress)
+            score += combo.stepsA + combo.stepsB; // Always 7, but tiebreaker
+            
+            // Prefer even splits (3+4, 4+3) over extreme (1+6, 6+1)
+            score += 6 - Math.abs(combo.stepsA - combo.stepsB);
+            
+            if (score > bestScore) {
+                bestScore = score;
+                bestCombo = combo;
+            }
+        }
+        
+        if (!bestCombo) {
+            console.error('🤖 [AI Split] No best combo found despite valid combinations');
+            gameState.skipTurn();
+            return;
+        }
+        
+        const moveA = bestCombo.movesA[0];
+        const moveB = bestCombo.movesB[0];
+        
+        console.log(`🤖 [AI Split] Best split: ${moveA.pegId}→${moveA.toHoleId} (${bestCombo.stepsA}) + ${moveB.pegId}→${moveB.toHoleId} (${bestCombo.stepsB})`);
+        
+        // Set up split state manually for AI
+        splitMoveState.active = true;
+        splitMoveState.phase = 'select_first_dest';
+        splitMoveState.selectedPeg = moveA.pegId;
+        splitMoveState.remainingMoves = 7;
+        splitMoveState.aiPlannedSecondMove = moveB;
+        legalMoves = [moveA];
+        
+        // Execute first move
+        clearHighlights();
+        executeMoveDirectly(moveA);
+        
+        // After first move animates + executes, the transitionToSecondPegSelection 
+        // will fire and auto-select for AI (existing code at line ~9774)
+    }
+
     // Track pending first-turn timers to cancel on reinit
     let pendingFirstTurnTimers = [];
     let gameInitCount = 0;
@@ -6663,6 +7153,13 @@
         gameState.onCardDrawn = (card) => {
             console.log('[onCardDrawn] Card drawn:', card);
             
+            // CRITICAL: Reset split state at every turn boundary to prevent stale state
+            // A leftover splitMoveState.active=true will hijack executeMoveDirectly
+            resetSplitMoveState();
+            
+            // Dispatch event for Mom Daemon
+            document.dispatchEvent(new CustomEvent('cardDrawn', { detail: { card } }));
+            
             // Defensive check - if card is null or invalid, skip turn
             if (!card || (!card.rank && !card.name)) {
                 console.error('[onCardDrawn] Invalid card received!', card);
@@ -6711,6 +7208,10 @@
                 });
                 // Update deck count
                 window.GameUIMinimal.setDeckCount(gameState.currentPlayer?.deck?.remaining || 54);
+                // Minimize deck after draw to maximize playing area
+                if (typeof window.GameUIMinimal.setDeckDrawReady === 'function') {
+                    window.GameUIMinimal.setDeckDrawReady(false);
+                }
             }
             
             // Mobile: retract panel and show floating card
@@ -6732,6 +7233,8 @@
             // Calculate and highlight legal moves
             legalMoves = gameState.calculateLegalMoves();
             
+            // Manual mode uses standard legal moves - no expansion needed
+            
             // BoardManifold: validate every move against sealed rules
             if (window.BoardManifold && legalMoves.length > 0) {
                 const beforeCount = legalMoves.length;
@@ -6740,35 +7243,36 @@
                     console.log(`[BoardManifold] Filtered ${beforeCount} → ${legalMoves.length} legal moves`);
                 }
             }
-            // Check if this is a 7 card (split move) - enter interactive split mode
-            if (card.canSplit && !isAIPlayer(playerIdx)) {
-                console.log('[onCardDrawn] 7 Card detected - entering split mode');
-                showCardRulePopup(card, legalMoves.length);
-                showCardDrawnBanner(playerName, playerColor, '7 - SPLIT', false);
+            // 7 card — SPLIT ONLY: must split 7 moves between exactly 2 pegs
+            if (card.rank === '7') {
+                const splitCheck = canSplitSeven();
                 
-                // Start interactive split mode
-                setTimeout(() => {
-                    startSplitMoveMode();
-                }, 500);
-                return;
-            }
-            
-            // For AI with 7 card - use intelligent split decision system
-            if (card.canSplit && isAIPlayer(playerIdx)) {
-                console.log('[onCardDrawn] Bot has 7 card - using split decision system');
-                showCardDrawnBanner(playerName, playerColor, '7 - SPLIT', false);
-                
-                setTimeout(() => {
-                    const splitExecuted = aiExecute7CardSplit();
-                    if (!splitExecuted) {
-                        // No split possible - use normal full move
-                        console.log('[onCardDrawn] AI 7-split not possible, using full move');
-                        hideTurnBanner();
-                        highlightLegalMoves(legalMoves);
-                        setTimeout(aiSelectAndClickMove, GAME_CONFIG.aiMoveDelay);
+                if (!splitCheck.valid) {
+                    // No valid split — treat as no legal moves
+                    console.log('[onCardDrawn] 7 Card — no valid split possible, skipping turn');
+                    legalMoves = [];
+                    // Fall through to the legalMoves.length === 0 handler below
+                } else {
+                    // Valid split exists
+                    showCardRulePopup(card, splitCheck.combinations.length);
+                    showCardDrawnBanner(playerName, playerColor, '7 - SPLIT ✂️', false);
+                    
+                    if (!isAIPlayer(playerIdx)) {
+                        // HUMAN: Interactive split mode
+                        console.log(`[onCardDrawn] 7 Card SPLIT for human`);
+                        startSplitMoveMode();
+                    } else {
+                        // AI: Auto-execute best split
+                        console.log(`[onCardDrawn] 7 Card SPLIT for AI`);
+                        let thinkDelay = AI_CONFIG.thinkingDelay || 1000;
+                        if (window.ManifoldAI) {
+                            const entity = ManifoldAI.getEntity(playerIdx);
+                            if (entity) thinkDelay = entity.thinkingDelay;
+                        }
+                        setTimeout(() => aiExecuteSplit(), thinkDelay);
                     }
-                }, 500);
-                return;
+                    return; // Split mode handles everything
+                }
             }
             
             if (legalMoves.length === 0) {
@@ -6778,28 +7282,56 @@
                     console.log(`[BoardManifold] No legal moves assertion: ${assertion.reason}`);
                 }
                 hideTurnBanner();
-                showCardRulePopup(card, 0);
-                cardUI.showMessage('No legal moves!', 2000);
                 
-                // ManifoldAI: frustration adaptation shifts entity on surface
-                if (isAIPlayer(playerIdx) && window.ManifoldAI) {
-                    ManifoldAI.adaptEntity(playerIdx, 'no_legal_moves');
+                // Track consecutive stuck-in-holding turns ("jail" tracker)
+                if (!window._jailTracker) window._jailTracker = {};
+                const jt = window._jailTracker;
+                if (!jt[playerIdx]) jt[playerIdx] = 0;
+                const player = gameState.players[playerIdx];
+                const allInHolding = player && player.peg && player.peg.every(p => 
+                    p.holeType === 'holding' || p.holeType === 'home'
+                );
+                if (allInHolding) {
+                    jt[playerIdx]++;
+                    console.log(`⛓️ Player ${playerIdx} stuck in jail: ${jt[playerIdx]} consecutive turns`);
+                } else {
+                    jt[playerIdx] = 0;
                 }
+                const isInJail = allInHolding && jt[playerIdx] >= 4;
                 
-                // AI reacts with frustration when they have no legal moves
-                if (isAIPlayer(playerIdx) && AI_REACTIONS.enabled) {
-                    const reaction = AI_REACTIONS.frustration[Math.floor(Math.random() * AI_REACTIONS.frustration.length)];
+                if (!isAIPlayer(playerIdx)) {
+                    // HUMAN: Show modal popup — player clicks OK to skip
+                    showNoLegalMovesPopup(card, () => {
+                        gameState.skipTurn();
+                        cardUI.clearCard();
+                        clearHighlights();
+                        if (window.mobileUI) window.mobileUI.hideFloatingCard();
+                    }, isInJail);
+                } else {
+                    // AI: auto-skip after brief delay
+                    showCardRulePopup(card, 0);
+                    cardUI.showMessage(isInJail ? '⛓️ Still in jail!' : 'No legal moves!', 2000);
+                    
+                    // ManifoldAI: frustration adaptation shifts entity on surface
+                    if (window.ManifoldAI) {
+                        ManifoldAI.adaptEntity(playerIdx, 'no_legal_moves');
+                    }
+                    
+                    // AI reacts with frustration
+                    if (AI_REACTIONS.enabled) {
+                        const reaction = AI_REACTIONS.frustration[Math.floor(Math.random() * AI_REACTIONS.frustration.length)];
+                        setTimeout(() => {
+                            sendDesktopReaction(reaction.emoji, reaction.name);
+                        }, 500);
+                    }
+                    
                     setTimeout(() => {
-                        sendDesktopReaction(reaction.emoji, reaction.name);
-                    }, 500);
+                        gameState.skipTurn();
+                        cardUI.clearCard();
+                        clearHighlights();
+                        if (window.mobileUI) window.mobileUI.hideFloatingCard();
+                    }, 2000);
                 }
-                
-                setTimeout(() => {
-                    gameState.skipTurn();
-                    cardUI.clearCard();
-                    clearHighlights();
-                    if (window.mobileUI) window.mobileUI.hideFloatingCard();
-                }, 2000);
             } else {
                 // Mobile: show card popup with move value before showing choices
                 if (isMobile && window.mobileUI && !isAIPlayer(playerIdx)) {
@@ -6910,6 +7442,8 @@
                 window.GameUIMinimal.setPlayers(gameState.players, gameState.currentPlayerIndex);
             }
             
+            // Large deck removed - using scaled player panel instead
+            
             // Update new player cube with game data
             if (window.updatePlayerCube) {
                 const currentCards = gameState.players.map(p => {
@@ -6979,24 +7513,20 @@
             }
             
             setTimeout(() => {
-                // Reset camera override and focus on new current player
-                resetCameraOverride();
-                focusOnPlayerPeg(gameState.currentPlayerIndex, () => {
-                    // Get player info
-                    const playerIdx = gameState.currentPlayerIndex;
-                    const player = gameState.players[playerIdx];
-                    const playerName = player.name || `Player ${playerIdx + 1}`;
-                    const playerAvatar = player.avatar || '👤';
-                    const playerColor = '#' + getThemedPlayerColor(playerIdx).toString(16).padStart(6, '0');
-                    
+                const playerIdx = gameState.currentPlayerIndex;
+                const player = gameState.players[playerIdx];
+                const playerName = player.name || `Player ${playerIdx + 1}`;
+                const playerAvatar = player.avatar || '👤';
+                const playerColor = '#' + getThemedPlayerColor(playerIdx).toString(16).padStart(6, '0');
+                
+                function afterCameraReady() {
                     // Show turn banner for human players (different message for extra turn)
                     if (!isAIPlayer(playerIdx)) {
                         const message = wasExtraTurn ? 'EXTRA TURN! Draw again!' : 'Please draw a card';
                         showTurnBanner(`${playerAvatar} ${playerName}`, playerColor, message);
-                        // Turn timer removed
                     }
                     
-                    // Enable deck only after camera transition completes
+                    // Enable deck only after camera is ready
                     cardUI.setDeckEnabled(true);
                     
                     // Pulse the mobile deck to signal "draw now!"
@@ -7008,11 +7538,26 @@
                     if (isAIPlayer(playerIdx)) {
                         aiTakeTurn();
                     }
-                });
+                }
+                
+                if (wasExtraTurn) {
+                    // EXTRA TURN — same player. Keep camera where the last peg landed.
+                    // No refocus needed; just enable drawing immediately.
+                    afterCameraReady();
+                } else {
+                    // NEW PLAYER — reset override and focus on their pegs
+                    resetCameraOverride();
+                    focusOnPlayerPeg(playerIdx, afterCameraReady);
+                }
             }, delay); // Use calculated delay (shorter for extra turns)
         };
         
         gameState.onMoveExecuted = (move, cutPeg, entryFlags = {}) => {
+            // Reset jail tracker for this player — they made a move!
+            if (window._jailTracker && gameState.currentPlayerIndex !== undefined) {
+                window._jailTracker[gameState.currentPlayerIndex] = 0;
+            }
+            
             // DEBUG: Log all move execution details
             console.log('📍 onMoveExecuted called:', {
                 moveToHoleId: move.toHoleId,
@@ -7690,6 +8235,8 @@
         
         console.log('[handleDrawCard] Valid draw for player', currentIdx, '- calling gameState.drawCard()');
         
+        // Large deck removed - using scaled player panel instead
+        
         if (cardUI) {
             cardUI.setDeckEnabled(false);
             // Flash the current player's deck to show they drew
@@ -7698,6 +8245,11 @@
         
         const drawnCard = gameState.drawCard();
         console.log('[handleDrawCard] gameState.drawCard() returned:', drawnCard);
+        
+        // Auto-start music on first card draw by any player
+        autoStartMusicOnFirstDraw();
+        
+        // Revealed card animation removed - using scaled player panel instead
         
         // Play draw card sound effect
         if (window.GameSFX && drawnCard) {
@@ -7818,6 +8370,35 @@
     
     // Track path-highlighted holes (separate from destination highlights)
     let highlightedPathHoles = [];
+    
+    // Determine if moves require modal (complex choice)
+    function hasComplexChoice(moves) {
+        if (!moves || moves.length <= 1) return false;
+        
+        // Multiple pegs can move - always use modal
+        const pegIds = new Set(moves.map(m => m.pegId));
+        if (pegIds.size > 1) return true;
+        
+        // Single peg but multiple strategic options
+        const hasCuts = moves.some(m => {
+            if (!gameState || !gameState.players) return false;
+            const currentPlayerIdx = gameState.currentPlayerIndex;
+            for (const player of gameState.players) {
+                if (player.index === currentPlayerIdx) continue;
+                for (const peg of player.peg || []) {
+                    if (peg.holeId === m.toHoleId) return true;
+                }
+            }
+            return false;
+        });
+        
+        const hasFTChoice = moves.some(m => m.isFastTrackEntry);
+        const hasBullseyeChoice = moves.some(m => m.toHoleId === 'center');
+        const hasSafeZone = moves.some(m => m.toHoleId && m.toHoleId.includes('safe'));
+        
+        // Use modal if there are strategic choices
+        return hasCuts || hasFTChoice || hasBullseyeChoice || hasSafeZone;
+    }
 
     function highlightLegalMoves(moves) {
         clearHighlights();
@@ -7875,6 +8456,21 @@
             }
         }
         
+        // ════════════════════════════════════════════════════════
+        // MOVE SELECTION MODAL: Use touch-friendly modal for complex choices
+        // ════════════════════════════════════════════════════════
+        const shouldUseModal = isHumanPlayer && moves.length > 1 && window.moveSelectionModal && hasComplexChoice(moves);
+        
+        if (shouldUseModal && !GAME_CONFIG.suggestionsDisabled) {
+            console.log('📱 [MoveSelectionModal] Showing modal for', moves.length, 'moves');
+            window.moveSelectionModal.show(moves, gameState, (selectedMove) => {
+                console.log('📱 [MoveSelectionModal] Move selected:', selectedMove);
+                executeMoveDirectly(selectedMove);
+            });
+            // DON'T return — fall through to set up blinking highlights underneath
+            // so if the player closes the modal, they can still click highlighted holes
+        }
+        
         // Make pegs with legal moves blink (unless highlights are disabled)
         if (GAME_CONFIG.showHighlights) {
             console.log('✨ [highlightLegalMoves] Enabling peg blinking for', moves.length, 'moves');
@@ -7902,7 +8498,7 @@
         }
         
         // Dropdown suggestion list
-        if (GAME_CONFIG.hintMode === 'dropdown' || GAME_CONFIG.hintMode === 'all') {
+        if ((GAME_CONFIG.hintMode === 'dropdown' || GAME_CONFIG.hintMode === 'all') && !GAME_CONFIG.suggestionsDisabled) {
             showMoveDropdown(moves);
         }
         
@@ -8058,7 +8654,7 @@
         // ============================================================
         const showDropdownModal = (GAME_CONFIG.hintMode === 'dropdown' || GAME_CONFIG.hintMode === 'all');
         
-        if (isHumanPlayer && moves.length > 1 && showDropdownModal) {
+        if (isHumanPlayer && moves.length > 1 && showDropdownModal && !GAME_CONFIG.suggestionsDisabled) {
             // Group moves by pegId to see if there are real choices
             const pegGroups = {};
             moves.forEach(m => {
@@ -8110,38 +8706,38 @@
             const isAlternativeToCenter = hasCenterOptionForPeg && !move.isCenterOption && move.toHoleId !== 'center';
 
             // Determine styling based on move type
+            const friendly = friendlyHoleName(move.toHoleId);
             const cutTarget = findCutTargetAtHole(move.toHoleId);
             if (cutTarget) {
-                icon = '⚔️'; name = `Cut at ${move.toHoleId}`; cls = 'cut-choice';
+                icon = '⚔️'; name = `Cut at ${friendly}`; cls = 'cut-choice';
                 desc = `Capture ${cutTarget.player.name}'s peg`;
             } else if (move.isCenterOption || move.toHoleId === 'center') {
-                icon = '🎯'; name = 'Enter center bullseye'; cls = 'ft-choice';
-                desc = 'Center hole — exit with J/Q/K';
+                icon = '🎯'; name = 'Enter the Bullseye'; cls = 'ft-choice';
+                desc = 'Safe spot — exit with J, Q, or K';
             } else if (isAlternativeToCenter) {
-                // This is the "advance to next hole" alternative when center is also offered
-                icon = '➡️'; name = 'Advance to next hole'; cls = '';
-                desc = `Continue to ${move.toHoleId}`;
+                icon = '➡️'; name = `Skip Bullseye`; cls = '';
+                desc = `Continue to ${friendly}`;
             } else if (move.isFastTrackEntry) {
-                icon = '⚡'; name = 'Enter FastTrack'; cls = 'ft-choice';
-                desc = 'Traverse inner ring';
+                icon = '⚡'; name = 'Take the FastTrack shortcut'; cls = 'ft-choice';
+                desc = 'Speed across the inner ring';
             } else if (move.isLeaveFastTrack) {
-                icon = '🔄'; name = 'Leave FastTrack'; cls = '';
-                desc = `Exit to outer perimeter → ${move.toHoleId}`;
+                icon = '🔄'; name = 'Exit FastTrack'; cls = '';
+                desc = `Back to ${friendly}`;
             } else if (move.toHoleId.startsWith('safe-')) {
-                icon = '🛡️'; name = `Safe Zone ${move.toHoleId.split('-').pop()}`; cls = 'safe-choice';
-                desc = 'Protected — cannot be cut';
+                icon = '🛡️'; name = friendly; cls = 'safe-choice';
+                desc = 'Protected — cannot be cut!';
             } else if (move.toHoleId.startsWith('ft-')) {
-                icon = '⭐'; name = `FastTrack ${move.toHoleId.replace('ft-', '')}`;
-                desc = `${move.steps} steps on inner ring`;
+                icon = '⭐'; name = friendly;
+                desc = `${move.steps} step${move.steps !== 1 ? 's' : ''} on inner ring`;
             } else if (move.type === 'enter') {
-                icon = '🚀'; name = 'Enter Play';
-                desc = 'Bring peg from holding to home';
+                icon = '🚀'; name = 'Enter the board';
+                desc = 'Bring a peg out of holding';
+            } else if (move.toHoleId.startsWith('home-')) {
+                icon = '💎'; name = friendly;
+                desc = move.steps === 1 ? 'Land on the home hole' : `${move.steps} steps to home`;
             } else {
-                // Simplify hole name
-                const parts = move.toHoleId.split('-');
-                if (parts[0] === 'outer') name = `Outer ${parts[1]}-${parts[2]}`;
-                else if (parts[0] === 'side') name = `Side ${parts[1]} ${parts[2]}-${parts[3]}`;
-                else if (parts[0] === 'home') name = `Home ${parts[1]}`;
+                name = `Move to ${friendly}`;
+                desc = `${move.steps || '?'} step${(move.steps || 0) !== 1 ? 's' : ''} forward`;
             }
 
             // Show which peg
@@ -8883,17 +9479,16 @@
                     // Find all moves for this peg
                     const pegMoves = legalMoves.filter(m => m.pegId === pegId);
                     if (pegMoves.length === 1) {
-                        // Single move — highlight path briefly then auto-execute
-                        clearPegDestinationHighlights();
-                        highlightPegDestinations(pegMoves);
-                        setTimeout(() => {
-                            clearPegDestinationHighlights();
-                            executeMoveDirectly(pegMoves[0]);
-                        }, 350);
+                        // Single move — execute immediately (clear legal move)
+                        console.log('[Click] Active peg clicked with single legal move - executing');
+                        dismissCardRulePopup();
+                        
+                        executeMoveDirectly(pegMoves[0]);
                         return;
                     } else if (pegMoves.length > 1) {
                         // Multiple moves — light up ALL destination tracks for this peg
                         // PLUS show a popup/dropdown with tips for each option
+                        console.log('[Click] Active peg clicked with multiple moves - showing options');
                         clearPegDestinationHighlights();
                         highlightPegDestinations(pegMoves);
                         selectedPegMoves = pegMoves;
@@ -8933,8 +9528,11 @@
                     if (selectedPegId && selectedPegMoves) {
                         const matchingMoves = selectedPegMoves.filter(m => m.toHoleId === holeId);
                         if (matchingMoves.length === 1) {
+                            console.log('[Click] Glowing hole clicked with single move - executing');
                             clearPegDestinationHighlights();
                             hidePegMoveDropdown();
+                            dismissCardRulePopup();
+                            
                             executeMoveDirectly(matchingMoves[0]);
                             return;
                         } else if (matchingMoves.length > 1) {
@@ -8946,13 +9544,89 @@
                     // Accept click if highlighted OR if it's in the legalMoves destinations
                     const isLegalDest = legalMoves.some(m => m.toHoleId === holeId);
                     if (hole.isHighlighted || isLegalDest) {
+                        console.log('[Click] Glowing hole clicked - executing move');
                         clearPegDestinationHighlights();
+                        dismissCardRulePopup();
+                        
                         executeHoleClick(holeId);
                         return;
                     }
                 }
             }
         }
+    }
+    
+    // Manual control mode - allow hole-to-hole jumping OR direct jump
+    let manualMoveState = {
+        active: false,
+        pegId: null,
+        startHole: null,
+        currentHole: null,
+        targetHole: null,
+        path: [],
+        totalSteps: 0,
+        stepsTaken: 0,
+        allValidMoves: [] // All possible destinations (1 to card value)
+    };
+    
+    function isManualControlMode() {
+        return window.gameControlMode === 'manual';
+    }
+    
+    function startManualMoveSequence(moves) {
+        if (!moves || moves.length === 0) return;
+        
+        // All moves should be for the same peg
+        const pegId = moves[0].pegId;
+        const startHole = moves[0].fromHoleId;
+        
+        // Find the maximum distance move (final destination)
+        const maxMove = moves.reduce((max, m) => m.steps > max.steps ? m : max, moves[0]);
+        
+        manualMoveState.active = true;
+        manualMoveState.pegId = pegId;
+        manualMoveState.startHole = startHole;
+        manualMoveState.currentHole = startHole;
+        manualMoveState.targetHole = maxMove.toHoleId;
+        manualMoveState.path = [startHole];
+        manualMoveState.totalSteps = maxMove.steps;
+        manualMoveState.stepsTaken = 0;
+        manualMoveState.allValidMoves = moves;
+        
+        console.log('[Manual] Started manual sequence:', {
+            pegId,
+            from: startHole,
+            to: maxMove.toHoleId,
+            totalSteps: maxMove.steps,
+            validMoves: moves.length
+        });
+    }
+    
+    function handleManualHoleClick(holeId) {
+        if (!manualMoveState.active) return false;
+        
+        // Find if this hole is a valid destination
+        const moveToHole = manualMoveState.allValidMoves.find(m => m.toHoleId === holeId);
+        if (!moveToHole) {
+            console.warn('[Manual] Clicked hole is not a valid destination:', holeId);
+            return false;
+        }
+        
+        console.log('[Manual] Executing move to:', holeId, 'steps:', moveToHole.steps);
+        
+        // Reset manual state
+        manualMoveState.active = false;
+        manualMoveState.pegId = null;
+        manualMoveState.currentHole = null;
+        manualMoveState.targetHole = null;
+        manualMoveState.path = [];
+        manualMoveState.totalSteps = 0;
+        manualMoveState.stepsTaken = 0;
+        manualMoveState.allValidMoves = [];
+        
+        // Execute the move through the game engine (it handles animation)
+        executeMoveDirectly(moveToHole);
+        return true;
     }
     
     function showPegMoveDropdown(pegId, moves, x, y) {
@@ -8980,18 +9654,22 @@
             let moveName = move.toHoleId;
             let moveSteps = `${move.steps} step${move.steps !== 1 ? 's' : ''}`;
             
+            // Friendly name for destination
+            const friendly = friendlyHoleName(move.toHoleId);
+            
             // Check if this is a cut move
             const cutTarget = findCutTargetAtHole(move.toHoleId);
             if (cutTarget) {
                 item.classList.add('cut-move');
                 icon = '⚔️';
-                moveName = `Cut at ${move.toHoleId}`;
+                moveName = `Cut at ${friendly}`;
+                moveSteps = `Capture ${cutTarget.player.name}'s peg`;
             }
             // Check if FastTrack entry
             else if (move.isFastTrackEntry) {
                 item.classList.add('fasttrack-move');
                 icon = '⚡';
-                moveName = 'Enter FastTrack';
+                moveName = 'Take the FastTrack shortcut';
             }
             // Check if leaving FastTrack to perimeter
             else if (move.isLeaveFastTrack) {
@@ -9000,20 +9678,22 @@
                     moveName = 'Blocked — Exit FastTrack';
                 } else {
                     icon = '🔄';
-                    moveName = 'Leave FastTrack';
+                    moveName = `Exit FastTrack to ${friendly}`;
                 }
             }
             // Check if bullseye/center
             else if (move.toHoleId === 'center') {
                 item.classList.add('fasttrack-move');
                 icon = '🎯';
-                moveName = 'Enter Bullseye';
+                moveName = 'Enter the Bullseye';
+                moveSteps = 'Safe spot — exit with J, Q, or K';
             }
             // Check if safe zone
-            else if (move.toHoleId.includes('safe')) {
+            else if (move.toHoleId.startsWith('safe-')) {
                 item.classList.add('safe-move');
                 icon = '🛡️';
-                moveName = `Safe Zone ${move.toHoleId.split('-').pop()}`;
+                moveName = friendly;
+                moveSteps = 'Protected — cannot be cut!';
             }
             // Check if winner hole
             else if (move.toHoleId.includes('winner')) {
@@ -9021,22 +9701,25 @@
                 icon = '🏆';
                 moveName = 'Winner Hole!';
             }
-            // FastTrack hole (traversing)
+            // Enter from holding
+            else if (move.type === 'enter') {
+                icon = '🚀';
+                moveName = 'Enter the board';
+                moveSteps = 'Bring a peg into play';
+            }
+            // Home hole
+            else if (move.toHoleId.startsWith('home-')) {
+                icon = '💎';
+                moveName = friendly;
+            }
+            // FastTrack corner (traversing)
             else if (move.toHoleId.startsWith('ft-')) {
                 icon = '⭐';
-                moveName = `FastTrack ${move.toHoleId.replace('ft-', '')}`;
+                moveName = friendly;
             }
             // Regular perimeter hole
             else {
-                // Simplify hole name for display
-                const parts = move.toHoleId.split('-');
-                if (parts[0] === 'outer') {
-                    moveName = `Outer ${parts[1]}-${parts[2]}`;
-                } else if (parts[0] === 'side') {
-                    moveName = `Side ${parts[1]}-${parts[2]}-${parts[3]}`;
-                } else if (parts[0] === 'home') {
-                    moveName = `Home ${parts[1]}`;
-                }
+                moveName = `Move to ${friendly}`;
             }
             
             item.innerHTML = `
@@ -9226,7 +9909,7 @@
             return;
         }
         
-        console.log('📍 executeMoveDirectly called:', move.toHoleId, 'isFastTrackEntry:', move.isFastTrackEntry, 'splitPhase:', splitMoveState?.phase);
+        console.log('📍 executeMoveDirectly called:', move.toHoleId, 'type:', move.type, 'isFastTrackEntry:', move.isFastTrackEntry, 'splitPhase:', splitMoveState?.phase);
         
         // SPLIT MODE: Handle first destination click BEFORE phase check
         // (Split mode continues in 'play' phase but we want to be lenient)
@@ -9263,26 +9946,59 @@
         // Execute the move immediately when clicking a highlighted hole
         hideTurnBanner();
         clearHighlights();
-        console.log('[executeMoveDirectly] Starting animation for move:', move.toHoleId);
-        animatePegMove(move, () => {
-            console.log('[executeMoveDirectly] Animation complete, calling gameState.executeMove');
-            gameState.executeMove(move);
-            console.log('[executeMoveDirectly] gameState.executeMove returned, phase is now:', gameState.phase);
-            
-            // BoardManifold: validate landing — guarantee peg is in the correct hole
-            if (window.BoardManifold && move.pegId) {
-                const peg = (gameState.currentPlayer?.peg || []).find(p => p.id === move.pegId);
-                const actualHole = peg ? peg.holeId : move.toHoleId;
-                const landingResult = BoardManifold.validateLanding(move.pegId, actualHole, move.toHoleId, gameState.currentCard?.rank);
-                if (!landingResult.valid) {
-                    console.error(`[BoardManifold] LANDING VIOLATION: ${landingResult.reason}`);
-                } else {
-                    console.log(`[BoardManifold] Landing validated: ${move.pegId} → ${actualHole}`);
+        
+        // SPECIAL: Joker backward move - show jack-in-the-box celebration!
+        if (move.type === 'joker_backward') {
+            console.log('🃏 [Joker Backward] Triggering special effects!');
+            showJokerBackwardCelebration(move, () => {
+                console.log('[executeMoveDirectly] Starting animation for Joker backward move:', move.toHoleId);
+                animatePegMove(move, () => {
+                    console.log('[executeMoveDirectly] Animation complete, calling gameState.executeMove');
+                    gameState.executeMove(move);
+                    console.log('[executeMoveDirectly] gameState.executeMove returned, phase is now:', gameState.phase);
+                    
+                    // BoardManifold: validate landing
+                    if (window.BoardManifold && move.pegId) {
+                        const peg = (gameState.currentPlayer?.peg || []).find(p => p.id === move.pegId);
+                        const actualHole = peg ? peg.holeId : move.toHoleId;
+                        const landingResult = BoardManifold.validateLanding(move.pegId, actualHole, move.toHoleId, gameState.currentCard?.rank);
+                        if (!landingResult.valid) {
+                            console.error(`[BoardManifold] LANDING VIOLATION: ${landingResult.reason}`);
+                        } else {
+                            console.log(`[BoardManifold] Landing validated: ${move.pegId} → ${actualHole}`);
+                        }
+                    }
+                    cardUI.clearCard();
+                    if (window.mobileUI) window.mobileUI.hideFloatingCard();
+                });
+            });
+        } else {
+            // Normal move execution
+            console.log('[executeMoveDirectly] Starting animation for move:', move.toHoleId);
+            animatePegMove(move, () => {
+                console.log('[executeMoveDirectly] Animation complete, calling gameState.executeMove');
+                
+                // Dispatch event for Mom Daemon
+                document.dispatchEvent(new CustomEvent('moveMade', { detail: { move } }));
+                
+                gameState.executeMove(move);
+                console.log('[executeMoveDirectly] gameState.executeMove returned, phase is now:', gameState.phase);
+                
+                // BoardManifold: validate landing — guarantee peg is in the correct hole
+                if (window.BoardManifold && move.pegId) {
+                    const peg = (gameState.currentPlayer?.peg || []).find(p => p.id === move.pegId);
+                    const actualHole = peg ? peg.holeId : move.toHoleId;
+                    const landingResult = BoardManifold.validateLanding(move.pegId, actualHole, move.toHoleId, gameState.currentCard?.rank);
+                    if (!landingResult.valid) {
+                        console.error(`[BoardManifold] LANDING VIOLATION: ${landingResult.reason}`);
+                    } else {
+                        console.log(`[BoardManifold] Landing validated: ${move.pegId} → ${actualHole}`);
+                    }
                 }
-            }
-            cardUI.clearCard();
-            if (window.mobileUI) window.mobileUI.hideFloatingCard();
-        });
+                cardUI.clearCard();
+                if (window.mobileUI) window.mobileUI.hideFloatingCard();
+            });
+        }
     }
     // Expose executeMoveDirectly and executeHoleClick for external modules (ask_mom.js)
     window.executeMoveDirectly = executeMoveDirectly;
@@ -9353,20 +10069,36 @@
         const selectablePegs = [];
         
         for (const peg of player.peg) {
+            console.log('[Split] Checking peg', peg.id, 'at', peg.holeId, 'holeType:', peg.holeType);
+            
             // Skip holding pegs
-            if (peg.holeType === 'holding') continue;
+            if (peg.holeType === 'holding') {
+                console.log('[Split] Skipping peg', peg.id, '- in holding');
+                continue;
+            }
             
             // Can't move same peg twice in a split
-            if (peg.id === splitMoveState.firstMovePeg) continue;
+            if (peg.id === splitMoveState.firstMovePeg) {
+                console.log('[Split] Skipping peg', peg.id, '- already moved in first part of split');
+                continue;
+            }
             
             // Skip completed circuit pegs
-            if (peg.completedCircuit) continue;
+            if (peg.completedCircuit) {
+                console.log('[Split] Skipping peg', peg.id, '- completed circuit');
+                continue;
+            }
             
             // Skip bullseye pegs
-            if (peg.inBullseye || peg.holeType === 'bullseye') continue;
+            if (peg.inBullseye || peg.holeType === 'bullseye') {
+                console.log('[Split] Skipping peg', peg.id, '- in bullseye');
+                continue;
+            }
             
             // Check if this peg has valid moves with remaining steps
+            console.log('[Split] Calculating moves for peg', peg.id, 'with', remaining, 'steps');
             const testMoves = calculateMovesForPegRange(peg, remaining, remaining);
+            console.log('[Split] Peg', peg.id, 'has', testMoves.length, 'valid moves for', remaining, 'steps');
             if (testMoves.length > 0) {
                 selectablePegs.push(peg.id);
             }
@@ -9374,6 +10106,7 @@
         
         if (selectablePegs.length === 0) {
             // No second moves available - end split and turn
+            console.log('[Split] No pegs can move remaining ' + remaining + ' spaces - ending turn');
             cardUI.showMessage('No peg can move ' + remaining + ' spaces', 2000);
             setTimeout(() => {
                 resetSplitMoveState();
@@ -9383,6 +10116,8 @@
             }, 2000);
             return;
         }
+        
+        console.log('[Split] Found ' + selectablePegs.length + ' pegs that can move ' + remaining + ' spaces:', selectablePegs);
         
         // Enter second peg selection phase
         splitMoveState.phase = 'select_second_peg';
@@ -9401,11 +10136,24 @@
         // Show instruction with peg numbers
         showSplitMoveIndicator(`Tap peg (${pegList}) for ${remaining}`, remaining);
         
-        // For AI, auto-select
+        // For AI, auto-select using planned second move or best available
         if (isAIPlayer(gameState.currentPlayerIndex)) {
             setTimeout(() => {
-                const randomPeg = selectablePegs[Math.floor(Math.random() * selectablePegs.length)];
-                handleSplitPegClick(randomPeg);
+                const planned = splitMoveState.aiPlannedSecondMove;
+                if (planned && selectablePegs.includes(planned.pegId)) {
+                    // Use the pre-planned second move
+                    console.log(`🤖 [AI Split] Using planned 2nd move: ${planned.pegId}→${planned.toHoleId}`);
+                    splitMoveState.selectedPeg = planned.pegId;
+                    splitMoveState.phase = 'select_second_dest';
+                    clearSplitPegHighlights();
+                    hidePegNumbers();
+                    legalMoves = [planned];
+                    clearHighlights();
+                    executeMoveDirectly(planned);
+                } else {
+                    // Fallback: pick first available peg
+                    handleSplitPegClick(selectablePegs[0]);
+                }
             }, AI_CONFIG.thinkingDelay || 500);
         }
     }
@@ -9455,6 +10203,7 @@
             // If stuck in 'animating' phase (executeMove started but endTurn never completed)
             if (gameState && gameState.phase === 'animating') {
                 console.error('⏰ WATCHDOG: Stuck in animating phase! Forcing endTurn');
+                resetSplitMoveState();
                 gameState.phase = 'play';
                 gameState.endTurn();
             }
@@ -9480,6 +10229,7 @@
         
         // Start watchdog timer — if animation callback doesn't fire within 15s, force it
         const wrappedComplete = () => {
+            _pegMoveInProgress = false;
             clearAnimationWatchdog();
             // Dispatch animation end event for mobile UI
             if (typeof MobileUI !== 'undefined' && MobileUI.dispatchAnimationEnd) {
@@ -9519,132 +10269,119 @@
         const path = move.path || [move.fromHoleId, move.toHoleId];
         console.log(`🛤️ Path traversal: ${path.join(' → ')}`);
         
-        // If path only has starting position or just 1-2 holes, do direct animation
-        if (path.length <= 2) {
-            animatePegDirect(peg, move, wrappedComplete);
-            return;
-        }
+        // ── CAMERA FOCUS FIRST ──
+        // Focus camera on the peg's starting position before any movement begins.
+        // Once the camera arrives, THEN start the hop animation.
+        const pegStartX = peg.mesh.position.x;
+        const pegStartZ = peg.mesh.position.z;
         
-        // Animate through each hole in the path (skip first which is starting position)
-        let currentHopIndex = 1;
-        const hopDuration = 200; // ms per hop - fast bouncy hops
-        const pegHeight = 10; // Consistent peg height above holes
-        const hopArc = 12; // Arc height during hop
-        const totalHops = path.length - 1;  // Total steps for sound progressions
-        
-        function animateNextHop() {
-            if (currentHopIndex >= path.length) {
-                // Animation complete - ensure final position
-                const finalHole = holeRegistry.get(move.toHoleId);
-                if (finalHole) {
-                    const fx = finalHole.position ? finalHole.position.x : finalHole.x;
-                    const fz = finalHole.position ? finalHole.position.z : finalHole.z;
-                    peg.mesh.position.set(fx, pegHeight, fz);
-                }
-                peg.currentHole = move.toHoleId;
-                hideAIThinking();
-                if (wrappedComplete) wrappedComplete();
+        function beginHopsAfterFocus() {
+            _pegMoveInProgress = true;
+            
+            // If path only has starting position or just 1-2 holes, do direct animation
+            if (path.length <= 2) {
+                animatePegDirect(peg, move, wrappedComplete);
                 return;
             }
             
-            const targetHoleId = path[currentHopIndex];
-            const targetHole = holeRegistry.get(targetHoleId);
+            // Animate through each hole in the path (skip first which is starting position)
+            let currentHopIndex = 1;
+            const hopDuration = 200; // ms per hop - fast bouncy hops
+            const pegHeight = 10; // Consistent peg height above holes
+            const hopArc = 12; // Arc height during hop
+            const totalHops = path.length - 1;  // Total steps for sound progressions
             
-            if (!targetHole) {
-                console.warn('Hop target hole not found:', targetHoleId);
-                currentHopIndex++;
-                animateNextHop();
-                return;
-            }
-            
-            const targetX = targetHole.position ? targetHole.position.x : targetHole.x;
-            const targetZ = targetHole.position ? targetHole.position.z : targetHole.z;
-            
-            // Capture start position for this hop
-            const startX = peg.mesh.position.x;
-            const startZ = peg.mesh.position.z;
-            const hopStartTime = Date.now();
-            
-            // Simple bouncy hop animation
-            function animateHop() {
-                const elapsed = Date.now() - hopStartTime;
-                const progress = Math.min(elapsed / hopDuration, 1);
-                
-                if (progress >= 1) {
-                    // Land at target hole
-                    peg.mesh.position.set(targetX, pegHeight, targetZ);
-                    
-                    // Play step sound when landing on each hole!
-                    if (window.GameSFX) {
-                        GameSFX.playStep(currentHopIndex - 1, totalHops);
+            function animateNextHop() {
+                if (currentHopIndex >= path.length) {
+                    // Animation complete - ensure final position
+                    const finalHole = holeRegistry.get(move.toHoleId);
+                    if (finalHole) {
+                        const fx = finalHole.position ? finalHole.position.x : finalHole.x;
+                        const fz = finalHole.position ? finalHole.position.z : finalHole.z;
+                        peg.mesh.position.set(fx, pegHeight, fz);
                     }
-                    
+                    peg.currentHole = move.toHoleId;
+                    hideAIThinking();
+                    if (wrappedComplete) wrappedComplete();
+                    return;
+                }
+                
+                const targetHoleId = path[currentHopIndex];
+                const targetHole = holeRegistry.get(targetHoleId);
+                
+                if (!targetHole) {
+                    console.warn('Hop target hole not found:', targetHoleId);
                     currentHopIndex++;
-                    // Immediately start next hop
                     animateNextHop();
                     return;
                 }
                 
-                // Linear interpolation for X/Z movement
-                const t = progress;
-                const x = startX + (targetX - startX) * t;
-                const z = startZ + (targetZ - startZ) * t;
+                const targetX = targetHole.position ? targetHole.position.x : targetHole.x;
+                const targetZ = targetHole.position ? targetHole.position.z : targetHole.z;
                 
-                // Parabolic arc for Y (hop up and down)
-                const hopProgress = Math.sin(progress * Math.PI);
-                const y = pegHeight + hopProgress * hopArc;
+                // Capture start position for this hop
+                const startX = peg.mesh.position.x;
+                const startZ = peg.mesh.position.z;
+                const hopStartTime = Date.now();
                 
-                peg.mesh.position.set(x, y, z);
-                
-                // Update camera for ground/chase modes
-                if (typeof updateCameraForPegMove === 'function') {
-                    updateCameraForPegMove(x, z);
-                }
-                
-                requestAnimationFrame(animateHop);
-            }
-            
-            animateHop();
-        }
-        
-        // Update camera to follow the final destination
-        // For special events (FastTrack, bullseye, safe zone, entering from holding, winning), use dramatic pan
-        // Otherwise follow the leading peg
-        const finalHole = holeRegistry.get(move.toHoleId);
-        if (finalHole && !userOverrideCamera && !userIsInteracting && currentCameraView !== 'manual') {
-            const isSpecial = isSpecialEventMove(move);
-            
-            if (isSpecial) {
-                // Dramatic pan to special event destination
-                panToSpecialEvent(move);
-            } else {
-                // Standard camera follow - pan to destination
-                const fx = finalHole.position ? finalHole.position.x : finalHole.x;
-                const fz = finalHole.position ? finalHole.position.z : finalHole.z;
-                // Smooth camera pan to destination
-                const startTarget = controls.target.clone();
-                const endTarget = new THREE.Vector3(fx, 0, fz);
-                const camDuration = (path.length - 1) * hopDuration;
-                const camStart = Date.now();
-                
-                function animateCamera() {
-                    const elapsed = Date.now() - camStart;
-                    const progress = Math.min(elapsed / camDuration, 1);
+                // Simple bouncy hop animation
+                function animateHop() {
+                    const elapsed = Date.now() - hopStartTime;
+                    const progress = Math.min(elapsed / hopDuration, 1);
+                    
                     if (progress >= 1) {
-                        controls.target.set(fx, 0, fz);
-                        camera.lookAt(controls.target);
+                        // Land at target hole
+                        peg.mesh.position.set(targetX, pegHeight, targetZ);
+                        
+                        // Play step sound when landing on each hole!
+                        if (window.GameSFX) {
+                            GameSFX.playStep(currentHopIndex - 1, totalHops);
+                        }
+                        
+                        currentHopIndex++;
+                        // Immediately start next hop
+                        animateNextHop();
                         return;
                     }
-                    const t = -(Math.cos(Math.PI * progress) - 1) / 2; // ease-in-out
-                    controls.target.lerpVectors(startTarget, endTarget, t);
-                    camera.lookAt(controls.target);
-                    requestAnimationFrame(animateCamera);
+                    
+                    // Linear interpolation for X/Z movement
+                    const t = progress;
+                    const x = startX + (targetX - startX) * t;
+                    const z = startZ + (targetZ - startZ) * t;
+                    
+                    // Parabolic arc for Y (hop up and down)
+                    const hopProgress = Math.sin(progress * Math.PI);
+                    const y = pegHeight + hopProgress * hopArc;
+                    
+                    peg.mesh.position.set(x, y, z);
+                    
+                    // Camera follows peg every frame during movement
+                    updateCameraForPegMove(x, z);
+                    
+                    requestAnimationFrame(animateHop);
                 }
-                animateCamera();
+                
+                animateHop();
             }
+            
+            animateNextHop();
         }
         
-        animateNextHop();
+        // Focus camera on the peg BEFORE movement starts
+        if (!userOverrideCamera && !userIsInteracting && currentCameraView !== 'manual') {
+            const camHeight = 250;
+            const camOffset = 120;
+            smoothCameraTransition(
+                { x: pegStartX * 0.6, y: camHeight, z: pegStartZ * 0.6 + camOffset },
+                { x: pegStartX, y: 0, z: pegStartZ },
+                1800,
+                beginHopsAfterFocus
+            );
+        } else {
+            // Manual/override mode — start immediately
+            _pegMoveInProgress = true;
+            beginHopsAfterFocus();
+        }
     }
     
     // Direct animation (no path traversal - for enter moves etc)
@@ -9744,11 +10481,12 @@
     function animateCut(cutPegInfo, moveInfo) {
         // ============================================================
         // CINEMATIC VANQUISH SEQUENCE
-        // 1. Camera pans to vanquished peg
+        // 1. Camera smoothly focuses on vanquished peg
         // 2. Sad wail plays as peg slowly arcs to holding area
-        // 3. Camera follows the arc cinematically
-        // 4. On landing: camera snaps to attacker peg
-        // 5. Attacker peg does a victory dance with jingle
+        // 3. Camera follows the peg all the way to holding
+        // 4. Pause at landing so player sees the peg arrive home
+        // 5. Camera smoothly pans back to the triumphant attacker peg
+        // 6. Attacker peg does a victory dance with jingle
         // ============================================================
         console.log('🎬 Cinematic vanquish for:', cutPegInfo);
         
@@ -9779,7 +10517,7 @@
         const targetX = targetHole.position ? targetHole.position.x : targetHole.x;
         const targetZ = targetHole.position ? targetHole.position.z : targetHole.z;
         
-        // === PHASE 1: Slow cinematic arc with camera follow ===
+        // === PHASE 1: Focus camera on victim, then arc to holding ===
         const startPos = pegMesh.mesh.position.clone();
         const endPos = new THREE.Vector3(targetX, LINE_HEIGHT + 10, targetZ);
         
@@ -9787,88 +10525,105 @@
         const dist = startPos.distanceTo(endPos);
         const maxArcHeight = Math.max(LINE_HEIGHT + 80, dist * 0.6);
         
-        const arcDuration = 2500; // Slow dramatic arc
-        const arcStartTime = Date.now();
+        const isManual = currentCameraView === 'manual';
         
         // Play the sad vanquish sound
         if (window.GameSFX) {
             GameSFX.playVanquishSad();
         }
         
-        // Pan camera to watch the victim peg if not manual mode
-        const isManual = currentCameraView === 'manual';
-        if (!isManual) {
-            // Position camera slightly above and to the side for cinematic angle
-            const midX = (startPos.x + endPos.x) / 2;
-            const midZ = (startPos.z + endPos.z) / 2;
+        // First: smooth camera pan to victim peg, THEN start the arc
+        if (!isManual && !userIsInteracting) {
             const camOffset = 80;
-            const camHeight = maxArcHeight + 40;
-            
             smoothCameraTransition(
-                { x: midX + camOffset, y: camHeight, z: midZ + camOffset },
-                { x: midX, y: LINE_HEIGHT + 20, z: midZ },
-                800 // Quick initial pan to frame the action
+                { x: startPos.x + camOffset * 0.5, y: maxArcHeight + 60, z: startPos.z + camOffset },
+                { x: startPos.x, y: LINE_HEIGHT + 10, z: startPos.z },
+                1200,
+                beginCinematicArc
             );
+        } else {
+            beginCinematicArc();
         }
         
-        // Track camera following target during arc
-        let cameraFollowTarget = { x: startPos.x, y: startPos.y, z: startPos.z };
-        
-        function animateCinematicArc() {
-            const elapsed = Date.now() - arcStartTime;
-            const progress = Math.min(elapsed / arcDuration, 1);
+        function beginCinematicArc() {
+            const arcDuration = 2800; // Slow dramatic arc
+            const arcStartTime = Date.now();
             
-            // Ultra-smooth ease-in-out (slow start, slow finish, dramatic middle)
-            const t = -(Math.cos(Math.PI * progress) - 1) / 2;
-            
-            // Horizontal interpolation
-            const x = startPos.x + (endPos.x - startPos.x) * t;
-            const z = startPos.z + (endPos.z - startPos.z) * t;
-            
-            // Dramatic parabolic arc - high peak in the middle
-            const arcT = Math.sin(progress * Math.PI);
-            const baseY = startPos.y + (endPos.y - startPos.y) * t;
-            const y = baseY + arcT * maxArcHeight;
-            
-            pegMesh.mesh.position.set(x, y, z);
-            
-            // Slow mournful spin
-            pegMesh.mesh.rotation.y += 0.04;
-            
-            // Slight wobble for drama
-            pegMesh.mesh.rotation.x = Math.sin(progress * Math.PI * 3) * 0.15;
-            pegMesh.mesh.rotation.z = Math.cos(progress * Math.PI * 2) * 0.1;
-            
-            // Camera smoothly follows the arcing peg
-            cameraFollowTarget = { x, y, z };
-            if (!isManual && !userIsInteracting) {
-                controls.target.lerp(new THREE.Vector3(x, y, z), 0.04);
-                camera.lookAt(controls.target);
-            }
-            
-            if (progress < 1) {
-                requestAnimationFrame(animateCinematicArc);
-            } else {
-                // === PHASE 2: Landing impact ===
-                pegMesh.mesh.rotation.set(0, 0, 0);
-                pegMesh.mesh.position.copy(endPos);
+            function animateCinematicArc() {
+                const elapsed = Date.now() - arcStartTime;
+                const progress = Math.min(elapsed / arcDuration, 1);
                 
-                // Landing thump
-                if (window.GameSFX) {
-                    GameSFX._playImpact(GameSFX.audioContext.currentTime, 0.4);
+                // Ultra-smooth ease-in-out (slow start, slow finish, dramatic middle)
+                const t = -(Math.cos(Math.PI * progress) - 1) / 2;
+                
+                // Horizontal interpolation
+                const x = startPos.x + (endPos.x - startPos.x) * t;
+                const z = startPos.z + (endPos.z - startPos.z) * t;
+                
+                // Dramatic parabolic arc - high peak in the middle
+                const arcT = Math.sin(progress * Math.PI);
+                const baseY = startPos.y + (endPos.y - startPos.y) * t;
+                const y = baseY + arcT * maxArcHeight;
+                
+                pegMesh.mesh.position.set(x, y, z);
+                
+                // Slow mournful spin
+                pegMesh.mesh.rotation.y += 0.04;
+                
+                // Slight wobble for drama
+                pegMesh.mesh.rotation.x = Math.sin(progress * Math.PI * 3) * 0.15;
+                pegMesh.mesh.rotation.z = Math.cos(progress * Math.PI * 2) * 0.1;
+                
+                // Camera smoothly follows the arcing peg all the way to holding
+                if (!isManual && !userIsInteracting) {
+                    controls.target.x += (x - controls.target.x) * 0.025;
+                    controls.target.y += (y - controls.target.y) * 0.025;
+                    controls.target.z += (z - controls.target.z) * 0.025;
+                    
+                    // Gently drift camera position to keep a good viewing angle
+                    const desiredCamX = x + 80 * 0.5;
+                    const desiredCamY = Math.max(y + 60, maxArcHeight + 60);
+                    const desiredCamZ = z + 80;
+                    camera.position.x += (desiredCamX - camera.position.x) * 0.015;
+                    camera.position.y += (desiredCamY - camera.position.y) * 0.015;
+                    camera.position.z += (desiredCamZ - camera.position.z) * 0.015;
+                    
+                    camera.lookAt(controls.target);
                 }
                 
-                console.log(`😢 Peg ${victimPeg.id} vanquished to ${targetHoleId}`);
-                
-                // === PHASE 3: Victory dance for attacker ===
-                setTimeout(() => {
-                    performVictoryDance(moveInfo);
-                }, 400);
+                if (progress < 1) {
+                    requestAnimationFrame(animateCinematicArc);
+                } else {
+                    // === PHASE 2: Landing impact ===
+                    pegMesh.mesh.rotation.set(0, 0, 0);
+                    pegMesh.mesh.position.copy(endPos);
+                    
+                    // Landing thump
+                    if (window.GameSFX) {
+                        GameSFX._playImpact(GameSFX.audioContext.currentTime, 0.4);
+                    }
+                    
+                    console.log(`😢 Peg ${victimPeg.id} vanquished to ${targetHoleId}`);
+                    
+                    // === PHASE 3: Pause at landing so player sees peg in holding ===
+                    // Focus camera on the landing spot for a beat
+                    if (!isManual && !userIsInteracting) {
+                        smoothCameraTransition(
+                            { x: endPos.x + 40, y: LINE_HEIGHT + 100, z: endPos.z + 60 },
+                            { x: endPos.x, y: LINE_HEIGHT + 10, z: endPos.z },
+                            1200
+                        );
+                    }
+                    
+                    // Hold for 1.2s so the player sees the peg in holding, then transition
+                    setTimeout(() => {
+                        performVictoryDance(moveInfo);
+                    }, 1200);
+                }
             }
+            
+            animateCinematicArc();
         }
-        
-        // Start the arc animation
-        animateCinematicArc();
         
         // === VICTORY DANCE SUB-FUNCTION ===
         function performVictoryDance(moveInfo) {
@@ -9907,57 +10662,61 @@
                 return;
             }
             
-            // Pan camera to attacker peg
+            // === PHASE 4: Smooth pan to attacker peg ===
             if (!isManual) {
                 smoothCameraTransition(
-                    { x: attackerPegPos.x + 50, y: LINE_HEIGHT + 60, z: attackerPegPos.z + 50 },
+                    { x: attackerPegPos.x + 50, y: LINE_HEIGHT + 80, z: attackerPegPos.z + 60 },
                     { x: attackerPegPos.x, y: LINE_HEIGHT + 10, z: attackerPegPos.z },
-                    600,
-                    null
+                    1800,
+                    startDance
                 );
+            } else {
+                startDance();
             }
             
-            // Play victory jingle
-            if (window.GameSFX) {
-                GameSFX.playVanquishDance();
-            }
-            
-            // Victory dance animation: bounce + spin
-            const danceStart = Date.now();
-            const danceDuration = 1200;
-            const bounceBaseY = attackerPegPos.y;
-            const bounceHeight = 15;
-            const numBounces = 4;
-            
-            function animateDance() {
-                const elapsed = Date.now() - danceStart;
-                const progress = Math.min(elapsed / danceDuration, 1);
-                
-                // Bouncing
-                const bouncePhase = progress * numBounces * Math.PI * 2;
-                const bounceDecay = 1 - progress; // Bounces get smaller
-                const yOffset = Math.abs(Math.sin(bouncePhase)) * bounceHeight * bounceDecay;
-                attackerPegMesh.position.y = bounceBaseY + yOffset;
-                
-                // Spin celebration
-                attackerPegMesh.rotation.y += 0.15 * bounceDecay;
-                
-                // Slight scale pulse for flair
-                const scalePulse = 1 + Math.sin(bouncePhase) * 0.08 * bounceDecay;
-                attackerPegMesh.scale.set(scalePulse, scalePulse, scalePulse);
-                
-                if (progress < 1) {
-                    requestAnimationFrame(animateDance);
-                } else {
-                    // Reset to normal
-                    attackerPegMesh.rotation.y = 0;
-                    attackerPegMesh.position.y = bounceBaseY;
-                    attackerPegMesh.scale.set(1, 1, 1);
-                    console.log('💃 Victory dance complete!');
+            function startDance() {
+                // Play victory jingle
+                if (window.GameSFX) {
+                    GameSFX.playVanquishDance();
                 }
+                
+                // === PHASE 5: Victory dance animation ===
+                const danceStart = Date.now();
+                const danceDuration = 1200;
+                const bounceBaseY = attackerPegPos.y;
+                const bounceHeight = 15;
+                const numBounces = 4;
+                
+                function animateDance() {
+                    const elapsed = Date.now() - danceStart;
+                    const progress = Math.min(elapsed / danceDuration, 1);
+                    
+                    // Bouncing
+                    const bouncePhase = progress * numBounces * Math.PI * 2;
+                    const bounceDecay = 1 - progress; // Bounces get smaller
+                    const yOffset = Math.abs(Math.sin(bouncePhase)) * bounceHeight * bounceDecay;
+                    attackerPegMesh.position.y = bounceBaseY + yOffset;
+                    
+                    // Spin celebration
+                    attackerPegMesh.rotation.y += 0.15 * bounceDecay;
+                    
+                    // Slight scale pulse for flair
+                    const scalePulse = 1 + Math.sin(bouncePhase) * 0.08 * bounceDecay;
+                    attackerPegMesh.scale.set(scalePulse, scalePulse, scalePulse);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animateDance);
+                    } else {
+                        // Reset to normal
+                        attackerPegMesh.rotation.y = 0;
+                        attackerPegMesh.position.y = bounceBaseY;
+                        attackerPegMesh.scale.set(1, 1, 1);
+                        console.log('💃 Victory dance complete!');
+                    }
+                }
+                
+                animateDance();
             }
-            
-            animateDance();
         }
     }
     
@@ -10010,6 +10769,103 @@
         return false;
     }
     window.isAIPlayer = isAIPlayer;
+    
+    // Show Joker backward move celebration - jack-in-the-box joker pops out!
+    function showJokerBackwardCelebration(move, onComplete) {
+        console.log('🃏 [Joker Celebration] Starting jack-in-the-box animation!');
+        
+        // Play the special Joker backward sound effect
+        if (window.GameSFX) {
+            GameSFX.playJokerBackward();
+        }
+        
+        // Create the celebration overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'joker-celebration-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        `;
+        
+        // Jack-in-the-box container
+        const jackBox = document.createElement('div');
+        jackBox.style.cssText = `
+            font-size: 120px;
+            animation: popOut 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform-origin: bottom center;
+        `;
+        jackBox.textContent = '🃏';
+        
+        // Fanfare text
+        const fanfare = document.createElement('div');
+        fanfare.style.cssText = `
+            font-size: 48px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.5);
+            margin-top: 20px;
+            animation: bounce 0.6s ease-in-out infinite alternate;
+        `;
+        fanfare.textContent = '🎪 JOKER SURPRISE! 🎪';
+        
+        // Subtitle
+        const subtitle = document.createElement('div');
+        subtitle.style.cssText = `
+            font-size: 24px;
+            color: #FFF;
+            margin-top: 10px;
+            text-align: center;
+        `;
+        subtitle.textContent = 'Backward Cut - Opponent Sent Home!';
+        
+        overlay.appendChild(jackBox);
+        overlay.appendChild(fanfare);
+        overlay.appendChild(subtitle);
+        document.body.appendChild(overlay);
+        
+        // Add CSS animations
+        if (!document.getElementById('joker-celebration-styles')) {
+            const style = document.createElement('style');
+            style.id = 'joker-celebration-styles';
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes popOut {
+                    0% { transform: scale(0) translateY(100px); opacity: 0; }
+                    50% { transform: scale(1.2) translateY(-20px); }
+                    100% { transform: scale(1) translateY(0); opacity: 1; }
+                }
+                @keyframes bounce {
+                    from { transform: translateY(0); }
+                    to { transform: translateY(-10px); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Remove overlay after 2 seconds and proceed
+        setTimeout(() => {
+            overlay.style.animation = 'fadeIn 0.3s ease-out reverse';
+            setTimeout(() => {
+                if (overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                }
+                if (onComplete) onComplete();
+            }, 300);
+        }, 2000);
+    }
     
     function showMoveAnnouncement(playerName, spaces, direction) {
         const indicator = document.getElementById('ai-thinking');
@@ -10108,20 +10964,20 @@
     // ============================================================
 
     const CARD_RULES = {
-        'A':     { icon: '🃏', rule: 'Enter a peg OR hop 1. Draw again.' },
+        'A':     { icon: '🅰️', rule: 'Enter a peg OR hop 1. Draw again.' },
         'JOKER': { icon: '🃏', rule: 'Enter a peg OR hop 1. Draw again.' },
         '2':     { icon: '2️⃣',  rule: 'Hop 2 forward.' },
         '3':     { icon: '3️⃣',  rule: 'Hop 3 forward.' },
         '4':     { icon: '4️⃣',  rule: 'Hop 4 BACKWARD. FT pegs must exit.' },
         '5':     { icon: '5️⃣',  rule: 'Hop 5 forward.' },
         '6':     { icon: '6️⃣',  rule: 'Enter a peg OR hop 6. Draw again.' },
-        '7':     { icon: '7️⃣',  rule: 'Hop 7 — or split between 2 pegs.' },
+        '7':     { icon: '7️⃣',  rule: 'WILD: Move any token 1-7 spaces.' },
         '8':     { icon: '8️⃣',  rule: 'Hop 8 forward.' },
         '9':     { icon: '9️⃣',  rule: 'Hop 9 forward.' },
         '10':    { icon: '🔟', rule: 'Hop 10 forward.' },
-        'J':     { icon: '👑', rule: 'Hop 1. Can exit bullseye → FT. Draw again.' },
-        'Q':     { icon: '👑', rule: 'Hop 1. Can exit bullseye → FT. Draw again.' },
-        'K':     { icon: '👑', rule: 'Hop 1. Can exit bullseye → FT. Draw again.' },
+        'J':     { icon: '🤴', rule: 'Hop 1 + draw again + exit bullseye.' },
+        'Q':     { icon: '👸', rule: 'Hop 1 + draw again + exit bullseye.' },
+        'K':     { icon: '👑', rule: 'Hop 1 + draw again + exit bullseye.' },
     };
 
     // Inject popup CSS once
@@ -10190,6 +11046,174 @@
         document.head.appendChild(s);
     })();
 
+    // ── No Legal Moves Popup (human players only) ──
+    (function injectNoMovesCSS() {
+        if (document.getElementById('no-moves-popup-css')) return;
+        const s = document.createElement('style');
+        s.id = 'no-moves-popup-css';
+        s.textContent = `
+            @keyframes noMovesIn {
+                0%   { opacity:0; transform:translate(-50%,-50%) scale(0.8); }
+                100% { opacity:1; transform:translate(-50%,-50%) scale(1); }
+            }
+            @keyframes noMovesOut {
+                0%   { opacity:1; transform:translate(-50%,-50%) scale(1); }
+                100% { opacity:0; transform:translate(-50%,-50%) scale(0.9); }
+            }
+            #no-moves-overlay {
+                position: fixed; inset: 0;
+                background: rgba(0,0,0,0.55);
+                z-index: 25000;
+            }
+            #no-moves-popup {
+                position: fixed;
+                top: 42%; left: 50%;
+                transform: translate(-50%,-50%);
+                z-index: 25001;
+                display: flex; flex-direction: column;
+                align-items: center; gap: 12px;
+                animation: noMovesIn 0.3s ease-out forwards;
+            }
+            #no-moves-popup.closing {
+                animation: noMovesOut 0.25s ease-in forwards;
+            }
+            #no-moves-popup .nmp-card {
+                width: 90px; height: 126px;
+                background: #fff;
+                border-radius: 12px;
+                display: flex; flex-direction: column;
+                align-items: center; justify-content: center;
+                font-size: 36px; font-weight: 800;
+                box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 0 3px rgba(255,255,255,0.2);
+                color: #222;
+                position: relative;
+            }
+            #no-moves-popup .nmp-card.red { color: #d32f2f; }
+            #no-moves-popup .nmp-card .nmp-suit { font-size: 18px; margin-top: 2px; }
+            #no-moves-popup .nmp-body {
+                background: rgba(20,20,30,0.95);
+                border-radius: 12px;
+                padding: 16px 28px;
+                text-align: center;
+                max-width: 320px;
+                border: 1px solid rgba(255,255,255,0.12);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            }
+            #no-moves-popup .nmp-title {
+                font-size: 18px; font-weight: 700;
+                color: #ff6b6b;
+                margin-bottom: 6px;
+            }
+            #no-moves-popup .nmp-msg {
+                font-size: 14px; color: rgba(255,255,255,0.75);
+                line-height: 1.4; margin-bottom: 14px;
+            }
+            #no-moves-popup .nmp-btn {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: #fff;
+                border: none; border-radius: 8px;
+                padding: 10px 32px;
+                font-size: 15px; font-weight: 600;
+                cursor: pointer;
+                transition: transform 0.15s, box-shadow 0.15s;
+                box-shadow: 0 4px 16px rgba(102,126,234,0.4);
+            }
+            #no-moves-popup .nmp-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 6px 20px rgba(102,126,234,0.6);
+            }
+            @media (max-width: 768px) {
+                #no-moves-popup .nmp-card { width: 72px; height: 100px; font-size: 28px; }
+                #no-moves-popup .nmp-body { padding: 12px 20px; max-width: 280px; }
+                #no-moves-popup .nmp-title { font-size: 16px; }
+                #no-moves-popup .nmp-msg { font-size: 13px; }
+            }
+        `;
+        document.head.appendChild(s);
+    })();
+
+    function showNoLegalMovesPopup(card, onDismiss, isInJail) {
+        // Remove existing
+        const oldOverlay = document.getElementById('no-moves-overlay');
+        const oldPopup = document.getElementById('no-moves-popup');
+        if (oldOverlay) oldOverlay.remove();
+        if (oldPopup) oldPopup.remove();
+
+        const rank = (card.rank || card.value || '?').toString().toUpperCase();
+        const suitSym = getSuitSymbol(card.suit);
+        const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
+        const info = CARD_RULES[rank] || { rule: 'Hop ' + (card.movement || '?') + ' forward.' };
+
+        const cardIcon = rank === 'JOKER' ? '🃏' : (rank === 'A' ? '🅰️' : (rank === 'J' ? '🤴' : (rank === 'Q' ? '👸' : (rank === 'K' ? '👑' : rank))));
+
+        // Overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'no-moves-overlay';
+
+        // Popup
+        const popup = document.createElement('div');
+        popup.id = 'no-moves-popup';
+        
+        if (isInJail) {
+            // Jail version — prisoner with ball and chain
+            popup.innerHTML = `
+                <div style="font-size:64px; margin-bottom:8px; animation: jailShake 0.5s ease-in-out infinite alternate;">⛓️</div>
+                <div class="nmp-body">
+                    <div class="nmp-title" style="color:#ff9944;">Still in jail!</div>
+                    <div style="font-size:40px; margin:8px 0;">👮‍♂️🔒</div>
+                    <div class="nmp-msg" style="color:#ffcc88;">You need an Ace or a Face card (J, Q, K) to break out!<br>Hang in there — freedom is just a card away.</div>
+                    <div class="nmp-card ${isRed ? 'red' : ''}" style="margin:12px auto 0; width:fit-content;">
+                        <span>${cardIcon}</span>
+                        <span class="nmp-suit">${suitSym}</span>
+                    </div>
+                    <button class="nmp-btn" style="margin-top:14px;">OK</button>
+                </div>
+                <style>
+                    @keyframes jailShake {
+                        from { transform: rotate(-5deg); }
+                        to { transform: rotate(5deg); }
+                    }
+                </style>
+            `;
+        } else {
+            popup.innerHTML = `
+                <div class="nmp-card ${isRed ? 'red' : ''}">
+                    <span>${cardIcon}</span>
+                    <span class="nmp-suit">${suitSym}</span>
+                </div>
+                <div class="nmp-body">
+                    <div class="nmp-title">No Legal Moves</div>
+                    <div class="nmp-msg">${info.rule}<br>All pegs are blocked — turn will be skipped.</div>
+                    <button class="nmp-btn">OK</button>
+                </div>
+            `;
+        }
+
+        document.body.appendChild(overlay);
+        document.body.appendChild(popup);
+
+        function dismiss() {
+            popup.classList.add('closing');
+            overlay.style.transition = 'opacity 0.25s';
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.remove();
+                popup.remove();
+                if (onDismiss) onDismiss();
+            }, 260);
+        }
+
+        popup.querySelector('.nmp-btn').addEventListener('click', dismiss);
+        overlay.addEventListener('click', dismiss);
+
+        // Auto-dismiss after 6s in case user doesn't click
+        setTimeout(() => {
+            if (document.getElementById('no-moves-popup')) {
+                dismiss();
+            }
+        }, 6000);
+    }
+
     function showCardRulePopup(card, movesCount) {
         // Remove existing popup
         const old = document.getElementById('card-rule-popup');
@@ -10214,7 +11238,7 @@
         popup.id = 'card-rule-popup';
         popup.innerHTML = `
             <div class="crp-card ${isRed ? 'red' : ''}">
-                <span>${rank === 'JOKER' ? '★' : rank}</span>
+                <span>${rank === 'JOKER' ? '🃏' : (rank === 'A' ? '🅰️' : (rank === 'J' ? '🤴' : (rank === 'Q' ? '👸' : (rank === 'K' ? '👑' : rank))))}</span>
                 <span class="crp-suit">${suitSym}</span>
             </div>
             <div class="crp-rule">
@@ -10238,6 +11262,87 @@
     }
     window.dismissCardRulePopup = dismissCardRulePopup;
     
+    // Show detailed explanation for 7 card split process
+    function show7CardExplanationModal() {
+        // Remove existing modal
+        const old = document.getElementById('seven-card-modal');
+        if (old) old.remove();
+        
+        const modal = document.createElement('div');
+        modal.id = 'seven-card-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 2px solid #ffd700;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            z-index: 10000;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.8), 0 0 40px rgba(255,215,0,0.3);
+            animation: modalFadeIn 0.3s ease-out;
+        `;
+        
+        modal.innerHTML = `
+            <style>
+                @keyframes modalFadeIn {
+                    from { opacity: 0; transform: translate(-50%, -45%); }
+                    to { opacity: 1; transform: translate(-50%, -50%); }
+                }
+            </style>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 3rem; margin-bottom: 8px;">✨</div>
+                <div style="font-size: 1.5rem; font-weight: bold; color: #ffd700; margin-bottom: 8px;">Card 7 - Wild Card</div>
+                <div style="font-size: 0.9rem; color: #aaa;">Move any token 1-7 spaces</div>
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                <div style="font-weight: bold; color: #4ade80; margin-bottom: 12px; font-size: 1.1rem;">📋 How It Works:</div>
+                <div style="line-height: 1.8; color: #ddd;">
+                    <div style="margin-bottom: 8px;">1️⃣ <strong>Click a peg</strong> to select it</div>
+                    <div style="margin-bottom: 8px;">2️⃣ <strong>Click a glowing hole</strong> to move (1-7 spaces)</div>
+                    <div style="margin-bottom: 8px;">3️⃣ If you used 1-6 spaces, <strong>click another peg</strong></div>
+                    <div style="margin-bottom: 8px;">4️⃣ That peg moves the <strong>remaining spaces</strong></div>
+                </div>
+            </div>
+            
+            <div style="background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                <div style="font-size: 0.85rem; color: #ffd700;">
+                    💡 <strong>Examples:</strong><br>
+                    • Move peg #1 three spaces, then peg #2 four spaces<br>
+                    • Move peg #1 all seven spaces (no second peg needed)<br>
+                    • Both moves are clockwise only
+                </div>
+            </div>
+            
+            <button onclick="document.getElementById('seven-card-modal').remove()" style="
+                width: 100%;
+                padding: 12px;
+                background: linear-gradient(135deg, #4ade80, #22c55e);
+                border: none;
+                border-radius: 8px;
+                color: white;
+                font-weight: bold;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: all 0.2s;
+            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(74,222,128,0.4)'" onmouseout="this.style.transform=''; this.style.boxShadow=''">
+                Got It! Let's Play
+            </button>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Auto-dismiss after 8 seconds
+        setTimeout(() => {
+            const el = document.getElementById('seven-card-modal');
+            if (el) el.remove();
+        }, 8000);
+    }
+    
     function enableMakeMoveButton() {
         // Not needed with integrated banner
         return;
@@ -10247,11 +11352,154 @@
         if (cardUI) {
             cardUI.hideActionBanner();
         }
-        const banner = document.getElementById('turn-action-banner');
-        if (banner) {
-            banner.classList.remove('visible');
+    }
+    
+    // ============================================================
+    // LARGE CENTERED DECK UI
+    // ============================================================
+    
+    function showLargeDeck() {
+        console.log('[LargeDeck] Showing large centered deck');
+        hideLargeDeck();
+        
+        const player = gameState.currentPlayer;
+        const playerName = player.name || `Player ${gameState.currentPlayerIndex + 1}`;
+        const playerColor = player.color || '#3498db';
+        
+        const overlay = document.createElement('div');
+        overlay.id = 'large-deck-overlay';
+        overlay.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        `;
+        
+        const banner = document.createElement('div');
+        banner.style.cssText = `
+            font-size: 32px; font-weight: bold; color: ${playerColor};
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8); margin-bottom: 30px;
+            animation: pulse 1.5s ease-in-out infinite;
+        `;
+        banner.textContent = `${playerName}'s Turn`;
+        
+        const deck = document.createElement('div');
+        deck.id = 'large-deck-card';
+        deck.style.cssText = `
+            width: 200px; height: 280px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px; border: 4px solid #fff;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 80px; transition: transform 0.2s ease;
+            animation: deckBounce 2s ease-in-out infinite;
+        `;
+        deck.textContent = '🎴';
+        
+        deck.addEventListener('mouseenter', () => { deck.style.transform = 'scale(1.1) rotate(5deg)'; });
+        deck.addEventListener('mouseleave', () => { deck.style.transform = 'scale(1) rotate(0deg)'; });
+        deck.addEventListener('click', () => { handleDrawCard(false); });
+        
+        const instruction = document.createElement('div');
+        instruction.style.cssText = `
+            font-size: 24px; color: #fff; margin-top: 30px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            animation: pulse 1.5s ease-in-out infinite;
+        `;
+        instruction.textContent = 'Click to Draw Card';
+        
+        overlay.appendChild(banner);
+        overlay.appendChild(deck);
+        overlay.appendChild(instruction);
+        document.body.appendChild(overlay);
+        
+        if (!document.getElementById('large-deck-styles')) {
+            const style = document.createElement('style');
+            style.id = 'large-deck-styles';
+            style.textContent = `
+                @keyframes deckBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+                @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+            `;
+            document.head.appendChild(style);
         }
-        pendingMoveSelection = null;
+    }
+    
+    function hideLargeDeck() {
+        const overlay = document.getElementById('large-deck-overlay');
+        if (overlay) {
+            overlay.style.animation = 'fadeIn 0.3s ease-out reverse';
+            setTimeout(() => { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 300);
+        }
+    }
+    
+    function showRevealedCard(card) {
+        console.log('[LargeDeck] Showing revealed card:', card.rank);
+        
+        const overlay = document.createElement('div');
+        overlay.id = 'revealed-card-overlay';
+        overlay.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); z-index: 10000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        `;
+        
+        const cardDisplay = document.createElement('div');
+        const cardColor = (card.suit === 'hearts' || card.suit === 'diamonds' || card.suit === 'red') ? '#e74c3c' : '#2c3e50';
+        cardDisplay.style.cssText = `
+            width: 200px; height: 280px; background: #fff;
+            border-radius: 15px; border: 4px solid #FFD700;
+            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.5);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-size: 100px; font-weight: bold; color: ${cardColor};
+            animation: cardFlip 0.6s ease-out;
+        `;
+        
+        const rank = document.createElement('div');
+        rank.textContent = card.rank;
+        cardDisplay.appendChild(rank);
+        
+        if (card.suit) {
+            const suitSymbols = { 'hearts': '♥', 'diamonds': '♦', 'clubs': '♣', 'spades': '♠', 'red': '🃏', 'black': '🃏' };
+            const suitEl = document.createElement('div');
+            suitEl.style.fontSize = '40px';
+            suitEl.textContent = suitSymbols[card.suit] || '';
+            cardDisplay.appendChild(suitEl);
+        }
+        
+        overlay.appendChild(cardDisplay);
+        document.body.appendChild(overlay);
+        
+        if (!document.getElementById('card-flip-styles')) {
+            const style = document.createElement('style');
+            style.id = 'card-flip-styles';
+            style.textContent = `
+                @keyframes cardFlip {
+                    0% { transform: rotateY(90deg) scale(0.5); opacity: 0; }
+                    50% { transform: rotateY(45deg) scale(0.8); }
+                    100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        setTimeout(() => {
+            overlay.style.animation = 'fadeIn 0.3s ease-out reverse';
+            setTimeout(() => {
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                updatePlayerPanelCard(card);
+            }, 300);
+        }, 1500);
+    }
+    
+    function updatePlayerPanelCard(card) {
+        console.log('[LargeDeck] Updating player panel with card:', card.rank);
+        if (window.GameUIMinimal && window.GameUIMinimal.setDrawnCard) {
+            window.GameUIMinimal.setDrawnCard(card);
+        }
+        if (cardUI && cardUI.showCard) {
+            cardUI.showCard(card);
+        }
     }
     
     // Show auto-move notification for human players
@@ -10476,8 +11724,8 @@
             background: 'linear-gradient(135deg, rgba(20,30,50,0.95), rgba(10,15,30,0.98))',
             padding: '40px 60px',
             borderRadius: '20px',
-            border: '2px solid rgba(100,200,255,0.5)',
-            boxShadow: '0 0 60px rgba(100,180,255,0.4), inset 0 0 30px rgba(100,200,255,0.1)',
+            border: '2px solid rgba(255,215,0,0.5)',
+            boxShadow: '0 0 60px rgba(255,215,0,0.3), inset 0 0 30px rgba(255,215,0,0.05)',
             zIndex: '50000',
             textAlign: 'center',
             backdropFilter: 'blur(20px)',
@@ -10486,28 +11734,31 @@
             width: '90%'
         });
         
-        // Game Over Title
-        const title = document.createElement('div');
-        Object.assign(title.style, {
-            fontSize: '32px',
-            fontWeight: 'bold',
-            color: '#7dd3fc',
-            textShadow: '0 0 20px rgba(100,200,255,0.6)',
-            marginBottom: '10px'
-        });
-        title.textContent = '🎉 Game Over! 🎉';
-        overlay.appendChild(title);
-        
         // Winner announcement
+        const winnerAvatar = winner.avatar || '👤';
+        const winnerColor = winner.colorHex || '#ffd700';
+        
         const winnerText = document.createElement('div');
         Object.assign(winnerText.style, {
-            fontSize: '24px',
+            fontSize: '28px',
             color: '#fff',
-            marginBottom: '20px'
+            marginBottom: '8px'
         });
-        const winnerAvatar = winner.avatar || '👤';
-        winnerText.innerHTML = `<span style="font-size: 36px; margin-right: 10px;">${winnerAvatar}</span><span style="color: ${winner.colorHex || '#ffd700'}">${winner.name}</span> Wins!`;
+        winnerText.innerHTML = `<span style="font-size: 42px; margin-right: 10px;">${winnerAvatar}</span><span style="color: ${winnerColor}; font-weight: bold;">${winner.name}</span>`;
         overlay.appendChild(winnerText);
+        
+        // "WINS!" title
+        const winsTitle = document.createElement('div');
+        Object.assign(winsTitle.style, {
+            fontSize: '40px',
+            fontWeight: '900',
+            color: '#ffd700',
+            textShadow: '0 0 30px rgba(255,215,0,0.8), 0 0 60px rgba(255,180,0,0.4)',
+            marginBottom: '25px',
+            letterSpacing: '4px'
+        });
+        winsTitle.textContent = '👑 WINS! 👑';
+        overlay.appendChild(winsTitle);
         
         // Medallion points (only for public lobby games)
         if (gameSessionType === 'public') {
@@ -10528,7 +11779,6 @@
         }
         
         // ── ButterflyFX Growth: Victory Share Panel ─────────────
-        // WHOLE → POTENTIAL: Every win seeds the next player
         if (window.GrowthSubstrate) {
             GrowthSubstrate.injectVictoryShare(overlay, winner, {
                 turns: gameState.turnCount || 0,
@@ -10543,13 +11793,12 @@
         Object.assign(btnContainer.style, {
             display: 'flex',
             flexDirection: 'column',
-            gap: '10px',
+            gap: '12px',
             marginTop: '20px'
         });
         
-        // REPLAY BUTTON (same players, winner goes first)
-        const replayBtn = document.createElement('button');
-        Object.assign(replayBtn.style, {
+        // Shared button styles
+        const primaryBtnStyle = {
             padding: '15px 40px',
             fontSize: '18px',
             fontWeight: 'bold',
@@ -10561,101 +11810,73 @@
             boxShadow: '0 0 25px rgba(100,200,255,0.5)',
             textShadow: '0 0 10px rgba(255,255,255,0.5)',
             transition: 'all 0.3s'
-        });
-        replayBtn.innerHTML = `🔄 Replay (${winnerAvatar} ${winner.name} goes first)`;
-        replayBtn.onmouseover = () => replayBtn.style.transform = 'scale(1.02)';
-        replayBtn.onmouseout = () => replayBtn.style.transform = 'scale(1)';
-        
-        // NEW GAME BUTTON (random first player)
-        const newGameBtn = document.createElement('button');
-        Object.assign(newGameBtn.style, {
+        };
+        const secondaryBtnStyle = {
             padding: '12px 30px',
-            fontSize: '16px',
+            fontSize: '15px',
             fontWeight: 'bold',
-            background: 'linear-gradient(135deg, rgba(80,180,80,0.6), rgba(40,140,40,0.6))',
-            border: '2px solid rgba(100,200,100,0.4)',
-            borderRadius: '25px',
-            color: '#fff',
-            cursor: 'pointer',
-            boxShadow: '0 0 15px rgba(100,200,100,0.3)',
-            transition: 'all 0.3s'
-        });
-        newGameBtn.textContent = '🎲 New Game (random first)';
-        newGameBtn.onmouseover = () => newGameBtn.style.transform = 'scale(1.02)';
-        newGameBtn.onmouseout = () => newGameBtn.style.transform = 'scale(1)';
-        
-        // EXIT BUTTON
-        const exitBtn = document.createElement('button');
-        Object.assign(exitBtn.style, {
-            padding: '10px 25px',
-            fontSize: '14px',
             background: 'rgba(100,100,100,0.3)',
             border: '1px solid rgba(150,150,150,0.3)',
-            borderRadius: '20px',
-            color: 'rgba(255,255,255,0.7)',
+            borderRadius: '25px',
+            color: 'rgba(255,255,255,0.8)',
             cursor: 'pointer',
-            transition: 'all 0.3s',
-            marginTop: '10px'
-        });
-        exitBtn.textContent = '🚪 Exit to Menu';
-        exitBtn.onmouseover = () => exitBtn.style.background = 'rgba(150,80,80,0.4)';
-        exitBtn.onmouseout = () => exitBtn.style.background = 'rgba(100,100,100,0.3)';
+            transition: 'all 0.3s'
+        };
         
-        // Handle button clicks based on game type
-        if (gameSessionType === 'solo' || gameSessionType === 'private') {
-            // Solo/Private: immediate replay
-            replayBtn.onclick = () => {
+        const makePrimaryBtn = (text, onClick) => {
+            const btn = document.createElement('button');
+            Object.assign(btn.style, primaryBtnStyle);
+            btn.innerHTML = text;
+            btn.onmouseover = () => btn.style.transform = 'scale(1.03)';
+            btn.onmouseout = () => btn.style.transform = 'scale(1)';
+            btn.onclick = onClick;
+            return btn;
+        };
+        const makeSecondaryBtn = (text, onClick) => {
+            const btn = document.createElement('button');
+            Object.assign(btn.style, secondaryBtnStyle);
+            btn.innerHTML = text;
+            btn.onmouseover = () => { btn.style.transform = 'scale(1.02)'; btn.style.background = 'rgba(130,130,130,0.4)'; };
+            btn.onmouseout = () => { btn.style.transform = 'scale(1)'; btn.style.background = 'rgba(100,100,100,0.3)'; };
+            btn.onclick = onClick;
+            return btn;
+        };
+        
+        // ── Buttons depend on game type ──
+        if (gameSessionType === 'public') {
+            // MATCH GAME → Rematch (back to lobby)
+            btnContainer.appendChild(makePrimaryBtn('🔄 Rematch', () => {
+                requestReplay(true, overlay, winner);
+            }));
+            btnContainer.appendChild(makeSecondaryBtn('🏠 Back to Lobby', () => {
+                overlay.remove();
+                window.location.href = 'lobby.html';
+            }));
+        } else if (gameSessionType === 'private') {
+            // PRIVATE GAME → Replay + Leave Game
+            btnContainer.appendChild(makePrimaryBtn(`🔄 Replay`, () => {
                 overlay.remove();
                 isReplayGame = true;
                 initGame(activePlayerCount);
-            };
-            newGameBtn.onclick = () => {
+            }));
+            btnContainer.appendChild(makeSecondaryBtn('🚪 Leave Game', () => {
                 overlay.remove();
-                isReplayGame = false;
-                lastWinnerIndex = null;
+                window.location.href = window.location.pathname.includes('board_3d') ? '.' : 'index.html';
+            }));
+        } else {
+            // SOLO / AI → Replay (back to landing page)
+            btnContainer.appendChild(makePrimaryBtn(`🔄 Play Again`, () => {
+                overlay.remove();
+                isReplayGame = true;
                 initGame(activePlayerCount);
-            };
-        } else {
-            // Public lobby game: requires all players to agree for replay
-            replayBtn.onclick = () => requestReplay(true, overlay, winner);
-            newGameBtn.onclick = () => {
+            }));
+            btnContainer.appendChild(makeSecondaryBtn('🏠 Back to Menu', () => {
                 overlay.remove();
-                isReplayGame = false;
-                lastWinnerIndex = null;
-                if (window.multiplayerClient) {
-                    multiplayerClient.requestNewGame();
-                } else {
-                    initGame(activePlayerCount);
-                }
-            };
+                window.location.href = window.location.pathname.includes('board_3d') ? '.' : 'index.html';
+            }));
         }
         
-        exitBtn.onclick = () => {
-            overlay.remove();
-            window.location.href = 'lobby.html';
-        };
-        
-        btnContainer.appendChild(replayBtn);
-        btnContainer.appendChild(newGameBtn);
-        btnContainer.appendChild(exitBtn);
         overlay.appendChild(btnContainer);
-        
-        // Note about game type
-        const note = document.createElement('div');
-        Object.assign(note.style, {
-            marginTop: '20px',
-            fontSize: '12px',
-            color: 'rgba(200,230,255,0.5)'
-        });
-        if (gameSessionType === 'public') {
-            note.textContent = 'Replay requires all players to agree';
-        } else if (gameSessionType === 'private') {
-            note.textContent = 'Private game - host decides';
-        } else {
-            note.textContent = 'Solo game';
-        }
-        overlay.appendChild(note);
-        
         document.body.appendChild(overlay);
     }
     
@@ -11538,7 +12759,7 @@
         if (!availableSlots.hasEmptySlot) return -1;
         
         // Create new player with fresh start
-        const playerColors = ['#ef4444', '#3b82f6', '#eab308', '#22c55e', '#a855f7', '#f97316'];
+        const playerColors = ['#ff2020', '#2196ff', '#4caf50', '#ffeb3b', '#ff9800', '#9c27b0'];
         const newPlayer = {
             name: request.name,
             avatar: request.avatar,
@@ -12191,9 +13412,15 @@
                         return 0.3;  // Slight positive — let isCutMove weight decide final priority
                     }
                     
-                    // Entering bullseye from FT is always a valid strategic option
+                    // Entering bullseye from FT — check if cutting opponent there
                     if (move.toHoleId === 'center' || move.isCenterOption) {
-                        return 0.2;
+                        const centerCut = typeof findCutTargetAtHole === 'function'
+                            ? findCutTargetAtHole('center') : null;
+                        if (centerCut) {
+                            console.log(`🤖 [AI FT] Leave FT to CUT in BULLSEYE — high priority!`);
+                            return 1.0;  // Must beat FT continue (1.0) — isBullseyeCut adds more
+                        }
+                        return 0.5;  // Empty bullseye is still a strong strategic position
                     }
                     
                     // ════════════════════════════════════════════════════
@@ -12577,6 +13804,123 @@
             }
         },
         
+        // ════════════════════════════════════════════════════════════════
+        // 7 WILD CARD STRATEGIC DECISION SYSTEM
+        // When card 7 is drawn, AI must decide optimal move distance (1-7)
+        // and which peg to move. This rule provides strategic guidance.
+        // ════════════════════════════════════════════════════════════════
+        sevenCardStrategy: {
+            weight: 30,  // High priority for 7 card decisions
+            evaluate: (move, context) => {
+                // Only applies to 7 wild card
+                if (!context.currentCard || context.currentCard.rank !== '7') return 0;
+                
+                const peg = context.player.peg.find(p => p.id === move.pegId);
+                if (!peg) return 0;
+                
+                let strategyScore = 0;
+                const moveDistance = move.steps || 1;
+                
+                // ── PRIORITY 1: FastTrack Entry (distance matters) ──
+                // If peg can enter FastTrack, prefer the exact distance needed
+                if (move.isFastTrackEntry) {
+                    // Entering FastTrack is always good with 7 card
+                    strategyScore += 0.9;
+                    console.log(`🎲 [7-Card] FastTrack entry at distance ${moveDistance}: +0.9`);
+                }
+                
+                // ── PRIORITY 2: Safe Zone Entry (distance precision) ──
+                // If peg is eligible for safe zone, prefer distance that enters it
+                if (peg.eligibleForSafeZone && move.toHoleId.includes('safe')) {
+                    strategyScore += 0.95;
+                    console.log(`🎲 [7-Card] Safe zone entry at distance ${moveDistance}: +0.95`);
+                }
+                
+                // ── PRIORITY 3: Cutting Opponents (any distance works) ──
+                const cutTarget = findCutTargetAtHole(move.toHoleId);
+                if (cutTarget) {
+                    // Cutting is valuable - distance doesn't matter much
+                    strategyScore += 0.8;
+                    console.log(`🎲 [7-Card] Cut opportunity at distance ${moveDistance}: +0.8`);
+                }
+                
+                // ── PRIORITY 4: Center/Bullseye Entry ──
+                if (move.toHoleId === 'center' || move.isCenterOption) {
+                    // Check if opponent is there (handled by isBullseyeCut)
+                    const centerCut = findCutTargetAtHole('center');
+                    if (!centerCut) {
+                        // Empty bullseye - moderate value
+                        strategyScore += 0.6;
+                        console.log(`🎲 [7-Card] Bullseye entry at distance ${moveDistance}: +0.6`);
+                    }
+                }
+                
+                // ── PRIORITY 5: Exit FastTrack to Safe Zone ──
+                if (peg.onFasttrack && move.toHoleId.includes('safe')) {
+                    // Exiting FT directly to safe zone is excellent
+                    strategyScore += 0.85;
+                    console.log(`🎲 [7-Card] FT exit to safe zone at distance ${moveDistance}: +0.85`);
+                }
+                
+                // ── PRIORITY 6: Stay on FastTrack (prefer longer distances) ──
+                if (peg.onFasttrack && move.toHoleId.startsWith('ft-') && !move.isLeaveFastTrack) {
+                    // Longer moves on FT are better (cover more ground)
+                    const ftBonus = moveDistance / 7 * 0.5;  // 0.07 to 0.5
+                    strategyScore += ftBonus;
+                    console.log(`🎲 [7-Card] FT traversal distance ${moveDistance}: +${ftBonus.toFixed(2)}`);
+                }
+                
+                // ── PRIORITY 7: Avoid Wasting Movement ──
+                // Penalize very short moves (1-2) unless there's a strategic reason
+                if (moveDistance <= 2 && !cutTarget && !move.isFastTrackEntry && 
+                    !move.toHoleId.includes('safe') && move.toHoleId !== 'center') {
+                    strategyScore -= 0.3;
+                    console.log(`🎲 [7-Card] Short move (${moveDistance}) with no strategy: -0.3`);
+                }
+                
+                // ── PRIORITY 8: Maximize Distance (when no special targets) ──
+                // If no strategic reason, prefer longer moves (cover more ground)
+                if (strategyScore === 0) {
+                    const distanceBonus = moveDistance / 7 * 0.4;  // 0.06 to 0.4
+                    strategyScore += distanceBonus;
+                    console.log(`🎲 [7-Card] Distance bonus (${moveDistance}): +${distanceBonus.toFixed(2)}`);
+                }
+                
+                // ── PRIORITY 9: Peg Selection (which peg to move) ──
+                // Prefer moving pegs that are:
+                // - Closest to safe zone (about to finish)
+                // - On FastTrack (maximize FT advantage)
+                // - In vulnerable positions (escape danger)
+                
+                if (peg.eligibleForSafeZone) {
+                    strategyScore += 0.2;  // Prioritize finishing pegs
+                }
+                
+                if (peg.onFasttrack) {
+                    strategyScore += 0.15;  // Keep FT pegs moving
+                }
+                
+                // Check if peg is in danger (opponent nearby)
+                if (gameState && gameState.players) {
+                    for (const opponent of gameState.players) {
+                        if (opponent.index === context.player.index) continue;
+                        for (const oppPeg of opponent.peg) {
+                            if (oppPeg.holeType === 'holding') continue;
+                            const distance = getTrackDistance(oppPeg.holeId, peg.holeId);
+                            if (distance >= 1 && distance <= 6) {
+                                // Peg is in danger - prioritize moving it
+                                strategyScore += 0.25;
+                                console.log(`🎲 [7-Card] Peg in danger, moving to escape: +0.25`);
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                return strategyScore;
+            }
+        },
+        
         // FORWARD PROGRESS - Base priority
         forwardProgress: {
             weight: 5,
@@ -12771,16 +14115,23 @@
                     case 'isCutMove':
                         weight = rule.weight * difficultyPreset.aiCutPriority;
                         
+                        // SPECIAL: Joker backward move uses same metrics as regular cuts
+                        const isJokerBackward = move.type === 'joker_backward';
+                        
                         // ═══════════════════════════════════════════════════
                         // EASY: NEVER target opponents. Only cut when it is
                         // the SOLE legal move available.
                         // ═══════════════════════════════════════════════════
                         if (GAME_CONFIG.difficulty === 'easy' && rawScore > 0) {
-                            const hasNonCutMoves = moves.some(m => !findCutTargetAtHole(m.toHoleId));
+                            const hasNonCutMoves = moves.some(m => !findCutTargetAtHole(m.toHoleId) && m.type !== 'joker_backward');
                             if (hasNonCutMoves) {
                                 weight = -100;  // Strongly avoid — only land on opponent if no other choice
                             } else {
                                 weight = 1;  // Sole option — reluctantly accept
+                            }
+                            // Apply same penalty to Joker backward
+                            if (isJokerBackward && hasNonCutMoves) {
+                                weight = -100;
                             }
                         }
                         
@@ -12802,6 +14153,10 @@
                                 ).length;
                                 if (victimPegsInSafe > 0) weight += 20;
                             }
+                            // Joker backward gets EXTRA bonus for being sneaky
+                            if (isJokerBackward) {
+                                weight += 15;  // Bonus for the surprise factor!
+                            }
                         }
                         
                         // ═══════════════════════════════════════════════════
@@ -12815,6 +14170,10 @@
                                     p.holeId && p.holeId.includes('safe')
                                 ).length;
                                 if (victimPegsInSafe > 0) weight += 30;
+                            }
+                            // Joker backward gets EXTRA bonus for tactical brilliance
+                            if (isJokerBackward) {
+                                weight += 25;  // Expert loves the tactical surprise!
                             }
                         }
                         
@@ -12834,6 +14193,10 @@
                                 ).length;
                                 // Extra obsession points for cutting leaders
                                 weight += victimPegsInSafe * 15;
+                            }
+                            // Joker backward is WARPATH'S DREAM - ultimate aggression
+                            if (isJokerBackward) {
+                                weight += 50;  // MASSIVE bonus - this is peak warpath!
                             }
                         }
                         break;
@@ -12993,20 +14356,11 @@
             console.log('🤖 AI executing best move:', selectedMove.toHoleId, selectedMove);
             clearHighlights();
             
-            // Check for 7 card split
-            const currentCard = gameState.currentCard;
-            if (currentCard && currentCard.canSplit && !splitMoveState.active) {
-                // For simplicity, AI just does full move (no split)
-                animatePegMove(selectedMove, () => {
-                    gameState.executeMove(selectedMove);
-                });
-            } else if (splitMoveState.active) {
-                executeSplitMoveSecond(selectedMove);
-            } else {
-                animatePegMove(selectedMove, () => {
-                    gameState.executeMove(selectedMove);
-                });
-            }
+            // 7 card is now WILD - AI uses normal move execution
+            // No special split logic needed
+            animatePegMove(selectedMove, () => {
+                gameState.executeMove(selectedMove);
+            });
         }
     }
     
@@ -13023,6 +14377,12 @@
             return;
         }
         
+        // CRITICAL: AI never uses split mode — ensure it's reset
+        if (splitMoveState && splitMoveState.active) {
+            console.warn('🤖 AI found stale splitMoveState.active=true — resetting');
+            resetSplitMoveState();
+        }
+        
         hideAIThinking();
         
         if (legalMoves.length === 0) {
@@ -13031,27 +14391,47 @@
             return;
         }
         
-        // Use the unified evaluation system to select best move
-        let selectedMove = aiSelectBestMove();
+        // Safety timeout: if AI hasn't executed within 5s, force a move
+        const safetyTimer = setTimeout(() => {
+            console.error('🤖 AI SAFETY TIMEOUT: Forcing move after 5s');
+            if (gameState && gameState.phase === 'play' && legalMoves.length > 0) {
+                clearHighlights();
+                executeMoveDirectly(legalMoves[0]);
+            } else if (gameState && gameState.phase === 'play') {
+                gameState.skipTurn();
+            }
+        }, 5000);
         
-        // FALLBACK: If AI evaluation failed, just pick the first available move
+        // Use the unified evaluation system to select best move
+        let selectedMove = null;
+        try {
+            selectedMove = aiSelectBestMove();
+        } catch (err) {
+            console.error('🤖 AI evaluation CRASHED:', err);
+        }
+        
+        // FALLBACK: If AI evaluation failed, pick the best available move intelligently
         if (!selectedMove && legalMoves.length > 0) {
-            console.warn('🤖 AI evaluation returned null - using fallback (first move)');
+            console.warn('🤖 AI evaluation returned null - using smart fallback');
+            const card = gameState.currentCard;
+            
+            // 7-card is split-only (handled by aiExecuteSplit), should never reach here
             selectedMove = legalMoves[0];
         }
         
-        // Execute by clicking (which handles multiple-move dropdowns correctly)
+        // Execute the move
+        clearTimeout(safetyTimer);
         if (selectedMove) {
             console.log('🤖 AI clicking on hole:', selectedMove.toHoleId, 'with flags:', {
                 isFastTrackEntry: selectedMove.isFastTrackEntry,
-                isCenterOption: selectedMove.isCenterOption
+                isCenterOption: selectedMove.isCenterOption,
+                isLeaveFastTrack: selectedMove.isLeaveFastTrack,
+                steps: selectedMove.steps
             });
             
-            // Execute directly instead of clicking (to ensure correct move object is used)
             clearHighlights();
             executeMoveDirectly(selectedMove);
         } else {
-            // This should never happen but adds safety
             console.error('🤖 AI has no valid move despite legalMoves existing - forcing skip');
             gameState.skipTurn();
         }
@@ -13681,10 +15061,10 @@
     }
     window.hideExitButton = hideExitButton;
 
-    // Check for board readiness
+    // Check for board readiness - reduced delay for faster startup
     setTimeout(() => {
         updateLoadingStatus('Initializing board...');
-        
+
         // Wait for board to be ready
         const checkBoard = setInterval(() => {
             // Check both local and global holeRegistry
@@ -13695,25 +15075,25 @@
                 window.boardReady = true;  // Expose globally for multiplayer integration
                 updateLoadingStatus('✓ Board ready! Click START GAME', true);
                 console.log('Board initialized with', hr.size, 'holes');
-                
+
                 // Seal every hole onto the z=xy / z=xy² manifold surface
                 if (window.BoardManifold) {
                     BoardManifold.sealBoard(hr);
                     console.log('[BoardManifold] Hole truth table:', JSON.stringify(BoardManifold.holeTruthTable()));
                 }
-                
+
                 // Board is ready — start screen shows mode picker (no auto-redirect)
                 // selectGameMode('solo') was removed since Solo now navigates to ai_setup.html
             }
-        }, 100);
-        
+        }, 50);  // Check every 50ms instead of 100ms for faster detection
+
         // Timeout after 10 seconds
         setTimeout(() => {
             if (!boardReady) {
                 updateLoadingStatus('⚠ Board loading taking long... please wait');
             }
         }, 10000);
-    }, 500);
+    }, 100);  // Reduced from 500ms to 100ms for faster startup
     
     // Debug: Log all loaded globals after a short delay
     setTimeout(() => {
@@ -14016,175 +15396,152 @@
         const debugMode = urlParams.get('debug') === '1' || urlParams.get('debug') === 'true';
         const quickplayMode = urlParams.get('quickplay') === '1' || urlParams.get('quickply') === '1';
         
-        // QUICKPLAY MODE: Launch directly into AI game (skip setup screen)
-        // Uses new unified GameInit system
-        if (quickplayMode && !sessionCode && !debugMode) {
-            console.log('[QUICKPLAY] Using new GameInit system...');
+        // Dimensional mode manifold — only observed modes manifest
+        const modeManifold = {
+            quickplay: quickplayMode && !sessionCode && !debugMode,
+            debug: debugMode && !sessionCode,
+            session: sessionCode && (playerId || urlParams.get('multiplayer') === 'true'),
+            default: true // Always exists as potential
+        };
+        
+        // Observation-based manifestation — no if-else branching
+        const observedMode = Object.keys(modeManifold).find(key => modeManifold[key]);
+        
+        console.log(`[DIMENSIONAL] Observed mode: ${observedMode}`);
+        
+        // Each mode is a self-invoking manifold
+        const modeInvocations = {
+            quickplay: () => {
+                console.log('[QUICKPLAY] Manifesting from observation...');
+                const startScreen = document.getElementById('start-game-screen');
+                if (startScreen) startScreen.style.display = 'none';
+                
+                if (window.GameInit) {
+                    window.GameInit.waitAndStart(10000);
+                } else {
+                    let waitAttempts = 0;
+                    const waitForGameInit = setInterval(() => {
+                        waitAttempts++;
+                        if (window.GameInit) {
+                            clearInterval(waitForGameInit);
+                            window.GameInit.waitAndStart(10000);
+                        } else if (waitAttempts >= 50) {
+                            clearInterval(waitForGameInit);
+                            console.error('GameInit not ready after 5 seconds');
+                        }
+                    }, 100);
+                }
+            },
             
-            // Hide start screen immediately
-            const startScreen = document.getElementById('start-game-screen');
-            if (startScreen) {
-                startScreen.style.display = 'none';
-            }
+            debug: () => {
+                console.log('[DEBUG] Manifesting from observation...');
+                const startScreen = document.getElementById('start-game-screen');
+                if (startScreen) startScreen.style.display = 'none';
+                
+                // Show debug overlay
+                const debugOverlay = document.createElement('div');
+                debugOverlay.id = 'debug-overlay';
+                debugOverlay.innerHTML = `
+                    <div style="position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #0f0; padding: 10px; font-family: monospace; z-index: 10000;">
+                        <div>DEBUG MODE</div>
+                        <div id="debug-info"></div>
+                    </div>
+                `;
+                document.body.appendChild(debugOverlay);
+                
+                let debugAttempts = 0;
+                const waitForDebugReady = setInterval(() => {
+                    debugAttempts++;
+                    const hr = window.holeRegistry;
+                    const holeCount = hr ? hr.size : 0;
+                    if (holeCount > 0 && !window.boardReady) {
+                        window.boardReady = true;
+                        document.getElementById('debug-info').innerHTML = `Board ready: ${holeCount} holes`;
+                    }
+                    
+                    if (window.GameInit && window.GameInit.isReady()) {
+                        clearInterval(waitForDebugReady);
+                        window.GameInit.startGame(3);
+                    } else if (debugAttempts >= 100) {
+                        clearInterval(waitForDebugReady);
+                        console.error('Debug mode timeout');
+                    }
+                }, 100);
+            },
             
-            // Use GameInit's wait-and-start (handles all readiness checks)
-            if (window.GameInit) {
-                window.GameInit.waitAndStart(10000);
-            } else {
-                // Fallback: wait for GameInit to load
-                let waitAttempts = 0;
-                const waitForGameInit = setInterval(() => {
-                    waitAttempts++;
-                    if (window.GameInit) {
-                        clearInterval(waitForGameInit);
-                        window.GameInit.waitAndStart(10000);
-                    } else if (waitAttempts >= 50) {
-                        clearInterval(waitForGameInit);
-                        console.error('[QUICKPLAY] GameInit module not found');
+            session: () => {
+                console.log('[SESSION] Manifesting from observation...');
+                const startScreen = document.getElementById('start-game-screen');
+                if (startScreen) startScreen.style.display = 'none';
+                
+                // Session data handling manifests from observation
+                let storedSession = null;
+                try {
+                    const stored = sessionStorage.getItem('fasttrack_session');
+                    if (stored) {
+                        storedSession = JSON.parse(stored);
+                        sessionStorage.removeItem('fasttrack_session');
+                    }
+                } catch (e) {
+                    console.warn('Could not read session from storage:', e);
+                }
+                
+                isMultiplayer = true;
+                
+                if (storedSession) {
+                    sessionData = storedSession;
+                    myPlayerId = playerId || sessionData.playerId;
+                    
+                    let attempts = 0;
+                    const maxAttempts = 100;
+                    const waitForBoard = setInterval(() => {
+                        attempts++;
+                        const hr = window.holeRegistry;
+                        const isReady = window.boardReady || (hr && hr.size > 0);
+                        
+                        if (isReady || attempts >= maxAttempts) {
+                            clearInterval(waitForBoard);
+                            
+                            if (sessionData && sessionData.players && sessionData.players.length > 0) {
+                                initMultiplayerGame();
+                            } else if (typeof window.initGame === 'function') {
+                                window.initGame(3);
+                            }
+                        }
+                    }, 100);
+                }
+            },
+            
+            default: () => {
+                console.log('[DEFAULT] Manifesting from observation...');
+                const startScreen = document.getElementById('start-game-screen');
+                if (startScreen) startScreen.style.display = 'none';
+                
+                let attempts = 0;
+                const waitForBoard = setInterval(() => {
+                    attempts++;
+                    const hr = window.holeRegistry;
+                    const isReady = window.boardReady || (hr && hr.size > 0);
+                    
+                    if (isReady) {
+                        clearInterval(waitForBoard);
+                        window.boardReady = true;
+                        
+                        if (typeof window.initGame === 'function') {
+                            window.initGame(3);
+                        } else if (window.GameInit) {
+                            window.GameInit.waitAndStart(5000);
+                        }
+                    } else if (attempts >= 50) {
+                        clearInterval(waitForBoard);
+                        console.error('Default mode timeout waiting for board');
                     }
                 }, 100);
             }
-        }
+        };
         
-        // DEBUG MODE: Skip lobby, start immediately with 1 human + 2 AI
-        // Uses new GameInit system
-        if (debugMode) {
-            console.log('[DEBUG MODE] Starting game using GameInit...');
-            
-            // Hide start screen
-            const startScreen = document.getElementById('start-game-screen');
-            if (startScreen) {
-                startScreen.style.display = 'none';
-            }
-            
-            // Show debug overlay
-            const debugOverlay = document.createElement('div');
-            debugOverlay.id = 'debug-overlay';
-            debugOverlay.style.cssText = 'position:fixed;top:50%;left:10px;background:rgba(0,0,0,0.9);color:#0f0;padding:15px;font-family:monospace;font-size:12px;z-index:99999;border:2px solid #0f0;max-height:40vh;overflow-y:auto;';
-            debugOverlay.innerHTML = '<div style="color:#ff0;font-weight:bold">DEBUG MODE</div>';
-            document.body.appendChild(debugOverlay);
-            
-            const logDebug = (msg) => {
-                console.log('[DEBUG]', msg);
-                debugOverlay.innerHTML += `<div>${msg}</div>`;
-            };
-            
-            logDebug('Using GameInit system...');
-            
-            // Wait for GameInit to be available, then use it
-            let debugAttempts = 0;
-            const waitForDebugReady = setInterval(() => {
-                debugAttempts++;
-                
-                // Check holeRegistry to set boardReady
-                const hr = window.holeRegistry;
-                const holeCount = hr ? hr.size : 0;
-                if (holeCount > 0 && !window.boardReady) {
-                    window.boardReady = true;
-                    logDebug(`Set boardReady=true (${holeCount} holes)`);
-                }
-                
-                // Use GameInit if available
-                if (window.GameInit && window.GameInit.isReady()) {
-                    clearInterval(waitForDebugReady);
-                    logDebug('GameInit ready! Starting...');
-                    
-                    try {
-                        window.GameInit.start({ players: 3 });
-                        logDebug('GameInit.start completed!');
-                    } catch (e) {
-                        logDebug(`ERROR: ${e.message}`);
-                        console.error(e);
-                    }
-                } else if (debugAttempts >= 100) {
-                    clearInterval(waitForDebugReady);
-                    logDebug('TIMEOUT: GameInit not ready');
-                }
-            }, 100);
-        }
-        // LOBBY MODE: Coming from play.html or join.html with session code
-        // Accept either ?session=X&player=Y OR ?session=X&multiplayer=true (reads player from sessionStorage)
-        else if (sessionCode && (playerId || urlParams.get('multiplayer') === 'true')) {
-            // Hide start screen immediately
-            const startScreen = document.getElementById('start-game-screen');
-            if (startScreen) {
-                startScreen.style.display = 'none';
-            }
-            
-            // Check sessionStorage for session data (set by play.html / join.html)
-            let storedSession = null;
-            try {
-                const stored = sessionStorage.getItem('fasttrack_session');
-                if (stored) {
-                    storedSession = JSON.parse(stored);
-                    sessionStorage.removeItem('fasttrack_session');
-                }
-            } catch (e) {
-                console.warn('Could not read session from storage:', e);
-            }
-            
-            // Direct access to game - connect to existing session
-            isMultiplayer = true;
-            // Get player ID from URL param, sessionStorage, or generate one
-            myPlayerId = playerId || (storedSession && storedSession.playerId) || ('player_' + Date.now());
-            
-            // If we have stored session data, use it
-            if (storedSession && storedSession.session && (storedSession.session.session_code === sessionCode || storedSession.session.code === sessionCode || storedSession.sessionCode === sessionCode)) {
-                sessionData = storedSession.session;
-                console.log('Loaded session from storage:', sessionData);
-            }
-            
-            // Wait for board to be ready, then start game
-            let attempts = 0;
-            const maxAttempts = 100; // 10 seconds max
-            const waitForBoard = setInterval(() => {
-                attempts++;
-                const hr = window.holeRegistry;
-                const isReady = window.boardReady || (hr && hr.size > 0);
-                if (attempts % 10 === 0) {
-                    console.log(`[Multiplayer Init] Attempt ${attempts}, boardReady: ${window.boardReady}, holeRegistry size: ${hr ? hr.size : 'undefined'}`);
-                }
-                
-                if (isReady || attempts >= maxAttempts) {
-                    clearInterval(waitForBoard);
-                    
-                    if (attempts >= maxAttempts) {
-                        console.warn('Board init timeout - starting anyway');
-                    }
-                    
-                    // If we have session data with players, start game immediately
-                    if (sessionData && sessionData.players && sessionData.players.length > 0) {
-                        console.log('Starting multiplayer game with', sessionData.players.length, 'players');
-                        initMultiplayerGame();
-                    } else {
-                        // No session data - start default game (1 human + 2 AI)
-                        console.log('No session data - starting default 3 player game');
-                        if (typeof window.initGame === 'function') {
-                            window.initGame(3);
-                        }
-                    }
-                    
-                    // Also connect to WebSocket for realtime updates
-                    // Auto-detect protocol and construct appropriate WebSocket URL
-                    let wsUrl = storedSession?.wsUrl;
-                    if (!wsUrl) {
-                        const isSecure = window.location.protocol === 'https:';
-                        const hostname = window.location.hostname;
-                        const wsProtocol = isSecure ? 'wss:' : 'ws:';
-                        
-                        // Production: Use /ws path (proxied through nginx)
-                        const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
-                        if (isLocalDev) {
-                            wsUrl = `${wsProtocol}//${hostname}:8765`;
-                        } else {
-                            // Production (kensgames.com, butterflyfx.us, etc.)
-                            wsUrl = `${wsProtocol}//${hostname}/ws`;
-                        }
-                    }
-                    connectToSession(wsUrl, sessionCode);
-                }
-            }, 100);
-        }
+        // The observed mode manifests — no branching, no conditions
+        modeInvocations[observedMode]?.();
         
         function connectToSession(wsUrl, code) {
             console.log(`Connecting to session ${code} at ${wsUrl}...`);

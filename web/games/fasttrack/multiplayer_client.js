@@ -106,10 +106,25 @@ class MultiplayerClient {
     
     /**
      * Send a message to the server
+     * SecuritySubstrate: validates type whitelist + rate limit + sanitizes strings
      */
     send(data) {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             try {
+                // SecuritySubstrate: validate outgoing message type + size
+                if (typeof SecuritySubstrate !== 'undefined') {
+                    if (!SecuritySubstrate.validateOutgoingMessage(data)) {
+                        console.warn('[MP] SecuritySubstrate blocked outgoing message');
+                        return false;
+                    }
+                    // Rate limit check per action type
+                    if (!SecuritySubstrate.isActionAllowed(data.type || 'default')) {
+                        console.warn('[MP] SecuritySubstrate rate limit:', data.type);
+                        return false;
+                    }
+                    // Sanitize string fields (except password)
+                    data = SecuritySubstrate.sanitizeOutgoingMessage(data);
+                }
                 this.socket.send(JSON.stringify(data));
                 return true;
             } catch (e) {
@@ -122,11 +137,27 @@ class MultiplayerClient {
     
     /**
      * Handle incoming messages
+     * SecuritySubstrate: sanitizes incoming string data before dispatching
      */
     handleMessage(rawData) {
         try {
+            // SecuritySubstrate: enforce max incoming message size
+            if (typeof SecuritySubstrate !== 'undefined' && rawData.length > 65536) {
+                console.warn('[MP] SecuritySubstrate blocked oversized incoming message');
+                return;
+            }
+            
             const data = JSON.parse(rawData);
             console.log('[MP] Received:', data.type);
+            
+            // SecuritySubstrate: sanitize all incoming string values
+            if (typeof SecuritySubstrate !== 'undefined') {
+                for (const key of Object.keys(data)) {
+                    if (typeof data[key] === 'string' && key !== 'type' && key !== 'game_state') {
+                        data[key] = SecuritySubstrate.sanitizeString(data[key], 1000);
+                    }
+                }
+            }
             
             switch (data.type) {
                 case 'game_action':
@@ -146,6 +177,10 @@ class MultiplayerClient {
                     break;
                     
                 case 'chat':
+                    // SecuritySubstrate: sanitize chat content specifically
+                    if (typeof SecuritySubstrate !== 'undefined' && data.message) {
+                        data.message = SecuritySubstrate.sanitizeChatMessage(data.message);
+                    }
                     this.onChat(data);
                     break;
                     

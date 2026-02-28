@@ -75,25 +75,8 @@ class MobileUI {
     // ============================================================
     
     createMobileHeader() {
-        if (!this.isMobile) return;
-        
-        const header = document.createElement('div');
-        header.id = 'mobile-header';
-        header.innerHTML = `
-            <div class="mobile-avatar" id="mobile-avatar">👤</div>
-            <div class="mobile-player-name" id="mobile-player-name">Your Turn</div>
-            <div class="mobile-deck-area" id="mobile-deck-area">
-                <div class="mobile-deck" id="mobile-deck">
-                    <span class="deck-icon">🎴</span>
-                    <span class="deck-count" id="mobile-deck-count">54</span>
-                </div>
-            </div>
-            <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
-        `;
-        
-        document.body.appendChild(header);
-        this.applyMobileHeaderStyles();
-        this.setupMobileMenu();
+        // Mobile header and deck area removed per user request
+        return;
     }
     
     applyMobileHeaderStyles() {

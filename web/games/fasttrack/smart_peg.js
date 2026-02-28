@@ -211,12 +211,12 @@ class SmartPeg {
             }
 
             // BACKWARD RESTRICTIONS (4 card)
-            // Cannot enter bullseye (center), safe zone, or FastTrack holes going backward.
-            // ft-* holes are special corners — a peg cannot back into them.
+            // Cannot enter bullseye (center) or safe zone going backward.
+            // ft-* holes are perimeter corners — peg CAN land on/pass through them,
+            // it just stays on the outer track (no FastTrack traversal).
             if (!clockwise) {
                 if (nextHole === 'center') { blocked = true; blockedAt = nextHole; break; }
                 if (nextHole.startsWith('safe-')) { blocked = true; blockedAt = nextHole; break; }
-                if (nextHole.startsWith('ft-')) { blocked = true; blockedAt = nextHole; break; }
             }
 
             // BLOCKING by own peg (can't pass or land on own non-bullseye, non-finished pegs)
@@ -232,21 +232,20 @@ class SmartPeg {
             }
 
             // EXACT LANDING: home-{boardPos} requires exact count to WIN
-            // The 5th peg (when safe zone is full) must land on home exactly.
-            // Can't overshoot the winning hole — if more hops remain, move is blocked.
+            // Only applies when approaching FROM THE SAFE ZONE (path contains safe-* holes).
+            // The 5th peg on the OUTER TRACK can pass through home freely — it just
+            // continues around the board and must land exactly on home on a future turn.
             if (nextHole === `home-${this.boardPos}` &&
                 sim.eligibleForSafeZone &&
                 hop < hops - 1) {
-                // Check if safe zone is full (5th peg scenario)
-                const safePegsCount = this.teammates.filter(p =>
-                    p.holeType === 'safezone'
-                ).length;
-                if (safePegsCount >= 4) {
-                    // Can land on home only as the LAST hop — exact count required
+                const fromSafeZone = path.some(h => h.startsWith('safe-'));
+                if (fromSafeZone) {
+                    // Coming from safe zone — home is a dead end, exact landing required
                     blocked = true;
                     blockedAt = nextHole;
                     break;
                 }
+                // On outer track — peg passes through home, continues around the board
             }
 
             path.push(nextHole);
@@ -344,8 +343,8 @@ class SmartPeg {
                     : `Move ${hops} to ${result.destination}`
             });
 
-            // OPTION: FastTrack entry (landing exactly on ft-* from perimeter, not already on ft-*)
-            if (result.destination.startsWith('ft-') && !this.peg.onFasttrack && !isOnFtHole) {
+            // OPTION: FastTrack entry (landing exactly on ft-* from perimeter, not already on ft-*, forward only)
+            if (result.destination.startsWith('ft-') && !this.peg.onFasttrack && !isOnFtHole && direction !== 'backward') {
                 destinations.push({
                     holeId: result.destination,
                     steps: hops,

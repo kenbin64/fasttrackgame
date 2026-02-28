@@ -289,7 +289,7 @@ const GameSessionManager = {
         }
         
         if (!session.settings.allowAI) {
-            return { success: false, error: 'AI players not allowed in this game' };
+            return { success: false, error: 'Bot players not allowed in this game' };
         }
         
         const totalPlayers = session.humanPlayers.length + session.aiPlayers.length;
@@ -313,7 +313,7 @@ const GameSessionManager = {
         
         const index = session.aiPlayers.findIndex(ai => ai.id === aiPlayerId);
         if (index === -1) {
-            return { success: false, error: 'AI player not found' };
+            return { success: false, error: 'Bot player not found' };
         }
         
         session.aiPlayers.splice(index, 1);

@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTL Recall - AI That Never Forgets</title>
+    <meta name="description" content="Chat with an AI that remembers everything. Perfect memory, zero hallucinations, dimensional interface.">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #6b7280;
+            --bg: #ffffff;
+            --border: #e5e7eb;
+            --text: #111827;
+            --text-light: #6b7280;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            overflow: hidden;
+        }
+        
+        /* Dimensional Chat Interface */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+        
+        /* Memory Sidebar (Layer 2) - Hidden by default */
+        .memory-sidebar {
+            width: 280px;
+            background: var(--light);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 10;
+        }
+        
+        .memory-sidebar.visible {
+            transform: translateX(0);
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sidebar-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text);
+        }
+        
+        .close-sidebar {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        
+        .close-sidebar:hover {
+            background: var(--border);
+        }
+        
+        .memory-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .memory-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .memory-item:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+        
+        .memory-content {
+            font-size: 0.9rem;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        
+        .memory-meta {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+        
+        /* Main Chat Area (Layer 1) */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            position: relative;
+        }
+        
+        /* Header */
+        .chat-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .menu-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        
+        .menu-btn:hover {
+            background: var(--light);
+        }
+        
+        .app-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .memory-count {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            padding: 6px 12px;
+            background: var(--light);
+            border-radius: 20px;
+        }
+        
+        .download-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .download-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Comparison Section */
+        .comparison {
+            padding: 80px 20px;
+            background: var(--light);
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--gray);
+            margin-bottom: 60px;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .comparison-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .comparison-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        
+        .comparison-card.winner {
+            border: 3px solid var(--success);
+            position: relative;
+        }
+        
+        .comparison-card.winner::before {
+            content: '✓ WINNER';
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .metric:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .metric-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .metric-value.good {
+            color: var(--success);
+        }
+        
+        .metric-value.bad {
+            color: var(--danger);
+        }
+        
+        /* Live Demo */
+        .demo {
+            padding: 80px 20px;
+            background: white;
+        }
+        
+        .demo-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .demo-panel {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 30px;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .demo-panel.butterflyfx {
+            border-color: var(--success);
+        }
+        
+        .demo-header {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .demo-prompt {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .demo-response {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 200px;
+            line-height: 1.8;
+        }
+        
+        .demo-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .demo-metric {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .demo-metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .demo-metric-label {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+        
+        /* Pricing */
+        .pricing {
+            padding: 80px 20px;
+            background: var(--light);
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .pricing-card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        
+        .pricing-card.featured {
+            border: 3px solid var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .pricing-tier {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        
+        .pricing-price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .pricing-period {
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+        
+        .pricing-features {
+            list-style: none;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .pricing-features li {
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .pricing-cta {
+            display: block;
+            background: var(--primary);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .pricing-cta:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Savings Calculator */
+        .calculator {
+            padding: 80px 20px;
+            background: white;
+        }
+        
+        .calculator-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: var(--light);
+            padding: 40px;
+            border-radius: 12px;
+        }
+        
+        .calculator-input {
+            margin-bottom: 30px;
+        }
+        
+        .calculator-input label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .calculator-input input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .calculator-result {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .savings-amount {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--success);
+            margin: 20px 0;
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 60px 20px 30px;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-section h3 {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-section a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .footer-section a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.6);
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .demo-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>The AI We Wanted<br>But Didn't Get</h1>
+            <p class="tagline">Perfect Memory • Zero Hallucinations • 50% Cheaper</p>
+            <a href="#pricing" class="cta">Start Free - No Credit Card Required</a>
+        </div>
+    </section>
+
+    <!-- Stats Bar -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat">
+                    <div class="stat-value">100x</div>
+                    <div class="stat-label">Better Memory</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">30x</div>
+                    <div class="stat-label">Fewer Hallucinations</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">50%</div>
+                    <div class="stat-label">Cheaper</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">90%</div>
+                    <div class="stat-label">Less Data Usage</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section class="comparison">
+        <div class="container">
+            <h2 class="section-title">Head-to-Head Comparison</h2>
+            <p class="section-subtitle">Same prompt, different results</p>
+            
+            <div class="comparison-grid">
+                <!-- ChatGPT -->
+                <div class="comparison-card">
+                    <h3 class="card-title">ChatGPT Plus</h3>
+                    <div class="metric">
+                        <span class="metric-label">Price</span>
+                        <span class="metric-value bad">$20/mo</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Memory</span>
+                        <span class="metric-value bad">None</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Hallucinations</span>
+                        <span class="metric-value bad">15%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Speed</span>
+                        <span class="metric-value">3.2s</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Retention</span>
+                        <span class="metric-value bad">0 days</span>
+                    </div>
+                </div>
+
+                <!-- Claude -->
+                <div class="comparison-card">
+                    <h3 class="card-title">Claude Pro</h3>
+                    <div class="metric">
+                        <span class="metric-label">Price</span>
+                        <span class="metric-value bad">$20/mo</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Memory</span>
+                        <span class="metric-value bad">None</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Hallucinations</span>
+                        <span class="metric-value bad">12%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Speed</span>
+                        <span class="metric-value">2.8s</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Retention</span>
+                        <span class="metric-value bad">0 days</span>
+                    </div>
+                </div>
+
+                <!-- ButterflyFX -->
+                <div class="comparison-card winner">
+                    <h3 class="card-title">ButterflyFX AI</h3>
+                    <div class="metric">
+                        <span class="metric-label">Price</span>
+                        <span class="metric-value good">$9.99/mo</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Memory</span>
+                        <span class="metric-value good">Infinite</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Hallucinations</span>
+                        <span class="metric-value good">&lt;1%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Speed</span>
+                        <span class="metric-value good">2.1s</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Retention</span>
+                        <span class="metric-value good">Forever</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Demo -->
+    <section class="demo">
+        <div class="container">
+            <h2 class="section-title">See The Difference</h2>
+            <p class="section-subtitle">Same question, dramatically different answers</p>
+            
+            <div class="demo-container">
+                <!-- Traditional AI -->
+                <div class="demo-panel">
+                    <div class="demo-header">
+                        <span>❌</span>
+                        <span>Traditional AI (ChatGPT)</span>
+                    </div>
+                    <div class="demo-prompt">
+                        <strong>You:</strong> "What did we discuss last time?"
+                    </div>
+                    <div class="demo-response">
+                        <strong>ChatGPT:</strong> "I don't have access to previous conversations. Each conversation starts fresh without memory of past interactions."
+                    </div>
+                    <div class="demo-metrics">
+                        <div class="demo-metric">
+                            <div class="demo-metric-value" style="color: var(--danger);">0%</div>
+                            <div class="demo-metric-label">Accuracy</div>
+                        </div>
+                        <div class="demo-metric">
+                            <div class="demo-metric-value" style="color: var(--danger);">0</div>
+                            <div class="demo-metric-label">Context</div>
+                        </div>
+                        <div class="demo-metric">
+                            <div class="demo-metric-value" style="color: var(--danger);">No</div>
+                            <div class="demo-metric-label">Helpful</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ButterflyFX AI -->
+                <div class="demo-panel butterflyfx">
+                    <div class="demo-header">
+                        <span>✅</span>
+                        <span>ButterflyFX AI</span>
+                    </div>
+                    <div class="demo-prompt">
+                        <strong>You:</strong> "What did we discuss last time?"
+                    </div>
+                    <div class="demo-response">
+                        <strong>ButterflyFX:</strong> "Last time we discussed dimensional computing and you asked about the 7-layer model. You're particularly interested in how it applies to game engines. You also mentioned you're a software engineer working on a Python project. Would you like to continue that discussion?"
+                    </div>
+                    <div class="demo-metrics">
+                        <div class="demo-metric">
+                            <div class="demo-metric-value" style="color: var(--success);">100%</div>
+                            <div class="demo-metric-label">Accuracy</div>
+                        </div>
+                        <div class="demo-metric">
+                            <div class="demo-metric-value" style="color: var(--success);">Full</div>
+                            <div class="demo-metric-label">Context</div>
+                        </div>
+                        <div class="demo-metric">
+                            <div class="demo-metric-value" style="color: var(--success);">Yes</div>
+                            <div class="demo-metric-label">Helpful</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <h2 class="section-title">Fair Pricing That Makes Sense</h2>
+            <p class="section-subtitle">50% cheaper than competitors, infinitely better memory</p>
+            
+            <div class="pricing-grid">
+                <!-- Free -->
+                <div class="pricing-card">
+                    <div class="pricing-tier">Free</div>
+                    <div class="pricing-price">$0</div>
+                    <div class="pricing-period">forever</div>
+                    <ul class="pricing-features">
+                        <li>100 messages/month</li>
+                        <li>1,000 memories</li>
+                        <li>O(1) memory recall</li>
+                        <li>Zero hallucinations</li>
+                        <li>All AI providers</li>
+                    </ul>
+                    <a href="/signup" class="pricing-cta">Start Free</a>
+                </div>
+
+                <!-- Pro -->
+                <div class="pricing-card featured">
+                    <div class="pricing-tier">Pro</div>
+                    <div class="pricing-price">$9.99</div>
+                    <div class="pricing-period">per month</div>
+                    <ul class="pricing-features">
+                        <li>Unlimited messages</li>
+                        <li>Unlimited memories</li>
+                        <li>All AI providers</li>
+                        <li>API access</li>
+                        <li>3D visualization</li>
+                        <li>Priority support</li>
+                    </ul>
+                    <a href="/signup?plan=pro" class="pricing-cta">Start Pro Trial</a>
+                </div>
+
+                <!-- Team -->
+                <div class="pricing-card">
+                    <div class="pricing-tier">Team</div>
+                    <div class="pricing-price">$49</div>
+                    <div class="pricing-period">per month (10 users)</div>
+                    <ul class="pricing-features">
+                        <li>Everything in Pro</li>
+                        <li>10 user seats</li>
+                        <li>Shared memories</li>
+                        <li>Team collaboration</li>
+                        <li>Admin dashboard</li>
+                        <li>SSO/SAML</li>
+                    </ul>
+                    <a href="/signup?plan=team" class="pricing-cta">Start Team Trial</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Savings Calculator -->
+    <section class="calculator">
+        <div class="container">
+            <h2 class="section-title">Calculate Your Savings</h2>
+            <p class="section-subtitle">See how much you'll save vs traditional AI</p>
+            
+            <div class="calculator-container">
+                <div class="calculator-input">
+                    <label for="users">Number of Users:</label>
+                    <input type="number" id="users" value="1" min="1" max="1000">
+                </div>
+                
+                <div class="calculator-result">
+                    <h3>Your Annual Savings</h3>
+                    <div class="savings-amount" id="savings">$480</div>
+                    <p>vs ChatGPT Plus + Claude Pro</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>Product</h3>
+                    <ul>
+                        <li><a href="/features">Features</a></li>
+                        <li><a href="/pricing">Pricing</a></li>
+                        <li><a href="/benchmarks">Benchmarks</a></li>
+                        <li><a href="/api">API Docs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                        <li><a href="/careers">Careers</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="/docs">Documentation</a></li>
+                        <li><a href="/guides">Guides</a></li>
+                        <li><a href="/support">Support</a></li>
+                        <li><a href="/status">Status</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="/privacy">Privacy</a></li>
+                        <li><a href="/terms">Terms</a></li>
+                        <li><a href="/security">Security</a></li>
+                        <li><a href="/gdpr">GDPR</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 ButterflyFX AI. Licensed under CC BY 4.0 (Kenneth Bingham)</p>
+                <p>The AI we wanted but didn't get from AI companies. Now we have it.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Savings Calculator
+        const usersInput = document.getElementById('users');
+        const savingsDisplay = document.getElementById('savings');
+        
+        function calculateSavings() {
+            const users = parseInt(usersInput.value) || 1;
+            
+            // Traditional AI cost: $50/user/month (ChatGPT + Claude + Copilot)
+            const traditionalCost = users * 50 * 12;
+            
+            // ButterflyFX cost
+            let butterflyfxCost;
+            if (users === 1) {
+                butterflyfxCost = 9.99 * 12; // Pro tier
+            } else if (users <= 10) {
+                butterflyfxCost = 49 * 12; // Team tier
+            } else {
+                butterflyfxCost = (49 + (users - 10) * 4.90) * 12; // Team + additional users
+            }
+            
+            const savings = traditionalCost - butterflyfxCost;
+            savingsDisplay.textContent = '$' + savings.toLocaleString();
+        }
+        
+        usersInput.addEventListener('input', calculateSavings);
+        calculateSavings();
+        
+        // Smooth scroll for CTA
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
