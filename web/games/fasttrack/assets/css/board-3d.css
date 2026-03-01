@@ -57,13 +57,16 @@
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            box-shadow: 0 6px 22px rgba(0,0,0,0.7), 0 2px 6px rgba(0,0,0,0.5);
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.55));
             backdrop-filter: blur(10px);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
         }
         #right-icon-panel button:hover {
             transform: scale(1.1);
             border-color: #ffd700;
-            box-shadow: 0 6px 20px rgba(255,215,0,0.4);
+            box-shadow: 0 8px 30px rgba(255,215,0,0.5), 0 3px 10px rgba(0,0,0,0.6);
+            filter: drop-shadow(0 6px 14px rgba(0,0,0,0.6));
         }
         #right-icon-panel button:active {
             transform: scale(0.95);
@@ -1380,161 +1383,114 @@
 
 
         /* ============================================================ */
-        /* RIGHT-HAND CONTROL BUTTONS - Standardized 5-button layout */
+        /* RIGHT-HAND CONTROL BUTTONS — Layer 4 Form → flex rail      */
+        /* Desktop: vertical column centred on right edge              */
+        /* Mobile:  horizontal strip pinned to bottom-right            */
         /* ============================================================ */
 
-        /* Camera Control Button */
-        #camera-btn {
+        /* Container — positions the entire rail */
+        #right-icon-panel {
             position: fixed;
-            bottom: 380px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10005;
+        }
+
+        /* Shared button base — size + appearance only, NO position */
+        #right-icon-panel button {
+            width: clamp(44px, 7vw, 52px);
+            height: clamp(44px, 7vw, 52px);
             border-radius: 50%;
-            background: linear-gradient(135deg, rgba(52,152,219,0.75), rgba(41,128,185,0.75));
-            border: 2px solid rgba(52,152,219,0.8);
             color: #fff;
-            font-size: 20px;
+            font-size: clamp(18px, 3.5vw, 22px);
             cursor: pointer;
-            z-index: 10002;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(52,152,219,0.3);
             backdrop-filter: blur(10px);
-            transition: all 0.3s;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s, filter 0.2s;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.4);
+            filter: drop-shadow(0 5px 12px rgba(0,0,0,0.6));
+            border-width: 2px;
+            border-style: solid;
+            min-width: 44px;  /* WCAG touch target */
+            min-height: 44px;
+        }
+        #right-icon-panel button:hover {
+            transform: scale(1.12);
+            filter: drop-shadow(0 7px 16px rgba(0,0,0,0.7));
+        }
+        #right-icon-panel button:active {
+            transform: scale(0.94);
+        }
+
+        /* Individual button colours (appearance only) */
+        #camera-btn {
+            background: linear-gradient(135deg, rgba(52,152,219,0.75), rgba(41,128,185,0.75));
+            border-color: rgba(52,152,219,0.8);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6), 0 0 28px rgba(52,152,219,0.5);
         }
         #camera-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(52,152,219,0.5);
-            background: linear-gradient(135deg, rgba(52,152,219,0.85), rgba(41,128,185,0.85));
+            background: linear-gradient(135deg, rgba(52,152,219,0.9), rgba(41,128,185,0.9));
+            box-shadow: 0 8px 28px rgba(0,0,0,0.7), 0 0 40px rgba(52,152,219,0.7);
         }
 
-        /* Theme Button */
         #theme-btn {
-            position: fixed;
-            bottom: 320px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
             background: linear-gradient(135deg, rgba(255,107,107,0.75), rgba(255,71,87,0.75));
-            border: 2px solid rgba(255,107,107,0.8);
-            color: #fff;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 10002;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(255,107,107,0.3);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            border-color: rgba(255,107,107,0.8);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6), 0 0 28px rgba(255,107,107,0.5);
         }
         #theme-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(255,107,107,0.5);
-            background: linear-gradient(135deg, rgba(255,107,107,0.85), rgba(255,71,87,0.85));
+            background: linear-gradient(135deg, rgba(255,107,107,0.9), rgba(255,71,87,0.9));
+            box-shadow: 0 8px 28px rgba(0,0,0,0.7), 0 0 40px rgba(255,107,107,0.7);
         }
 
-        /* Music Toggle Button */
         #music-toggle-btn {
-            position: fixed;
-            bottom: 260px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
             background: linear-gradient(135deg, rgba(124,58,237,0.75), rgba(109,40,217,0.75));
-            border: 2px solid rgba(124,58,237,0.8);
-            color: #fff;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 10002;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(124,58,237,0.3);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            border-color: rgba(124,58,237,0.8);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6), 0 0 28px rgba(124,58,237,0.5);
         }
         #music-toggle-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(124,58,237,0.5);
-            background: linear-gradient(135deg, rgba(124,58,237,0.85), rgba(109,40,217,0.85));
+            background: linear-gradient(135deg, rgba(124,58,237,0.9), rgba(109,40,217,0.9));
+            box-shadow: 0 8px 28px rgba(0,0,0,0.7), 0 0 40px rgba(124,58,237,0.7);
         }
         #music-toggle-btn.music-on {
             background: linear-gradient(135deg, rgba(74,222,128,0.75), rgba(34,197,94,0.75));
             border-color: rgba(74,222,128,0.8);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(74,222,128,0.3);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6), 0 0 28px rgba(74,222,128,0.5);
         }
         #music-toggle-btn.music-on:hover {
-            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(74,222,128,0.5);
-            background: linear-gradient(135deg, rgba(74,222,128,0.85), rgba(34,197,94,0.85));
+            background: linear-gradient(135deg, rgba(74,222,128,0.9), rgba(34,197,94,0.9));
+            box-shadow: 0 8px 28px rgba(0,0,0,0.7), 0 0 40px rgba(74,222,128,0.7);
         }
 
-        /* Leave Game Button */
         #leave-game-btn {
-            position: fixed;
-            bottom: 200px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
             background: linear-gradient(135deg, rgba(255,80,80,0.75), rgba(200,40,40,0.75));
-            border: 2px solid rgba(255,80,80,0.8);
-            color: #fff;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 10002;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(255,80,80,0.3);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            border-color: rgba(255,80,80,0.8);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6), 0 0 28px rgba(255,80,80,0.5);
         }
         #leave-game-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(255,80,80,0.5);
-            background: linear-gradient(135deg, rgba(255,100,100,0.85), rgba(220,60,60,0.85));
+            background: linear-gradient(135deg, rgba(255,100,100,0.9), rgba(220,60,60,0.9));
+            box-shadow: 0 8px 28px rgba(0,0,0,0.7), 0 0 40px rgba(255,80,80,0.7);
         }
 
-        /* Board View Button */
         #board-view-btn {
-            position: fixed;
-            bottom: 140px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
             background: linear-gradient(135deg, rgba(74,222,128,0.75), rgba(34,197,94,0.75));
-            border: 2px solid rgba(74,222,128,0.8);
-            color: #fff;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 10002;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(74,222,128,0.3);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            border-color: rgba(74,222,128,0.8);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6), 0 0 28px rgba(74,222,128,0.5);
         }
         #board-view-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(74,222,128,0.5);
-            background: linear-gradient(135deg, rgba(74,222,128,0.85), rgba(34,197,94,0.85));
+            background: linear-gradient(135deg, rgba(74,222,128,0.9), rgba(34,197,94,0.9));
+            box-shadow: 0 8px 28px rgba(0,0,0,0.7), 0 0 40px rgba(74,222,128,0.7);
         }
         #board-view-btn.active {
             background: linear-gradient(135deg, rgba(255,180,100,0.75), rgba(255,140,60,0.75));
             border-color: rgba(255,180,100,0.8);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 25px rgba(255,180,100,0.4);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6), 0 0 32px rgba(255,180,100,0.6);
         }
         
         /* Exit Confirmation Modal */
@@ -2524,4 +2480,53 @@
             #info { display: none !important; }
             #floating-reactions { display: none !important; }
             #player-panels { display: none !important; }
+        }
+
+        /* ============================================================
+           RESPONSIVE BUTTON RAIL — Layer 5 Life → motion adapts to form
+           Mobile (≤768px): horizontal strip, bottom-right, safe-area aware
+           Small phone (≤480px): smaller buttons, tighter gap
+           ============================================================ */
+        @media (max-width: 768px) {
+            #right-icon-panel {
+                top: auto;
+                bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+                right: 12px;
+                transform: none;
+                flex-direction: row;
+                gap: 8px;
+            }
+            #right-icon-panel button {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+                min-width: 44px;
+                min-height: 44px;
+            }
+            /* Mom help panel: shift above button rail on mobile */
+            #mom-help-panel {
+                bottom: calc(env(safe-area-inset-bottom, 0px) + 74px);
+                right: 12px;
+                width: min(280px, 85vw);
+            }
+            /* Camera panel: move above button rail */
+            #camera-view-panel {
+                bottom: calc(env(safe-area-inset-bottom, 0px) + 74px);
+                right: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #right-icon-panel {
+                gap: 6px;
+                right: 8px;
+                bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+            }
+            #right-icon-panel button {
+                width: 42px;
+                height: 42px;
+                font-size: 17px;
+                min-width: 40px;
+                min-height: 40px;
+            }
         }

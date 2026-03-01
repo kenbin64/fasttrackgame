@@ -109,19 +109,27 @@
         // PWA SUPPORT - Service Worker & Install
         // ========================================
         (function initPWA() {
-            // ButterflyFX: Disable service worker caching - dimensional architecture handles deltas
-            // FORCE purge old service workers and caches, NO re-registration
+            // ButterflyFX: Register network-first service worker — sw.js purges OLD cache
+            // versions itself in its activate event, so we never need to nuke everything here.
             if ('serviceWorker' in navigator) {
-                // First: unregister ALL existing service workers
-                navigator.serviceWorker.getRegistrations().then(registrations => {
-                    const purgePromises = registrations.map(reg => reg.unregister());
-                    return Promise.all(purgePromises);
-                }).then(() => {
-                    // Second: purge ALL caches
-                    return caches.keys().then(names => Promise.all(names.map(n => caches.delete(n))));
-                }).then(() => {
-                    console.log('[PWA] All service workers and caches purged - ButterflyFX dimensional mode');
-                }).catch(err => console.log('[PWA] Cache purge error:', err));
+                // ONE-TIME reload guard: if the SW controller changes (new SW took over),
+                // reload once so the page starts cleanly under the new SW's control.
+                // The `refreshed` flag prevents an infinite reload loop.
+                let refreshed = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshed) {
+                        refreshed = true;
+                        console.log('[PWA] SW controller changed — reloading for clean start');
+                        window.location.reload();
+                    }
+                });
+
+                navigator.serviceWorker.register('/fasttrack/sw.js', { scope: '/fasttrack/' })
+                    .then(reg => {
+                        reg.update(); // Always check for a fresher sw.js on each load
+                        console.log('[PWA] Service worker registered — network-first, scope:', reg.scope);
+                    })
+                    .catch(err => console.log('[PWA] SW registration failed:', err));
             }
             
             // Platform detection
@@ -379,22 +387,24 @@
     
     <!-- Floating Rules Button — REMOVED (available in hamburger menu) -->
     
-    <!-- Right-Hand Control Buttons (5 buttons with consistent styling) -->
+    <!-- Right-Hand Control Buttons — flex column rail, centred vertically on desktop,
+         horizontal strip at bottom-right on mobile (see board-3d.css #right-icon-panel) -->
+    <div id="right-icon-panel" role="toolbar" aria-label="Game controls">
+        <!-- Camera Control Button -->
+        <button id="camera-btn" onclick="openCameraPanel()" title="Camera Options" aria-label="Camera options">📹</button>
 
-    <!-- Camera Control Button -->
-    <button id="camera-btn" onclick="openCameraPanel()" title="Camera Options">📹</button>
+        <!-- Theme Button -->
+        <button id="theme-btn" onclick="openThemePanel()" title="Change Theme" aria-label="Change theme">🎨</button>
 
-    <!-- Theme Button -->
-    <button id="theme-btn" onclick="openThemePanel()" title="Change Theme">🎨</button>
+        <!-- Music Toggle Button (Music only, not SFX) -->
+        <button id="music-toggle-btn" onclick="toggleGameMusic()" title="Music: OFF" aria-label="Toggle music">🔇</button>
 
-    <!-- Music Toggle Button (Music only, not SFX) -->
-    <button id="music-toggle-btn" onclick="toggleGameMusic()" title="Music: OFF">🔇</button>
+        <!-- Leave Game Button -->
+        <button id="leave-game-btn" onclick="showExitConfirm()" title="Leave Game" aria-label="Leave game">🚪</button>
 
-    <!-- Leave Game Button -->
-    <button id="leave-game-btn" onclick="showExitConfirm()" title="Leave Game">🚪</button>
-
-    <!-- Fixed Views Button (persistent preset views) -->
-    <button id="board-view-btn" onclick="setBoardViewMode()" title="Fixed Views">🎯</button>
+        <!-- Fixed Views Button (persistent preset views) -->
+        <button id="board-view-btn" onclick="setBoardViewMode()" title="Fixed Views" aria-label="Board view">🎯</button>
+    </div>
     
     <!-- Exit Confirmation Modal -->
     <div id="exit-confirm-modal">
@@ -1609,24 +1619,15 @@
     function init() {
         console.log('🔄 init() started');
 
-        // Guard: Three.js must be loaded. If a stale service worker blocked the CDN
-        // script, THREE will be undefined here. Detect it, show a message, and reload
-        // so the updated service worker (which no longer intercepts CDN requests) takes over.
+        // Guard: Three.js is loaded locally from /lib/three/three.min.js.
+        // If it's still undefined, the file failed to load — show message and reload.
         if (typeof THREE === 'undefined') {
-            console.error('❌ THREE.js not loaded — service worker may have blocked the CDN script. Reloading...');
+            console.error('❌ THREE.js not loaded — local lib may not have served correctly. Reloading...');
             const msg = document.createElement('div');
             msg.style.cssText = 'position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0a0a14;color:#64d8ff;font-family:sans-serif;z-index:99999;gap:16px;';
             msg.innerHTML = '<div style="font-size:2em;">🎲 Fast Track</div><div>Loading 3D engine… please wait.</div>';
             document.body.appendChild(msg);
-            // Purge old service workers then reload for a clean load
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations()
-                    .then(regs => Promise.all(regs.map(r => r.unregister())))
-                    .then(() => caches.keys().then(names => Promise.all(names.map(n => caches.delete(n)))))
-                    .finally(() => window.location.reload());
-            } else {
-                window.location.reload();
-            }
+            window.location.reload();
             return;
         }
 
@@ -3255,9 +3256,12 @@
         boardViewMode = (boardViewMode + 1) % 3;
 
         if (boardViewMode === 0) {
-            // Exit board view mode - return to normal view
+            // Exit board view mode - return to automatic camera
             if (btn) {
                 btn.classList.remove('active');
+                btn.textContent = '🎯';
+                btn.title = 'View: Auto (tap to switch to straight-down)';
+                btn.setAttribute('aria-label', 'Camera view: automatic');
                 try {
                     btn.style.pointerEvents = '';
                     btn.style.zIndex = '';
@@ -3328,8 +3332,13 @@
                     camera.position.set(0, 700, 0);
                     camera.lookAt(0, 0, 0);
                     controls.target.set(0, 0, 0);
+                    if (btn) {
+                        btn.textContent = '⬇️';
+                        btn.title = 'View: Straight Down (tap for angled)';
+                        btn.setAttribute('aria-label', 'Camera view: straight down');
+                    }
                     console.log('[Fixed Views] Mode 1: Straight Down - mouse controls enabled');
-                    showFixedViewInfo('Straight Down View (Fixed)');
+                    showFixedViewInfo('Straight Down View — tap 🎯 for angled');
                     currentCameraView = 'fixed-straight';
                 } else if (boardViewMode === 2) {
                     // Angled view (45 degrees)
@@ -3342,8 +3351,13 @@
                     );
                     camera.lookAt(0, 0, 0);
                     controls.target.set(0, 0, 0);
+                    if (btn) {
+                        btn.textContent = '↗️';
+                        btn.title = 'View: Angled (tap for automatic)';
+                        btn.setAttribute('aria-label', 'Camera view: angled');
+                    }
                     console.log('[Fixed Views] Mode 2: Angled View - mouse controls enabled');
-                    showFixedViewInfo('Angled View (Fixed)');
+                    showFixedViewInfo('Angled View — tap 🎯 for automatic');
                     currentCameraView = 'fixed-angled';
                 }
             }
@@ -3532,7 +3546,51 @@
         }
     }
     window.updateCameraForPegMove = updateCameraForPegMove;
-    
+
+    // ============================================================
+    // PRE-CINEMATIC CAMERA — called on card draw to position the
+    // camera on the current player's movable peg(s) BEFORE the
+    // move highlights appear, so the action is always in frame.
+    // ============================================================
+    function preCinematicCamera(playerIdx, legalMoves) {
+        // Do nothing if user is in manual / fixed-view mode
+        if (fixedViewsActive || cameraMode === 'manual' || userIsInteracting) return;
+
+        const player = gameState && gameState.players && gameState.players[playerIdx];
+        if (!player || !player.peg) return;
+
+        // Build a set of peg IDs that have a legal move
+        const movablePegIds = new Set((legalMoves || []).map(m => m.pegId));
+
+        // Pick the first movable peg that has a mesh on the board
+        let bestMesh = null;
+        for (const peg of player.peg) {
+            if (peg.holeType === 'holding' || peg.holeType === 'home') continue;
+            if (!movablePegIds.has(peg.id)) continue;
+            const reg = pegRegistry.get(peg.id);
+            if (reg && reg.mesh) { bestMesh = reg.mesh; break; }
+        }
+
+        // Fallback: use any on-board peg (even if it can't move this turn)
+        if (!bestMesh) {
+            for (const peg of player.peg) {
+                if (peg.holeType === 'holding' || peg.holeType === 'home') continue;
+                const reg = pegRegistry.get(peg.id);
+                if (reg && reg.mesh) { bestMesh = reg.mesh; break; }
+            }
+        }
+
+        if (!bestMesh) return;
+
+        const pos = bestMesh.position;
+        smoothCameraTransition(
+            { x: pos.x + 55, y: LINE_HEIGHT + 95, z: pos.z + 70 },
+            { x: pos.x, y: LINE_HEIGHT + 10, z: pos.z },
+            1100  // ~1 second — snappy enough to land before highlight clicks
+        );
+    }
+    window.preCinematicCamera = preCinematicCamera;
+
     // Legacy toggle function (for compatibility)
     function toggleCameraMode() {
         toggleCameraPanel();
@@ -7859,6 +7917,9 @@
                 // Show all legal moves - HUMAN player must click on a destination
                 if (!isAI) {
                     console.log(`👤 [HUMAN] Showing ${legalMoves.length} legal moves for player ${playerIdx}`);
+                    // Pre-position camera on the active peg BEFORE highlights appear
+                    // so the action is already in frame when the player clicks
+                    preCinematicCamera(playerIdx, legalMoves);
                     showCardRulePopup(card, legalMoves.length);
                     showCardDrawnBanner(playerName, playerColor, cardValue, legalMoves.length > 1);
                     highlightLegalMoves(legalMoves);
@@ -8088,8 +8149,9 @@
                     // Bullseye entry
                     GameSFX.playBullseye();
                 } else if (move.toHoleId && move.toHoleId.startsWith('safe-')) {
-                    // Safe zone entry
+                    // Safe zone entry — play sound then do a little dance!
                     GameSFX.playSafezone();
+                    setTimeout(() => performSafeZoneDance(move), 120);
                 }
                 
                 // Boot/cut opponent
@@ -11325,7 +11387,70 @@
             }
         }
     }
-    
+
+    // ============================================================
+    // SAFE ZONE ENTRY DANCE
+    // Called when a peg lands on any safe-* hole. Plays a quick
+    // bounce-spin celebration and pans the camera to the peg.
+    // ============================================================
+    function performSafeZoneDance(move) {
+        if (!move || !move.pegId) return;
+
+        const reg = pegRegistry.get(move.pegId);
+        if (!reg || !reg.mesh) return;
+
+        const pegMesh = reg.mesh;
+        const basePos = pegMesh.position.clone();
+        const baseY = basePos.y;
+        const isManualCam = currentCameraView === 'manual' || fixedViewsActive;
+
+        // Smooth camera pan to safe-zone peg (only in auto mode)
+        if (!isManualCam && !userIsInteracting) {
+            smoothCameraTransition(
+                { x: basePos.x + 40, y: LINE_HEIGHT + 85, z: basePos.z + 55 },
+                { x: basePos.x, y: LINE_HEIGHT + 10, z: basePos.z },
+                900
+            );
+        }
+
+        // Brief happy dance: 3 bounces with a quick spin
+        const danceStart = Date.now();
+        const danceDuration = 850;
+        const bounceHeight = 14;
+        const numBounces = 3;
+
+        function animateSafeDance() {
+            const elapsed = Date.now() - danceStart;
+            const progress = Math.min(elapsed / danceDuration, 1);
+
+            const bouncePhase = progress * numBounces * Math.PI * 2;
+            const decay = 1 - progress;
+
+            // Upward bounce
+            const yOffset = Math.abs(Math.sin(bouncePhase)) * bounceHeight * decay;
+            pegMesh.position.y = baseY + yOffset;
+
+            // Happy spin (faster than vanquish — it's a joyful move)
+            pegMesh.rotation.y += 0.18 * decay;
+
+            // Cheerful scale pulse
+            const scalePulse = 1 + Math.sin(bouncePhase) * 0.12 * decay;
+            pegMesh.scale.set(scalePulse, scalePulse, scalePulse);
+
+            if (progress < 1) {
+                requestAnimationFrame(animateSafeDance);
+            } else {
+                // Restore peg to normal state
+                pegMesh.position.y = baseY;
+                pegMesh.rotation.y = 0;
+                pegMesh.scale.set(1, 1, 1);
+                console.log('🎊 Safe zone dance complete!');
+            }
+        }
+
+        animateSafeDance();
+    }
+
     // ============================================================
     // LAUNCH GAME HANDLER
     // Called when a game session is ready to start
@@ -11644,8 +11769,37 @@
                 color: rgba(255,255,255,0.6);
                 font-weight: 400;
             }
+            /* ── Joker special card face ── */
+            #card-rule-popup .crp-card.joker {
+                background: linear-gradient(135deg, #1a0035 0%, #6b00cc 55%, #b0008a 100%);
+                color: #ffd700;
+                border: 2px solid rgba(255,215,0,0.7);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.7),
+                            0 0 30px rgba(150,0,255,0.55),
+                            0 0 60px rgba(150,0,200,0.25);
+                animation: jokerCardShimmer 1.8s ease-in-out infinite alternate;
+            }
+            @keyframes jokerCardShimmer {
+                0%   { box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 28px rgba(150,0,255,0.55), 0 0 55px rgba(150,0,200,0.25); }
+                100% { box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 42px rgba(200,0,255,0.75), 0 0 80px rgba(200,0,220,0.4);  }
+            }
+            #card-rule-popup .crp-joker-face {
+                font-size: 44px;
+                line-height: 1;
+                filter: drop-shadow(0 0 8px rgba(255,215,0,0.8));
+            }
+            #card-rule-popup .crp-joker-label {
+                font-size: 10px;
+                font-weight: 900;
+                letter-spacing: 3px;
+                color: #ffd700;
+                text-shadow: 0 0 10px rgba(255,215,0,0.9), 0 1px 3px rgba(0,0,0,0.8);
+                text-transform: uppercase;
+                margin-top: 2px;
+            }
             @media (max-width: 768px) {
                 #card-rule-popup .crp-card { width: 64px; height: 90px; font-size: 26px; }
+                #card-rule-popup .crp-joker-face { font-size: 34px; }
                 #card-rule-popup .crp-rule { font-size: 13px; padding: 6px 14px; max-width: 260px; }
             }
         `;
@@ -11750,7 +11904,10 @@
         const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
         const info = CARD_RULES[rank] || { rule: 'Hop ' + (card.movement || '?') + ' forward.' };
 
-        const cardIcon = rank === 'JOKER' ? '🃏' : (rank === 'A' ? '🅰️' : (rank === 'J' ? '🤴' : (rank === 'Q' ? '👸' : (rank === 'K' ? '👑' : rank))));
+        const isJokerCard = rank === 'JOKER';
+        const cardIcon = isJokerCard ? '🃏' : (rank === 'A' ? '🅰️' : (rank === 'J' ? '🤴' : (rank === 'Q' ? '👸' : (rank === 'K' ? '👑' : rank))));
+        const jokerFaceHTML = `<span style="font-size:36px;filter:drop-shadow(0 0 8px rgba(255,215,0,0.8))">🃏</span><span style="font-size:9px;font-weight:900;letter-spacing:2px;color:#ffd700;text-shadow:0 0 8px rgba(255,215,0,0.9)">JOKER</span>`;
+        const cardInnerHTML = isJokerCard ? jokerFaceHTML : `<span>${cardIcon}</span><span class="nmp-suit">${suitSym}</span>`;
 
         // Overlay
         const overlay = document.createElement('div');
@@ -11768,9 +11925,8 @@
                     <div class="nmp-title" style="color:#ff9944;">Still in jail!</div>
                     <div style="font-size:40px; margin:8px 0;">👮‍♂️🔒</div>
                     <div class="nmp-msg" style="color:#ffcc88;">You need an Ace or a Face card (J, Q, K) to break out!<br>Hang in there — freedom is just a card away.</div>
-                    <div class="nmp-card ${isRed ? 'red' : ''}" style="margin:12px auto 0; width:fit-content;">
-                        <span>${cardIcon}</span>
-                        <span class="nmp-suit">${suitSym}</span>
+                    <div class="nmp-card ${isJokerCard ? 'joker' : (isRed ? 'red' : '')}" style="margin:12px auto 0; width:fit-content; ${isJokerCard ? 'background:linear-gradient(135deg,#1a0035,#6b00cc,#b0008a);border-color:rgba(255,215,0,0.7);' : ''}">
+                        ${cardInnerHTML}
                     </div>
                     <button class="nmp-btn" style="margin-top:14px;">OK</button>
                 </div>
@@ -11783,9 +11939,8 @@
             `;
         } else {
             popup.innerHTML = `
-                <div class="nmp-card ${isRed ? 'red' : ''}">
-                    <span>${cardIcon}</span>
-                    <span class="nmp-suit">${suitSym}</span>
+                <div class="nmp-card ${isJokerCard ? 'joker' : (isRed ? 'red' : '')}" style="${isJokerCard ? 'background:linear-gradient(135deg,#1a0035,#6b00cc,#b0008a);border:2px solid rgba(255,215,0,0.7);box-shadow:0 0 30px rgba(150,0,255,0.5);' : ''}">
+                    ${cardInnerHTML}
                 </div>
                 <div class="nmp-body">
                     <div class="nmp-title">No Legal Moves</div>
@@ -11840,12 +11995,17 @@
             hint = 'Choose a flashing hole';
         }
 
+        const isJoker = rank === 'JOKER';
+        const cardFaceHTML = isJoker
+            ? `<span class="crp-joker-face">🃏</span><span class="crp-joker-label">JOKER</span>`
+            : `<span>${rank === 'A' ? '🅰️' : (rank === 'J' ? '🤴' : (rank === 'Q' ? '👸' : (rank === 'K' ? '👑' : rank)))}</span>
+               <span class="crp-suit">${suitSym}</span>`;
+
         const popup = document.createElement('div');
         popup.id = 'card-rule-popup';
         popup.innerHTML = `
-            <div class="crp-card ${isRed ? 'red' : ''}">
-                <span>${rank === 'JOKER' ? '🃏' : (rank === 'A' ? '🅰️' : (rank === 'J' ? '🤴' : (rank === 'Q' ? '👸' : (rank === 'K' ? '👑' : rank))))}</span>
-                <span class="crp-suit">${suitSym}</span>
+            <div class="crp-card ${isJoker ? 'joker' : (isRed ? 'red' : '')}">
+                ${cardFaceHTML}
             </div>
             <div class="crp-rule">
                 ${info.rule}

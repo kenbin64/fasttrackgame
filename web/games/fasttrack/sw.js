@@ -25,16 +25,20 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate — purge ALL old caches, claim clients immediately
+// Activate — purge old caches only; do NOT claim() existing clients.
+// clients.claim() would hijack any page that's mid-load under the old (or no)
+// SW, causing the "void" blank-screen bug. Pages opened after this SW
+// activates will be controlled automatically; existing pages stay as-is until
+// they navigate or reload.
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activate v3');
+  console.log('[SW] Activate v3 — no clients.claim() to avoid void-reset');
   event.waitUntil(
     caches.keys().then((names) =>
       Promise.all(names.filter(n => n !== CACHE_NAME).map(n => {
         console.log('[SW] Purging old cache:', n);
         return caches.delete(n);
       }))
-    ).then(() => self.clients.claim())
+    )
   );
 });
 
