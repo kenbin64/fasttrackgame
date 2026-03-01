@@ -598,12 +598,12 @@ const AIPlayerSubstrate = {
             
             // Use robot avatar
             avatarId: 'p_robot',
-            avatar: { emoji: '🤖', name: 'AI' },
+            avatar: { emoji: '🤖', name: 'Bot' },
             
             // Mock profile data
             guildId: null,
             guildName: null,
-            medallion: { id: 'ai', name: 'AI', emoji: '🤖', tier: 0 },
+            medallion: { id: 'ai', name: 'Bot', emoji: '🤖', tier: 0 },
             
             // Session stats (reset each game)
             sessionStats: {

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ButterflyFX — Dimensional Computing</title>
+  <meta name="description" content="Transform your apps with dimensional computing. Where geometric shapes hold data — not bits and bytes. 55+ apps, $8/month.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="substrate.css">
+</head>
+<body>
+
+  <!-- ═══ LAYER 1 · SPARK — Void canvases ═══ -->
+  <canvas id="hyperspace" data-layer="void"></canvas>
+  <canvas id="wireframe" data-layer="void"></canvas>
+
+  <!-- ═══ LAYER 2 · MIRROR — Floating geometry ═══ -->
+  <div class="mirror" aria-hidden="true">
+    <div class="mirror-tri"></div>
+    <div class="mirror-hex"></div>
+    <div class="mirror-tri"></div>
+    <div class="mirror-hex"></div>
+  </div>
+
+  <!-- ═══ LAYER 6 · MIND — Header ═══ -->
+  <header>
+    <a href="/" class="logo">
+      <img src="/static/image/butterflyLogo.png" alt="ButterflyFX">
+      <span>ButterflyFX</span>
+    </a>
+    <button class="burger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav>
+      <a href="apps.html">Apps</a>
+      <a href="games/fasttrack.html">Games</a>
+      <a href="platform.html">Platform</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="developer.html">Developers</a>
+      <a href="login.html">Log In</a>
+      <a href="register.html" class="cta">Get Started</a>
+    </nav>
+  </header>
+
+  <!-- Mobile drawer -->
+  <div class="drawer">
+    <div class="drawer-head">
+      <img src="/static/image/butterflyLogo.png" alt="ButterflyFX">
+      <button class="drawer-close" aria-label="Close">✕</button>
+    </div>
+    <nav>
+      <a href="apps.html">Apps</a>
+      <a href="games/fasttrack.html">Games</a>
+      <a href="platform.html">Platform</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="developer.html">Developers</a>
+      <a href="login.html">Log In</a>
+      <a href="register.html" class="cta">Get Started</a>
+    </nav>
+  </div>
+  <div class="overlay"></div>
+
+  <main>
+
+    <!-- ═══ LAYER 7 · COMPLETION — Hero ═══ -->
+    <section class="hero">
+      <h1><img src="/static/image/butterflyLogo.png" alt="" class="hero-logo"> ButterflyFX</h1>
+      <p class="tagline">Transform Your Apps with Dimensional Computing</p>
+      <p class="question">Where geometric shapes hold data — not bits and bytes</p>
+
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-icon">⚡</span>
+          <span class="stat-value">100×</span>
+          <span class="stat-label">Faster Processing</span>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">🔒</span>
+          <span class="stat-value">∞</span>
+          <span class="stat-label">Intrinsic Security</span>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">📈</span>
+          <span class="stat-value">7D</span>
+          <span class="stat-label">Scalability</span>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">✨</span>
+          <span class="stat-value">∞</span>
+          <span class="stat-label">Possibilities</span>
+        </div>
+      </div>
+
+      <!-- z=xy Manifold Visualization -->
+      <div class="manifold-showcase">
+        <div class="floating-data">
+          <span class="label">∫f(x)dx</span>
+          <span class="label">name: "car"</span>
+          <span class="label">wheels: 4</span>
+        </div>
+        <div class="manifold-viz">
+          <canvas id="manifoldCanvas"></canvas>
+        </div>
+        <div class="floating-data">
+          <span class="label">sin(θ) = opp/hyp</span>
+          <span class="label">color: #ff0000</span>
+          <span class="label">frequency: 440Hz</span>
+        </div>
+      </div>
+
+      <div class="legend">
+        <span><span class="g7">○</span> Circle → Pi</span>
+        <span><span class="g4">△</span> Triangle → Trigonometry</span>
+        <span>□ Square → Calculus</span>
+      </div>
+
+      <p class="philosophy">Shapes already contain data. A circle knows Pi. A triangle holds sin, cos, tan. A square embodies area.</p>
+      <p class="question">Why encode data as bits when it <em>already exists</em> inside <a href="#how-it-works">geometric dimensions</a>?</p>
+
+      <div class="paths">
+        <a href="#apps" class="path">
+          <span class="path-icon">🚀</span>
+          <div><strong>Enhanced Apps</strong><span class="path-hint">50+ dimensional superchargers</span></div>
+        </a>
+        <a href="#why" class="path">
+          <span class="path-icon">💎</span>
+          <div><strong>Why Dimensional?</strong><span class="path-hint">Efficiency · Security · Scale</span></div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ═══ Why Dimensional ═══ -->
+    <section id="why">
+      <h2>🔮 Why Dimensional Computing?</h2>
+      <p class="sub">The old way: translate everything into bits. The new way: let shapes be data.</p>
+      <div class="grid grid-4">
+        <div class="card reveal" data-genesis="1">
+          <span class="card-icon">⚡</span>
+          <h3>Extreme Efficiency</h3>
+          <p>No encoding overhead. Data IS the shape — computed at the speed of geometry.</p>
+          <div class="card-stat"><strong>100×</strong> <span>faster than JSON</span></div>
+        </div>
+        <div class="card reveal" data-genesis="2">
+          <span class="card-icon">🔒</span>
+          <h3>Intrinsic Security</h3>
+          <p>Data locked in dimensional manifolds. Exists as mathematical truth, not transmittable bits.</p>
+          <div class="card-stat"><strong>∞</strong> <span>encryption dimensions</span></div>
+        </div>
+        <div class="card reveal" data-genesis="3">
+          <span class="card-icon">📈</span>
+          <h3>Infinite Scalability</h3>
+          <p>Add dimensions, not servers. Each new dimension multiplies capacity exponentially.</p>
+          <div class="card-stat"><strong>7D</strong> <span>dimensional depth</span></div>
+        </div>
+        <div class="card reveal" data-genesis="4">
+          <span class="card-icon">✨</span>
+          <h3>Limitless Possibility</h3>
+          <p>Build apps impossible with traditional computing. Simulate physics, parallel universes — all native to shapes.</p>
+          <div class="card-stat"><strong>∞</strong> <span>creative freedom</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ The 7 Fibonacci Levels ═══ -->
+    <section id="how-it-works">
+      <h2>🌀 The Principles of Dimensional Creation</h2>
+      <p class="sub">Everything created follows the same <strong>7 levels of becoming</strong>.</p>
+
+      <div class="grid grid-7">
+        <div class="card reveal" data-genesis="1"><span class="card-icon">1</span><h4>The Spark</h4><p>Origin. A single point of existence.</p></div>
+        <div class="card reveal" data-genesis="2"><span class="card-icon">1</span><h4>The Mirror</h4><p>Duality. A second point creates direction.</p></div>
+        <div class="card reveal" data-genesis="3"><span class="card-icon">2</span><h4>The Relation</h4><p>Interaction. Points form structure.</p></div>
+        <div class="card reveal" data-genesis="4"><span class="card-icon">3</span><h4>The Form</h4><p>Shape. Structure becomes tangible.</p></div>
+        <div class="card reveal" data-genesis="5"><span class="card-icon">5</span><h4>The Life</h4><p>Meaning. Form gains intention.</p></div>
+        <div class="card reveal" data-genesis="6"><span class="card-icon">8</span><h4>The Mind</h4><p>Coherence. Meaning self-organizes.</p></div>
+        <div class="card reveal" data-genesis="7"><span class="card-icon">13</span><h4>The Completion</h4><p>Whole. The spiral returns to one.</p></div>
+      </div>
+
+      <p class="philosophy">1, 1, 2, 3, 5, 8, 13 — The Fibonacci sequence encodes the geometry of creation itself.</p>
+
+      <div class="grid grid-3">
+        <div class="card reveal">
+          <span class="card-icon">🎨</span>
+          <h4>The Artist's Path</h4>
+          <p>Spark of inspiration → Explore duality → Find relationships → Shape emerges → Meaning flows → Coherence develops → Masterpiece complete.</p>
+        </div>
+        <div class="card reveal">
+          <span class="card-icon">🏗️</span>
+          <h4>The Builder's Journey</h4>
+          <p>Foundation point → Opposite wall → Structural relation → Form takes shape → Purpose fills space → Systems harmonize → Home complete.</p>
+        </div>
+        <div class="card reveal">
+          <span class="card-icon">💻</span>
+          <h4>The Creator's Code</h4>
+          <p>Idea spark → Define scope → Build structure → Shape behaviors → Inject meaning → Self-organizing → Application complete.</p>
+        </div>
+      </div>
+
+      <div class="card reveal center core-principle">
+        <h3>✨ The Core Principle</h3>
+        <p class="core-text">Every dimension contains <strong>everything it is</strong> — not as stored data, but as inherent truth. You don't build completeness — you <strong>invoke</strong> what was always there. This applies to software. To art. To thought. To life itself.</p>
+      </div>
+
+      <div class="center cta-block">
+        <a href="#apps" class="cta">See It In Action →</a>
+      </div>
+    </section>
+
+    <!-- ═══ Enhanced Apps ═══ -->
+    <section id="apps">
+      <h2>🚀 Dimensionally Enhanced Apps</h2>
+      <p class="sub">Apps powered by geometric data — 100× faster, infinitely more capable.</p>
+
+      <div class="grid grid-3">
+        <a href="superchargers.html#data" class="card suite reveal">
+          <span class="suite-icon">💾</span>
+          <div><h3>Data Suite</h3><p>95% compression · Any format conversion · 10k file processing</p></div>
+          <span class="suite-count">6 apps</span>
+        </a>
+        <a href="superchargers.html#ai" class="card suite reveal">
+          <span class="suite-icon">🤖</span>
+          <div><h3>AI Suite</h3><p>10× better prompts · Custom training · Amplified writing</p></div>
+          <span class="suite-count">4 apps</span>
+        </a>
+        <a href="superchargers.html#career" class="card suite reveal">
+          <span class="suite-icon">💼</span>
+          <div><h3>Career Suite</h3><p>23% callback resume · 50 apps/hour · Land that promotion</p></div>
+          <span class="suite-count">4 apps</span>
+        </a>
+        <a href="superchargers.html#money" class="card suite reveal">
+          <span class="suite-icon">💰</span>
+          <div><h3>Money Suite</h3><p>Find $847/yr hidden fees · Optimize portfolio · Auto-budget</p></div>
+          <span class="suite-count">3 apps</span>
+        </a>
+        <a href="superchargers.html#media" class="card suite reveal">
+          <span class="suite-icon">🎵</span>
+          <div><h3>Media Suite</h3><p>4K upscale · Karaoke maker · Remove any instrument</p></div>
+          <span class="suite-count">6 apps</span>
+        </a>
+        <a href="superchargers.html#life" class="card suite reveal">
+          <span class="suite-icon">✨</span>
+          <div><h3>Life Suite</h3><p>73% goal completion · 4 hrs focus/day · Wellness tracked</p></div>
+          <span class="suite-count">3 apps</span>
+        </a>
+      </div>
+
+      <div class="center cta-block">
+        <a href="superchargers.html" class="cta">See All 50+ Superchargers with Proof →</a>
+      </div>
+    </section>
+
+    <!-- ═══ Try Now ═══ -->
+    <section id="try">
+      <h2>🔥 Try Now — No Sign-up</h2>
+      <p class="sub">See the speed for yourself. These work instantly.</p>
+
+      <div class="grid grid-3">
+        <a href="/turbo/convert/" class="card reveal">
+          <span class="badge">1 click</span>
+          <span class="card-icon">🔄</span>
+          <h3>Data Converter</h3>
+          <p>JSON ↔ CSV ↔ XML ↔ YAML ↔ SQL. Any format to any format, instantly.</p>
+          <span class="try-label">Try Now →</span>
+        </a>
+        <a href="/turbo/bulk/" class="card reveal">
+          <span class="badge">1000× faster</span>
+          <span class="card-icon">📦</span>
+          <h3>Bulk Processor</h3>
+          <p>Rename, convert, resize, or transform 1000 files at once.</p>
+          <span class="try-label">Try Now →</span>
+        </a>
+        <a href="/turbo/prompt/" class="card reveal">
+          <span class="badge">instant</span>
+          <span class="card-icon">💬</span>
+          <h3>Prompt Turbo</h3>
+          <p>Slide to your perfect AI prompt. Purpose × Style × Length = exactly what you need.</p>
+          <span class="try-label">Try Now →</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ═══ More Apps ═══ -->
+    <section>
+      <h2>More Apps</h2>
+      <p class="sub">The full toolkit — 55+ apps for $8/month</p>
+
+      <div class="grid grid-3">
+        <a href="/uhd/" class="card reveal">
+          <span class="card-icon">💾</span>
+          <h3>Universal Hard Drive</h3>
+          <p>Browse files, APIs, databases, and cloud storage like they're all on your desktop.</p>
+          <span class="try-label">Try Now →</span>
+        </a>
+        <a href="/connector/" class="card reveal">
+          <span class="card-icon">🔌</span>
+          <h3>Universal Connector</h3>
+          <p>Connect to 100+ APIs with one click. Weather, crypto, news, stocks — all in one place.</p>
+          <span class="try-label">Try Now →</span>
+        </a>
+        <a href="/helix/" class="card reveal">
+          <span class="card-icon">🗄️</span>
+          <h3>Helix Database</h3>
+          <p>A database that works like exploring folders. No SQL, no queries, just navigate.</p>
+          <span class="try-label">Try Now →</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ═══ Use Cases ═══ -->
+    <section>
+      <h2>People Like You Are Using ButterflyFX</h2>
+      <div class="grid grid-4">
+        <div class="card reveal">
+          <span class="emoji">👨‍💻</span>
+          <h4>Developers</h4>
+          <p>"I connected 12 APIs in 10 minutes. No code, no tokens, just click."</p>
+        </div>
+        <div class="card reveal">
+          <span class="emoji">📊</span>
+          <h4>Data Analysts</h4>
+          <p>"I browse my databases like folders now. No more writing SQL."</p>
+        </div>
+        <div class="card reveal">
+          <span class="emoji">✍️</span>
+          <h4>Content Creators</h4>
+          <p>"Prompt Forge cut my AI prompt time from 10 minutes to 10 seconds."</p>
+        </div>
+        <div class="card reveal">
+          <span class="emoji">🏢</span>
+          <h4>Small Business</h4>
+          <p>"All our apps, files, and data — one place, one price."</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Pricing CTA ═══ -->
+    <section class="pricing-cta">
+      <h2>$8/month. All 55+ apps. No limits.</h2>
+      <p>That's less than a single enterprise software license. Forever.</p>
+      <a href="pricing.html" class="cta">See What's Included →</a>
+    </section>
+
+    <!-- ═══ Branch Links ═══ -->
+    <div class="branches">
+      <a href="products.html" class="branch">
+        <span>🚀</span>
+        <h3>All Apps</h3>
+        <p>Browse the complete catalog</p>
+      </a>
+      <a href="how-it-works.html" class="branch">
+        <span>◇</span>
+        <h3>How It Works</h3>
+        <p>For the curious (optional!)</p>
+      </a>
+    </div>
+  </main>
+
+  <!-- ═══ How It Works Overlay ═══ -->
+  <button class="hiw-toggle"><span>◇</span> How It Works</button>
+
+  <div class="hiw-panel">
+    <button class="close">✕</button>
+    <div class="center">
+      <h2>How Dimensional Computing Works</h2>
+      <p class="sub">Shapes hold data. Dimensions hold meaning. Objects exist complete.</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-section="substrate">🌊 Substrate</button>
+      <button class="tab" data-section="manifold">◇ Manifold</button>
+      <button class="tab" data-section="dimensions">📐 Dimensions</button>
+      <button class="tab" data-section="principles">💡 Principles</button>
+    </div>
+
+    <div class="tab-content active" id="section-substrate">
+      <h3>The Substrate — Mathematical Foundation</h3>
+      <p>Before objects exist, there is the <strong>substrate</strong> — a pure mathematical geometry (like z = xy) that contains all possible values. Objects are <em>ingested</em> from the substrate.</p>
+      <div class="grid grid-3">
+        <div class="card"><span class="card-icon">🌐</span><h4>Substrate2D</h4><p>A 2D coordinate space where x and y combine to produce any value.</p></div>
+        <div class="card"><span class="card-icon">🔮</span><h4>Value Ingestion</h4><p>Point at coordinates, get the value instantly. O(1) access to any data.</p></div>
+        <div class="card"><span class="card-icon">🎨</span><h4>Multiple Lenses</h4><p>Same geometry, different interpretations. Color lens, sound lens, value lens.</p></div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="section-manifold">
+      <h3>The Manifold — Shape-Based Computing</h3>
+      <p>The <strong>manifold</strong> is where shapes become data structures. Every geometric form maps directly to computational patterns.</p>
+      <div class="grid grid-3">
+        <div class="card"><span class="card-icon">◇</span><h4>Geometric Data</h4><p>A line is a range query. A surface is a lookup table. Shape IS data.</p></div>
+        <div class="card"><span class="card-icon">⚡</span><h4>O(1) Access</h4><p>Calculate the coordinate, get the value. 10×-1000× faster than traditional.</p></div>
+        <div class="card"><span class="card-icon">🔗</span><h4>Manifold Linking</h4><p>Manifolds connect to each other, creating complex data pipelines without wiring.</p></div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="section-dimensions">
+      <h3>Genesis — The Seven Layers of Creation</h3>
+      <p>Seven Genesis layers unfold from Potential through Null (0D) to Manifest.</p>
+      <div class="grid grid-7">
+        <div class="card" data-genesis="1"><h4>✦ Spark</h4><p>Identity emerges from Potential.</p></div>
+        <div class="card" data-genesis="2"><h4>◐ Mirror</h4><p>Duality appears. Self-awareness through contrast.</p></div>
+        <div class="card" data-genesis="3"><h4>△ Relation</h4><p>Two points create a line, a gradient, a range.</p></div>
+        <div class="card" data-genesis="4"><h4>⬡ Form</h4><p>The saddle surface z=xy — shape IS data.</p></div>
+        <div class="card" data-genesis="5"><h4>🌀 Life</h4><p>Volume gains motion. The golden spiral breathes.</p></div>
+        <div class="card" data-genesis="6"><h4>🧠 Mind</h4><p>Networks form. Awareness of the whole.</p></div>
+        <div class="card" data-genesis="7"><h4>∞ Completion</h4><p>Layer 7 becomes Layer 1 of the next spiral.</p></div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="section-principles">
+      <h3>The Principles</h3>
+      <p>Foundational ideas that drive dimensional computing.</p>
+      <div class="grid grid-4">
+        <div class="card"><span class="card-icon">🆔</span><h4>Identity-First</h4><p>Identity precedes objects. A car's UUID exists before wheels appear.</p></div>
+        <div class="card"><span class="card-icon">🌀</span><h4>No Iteration</h4><p>Jump to the destination. O(7) per spiral, not O(N).</p></div>
+        <div class="card"><span class="card-icon">∞</span><h4>Lazy Existence</h4><p>All exists. Nothing manifests until invoked.</p></div>
+        <div class="card"><span class="card-icon">🔢</span><h4>Fibonacci Structure</h4><p>7 levels: 0, 1, 1, 2, 3, 5, 8. The Holy Grail transition.</p></div>
+      </div>
+    </div>
+
+    <div class="quick-links">
+      <a href="start-here.html">🚀 Start Here</a>
+      <a href="genesis.html">⚖️ Genesis</a>
+      <a href="platform.html">🧬 Platform</a>
+      <a href="developer.html">👨‍💻 Developers</a>
+      <a href="benchmarks.html">📊 Benchmarks</a>
+      <a href="documents.html">📚 All Docs</a>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2024 ButterflyFX — Dimensional Computing</p>
+  </footer>
+
+  <!-- Behavior dimension — pure JS, separate file -->
+  <script src="behavior.js"></script>
+</body>
+</html>

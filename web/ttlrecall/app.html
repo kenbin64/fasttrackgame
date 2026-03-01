@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTL Recall - AI That Never Forgets</title>
+    <meta name="description" content="Chat with an AI that remembers everything. Perfect memory, zero hallucinations, dimensional interface.">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --success: #10b981;
+            --bg: #ffffff;
+            --bg-secondary: #f9fafb;
+            --border: #e5e7eb;
+            --text: #111827;
+            --text-light: #6b7280;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            overflow: hidden;
+        }
+        
+        /* App Container */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+        
+        /* Memory Sidebar (Layer 2) - Hidden by default */
+        .memory-sidebar {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 10;
+            box-shadow: 2px 0 10px var(--shadow);
+        }
+        
+        .memory-sidebar.visible {
+            transform: translateX(0);
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+        }
+        
+        .sidebar-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        
+        .sidebar-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        
+        .memory-search {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .memory-search input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .memory-search input:focus {
+            border-color: var(--primary);
+        }
+        
+        .memory-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .memory-section {
+            margin-bottom: 24px;
+        }
+        
+        .memory-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .memory-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: var(--bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .memory-item:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+        
+        .memory-content {
+            font-size: 0.9rem;
+            color: var(--text);
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        
+        .memory-meta {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .memory-layer {
+            background: var(--primary-light);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        /* Main Chat Area (Layer 1) */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+        }
+        
+        /* Header */
+        .chat-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .menu-btn {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: var(--text);
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .menu-btn:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .app-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .memory-count {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            padding: 6px 12px;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        
+        .download-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .download-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        /* Messages Area */
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 80%;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        
+        .message.user .message-avatar {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .message.ai .message-avatar {
+            background: var(--success);
+            color: white;
+        }
+        
+        .message-content {
+            flex: 1;
+        }
+        
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.5;
+        }
+        
+        .message.user .message-bubble {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message.ai .message-bubble {
+            background: var(--bg-secondary);
+            color: var(--text);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message-meta {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 4px;
+            padding: 0 4px;
+        }
+        
+        .memory-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        /* Welcome Message */
+        .welcome-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+        
+        .welcome-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+        
+        .welcome-subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+        
+        .welcome-features {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+        }
+        
+        .welcome-feature {
+            text-align: center;
+        }
+        
+        .welcome-feature-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        
+        .welcome-feature-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        /* Input Area */
+        .input-container {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+        
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .input-box {
+            flex: 1;
+            position: relative;
+        }
+        
+        .input-box textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s;
+            min-height: 52px;
+            max-height: 200px;
+        }
+        
+        .input-box textarea:focus {
+            border-color: var(--primary);
+        }
+        
+        .input-hint {
+            position: absolute;
+            bottom: -24px;
+            left: 4px;
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+        
+        .send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 52px;
+        }
+        
+        .send-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-light);
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+        
+        /* Command Palette (Cmd+K) */
+        .command-palette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 100px;
+            z-index: 100;
+        }
+        
+        .command-palette.visible {
+            display: flex;
+        }
+        
+        .command-palette-content {
+            background: var(--bg);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 600px;
+            max-width: 90vw;
+            max-height: 70vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .command-search {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .command-search input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            font-size: 1.1rem;
+            outline: none;
+        }
+        
+        .command-list {
+            overflow-y: auto;
+            padding: 8px;
+        }
+        
+        .command-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: background 0.2s;
+        }
+        
+        .command-item:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .command-icon {
+            font-size: 1.2rem;
+        }
+        
+        .command-text {
+            flex: 1;
+        }
+        
+        .command-title {
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        .command-description {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        
+        .command-shortcut {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            background: var(--bg-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .memory-sidebar {
+                width: 100%;
+            }
+            
+            .message {
+                max-width: 95%;
+            }
+            
+            .welcome-features {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Memory Sidebar (Layer 2) -->
+        <div class="memory-sidebar" id="memorySidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Your Memories</div>
+                <div class="sidebar-subtitle">Everything I remember about you</div>
+            </div>
+            
+            <div class="memory-search">
+                <input type="text" placeholder="Search memories..." id="memorySearch">
+            </div>
+            
+            <div class="memory-list" id="memoryList">
+                <div class="memory-section">
+                    <div class="memory-section-title">Recent</div>
+                    <div class="memory-item">
+                        <div class="memory-content">You're a software engineer interested in dimensional computing</div>
+                        <div class="memory-meta">
+                            <span class="memory-layer">Layer 1</span>
+                            <span>2 minutes ago</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="memory-section">
+                    <div class="memory-section-title">About You</div>
+                    <div class="memory-item">
+                        <div class="memory-content">Working on Python projects</div>
+                        <div class="memory-meta">
+                            <span class="memory-layer">Layer 4</span>
+                            <span>1 day ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Chat Container (Layer 1) -->
+        <div class="chat-container">
+            <!-- Header -->
+            <div class="chat-header">
+                <div class="header-left">
+                    <button class="menu-btn" id="menuBtn" title="Toggle memories">☰</button>
+                    <div class="app-title">TTL Recall</div>
+                </div>
+                <div class="header-right">
+                    <div class="memory-count" id="memoryCount">0 memories</div>
+                    <button class="download-btn" id="downloadBtn">
+                        <span>⬇</span>
+                        <span>Download App</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Messages -->
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome-message">
+                    <div class="welcome-icon">🧠</div>
+                    <div class="welcome-title">Welcome to TTL Recall</div>
+                    <div class="welcome-subtitle">AI that never forgets. Start chatting below.</div>
+                    
+                    <div class="welcome-features">
+                        <div class="welcome-feature">
+                            <div class="welcome-feature-icon">∞</div>
+                            <div class="welcome-feature-text">Perfect Memory</div>
+                        </div>
+                        <div class="welcome-feature">
+                            <div class="welcome-feature-icon">⚡</div>
+                            <div class="welcome-feature-text">Instant Recall</div>
+                        </div>
+                        <div class="welcome-feature">
+                            <div class="welcome-feature-icon">✓</div>
+                            <div class="welcome-feature-text">Zero Hallucinations</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Input Area -->
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <div class="input-box">
+                        <textarea 
+                            id="messageInput" 
+                            placeholder="Ask me anything... I'll remember it forever."
+                            rows="1"
+                        ></textarea>
+                        <div class="input-hint">Press Cmd+K for quick actions</div>
+                    </div>
+                    <button class="send-btn" id="sendBtn">
+                        <span>Send</span>
+                        <span>→</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Command Palette -->
+    <div class="command-palette" id="commandPalette">
+        <div class="command-palette-content">
+            <div class="command-search">
+                <input type="text" placeholder="Search commands..." id="commandSearch">
+            </div>
+            <div class="command-list">
+                <div class="command-item" data-action="new-chat">
+                    <div class="command-icon">💬</div>
+                    <div class="command-text">
+                        <div class="command-title">New Conversation</div>
+                        <div class="command-description">Start a fresh chat</div>
+                    </div>
+                </div>
+                <div class="command-item" data-action="search-memories">
+                    <div class="command-icon">🔍</div>
+                    <div class="command-text">
+                        <div class="command-title">Search Memories</div>
+                        <div class="command-description">Find what I remember</div>
+                    </div>
+                </div>
+                <div class="command-item" data-action="explore-3d">
+                    <div class="command-icon">🌀</div>
+                    <div class="command-text">
+                        <div class="command-title">Explore 3D Memory Space</div>
+                        <div class="command-description">Visualize your memories</div>
+                    </div>
+                </div>
+                <div class="command-item" data-action="download">
+                    <div class="command-icon">⬇</div>
+                    <div class="command-text">
+                        <div class="command-title">Download Desktop App</div>
+                        <div class="command-description">Use offline, save resources</div>
+                    </div>
+                </div>
+                <div class="command-item" data-action="export">
+                    <div class="command-icon">📤</div>
+                    <div class="command-text">
+                        <div class="command-title">Export Data</div>
+                        <div class="command-description">Download all your memories</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let memories = [];
+        let messages = [];
+        let isTyping = false;
+        
+        // Elements
+        const menuBtn = document.getElementById('menuBtn');
+        const memorySidebar = document.getElementById('memorySidebar');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const memoryCount = document.getElementById('memoryCount');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const commandPalette = document.getElementById('commandPalette');
+        
+        // Toggle sidebar
+        menuBtn.addEventListener('click', () => {
+            memorySidebar.classList.toggle('visible');
+        });
+        
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+        });
+        
+        // Send message
+        async function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text || isTyping) return;
+            
+            // Add user message
+            addMessage('user', text);
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            
+            // Show typing indicator
+            isTyping = true;
+            showTypingIndicator();
+            
+            // Simulate AI response (replace with actual API call)
+            setTimeout(() => {
+                hideTypingIndicator();
+                const response = generateResponse(text);
+                addMessage('ai', response);
+                isTyping = false;
+                
+                // Store memory
+                storeMemory(text);
+            }, 1500);
+        }
+        
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Add message to chat
+        function addMessage(type, text) {
+            const welcomeMsg = messagesContainer.querySelector('.welcome-message');
+            if (welcomeMsg) {
+                welcomeMsg.remove();
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const avatar = type === 'user' ? 'You' : 'AI';
+            const avatarInitial = avatar[0];
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatarInitial}</div>
+                <div class="message-content">
+                    <div class="message-bubble">${text}</div>
+                    <div class="message-meta">
+                        ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        ${type === 'ai' ? '<span class="memory-hint">✓ Remembered</span>' : ''}
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            messages.push({ type, text, timestamp: Date.now() });
+        }
+        
+        // Typing indicator
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message ai';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">AI</div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+        }
+        
+        // Generate AI response (placeholder)
+        function generateResponse(userMessage) {
+            const responses = [
+                "I understand. I've stored that in my memory and will remember it forever.",
+                "That's interesting! I'll keep that in mind for our future conversations.",
+                "Got it! I've added that to what I know about you.",
+                "Thanks for sharing. I'll remember this context for next time.",
+            ];
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+        
+        // Store memory
+        function storeMemory(text) {
+            memories.push({
+                content: text,
+                timestamp: Date.now(),
+                layer: 1
+            });
+            updateMemoryCount();
+        }
+        
+        // Update memory count
+        function updateMemoryCount() {
+            memoryCount.textContent = `${memories.length} ${memories.length === 1 ? 'memory' : 'memories'}`;
+        }
+        
+        // Command palette
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                commandPalette.classList.toggle('visible');
+            }
+            if (e.key === 'Escape') {
+                commandPalette.classList.remove('visible');
+            }
+        });
+        
+        commandPalette.addEventListener('click', (e) => {
+            if (e.target === commandPalette) {
+                commandPalette.classList.remove('visible');
+            }
+        });
+        
+        // Command actions
+        document.querySelectorAll('.command-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const action = item.dataset.action;
+                handleCommand(action);
+                commandPalette.classList.remove('visible');
+            });
+        });
+        
+        function handleCommand(action) {
+            switch(action) {
+                case 'new-chat':
+                    if (confirm('Start a new conversation? Current chat will be saved.')) {
+                        messages = [];
+                        messagesContainer.innerHTML = '<div class="welcome-message"><div class="welcome-icon">🧠</div><div class="welcome-title">New Conversation</div><div class="welcome-subtitle">What would you like to talk about?</div></div>';
+                    }
+                    break;
+                case 'search-memories':
+                    memorySidebar.classList.add('visible');
+                    document.getElementById('memorySearch').focus();
+                    break;
+                case 'explore-3d':
+                    alert('3D Memory Visualization coming soon!');
+                    break;
+                case 'download':
+                    window.location.href = '/download';
+                    break;
+                case 'export':
+                    exportData();
+                    break;
+            }
+        }
+        
+        // Download app
+        downloadBtn.addEventListener('click', () => {
+            window.location.href = '/download';
+        });
+        
+        // Export data
+        function exportData() {
+            const data = {
+                memories,
+                messages,
+                exportDate: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ttlrecall-export-${Date.now()}.json`;
+            a.click();
+        }
+        
+        // Initialize
+        updateMemoryCount();
+    </script>
+</body>
+</html>

@@ -136,6 +136,21 @@ body {
     pointer-events: none;
 }
 
+#bg-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(0, 0, 0, 0.1) 0%,
+        rgba(0, 0, 0, 0.3) 100%
+    );
+}
+
 .particles {
     position: fixed;
     top: 0;
@@ -369,7 +384,7 @@ nav {
     text-align: center;
     padding: var(--fib-34) var(--fib-8) var(--fib-21);
     position: relative;
-    z-index: 1;
+    z-index: 10;
 }
 
 .hero-badge {

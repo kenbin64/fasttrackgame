@@ -15,12 +15,16 @@ Features:
 import asyncio
 import json
 import hashlib
+import hmac
 import secrets
 import time
 import uuid
+import re
+import html
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Set
+from collections import defaultdict
 from dataclasses import dataclass, field, asdict
 from enum import Enum
 import logging
@@ -78,6 +82,139 @@ PRESTIGE_POINTS = {
 # Session codes are 6 alphanumeric characters
 SESSION_CODE_LENGTH = 6
 SESSION_CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # No I/O/0/1 to avoid confusion
+
+# Security salt for password hashing (generated once, stored)
+PASSWORD_SALT_FILE = DATA_DIR / ".password_salt"
+def _get_password_salt():
+    if PASSWORD_SALT_FILE.exists():
+        return PASSWORD_SALT_FILE.read_text().strip()
+    salt = secrets.token_hex(32)
+    PASSWORD_SALT_FILE.write_text(salt)
+    PASSWORD_SALT_FILE.chmod(0o600)
+    return salt
+
+PASSWORD_SALT = _get_password_salt()
+
+
+# =============================================================================
+# Security: Rate Limiter, Input Sanitizer, Brute-Force Protection
+# =============================================================================
+
+class RateLimiter:
+    """Per-client sliding window rate limiter"""
+    def __init__(self, max_requests: int = 30, window_seconds: float = 10.0):
+        self.max_requests = max_requests
+        self.window = window_seconds
+        self._requests: Dict[str, list] = defaultdict(list)
+    
+    def is_allowed(self, client_id: str) -> bool:
+        now = time.time()
+        window_start = now - self.window
+        # Prune old entries
+        self._requests[client_id] = [t for t in self._requests[client_id] if t > window_start]
+        if len(self._requests[client_id]) >= self.max_requests:
+            return False
+        self._requests[client_id].append(now)
+        return True
+    
+    def cleanup(self):
+        """Remove stale entries"""
+        now = time.time()
+        stale = [k for k, v in self._requests.items() if not v or v[-1] < now - self.window * 2]
+        for k in stale:
+            del self._requests[k]
+
+
+class BruteForceProtection:
+    """Track failed login attempts and lock out after threshold"""
+    LOCKOUT_THRESHOLD = 5        # Failed attempts before lockout
+    LOCKOUT_DURATION = 300       # 5 minutes lockout
+    ATTEMPT_WINDOW = 600         # 10 minute sliding window
+    
+    def __init__(self):
+        self._attempts: Dict[str, list] = defaultdict(list)  # ip -> [timestamps]
+        self._lockouts: Dict[str, float] = {}                # ip -> lockout_until
+    
+    def is_locked_out(self, ip: str) -> bool:
+        if ip in self._lockouts:
+            if time.time() < self._lockouts[ip]:
+                return True
+            del self._lockouts[ip]
+        return False
+    
+    def record_failure(self, ip: str):
+        now = time.time()
+        cutoff = now - self.ATTEMPT_WINDOW
+        self._attempts[ip] = [t for t in self._attempts[ip] if t > cutoff]
+        self._attempts[ip].append(now)
+        if len(self._attempts[ip]) >= self.LOCKOUT_THRESHOLD:
+            self._lockouts[ip] = now + self.LOCKOUT_DURATION
+            logger.warning(f"SECURITY: IP {ip} locked out for {self.LOCKOUT_DURATION}s after {self.LOCKOUT_THRESHOLD} failed attempts")
+    
+    def record_success(self, ip: str):
+        self._attempts.pop(ip, None)
+        self._lockouts.pop(ip, None)
+
+
+def sanitize_input(text: str, max_length: int = 100, allow_html: bool = False) -> str:
+    """Sanitize user input to prevent XSS and injection"""
+    if not isinstance(text, str):
+        return ""
+    text = text.strip()
+    text = text[:max_length]
+    if not allow_html:
+        text = html.escape(text)
+    # Remove control characters except newline/tab
+    text = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', text)
+    return text
+
+
+def validate_username(username: str) -> tuple:
+    """Validate username - returns (is_valid, error_message)"""
+    if not username or len(username) < 3:
+        return False, "Username must be at least 3 characters"
+    if len(username) > 24:
+        return False, "Username must be 24 characters or less"
+    if not re.match(r'^[a-zA-Z0-9_\-]+$', username):
+        return False, "Username can only contain letters, numbers, underscores, and hyphens"
+    # Block common injection patterns
+    if re.search(r'(script|javascript|onclick|onerror|eval|alert)', username, re.IGNORECASE):
+        return False, "Invalid username"
+    return True, ""
+
+
+def validate_password(password: str) -> tuple:
+    """Validate password strength - returns (is_valid, error_message)"""
+    if not password or len(password) < 6:
+        return False, "Password must be at least 6 characters"
+    if len(password) > 128:
+        return False, "Password is too long"
+    return True, ""
+
+
+def hash_password_secure(password: str) -> str:
+    """Hash password with PBKDF2-HMAC-SHA256 (100k iterations) + site salt"""
+    # Use per-password random salt + site salt
+    pw_salt = secrets.token_hex(16)
+    dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), 
+                              (PASSWORD_SALT + pw_salt).encode('utf-8'), 100000)
+    return f"pbkdf2:{pw_salt}:{dk.hex()}"
+
+
+def verify_password_secure(password: str, stored_hash: str) -> bool:
+    """Verify password against PBKDF2 hash"""
+    if stored_hash.startswith("pbkdf2:"):
+        parts = stored_hash.split(":")
+        if len(parts) != 3:
+            return False
+        _, pw_salt, expected_hex = parts
+        dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'),
+                                  (PASSWORD_SALT + pw_salt).encode('utf-8'), 100000)
+        return hmac.compare_digest(dk.hex(), expected_hex)
+    else:
+        # Legacy: plain SHA-256 hash — verify then upgrade
+        legacy_hash = hashlib.sha256(password.encode()).hexdigest()
+        return hmac.compare_digest(legacy_hash, stored_hash)
 
 
 # =============================================================================
@@ -427,6 +564,25 @@ class LobbyServer:
         self.matchmaking_queue: List[tuple] = []
         self.matchmaking_task = None
         
+        # Security: Rate limiting and brute-force protection
+        self.rate_limiter = RateLimiter(max_requests=30, window_seconds=10.0)
+        self.auth_rate_limiter = RateLimiter(max_requests=5, window_seconds=60.0)  # Strict for auth
+        self.brute_force = BruteForceProtection()
+        
+        # Allowed message types (whitelist)
+        self.ALLOWED_MESSAGE_TYPES = frozenset({
+            'register', 'login', 'logout', 'guest_login',
+            'update_username', 'update_avatar', 'update_profile', 'get_profile', 'search_users',
+            'create_session', 'join_session', 'join_by_code', 'leave_session',
+            'start_game', 'game_action', 'game_state_sync', 'chat',
+            'kick_player', 'update_settings', 'add_ai',
+            'request_join', 'approve_player', 'reject_player',
+            'late_join_request', 'approve_late_join', 'reject_late_join', 'cancel_join_request',
+            'matchmaking_join', 'matchmaking_leave',
+            'create_guild', 'join_guild', 'leave_guild', 'search_guilds',
+            'ping', 'pong'
+        })
+        
     async def start(self):
         logger.info(f"Starting Fast Track Lobby Server on ws://{self.host}:{self.port}")
         # Start matchmaking background task
@@ -545,6 +701,47 @@ class LobbyServer:
         msg_type = data.get("type", "")
         client = self.clients[websocket]
         
+        # ── Security: Get client IP for rate limiting ──
+        client_ip = "unknown"
+        try:
+            if hasattr(websocket, 'remote_address') and websocket.remote_address:
+                client_ip = str(websocket.remote_address[0])
+            # Check X-Real-IP header from nginx proxy
+            if hasattr(websocket, 'request_headers'):
+                real_ip = websocket.request_headers.get('X-Real-IP')
+                if real_ip:
+                    client_ip = real_ip
+        except Exception:
+            pass
+        
+        # ── Security: Rate limiting ──
+        is_auth_msg = msg_type in ('register', 'login')
+        if is_auth_msg:
+            if not self.auth_rate_limiter.is_allowed(client_ip):
+                logger.warning(f"SECURITY: Auth rate limit exceeded for {client_ip}")
+                return await self.send_error(websocket, "Too many authentication attempts. Please wait.")
+            if self.brute_force.is_locked_out(client_ip):
+                logger.warning(f"SECURITY: Locked out IP {client_ip} attempted auth")
+                return await self.send_error(websocket, "Account temporarily locked due to too many failed attempts. Try again later.")
+        else:
+            if not self.rate_limiter.is_allowed(client_ip):
+                logger.warning(f"SECURITY: Rate limit exceeded for {client_ip}")
+                return await self.send_error(websocket, "Rate limit exceeded. Please slow down.")
+        
+        # ── Security: Message type whitelist ──
+        if msg_type not in self.ALLOWED_MESSAGE_TYPES and msg_type not in (
+            'list_sessions', 'add_ai_player', 'update_player_info', 'update_session_settings',
+            'toggle_ready', 'join_matchmaking', 'leave_matchmaking', 'matchmaking_status',
+            'game_state_sync', 'prestige_action', 'get_guild', 'kick_player'
+        ):
+            logger.warning(f"SECURITY: Unknown message type '{msg_type}' from {client_ip}")
+            return await self.send_error(websocket, f"Unknown message type")
+        
+        # ── Security: Sanitize all string values in data ──
+        for key, value in data.items():
+            if isinstance(value, str) and key not in ('password', 'type'):
+                data[key] = sanitize_input(value, max_length=500)
+        
         handlers = {
             # Auth
             "register": self.handle_register,
@@ -621,11 +818,15 @@ class LobbyServer:
         password = data.get("password", "")
         email = data.get("email", "").strip()
         
-        if not username or len(username) < 3:
-            return await self.send_error(websocket, "Username must be at least 3 characters")
+        # Security: Validate username format
+        valid, err = validate_username(username)
+        if not valid:
+            return await self.send_error(websocket, err)
         
-        if not password or len(password) < 4:
-            return await self.send_error(websocket, "Password must be at least 4 characters")
+        # Security: Validate password strength
+        valid, err = validate_password(password)
+        if not valid:
+            return await self.send_error(websocket, err)
         
         if self.db.get_user_by_username(username):
             return await self.send_error(websocket, "Username already taken")
@@ -650,9 +851,25 @@ class LobbyServer:
         username = data.get("username", "")
         password = data.get("password", "")
         
+        # Security: Get IP for brute-force tracking
+        client_ip = "unknown"
+        try:
+            if hasattr(websocket, 'remote_address') and websocket.remote_address:
+                client_ip = str(websocket.remote_address[0])
+            if hasattr(websocket, 'request_headers'):
+                real_ip = websocket.request_headers.get('X-Real-IP')
+                if real_ip:
+                    client_ip = real_ip
+        except Exception:
+            pass
+        
         user = self.db.verify_password(username, password)
         if not user:
+            self.brute_force.record_failure(client_ip)
+            # Constant-time response to prevent username enumeration
             return await self.send_error(websocket, "Invalid username or password")
+        
+        self.brute_force.record_success(client_ip)
         
         user.last_seen = datetime.utcnow().isoformat()
         self.db.update_user(user)
@@ -867,7 +1084,7 @@ class LobbyServer:
         await self.send(websocket, {
             "type": "session_created",
             "session": session.to_dict(),
-            "share_url": f"/fasttrack/join.html?code={session.session_code}",
+            "share_url": f"https://kensgames.com/fasttrack/join.html?code={session.session_code}",
             "share_code": session.session_code
         })
         

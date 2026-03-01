@@ -398,6 +398,11 @@ window.GameInit = (function() {
                 // Update GameUIMinimal
                 if (window.GameUIMinimal) {
                     window.GameUIMinimal.setCurrentPlayer(player, playerIdx);
+                    // Enlarge deck when it's time to draw
+                    if (typeof window.GameUIMinimal.setDeckDrawReady === 'function') {
+                        log('Enlarging GameUIMinimal deck for draw phase');
+                        window.GameUIMinimal.setDeckDrawReady(true);
+                    }
                 }
                 
                 log('==========================================');

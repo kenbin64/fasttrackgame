@@ -5,6 +5,8 @@
 const FastTrackThemes = {
     currentTheme: null,
     backdropLayers: [],
+    // Global multiplier to scale backdrop motion. Set to 0 to freeze movement, <1 to slow.
+    motionScale: 1.0,
     _sceneObjects: [],  // All objects added to scene by themes
     spectators: [], // For interactive themes like Colosseum
     crowdState: 'idle', // idle, cheering, booing, excited
@@ -122,6 +124,23 @@ const FastTrackThemes = {
             playerNames: ['Gold', 'Sunflower', 'Amber', 'Nautilus', 'Bronze', 'Cream'],
             holeColor: 0x0d0906,        // Near black with warm tint
             bullseyeColor: 0xffd700     // Pure gold for the spiral center
+        },
+        // VR Immersive theme - 4D realistic cosmic environments
+        vr_immersive: {
+            boardColor: 0x1a1a2e,
+            boardRoughness: 0.2,
+            boardMetalness: 0.7,
+            playerColors: [
+                0xff6b6b,  // Cosmic red
+                0x4ecdc4,  // Teal nebula
+                0xffe66d,  // Solar yellow
+                0xa8e6cf,  // Mint aurora
+                0xff8fab,  // Pink supernova
+                0x95e1d3   // Aqua galaxy
+            ],
+            playerNames: ['Cosmic', 'Nebula', 'Solar', 'Aurora', 'Nova', 'Galaxy'],
+            holeColor: 0x0a0a1e,
+            bullseyeColor: 0xffffff
         }
     },
     
@@ -228,17 +247,25 @@ const FastTrackThemes = {
             
             // Ensure all backdrop/theme objects render behind the board and pegs
             // Board renderOrder=1, Pegs renderOrder=2, so backdrop must be 0 or below
+            const BOARD_SAFE_ZONE = 400; // Minimum distance from origin to prevent overlap
+            
             this._sceneObjects.forEach(obj => {
                 obj.renderOrder = -1;
+                
+                // Enforce minimum distance from board center to prevent wandering into view
+                const currentDist = Math.sqrt(obj.position.x ** 2 + obj.position.z ** 2);
+                if (currentDist < BOARD_SAFE_ZONE && currentDist > 0) {
+                    const scale = BOARD_SAFE_ZONE / currentDist;
+                    obj.position.x *= scale;
+                    obj.position.z *= scale;
+                    console.log(`[Theme] Pushed backdrop element to safe distance: ${currentDist.toFixed(0)} -> ${BOARD_SAFE_ZONE}`);
+                }
+                
                 if (obj.traverse) {
                     obj.traverse(child => {
                         child.renderOrder = -1;
-                        if (child.material) {
-                            const mats = Array.isArray(child.material) ? child.material : [child.material];
-                            mats.forEach(m => {
-                                m.depthWrite = false;
-                            });
-                        }
+                        // NOTE: Removed depthWrite=false to fix z-fighting and visibility issues
+                        // Proper renderOrder and positioning should be sufficient
                     });
                 }
             });
@@ -257,47 +284,62 @@ const FastTrackThemes = {
     // Update parallax and animations
     update: function(mouseX, mouseY, gameEvent) {
         const time = Date.now() * 0.001;
-
+        
         // Update crowd reaction if theme supports it
         if (gameEvent && this.themes[this.currentTheme]?.onGameEvent) {
             this.themes[this.currentTheme].onGameEvent(gameEvent, this);
         }
-
+        
         this.backdropLayers.forEach((layer) => {
             const mesh = layer.mesh;
             if (!mesh) return;
-
-            // Parallax offset based on mouse movement with boundaries
-            // Prevents backdrop from encroaching on the board area
+            
+            // Parallax offset with position constraints to prevent drift into board area
             if (layer.parallaxFactor > 0) {
-                const targetX = -mouseX * layer.parallaxFactor * 50;
-                const targetZ = -mouseY * layer.parallaxFactor * 30;
-
-                // Clamp parallax to safe boundaries (keep away from board center)
-                const maxParallaxX = 100; // Maximum X offset
-                const maxParallaxZ = 80;  // Maximum Z offset
-
-                const clampedX = Math.max(-maxParallaxX, Math.min(maxParallaxX, targetX));
-                const clampedZ = Math.max(-maxParallaxZ, Math.min(maxParallaxZ, targetZ));
-
-                mesh.position.x += (clampedX - mesh.position.x) * 0.05;
-                mesh.position.z += (clampedZ - mesh.position.z) * 0.05;
+                const maxDrift = layer.maxDrift || 300; // Maximum drift from initial position
+                const minDistance = 400; // Minimum distance from board center
+                
+                // Scale parallax by global motionScale so we can slow/freeze background motion
+                const parallaxFactor = (layer.parallaxFactor || 0) * (this.motionScale === undefined ? 1 : this.motionScale);
+                const targetX = -mouseX * parallaxFactor * 50;
+                const targetZ = -mouseY * parallaxFactor * 30;
+                
+                // Apply parallax with damping
+                let newX = mesh.position.x + (targetX - mesh.position.x) * 0.001;
+                let newZ = mesh.position.z + (targetZ - mesh.position.z) * 0.001;
+                
+                // Clamp to max drift
+                newX = Math.max(-maxDrift, Math.min(maxDrift, newX));
+                newZ = Math.max(-maxDrift, Math.min(maxDrift, newZ));
+                
+                // Enforce minimum distance from board center
+                const dist = Math.sqrt(newX ** 2 + newZ ** 2);
+                if (dist < minDistance && dist > 0) {
+                    const scale = minDistance / dist;
+                    newX *= scale;
+                    newZ *= scale;
+                }
+                
+                mesh.position.x = newX;
+                mesh.position.z = newZ;
             }
             
-            // Subtle rotation for depth
+            // Subtle rotation for depth (time-based, not frame-based)
             if (layer.rotationSpeed) {
-                mesh.rotation.y += layer.rotationSpeed;
+                const dt = Math.min(0.033, 1/60); // Cap at ~30fps equivalent to prevent fast-monitor speedup
+                const rotationScale = (this.motionScale === undefined ? 1 : this.motionScale);
+                mesh.rotation.y += layer.rotationSpeed * rotationScale * dt * 60; // Normalize to 60fps
             }
             
             // Floating animation for geometric shapes
             if (layer.isFloating && mesh.children) {
                 mesh.children.forEach(child => {
                     if (child.userData.floatSpeed) {
-                        child.position.y += Math.sin(time * child.userData.floatSpeed + (child.userData.floatOffset || 0)) * 0.1;
+                        child.position.y += Math.sin(time * child.userData.floatSpeed + (child.userData.floatOffset || 0)) * 0.02;
                     }
                     if (child.userData.rotSpeed) {
-                        child.rotation.x += child.userData.rotSpeed;
-                        child.rotation.z += child.userData.rotSpeed * 0.7;
+                        child.rotation.x += child.userData.rotSpeed * 0.2;
+                        child.rotation.z += child.userData.rotSpeed * 0.14;
                     }
                 });
             }
@@ -325,6 +367,13 @@ const FastTrackThemes = {
         if (this.themes[this.currentTheme]?.triggerCrowd) {
             this.themes[this.currentTheme].triggerCrowd(reaction, this);
         }
+    },
+
+    // Set global motion scale for backdrop layers (0 = frozen, 1 = normal, <1 = slower)
+    setMotionScale: function(scale) {
+        if (typeof scale !== 'number' || isNaN(scale)) return;
+        this.motionScale = Math.max(0, scale);
+        console.log('[FastTrackThemes] motionScale set to', this.motionScale);
     },
     
     // ============================================================
@@ -888,7 +937,7 @@ FastTrackThemes.register('cosmic', {
         });
         const gradientSphere = new THREE.Mesh(gradientSphereGeo, gradientSphereMat);
         scene.add(gradientSphere);
-        manager.backdropLayers.push({ mesh: gradientSphere, parallaxFactor: 0, rotationSpeed: 0.00005 });
+        manager.backdropLayers.push({ mesh: gradientSphere, parallaxFactor: 0, rotationSpeed: 0.00001 });
         
         // === LAYER 1: Far starfield ===
         const farStarCount = 2000;
@@ -935,7 +984,7 @@ FastTrackThemes.register('cosmic', {
         
         const farStars = new THREE.Points(farStarGeo, farStarMat);
         scene.add(farStars);
-        manager.backdropLayers.push({ mesh: farStars, parallaxFactor: 0.02, rotationSpeed: 0.0001 });
+        manager.backdropLayers.push({ mesh: farStars, parallaxFactor: 0.02, rotationSpeed: 0.00002 });
         
         // === LAYER 2: Nebula clouds ===
         const nebulaGroup = new THREE.Group();
@@ -964,7 +1013,7 @@ FastTrackThemes.register('cosmic', {
             nebulaGroup.add(nebula);
         }
         scene.add(nebulaGroup);
-        manager.backdropLayers.push({ mesh: nebulaGroup, parallaxFactor: 0.05, rotationSpeed: 0.00015 });
+        manager.backdropLayers.push({ mesh: nebulaGroup, parallaxFactor: 0.05, rotationSpeed: 0.00003 });
         
         // === LAYER 3: Floating geometric shapes ===
         const floatingShapes = new THREE.Group();
@@ -1007,9 +1056,9 @@ FastTrackThemes.register('cosmic', {
                 Math.sin(angle) * distance
             );
             shape.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-            shape.userData.floatSpeed = 0.01 + Math.random() * 0.02;
+            shape.userData.floatSpeed = 0.003 + Math.random() * 0.005;
             shape.userData.floatOffset = Math.random() * Math.PI * 2;
-            shape.userData.rotSpeed = (Math.random() - 0.5) * 0.005;
+            shape.userData.rotSpeed = (Math.random() - 0.5) * 0.001;
             floatingShapes.add(shape);
         }
         scene.add(floatingShapes);
@@ -1041,7 +1090,7 @@ FastTrackThemes.register('cosmic', {
         
         const dustCloud = new THREE.Points(dustGeo, dustMat);
         scene.add(dustCloud);
-        manager.backdropLayers.push({ mesh: dustCloud, parallaxFactor: 0.15, rotationSpeed: 0.0003 });
+        manager.backdropLayers.push({ mesh: dustCloud, parallaxFactor: 0.15, rotationSpeed: 0.00006 });
         
         // === LAYER 5: Grid floor ===
         const gridHelper = new THREE.GridHelper(2000, 40, 0x2a2a4a, 0x1a1a2a);
@@ -1073,7 +1122,7 @@ FastTrackThemes.register('cosmic', {
             radialLines.add(line);
         }
         scene.add(radialLines);
-        manager.backdropLayers.push({ mesh: radialLines, parallaxFactor: 0.02, rotationSpeed: 0.00008 });
+        manager.backdropLayers.push({ mesh: radialLines, parallaxFactor: 0.02, rotationSpeed: 0.000015 });
         
         // === Ambient glow spheres ===
         const glowCount = 6;
@@ -1862,6 +1911,49 @@ FastTrackThemes.register('colosseum', {
                 mesh.geometry.attributes.position.needsUpdate = true;
             }
         });
+
+        // Group all stadium/backdrop elements under a single root so the
+        // board can be unambiguously centered and backdrop render order
+        // kept behind the board. This prevents backdrop pieces from
+        // accidentally overlapping the board or being misaligned.
+        try {
+            const stadiumRoot = new THREE.Group();
+            stadiumRoot.name = 'stadiumRoot';
+            stadiumRoot.position.set(0, 0, 0);
+            stadiumRoot.renderOrder = -2;
+
+            // Reparent all backdropLayers meshes that were added directly to scene
+            manager.backdropLayers.forEach(layer => {
+                if (layer && layer.mesh && layer.mesh.parent === scene) {
+                    try { scene.remove(layer.mesh); } catch (e) {}
+                    stadiumRoot.add(layer.mesh);
+                }
+            });
+
+            // Move any spectators into the stadium root as well
+            if (manager.spectators && manager.spectators.length) {
+                manager.spectators.forEach(spec => {
+                    if (spec && spec.parent === scene) {
+                        try { scene.remove(spec); } catch (e) {}
+                        stadiumRoot.add(spec);
+                    }
+                });
+            }
+
+            // Move emperor box if present
+            if (manager.emperorBox && manager.emperorBox.parent === scene) {
+                try { scene.remove(manager.emperorBox); } catch (e) {}
+                stadiumRoot.add(manager.emperorBox);
+            }
+
+            // Finally add the root to the scene and expose on manager
+            scene.add(stadiumRoot);
+            manager.stadiumRoot = stadiumRoot;
+            // Also ensure the stadium root is available as a backdrop layer
+            manager.backdropLayers.unshift({ mesh: stadiumRoot, parallaxFactor: 0, rotationSpeed: 0 });
+        } catch (e) {
+            console.warn('[Colosseum] stadium grouping failed:', e);
+        }
     },
     
     // React to game events — Emperor reacts!
@@ -2025,7 +2117,7 @@ FastTrackThemes.register('spaceace', {
         });
         const sky = new THREE.Mesh(skyGeo, skyMat);
         scene.add(sky);
-        manager.backdropLayers.push({ mesh: sky, parallaxFactor: 0, rotationSpeed: 0.00002 });
+        manager.backdropLayers.push({ mesh: sky, parallaxFactor: 0, rotationSpeed: 0.000004 });
         
         // === LAYER 1: Dense starfield (3 layers for depth) ===
         const createStarfield = (count, minRadius, maxRadius, size, opacity) => {
@@ -2076,17 +2168,17 @@ FastTrackThemes.register('spaceace', {
         // Far stars
         const farStars = createStarfield(3000, 1500, 1800, 1.5, 0.6);
         scene.add(farStars);
-        manager.backdropLayers.push({ mesh: farStars, parallaxFactor: 0.01, rotationSpeed: 0.00005 });
+        manager.backdropLayers.push({ mesh: farStars, parallaxFactor: 0.01, rotationSpeed: 0.00001 });
         
         // Mid stars
         const midStars = createStarfield(1500, 1000, 1400, 2.5, 0.8);
         scene.add(midStars);
-        manager.backdropLayers.push({ mesh: midStars, parallaxFactor: 0.02, rotationSpeed: 0.0001 });
+        manager.backdropLayers.push({ mesh: midStars, parallaxFactor: 0.02, rotationSpeed: 0.00002 });
         
         // Bright close stars
         const closeStars = createStarfield(500, 600, 900, 4, 1.0);
         scene.add(closeStars);
-        manager.backdropLayers.push({ mesh: closeStars, parallaxFactor: 0.04, rotationSpeed: 0.00015 });
+        manager.backdropLayers.push({ mesh: closeStars, parallaxFactor: 0.04, rotationSpeed: 0.00003 });
         
         // === LAYER 2: THE SUN (dramatic backdrop) ===
         const sunGroup = new THREE.Group();
@@ -4331,6 +4423,57 @@ FastTrackThemes.register('fibonacci', {
                 setTimeout(() => { layer.mesh.material.color.copy(origColor); }, 1000);
             }
         });
+    }
+});
+
+// ============================================================
+// VR IMMERSIVE THEME - Full 360° VR Experience
+// ============================================================
+FastTrackThemes.register('vr_immersive', {
+    name: 'VR Immersive',
+    description: '360° VR experience with dynamic cosmic scenes',
+    vrTheme: null,
+    
+    create: function(scene, THREE, manager) {
+        console.log('[VR Immersive] Creating VR theme...');
+        
+        // Load VR theme module
+        if (typeof VRImmersiveTheme !== 'undefined') {
+            this.vrTheme = Object.create(VRImmersiveTheme);
+            this.vrTheme.init(scene, window.camera, window.renderer);
+        } else {
+            console.error('[VR Immersive] VRImmersiveTheme not loaded!');
+        }
+    },
+    
+    update: function(scene, camera, deltaTime, manager) {
+        if (this.vrTheme && this.vrTheme.update) {
+            this.vrTheme.update(deltaTime);
+        }
+    },
+    
+    onFastTrack: function(scene, manager, data) {
+        console.log('[VR Immersive] Fast track event');
+        // Could trigger scene transition or effect
+    },
+    
+    onBullseye: function(scene, manager, data) {
+        console.log('[VR Immersive] Bullseye event');
+    },
+    
+    onSendHome: function(scene, manager, data) {
+        console.log('[VR Immersive] Send home event');
+    },
+    
+    onWinner: function(scene, manager, data) {
+        console.log('[VR Immersive] Winner - cosmic celebration!');
+        // Could trigger special scene or effect
+    },
+    
+    dispose: function() {
+        if (this.vrTheme && this.vrTheme.dispose) {
+            this.vrTheme.dispose();
+        }
     }
 });
 

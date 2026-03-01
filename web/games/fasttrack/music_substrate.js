@@ -503,8 +503,8 @@ const MusicSubstrate = {
         this._currentTick = 0;
         this._sectionIndex = 0;
         this._tickInSection = 0;
-        // Variation system — start fresh, variation 0 = original
-        this._variationIndex = 0;
+        // Variation system — start fresh, first loop plays original theme
+        this._loopCount = 0;
         this._activeVariation = null; // null = use original theme
 
         const sixteenthMs = (60000 / theme.bpm) / 4;
@@ -575,134 +575,191 @@ const MusicSubstrate = {
         if (this._tickInSection >= sec.tickLength) {
             this._tickInSection = 0;
             this._sectionIndex = (this._sectionIndex + 1) % sections.length;
-            // When the song loops back to start, apply next variation
+            // When the song loops back to start, generate a fresh unique variation
             if (this._sectionIndex === 0) {
-                this._variationIndex = ((this._variationIndex || 0) + 1) % 4;
-                this._activeVariation = this._generateVariation(theme, this._variationIndex);
-                console.log('[MusicSubstrate v2] 🎶 Variation', this._variationIndex + 1, 'of 4 — procedurally generated on the fly');
+                this._loopCount = (this._loopCount || 0) + 1;
+                this._activeVariation = this._generateVariation(theme, this._loopCount);
+                // Shuffle section order after first loop for variety
+                if (this._loopCount > 1) {
+                    this._activeVariation.sections = this._shuffleSections(theme.sections);
+                }
+                console.log('[MusicSubstrate v2] 🎶 Loop', this._loopCount, '— fresh procedural variation');
             }
         }
     },
 
     // ============================================================
-    // VARIATION GENERATOR — 4 procedural mutations per theme
+    // VARIATION GENERATOR — infinite procedural mutations per theme
     // ============================================================
-    // Demonstrates the substrate's power: no stored songs, everything
-    // generated on the fly. Each variation mutates BPM, swing,
-    // instrument voicings, arp patterns, and drum fills.
+    // Every loop generates a unique combination of tempo, swing,
+    // instrument voicings, arp patterns, drum fills, melody mutations,
+    // and section ordering. No two loops ever sound the same.
 
-    _variationIndex: 0,
+    _loopCount: 0,
     _activeVariation: null,
 
-    _generateVariation(base, idx) {
+    _shuffleSections(originalSections) {
+        // Always start with intro on first appearance, then shuffle the rest
+        // Create a pool of section types with varied lengths
+        var pool = ['verse','chorus','bridge','verse','chorus'];
+        // Fisher-Yates shuffle
+        for (var i = pool.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+        }
+        // Build sections with randomized lengths
+        var sections = [];
+        for (var s = 0; s < pool.length; s++) {
+            var baseTicks = pool[s] === 'bridge' ? 64 : 128;
+            // Randomly shorten or extend sections
+            var lenMul = Math.random() < 0.3 ? 0.5 : (Math.random() < 0.2 ? 1.5 : 1);
+            sections.push({ name: pool[s], tickLength: Math.round(baseTicks * lenMul) });
+        }
+        return sections;
+    },
+
+    _generateVariation(base, loopNum) {
         // Deep-clone the base theme so mutations don't corrupt the original
         var v = JSON.parse(JSON.stringify(base));
 
-        // Seeded pseudo-random based on variation index for reproducibility
-        var seed = idx * 2654435761;
-        function rand() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed & 0xffff) / 0xffff; }
+        // True random (not seeded) — every loop is unique
+        var rand = function() { return Math.random(); };
 
-        switch (idx) {
-            case 0:
-                // Variation 1: "Energy Shift" — tempo bump, tighter drums, arp acceleration
-                v.name = base.name + ' (Energy)';
-                v.bpm = Math.round(base.bpm * (1.08 + rand() * 0.07));
-                v.swing = Math.max(0, base.swing - 0.02);
-                // Double-time hihats in verse
-                if (v.drums.verse) {
-                    v.drums.verse.hihat = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
-                }
-                // Faster arp in chorus
-                if (v.arp.chorus) v.arp.chorus.speed = Math.max(1, (base.arp.chorus.speed || 2) - 1);
-                // Slightly louder melody
-                if (v.instruments.melody) v.instruments.melody.volume = Math.min(0.18, base.instruments.melody.volume * 1.25);
-                // Add snare ghost notes in bridge
-                if (v.drums.bridge && v.drums.bridge.snare) {
-                    v.drums.bridge.snare = [2,4,6,8,10,12,14];
-                }
-                break;
+        // ── BPM drift: ±15% range from base, biased by loop parity
+        var bpmShift = (rand() - 0.5) * 0.3; // -15% to +15%
+        v.bpm = Math.round(base.bpm * (1 + bpmShift));
+        v.bpm = Math.max(90, Math.min(160, v.bpm)); // Clamp to sane range
 
-            case 1:
-                // Variation 2: "Deep Groove" — slower, heavier bass, swing increase
-                v.name = base.name + ' (Deep)';
-                v.bpm = Math.round(base.bpm * (0.88 + rand() * 0.04));
-                v.swing = Math.min(0.3, base.swing + 0.08 + rand() * 0.06);
-                // Heavier bass — more notes
-                if (v.bass.verse) {
-                    v.bass.verse.ticks = [0,2,4,6,8,10,12,14];
-                    v.bass.verse.intervals = [0,0,7,12,0,0,5,7];
-                }
-                // Drop melody octave by 1
-                if (v.instruments.melody) v.instruments.melody.octave = (base.instruments.melody.octave || 0) - 1;
-                // Pad volume up — lush chords
-                if (v.instruments.pad) v.instruments.pad.volume = Math.min(0.12, base.instruments.pad.volume * 1.6);
-                // Kick pattern variation
-                if (v.drums.chorus) {
-                    v.drums.chorus.kick = [0,3,6,8,11,14];
-                }
-                break;
+        // ── Swing drift
+        v.swing = Math.max(0, Math.min(0.3, base.swing + (rand() - 0.5) * 0.15));
 
-            case 2:
-                // Variation 3: "Stripped Back" — minimal drums, arp prominent, melody sparse
-                v.name = base.name + ' (Stripped)';
-                v.bpm = Math.round(base.bpm * (0.96 + rand() * 0.06));
-                // Remove snare from verse, go minimal
-                if (v.drums.verse) {
-                    v.drums.verse.snare = [];
-                    v.drums.verse.kick = [0,8];
-                    v.drums.verse.hihat = [0,4,8,12];
-                }
-                // Arp louder + different pattern
-                if (v.instruments.arp) v.instruments.arp.volume = Math.min(0.14, base.instruments.arp.volume * 2.0);
-                if (v.arp.verse) v.arp.verse.pattern = [0,7,12,19,12,7];
-                // Melody: every other note nulled for space
-                var secNames = ['verse', 'chorus'];
-                for (var s = 0; s < secNames.length; s++) {
-                    var melArr = v.melody[secNames[s]];
-                    if (melArr) {
-                        for (var n = 0; n < melArr.length; n++) {
-                            if (n % 4 === 2 && melArr[n]) melArr[n] = null;
-                        }
-                    }
-                }
-                // Bridge gets open hihat groove
-                if (v.drums.bridge) {
-                    v.drums.bridge.openhat = [0,4,8,12];
-                    v.drums.bridge.hihat = [];
-                }
-                break;
+        // ── Pick a mood profile randomly
+        var moods = ['energy', 'deep', 'stripped', 'cosmic', 'driving', 'chill', 'bright'];
+        var mood = moods[Math.floor(rand() * moods.length)];
+        v.name = base.name + ' (' + mood + ' #' + loopNum + ')';
 
-            case 3:
-                // Variation 4: "Hyperspace" — fastest, most energetic, all instruments maxed
-                v.name = base.name + ' (Hyperspace)';
-                v.bpm = Math.round(base.bpm * (1.15 + rand() * 0.08));
-                v.swing = 0;
-                // All drums full tilt in chorus
-                if (v.drums.chorus) {
-                    v.drums.chorus.kick = [0,2,4,6,8,10,12,14];
-                    v.drums.chorus.hihat = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
-                    if (!v.drums.chorus.crash) v.drums.chorus.crash = [];
-                    v.drums.chorus.crash = [0,8];
-                }
-                // Arp: fastest possible, wide intervals
-                if (v.arp.chorus) {
-                    v.arp.chorus.speed = 1;
-                    v.arp.chorus.pattern = [0,5,12,17,12,5];
-                }
-                // All instruments slightly boosted
-                var instKeys = ['bass', 'melody', 'arp', 'pad'];
-                for (var k = 0; k < instKeys.length; k++) {
-                    if (v.instruments[instKeys[k]]) {
-                        v.instruments[instKeys[k]].volume = Math.min(0.22, v.instruments[instKeys[k]].volume * 1.3);
-                    }
-                }
-                // Melody vibrato intensified
-                if (v.instruments.melody) {
-                    v.instruments.melody.vibratoRate = (base.instruments.melody.vibratoRate || 5) + 3;
-                    v.instruments.melody.vibratoDepth = (base.instruments.melody.vibratoDepth || 3) + 4;
-                }
-                break;
+        // ── Drum mutations based on mood
+        var drumSections = ['verse', 'chorus', 'bridge', 'intro'];
+        var kickPatterns = [
+            [0,8], [0,6,8,14], [0,4,8,12], [0,2,8,10], [0,3,6,8,11,14],
+            [0,2,4,6,8,10,12,14], [0,8,10], [0,4,10,14], [0,6,10]
+        ];
+        var hihatPatterns = [
+            [0,4,8,12], [0,2,4,6,8,10,12,14],
+            [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+            [0,2,8,10], [0,4,8,12,14]
+        ];
+        var snarePatterns = [
+            [4,12], [4,12], [2,4,10,12], [4,8,12], [], [4,12,14], [2,6,10,14]
+        ];
+        for (var d = 0; d < drumSections.length; d++) {
+            var ds = drumSections[d];
+            if (v.drums[ds]) {
+                if (rand() > 0.4) v.drums[ds].kick = kickPatterns[Math.floor(rand() * kickPatterns.length)];
+                if (rand() > 0.4) v.drums[ds].hihat = hihatPatterns[Math.floor(rand() * hihatPatterns.length)];
+                if (rand() > 0.5) v.drums[ds].snare = snarePatterns[Math.floor(rand() * snarePatterns.length)];
+                // Random open hihat
+                if (rand() > 0.7) v.drums[ds].openhat = [2,6,10,14].filter(function() { return rand() > 0.4; });
+                // Random crash on downbeat
+                if (rand() > 0.8) v.drums[ds].crash = [0];
+            }
         }
+
+        // ── Bass pattern mutations
+        var bassPatterns = [
+            { ticks: [0,8], intervals: [0,0] },
+            { ticks: [0,4,8,12], intervals: [0,0,0,7] },
+            { ticks: [0,6,8,14], intervals: [0,7,0,5] },
+            { ticks: [0,2,4,6,8,10,12,14], intervals: [0,0,7,12,0,0,5,7] },
+            { ticks: [0,4,8,12], intervals: [0,12,0,7] },
+            { ticks: [0,2,8,10], intervals: [0,5,0,7] },
+            { ticks: [0,8,12], intervals: [0,7,5] }
+        ];
+        var bassSecs = ['verse', 'chorus', 'bridge'];
+        for (var b = 0; b < bassSecs.length; b++) {
+            if (v.bass[bassSecs[b]] && rand() > 0.4) {
+                v.bass[bassSecs[b]] = bassPatterns[Math.floor(rand() * bassPatterns.length)];
+            }
+        }
+
+        // ── Arp pattern mutations (consonant intervals only: root, 3rd, 4th, 5th, octave)
+        var arpPatterns = [
+            [0,4,7,12], [0,7,12,7], [0,3,7,12,7,3], [0,5,7,12,7,5],
+            [0,4,7,12,7,4], [0,7,12,16,12,7], [0,3,7,12],
+            [0,12,7,12], [0,4,7,4]
+        ];
+        var arpSecs = ['verse', 'chorus', 'bridge', 'intro'];
+        for (var a = 0; a < arpSecs.length; a++) {
+            if (v.arp[arpSecs[a]] && rand() > 0.4) {
+                v.arp[arpSecs[a]].pattern = arpPatterns[Math.floor(rand() * arpPatterns.length)];
+                v.arp[arpSecs[a]].speed = Math.max(1, Math.floor(rand() * 4) + 1);
+            }
+        }
+
+        // ── Melody note mutations: consonant transpose + breathing room
+        // ONLY transpose by perfect intervals (P4=5, P5=7, P8=12) to stay in key
+        var melSecs = ['verse', 'chorus', 'bridge', 'intro'];
+        var noteNames = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+        var safeTranspose = [0, 0, 5, 7, 12, -5, -7]; // only perfect intervals
+        for (var m = 0; m < melSecs.length; m++) {
+            var melArr = v.melody[melSecs[m]];
+            if (!melArr) continue;
+            // Global transpose: shift all notes by a consonant interval
+            var transpose = safeTranspose[Math.floor(rand() * safeTranspose.length)];
+            if (rand() > 0.5 && transpose !== 0) {
+                for (var n = 0; n < melArr.length; n++) {
+                    if (!melArr[n]) continue;
+                    var match = melArr[n].match(/^([A-G][#b]?)(\d)$/);
+                    if (!match) continue;
+                    var noteIdx = noteNames.indexOf(match[1].replace('b',''));
+                    if (match[1].endsWith('b')) noteIdx = (noteIdx - 1 + 12) % 12;
+                    var oct = parseInt(match[2]);
+                    noteIdx += transpose;
+                    if (noteIdx >= 12) { noteIdx -= 12; oct++; }
+                    if (noteIdx < 0) { noteIdx += 12; oct--; }
+                    oct = Math.max(3, Math.min(6, oct));
+                    melArr[n] = noteNames[noteIdx] + oct;
+                }
+            }
+            // Random note dropping (make some notes silent for breathing room)
+            if (rand() > 0.5) {
+                var dropRate = 0.1 + rand() * 0.15; // 10-25% of notes dropped
+                for (var n2 = 0; n2 < melArr.length; n2++) {
+                    if (melArr[n2] && rand() < dropRate) melArr[n2] = null;
+                }
+            }
+            // NO random octave jumps — they create jarring leaps
+        }
+
+        // ── Instrument voicing mutations
+        var waves = ['sine', 'square', 'sawtooth', 'triangle'];
+        // Randomly swap melody waveform
+        if (rand() > 0.5 && v.instruments.melody) {
+            v.instruments.melody.wave = waves[Math.floor(rand() * waves.length)];
+        }
+        // Randomly shift filter frequencies
+        if (v.instruments.melody && rand() > 0.4) {
+            v.instruments.melody.filterFreq = 1500 + Math.floor(rand() * 2500);
+        }
+        if (v.instruments.bass && rand() > 0.5) {
+            v.instruments.bass.filterFreq = 200 + Math.floor(rand() * 400);
+        }
+        // Random vibrato changes (capped to stay pleasant)
+        if (v.instruments.melody && rand() > 0.4) {
+            v.instruments.melody.vibratoRate = 3 + Math.floor(rand() * 5); // 3-7 Hz
+            v.instruments.melody.vibratoDepth = 1 + Math.floor(rand() * 3); // 1-3 Hz max
+        }
+        // Volume micro-variations (±20%)
+        var instKeys = ['bass', 'melody', 'arp', 'pad'];
+        for (var ik = 0; ik < instKeys.length; ik++) {
+            if (v.instruments[instKeys[ik]]) {
+                var baseVol = base.instruments[instKeys[ik]].volume;
+                v.instruments[instKeys[ik]].volume = Math.min(0.22, Math.max(0.03, baseVol * (0.8 + rand() * 0.4)));
+            }
+        }
+
+        // ── No chord substitution — previous logic produced clashing harmonies
+        // Chords stay as composed to keep progressions pleasant and resolved
 
         return v;
     },

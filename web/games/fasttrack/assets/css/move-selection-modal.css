@@ -1,0 +1,401 @@
+/**
+ * ============================================================
+ * MOVE SELECTION MODAL
+ * Touch-friendly move selection interface
+ * Bottom sheet (mobile) + Centered card (desktop)
+ * ============================================================
+ */
+
+/* Modal Container */
+#move-selection-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#move-selection-modal.visible {
+    display: flex;
+    opacity: 1;
+}
+
+/* Bottom Sheet Layout (Mobile) */
+#move-selection-modal.bottom-sheet {
+    align-items: flex-end;
+}
+
+#move-selection-modal.bottom-sheet .modal-content {
+    width: 100%;
+    max-height: 70vh;
+    border-radius: 20px 20px 0 0;
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+/* Centered Card Layout (Desktop) */
+#move-selection-modal.centered-card {
+    align-items: center;
+    justify-content: center;
+}
+
+#move-selection-modal.centered-card .modal-content {
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Modal Backdrop */
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+}
+
+/* Modal Content */
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+/* Modal Header */
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+    flex: 1;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 32px;
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-close:active {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Modal Body */
+.modal-body {
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Custom Scrollbar */
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Peg Group */
+.peg-group {
+    margin-bottom: 24px;
+}
+
+.peg-group:last-child {
+    margin-bottom: 0;
+}
+
+.peg-header {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffd700;
+    margin-bottom: 12px;
+    padding-left: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Move Card */
+.move-card {
+    width: 100%;
+    min-height: 68px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #fff;
+    text-align: left;
+    font-family: inherit;
+}
+
+.move-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.move-card:active {
+    transform: scale(0.98);
+}
+
+.move-card:focus {
+    outline: 3px solid #ffd700;
+    outline-offset: 2px;
+}
+
+/* Move Type Colors */
+.move-card.move-type-winner {
+    border-color: rgba(255, 215, 0, 0.8);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(255, 215, 0, 0.1));
+    animation: winnerPulse 2s infinite;
+}
+
+@keyframes winnerPulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+}
+
+.move-card.move-type-cut {
+    border-color: rgba(255, 68, 68, 0.5);
+    background: linear-gradient(135deg, rgba(255, 68, 68, 0.15), rgba(255, 68, 68, 0.05));
+}
+
+.move-card.move-type-fasttrack,
+.move-card.move-type-bullseye {
+    border-color: rgba(255, 215, 0, 0.5);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+}
+
+.move-card.move-type-safe {
+    border-color: rgba(68, 255, 68, 0.5);
+    background: linear-gradient(135deg, rgba(68, 255, 68, 0.15), rgba(68, 255, 68, 0.05));
+}
+
+.move-card.move-type-home {
+    border-color: rgba(100, 149, 237, 0.5);
+    background: linear-gradient(135deg, rgba(100, 149, 237, 0.15), rgba(100, 149, 237, 0.05));
+}
+
+.move-card.move-type-ft-traverse {
+    border-color: rgba(255, 165, 0, 0.4);
+    background: linear-gradient(135deg, rgba(255, 165, 0, 0.1), rgba(255, 165, 0, 0.05));
+}
+
+/* Move Card Elements */
+.move-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.move-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.move-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.move-subtitle {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.move-badge {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.badge-recommended {
+    display: inline-block;
+    padding: 4px 10px;
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #1a1a2e;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+    animation: recommendedPulse 2s infinite;
+}
+
+@keyframes recommendedPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.badge-steps {
+    display: inline-block;
+    min-width: 32px;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+/* Recommended Move Highlight */
+.move-card.recommended-move {
+    border-color: rgba(255, 215, 0, 0.8);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.move-card.recommended-move:hover {
+    border-color: rgba(255, 215, 0, 1);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    .modal-title {
+        font-size: 18px;
+    }
+    
+    .move-card {
+        min-height: 72px;
+        padding: 16px;
+    }
+    
+    .move-icon {
+        font-size: 36px;
+    }
+    
+    .move-title {
+        font-size: 17px;
+    }
+    
+    .move-subtitle {
+        font-size: 14px;
+    }
+    
+    .badge-steps {
+        min-width: 36px;
+        height: 36px;
+        line-height: 36px;
+        font-size: 16px;
+    }
+    
+    /* Larger touch targets on mobile */
+    .modal-close {
+        width: 48px;
+        height: 48px;
+        font-size: 36px;
+    }
+}
+
+/* Tablet Landscape */
+@media (min-width: 769px) and (max-width: 1024px) {
+    #move-selection-modal.bottom-sheet .modal-content {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .move-card,
+    #move-selection-modal,
+    .modal-content {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .move-card {
+        border-width: 3px;
+    }
+    
+    .modal-backdrop {
+        background: rgba(0, 0, 0, 0.9);
+    }
+}
+
+/* Dark Mode Support (already dark, but for consistency) */
+@media (prefers-color-scheme: dark) {
+    .modal-content {
+        background: linear-gradient(135deg, #0d0d1a 0%, #0a0a15 100%);
+    }
+}
+
+/* Empty State */
+.modal-body:empty::after {
+    content: 'No moves available';
+    display: block;
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 16px;
+}

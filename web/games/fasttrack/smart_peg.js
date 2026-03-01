@@ -178,13 +178,11 @@ class SmartPeg {
     // Calculate the full path for N hops
     // Returns: { path, destination, hopsCompleted, blocked, blockedAt, blockedBy }
     // simOverrides: optional object to override initial sim state (e.g. {onFasttrack: false})
-    //   - _overrideStart: Start from a different hole (for FastTrack exit calculations)
     // ============================================================
     calculatePath(hops, direction, simOverrides = {}) {
         const clockwise = direction !== 'backward';
-        const startHole = simOverrides._overrideStart || this.peg.holeId;
-        const path = [startHole];
-        let currentHole = startHole;
+        const path = [this.peg.holeId];
+        let currentHole = this.peg.holeId;
 
         // Simulated state — COPY so we never mutate the real peg
         const sim = {
@@ -197,9 +195,6 @@ class SmartPeg {
             hasTraversedFT: false,  // Tracks if peg has visited any ft-* other than entry
             ...simOverrides  // Apply overrides (e.g. {onFasttrack: false} for leave-FT)
         };
-
-        // Remove _overrideStart from sim (it's not a state property)
-        delete sim._overrideStart;
 
         let blocked = false;
         let blockedAt = null;
@@ -216,12 +211,12 @@ class SmartPeg {
             }
 
             // BACKWARD RESTRICTIONS (4 card)
-            // Cannot enter bullseye (center), safe zone, or FastTrack holes going backward.
-            // ft-* holes are special corners — a peg cannot back into them.
+            // Cannot enter bullseye (center) or safe zone going backward.
+            // ft-* holes are perimeter corners — peg CAN land on/pass through them,
+            // it just stays on the outer track (no FastTrack traversal).
             if (!clockwise) {
                 if (nextHole === 'center') { blocked = true; blockedAt = nextHole; break; }
                 if (nextHole.startsWith('safe-')) { blocked = true; blockedAt = nextHole; break; }
-                if (nextHole.startsWith('ft-')) { blocked = true; blockedAt = nextHole; break; }
             }
 
             // BLOCKING by own peg (can't pass or land on own non-bullseye, non-finished pegs)
@@ -237,21 +232,20 @@ class SmartPeg {
             }
 
             // EXACT LANDING: home-{boardPos} requires exact count to WIN
-            // The 5th peg (when safe zone is full) must land on home exactly.
-            // Can't overshoot the winning hole — if more hops remain, move is blocked.
+            // Only applies when approaching FROM THE SAFE ZONE (path contains safe-* holes).
+            // The 5th peg on the OUTER TRACK can pass through home freely — it just
+            // continues around the board and must land exactly on home on a future turn.
             if (nextHole === `home-${this.boardPos}` &&
                 sim.eligibleForSafeZone &&
                 hop < hops - 1) {
-                // Check if safe zone is full (5th peg scenario)
-                const safePegsCount = this.teammates.filter(p =>
-                    p.holeType === 'safezone'
-                ).length;
-                if (safePegsCount >= 4) {
-                    // Can land on home only as the LAST hop — exact count required
+                const fromSafeZone = path.some(h => h.startsWith('safe-'));
+                if (fromSafeZone) {
+                    // Coming from safe zone — home is a dead end, exact landing required
                     blocked = true;
                     blockedAt = nextHole;
                     break;
                 }
+                // On outer track — peg passes through home, continues around the board
             }
 
             path.push(nextHole);
@@ -334,44 +328,35 @@ class SmartPeg {
         const isOnFtHole = this.peg.holeId.startsWith('ft-');
         const canEnterBullseye = !this.peg.hasExitedBullseye; // Pegs that exited bullseye can never re-enter
 
-        // ════════════════════════════════════════════════════════
-        // FASTTRACK MULTI-EXIT GENERATION
-        // When on FastTrack, generate exit options at EACH ft-* hole
-        // the peg could land on (continue on ring OR exit to outer track)
-        // ════════════════════════════════════════════════════════
-        if (this.peg.onFasttrack && isOnFtHole && direction !== 'backward' && !this.peg.mustExitFasttrack) {
-            this._generateFastTrackExitOptions(hops, destinations, canEnterBullseye);
-        }
-        // ════════════════════════════════════════════════════════
-        // STANDARD PATH (for non-FT pegs or backward moves)
-        // ════════════════════════════════════════════════════════
-        else {
-            const result = this.calculatePath(hops, direction);
+        // ── Standard path ──
+        const result = this.calculatePath(hops, direction);
 
-            if (result.destination) {
-                // Primary destination (normal perimeter move)
+        if (result.destination) {
+            // Primary destination (FT traverse if on FT, or normal perimeter move)
+            const isFTPeg = this.peg.onFasttrack && isOnFtHole;
+            destinations.push({
+                holeId: result.destination,
+                steps: hops,
+                path: [...result.path],
+                description: isFTPeg
+                    ? `⚡ Continue on FastTrack → ${result.destination}`
+                    : `Move ${hops} to ${result.destination}`
+            });
+
+            // OPTION: FastTrack entry (landing exactly on ft-* from perimeter, not already on ft-*, forward only)
+            if (result.destination.startsWith('ft-') && !this.peg.onFasttrack && !isOnFtHole && direction !== 'backward') {
                 destinations.push({
                     holeId: result.destination,
                     steps: hops,
                     path: [...result.path],
-                    description: `Move ${hops} to ${result.destination}`
+                    isFastTrackEntry: true,
+                    description: `Enter FastTrack at ${result.destination}`
                 });
+            }
 
-                // OPTION: FastTrack entry (landing exactly on ft-* from perimeter, not already on ft-*)
-                if (result.destination.startsWith('ft-') && !this.peg.onFasttrack && !isOnFtHole) {
-                    destinations.push({
-                        holeId: result.destination,
-                        steps: hops,
-                        path: [...result.path],
-                        isFastTrackEntry: true,
-                        description: `Enter FastTrack at ${result.destination}`
-                    });
-                }
-
-                // OPTION: Bullseye from FastTrack (1 step past ft-*)
-                if (canEnterBullseye) {
-                    this._addBullseyeOptions(result, destinations, hops);
-                }
+            // OPTION: Bullseye from FastTrack (1 step past ft-*)
+            if (canEnterBullseye) {
+                this._addBullseyeOptions(result, destinations, hops);
             }
         }
 
@@ -441,6 +426,65 @@ class SmartPeg {
             }
         }
 
+        // ════════════════════════════════════════════════════════
+        // OPTION: Leave FastTrack → continue on outer perimeter
+        // RULE: A peg on ANY ft-* hole in FT mode can choose to leave
+        // FastTrack and continue on the outer perimeter track instead.
+        // This calculates where the peg would land if it left FT immediately.
+        // ════════════════════════════════════════════════════════
+        if (this.peg.onFasttrack && isOnFtHole && !this.peg.inHomeStretch) {
+            const perimeterResult = this.calculatePath(hops, direction, {
+                onFasttrack: false,
+                fasttrackEntryHole: null,
+                mustExitFasttrack: false
+            });
+
+            if (perimeterResult.destination) {
+                // Only add if destination differs from the FT traverse destination
+                // (avoids duplicates when both paths converge)
+                const alreadyHasThis = destinations.some(d =>
+                    d.holeId === perimeterResult.destination && !d.isCenterOption && !d.isFastTrackEntry
+                );
+                if (!alreadyHasThis) {
+                    destinations.push({
+                        holeId: perimeterResult.destination,
+                        steps: hops,
+                        path: [...perimeterResult.path],
+                        isLeaveFastTrack: true,
+                        description: `🔄 Leave FastTrack → ${perimeterResult.destination}`
+                    });
+                    console.log(`🔄 [SmartPeg] Offering leave-FT option: ${this.peg.holeId} → perimeter → ${perimeterResult.destination}`);
+                }
+            }
+        }
+
+        // OPTION: FastTrack peg with 1-hop card → bullseye
+        // RULE: A peg on FastTrack can enter bullseye with a 1-step card from any ft-* hole
+        // EXCEPT their own color's FastTrack hole (ft-{boardPos}). Moving to center
+        // from your own FT entry point is considered a backwards move.
+        // Cards with movement=1: A, Joker, J, Q, K.
+        // GUARD: Pegs that have exited bullseye before can NEVER re-enter.
+        if (canEnterBullseye && this.peg.onFasttrack && isOnFtHole && hops === 1
+            && this.peg.holeId !== ownFtHole) {
+            if (!this._ownPegInCenter()) {
+                const already = destinations.some(d => d.isCenterOption);
+                if (!already) {
+                    destinations.push({
+                        holeId: 'center',
+                        steps: 1,
+                        path: [this.peg.holeId, 'center'],
+                        isCenterOption: true,
+                        description: `🎯 Enter Bullseye from ${this.peg.holeId}`
+                    });
+                    console.log(`🎯 [SmartPeg] Offering bullseye option - FT peg at ${this.peg.holeId} with 1-step card`);
+                }
+            }
+        } else if (this.peg.onFasttrack && this.peg.holeId === ownFtHole && hops === 1) {
+            console.log(`🚫 [SmartPeg] Bullseye blocked - peg is on own FT hole ${ownFtHole} (backwards move)`);
+        } else if (!canEnterBullseye && this.peg.onFasttrack && isOnFtHole && hops === 1) {
+            console.log(`🚫 [SmartPeg] Bullseye blocked - peg has previously exited bullseye (no re-entry)`);
+        }
+
         // ── lockedToSafeZone filter ──
         // If peg is locked, only allow safe zone or home destinations for FORWARD moves.
         // EXCEPTION: Backward moves (4 card) are always allowed — a locked peg can still
@@ -456,116 +500,6 @@ class SmartPeg {
         }
 
         return destinations;
-    }
-
-    // ════════════════════════════════════════════════════════
-    // Generate FastTrack exit options at EACH ft-* hole
-    // For each hop count (1 to card value), if landing on ft-*:
-    //   - Add option to CONTINUE on FastTrack ring
-    //   - Add option to EXIT to outer track at that ft-* hole
-    //   - Add option to ENTER BULLSEYE (if 1-hop card and not own color)
-    // ════════════════════════════════════════════════════════
-    _generateFastTrackExitOptions(maxHops, destinations, canEnterBullseye) {
-        const ownFtHole = `ft-${this.boardPos}`;
-        const currentFtIdx = parseInt(this.peg.holeId.replace('ft-', ''));
-
-        console.log(`🎯 [FastTrack Multi-Exit] Generating options for ${this.peg.id} at ${this.peg.holeId}, ${maxHops} hops`);
-
-        // For each possible hop count (1 to maxHops)
-        for (let hopCount = 1; hopCount <= maxHops; hopCount++) {
-            // Calculate where we'd land on FastTrack ring
-            const targetFtIdx = (currentFtIdx + hopCount) % 6;
-            const targetFtHole = `ft-${targetFtIdx}`;
-
-            // Check if this ft-* hole is blocked by own peg
-            if (this._isBlockedByOwnPeg(targetFtHole)) {
-                console.log(`🚧 [FastTrack Multi-Exit] ${targetFtHole} blocked by own peg - stopping here`);
-                break; // Can't continue past own peg
-            }
-
-            // Check if we've reached own color ft-* hole (forced exit after traversing)
-            const hasTraversed = this.peg.fasttrackEntryHole && this.peg.fasttrackEntryHole !== this.peg.holeId;
-            const reachedOwnExit = targetFtIdx === this.boardPos && hasTraversed;
-
-            // Build path to this ft-* hole
-            const pathToFt = [this.peg.holeId];
-            for (let h = 1; h <= hopCount; h++) {
-                const ftIdx = (currentFtIdx + h) % 6;
-                pathToFt.push(`ft-${ftIdx}`);
-            }
-
-            // ── OPTION 1: Continue on FastTrack ring (land on this ft-* hole, stay on ring) ──
-            if (!reachedOwnExit) {
-                destinations.push({
-                    holeId: targetFtHole,
-                    steps: hopCount,
-                    path: [...pathToFt],
-                    description: `⚡ Continue on FastTrack → ${targetFtHole} (${hopCount} ${hopCount === 1 ? 'hop' : 'hops'})`
-                });
-                console.log(`  ✅ Option: Continue to ${targetFtHole} (${hopCount} hops)`);
-            }
-
-            // ── OPTION 2: Exit to outer track at this ft-* hole ──
-            // Calculate where peg would land if exiting at this ft-* hole
-            const remainingHops = maxHops - hopCount;
-            if (remainingHops > 0) {
-                // Exit at targetFtHole and continue on perimeter for remaining hops
-                const exitResult = this.calculatePath(remainingHops, 'clockwise', {
-                    onFasttrack: false,
-                    fasttrackEntryHole: null,
-                    mustExitFasttrack: false,
-                    // Override starting position to the ft-* hole we're exiting from
-                    _overrideStart: targetFtHole
-                });
-
-                if (exitResult.destination && !this._isBlockedByOwnPeg(exitResult.destination)) {
-                    // Build full path: current → ft-* holes → exit to perimeter
-                    const exitPath = [...pathToFt, ...exitResult.path.slice(1)];
-                    destinations.push({
-                        holeId: exitResult.destination,
-                        steps: maxHops,
-                        path: exitPath,
-                        isLeaveFastTrack: true,
-                        description: `🔄 Exit at ${targetFtHole} → ${exitResult.destination} (${hopCount} FT + ${remainingHops} outer)`
-                    });
-                    console.log(`  ✅ Option: Exit at ${targetFtHole} → ${exitResult.destination}`);
-                }
-            } else {
-                // Exact landing on ft-* hole with all hops - can still exit to perimeter
-                // This means staying on the ft-* hole but NOT in FastTrack mode
-                destinations.push({
-                    holeId: targetFtHole,
-                    steps: hopCount,
-                    path: [...pathToFt],
-                    isLeaveFastTrack: true,
-                    description: `🔄 Exit FastTrack at ${targetFtHole} (${hopCount} ${hopCount === 1 ? 'hop' : 'hops'})`
-                });
-                console.log(`  ✅ Option: Exit at ${targetFtHole} (exact landing)`);
-            }
-
-            // ── OPTION 3: Enter Bullseye (only for 1-hop cards from non-own ft-* holes) ──
-            if (canEnterBullseye && hopCount === 1 && targetFtHole !== ownFtHole && !this._ownPegInCenter()) {
-                const alreadyHasBullseye = destinations.some(d => d.isCenterOption);
-                if (!alreadyHasBullseye) {
-                    destinations.push({
-                        holeId: 'center',
-                        steps: 1,
-                        path: [this.peg.holeId, targetFtHole, 'center'],
-                        isCenterOption: true,
-                        description: `🎯 Enter Bullseye via ${targetFtHole}`
-                    });
-                    console.log(`  ✅ Option: Enter Bullseye via ${targetFtHole}`);
-                }
-            }
-
-            // If we reached own exit, stop generating more options
-            if (reachedOwnExit) {
-                console.log(`🏁 [FastTrack Multi-Exit] Reached own exit ${targetFtHole} - stopping`);
-                break;
-            }
-        }
-
-        console.log(`🎯 [FastTrack Multi-Exit] Generated ${destinations.length} total options`);
     }
 
     // ── Bullseye option detection ──

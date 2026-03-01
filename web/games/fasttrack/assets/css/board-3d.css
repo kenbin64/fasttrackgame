@@ -37,6 +37,38 @@
             transform: scale(0.95);
         }
         
+        /* Right Side Icon Panel */
+        #right-icon-panel {
+            position: fixed;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 10005;
+        }
+        #right-icon-panel button {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            background: linear-gradient(135deg, rgba(30,30,50,0.95), rgba(20,20,35,0.95));
+            border: 2px solid rgba(255,215,0,0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
+        #right-icon-panel button:hover {
+            transform: scale(1.1);
+            border-color: #ffd700;
+            box-shadow: 0 6px 20px rgba(255,215,0,0.4);
+        }
+        #right-icon-panel button:active {
+            transform: scale(0.95);
+        }
+        
         /* Floating Draggable Reaction Bar */
         .floating-reactions-bar {
             position: fixed;
@@ -506,7 +538,7 @@
             border: 2px solid #ef4444;
             border-radius: 15px;
             padding: 25px 35px;
-            z-index: 10010;
+            z-index: 99999;
             text-align: center;
             display: none;
             animation: popupShake 0.5s ease;
@@ -548,7 +580,7 @@
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 10020;
+            z-index: 99999;
             animation: momFadeIn 0.5s ease;
         }
         @keyframes momFadeIn {
@@ -1085,7 +1117,7 @@
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.9);
-            z-index: 20000;
+            z-index: 99999;
             justify-content: center;
             align-items: center;
             overflow-y: auto;
@@ -1203,52 +1235,32 @@
             color: #fff;
         }
         
-        /* Floating Rules Button (in-game) */
-        #rules-toggle-btn {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, rgba(100,200,255,0.3), rgba(60,150,255,0.3));
-            border: 2px solid rgba(100,200,255,0.5);
-            color: #fff;
-            font-size: 22px;
-            cursor: pointer;
-            z-index: 10002;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 20px rgba(100,200,255,0.3);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-        }
-        #rules-toggle-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(100,200,255,0.5);
-        }
-        
-        /* Camera Toggle Button */
-        #camera-toggle-btn {
-            position: fixed;
-            bottom: 200px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, rgba(255,180,100,0.3), rgba(255,140,60,0.3));
-            border: 2px solid rgba(255,180,100,0.5);
-            color: #fff;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 10002;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 20px rgba(255,180,100,0.3);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
+        /* ============================================================ */
+        /* LEGACY BUTTONS - HIDDEN (replaced by new standardized buttons) */
+        /* ============================================================ */
+
+        /* ============================================================ */
+        /* LEGACY BUTTONS - PERMANENTLY REMOVED */
+        /* These are completely hidden and removed from layout */
+        /* ============================================================ */
+
+        #rules-toggle-btn,
+        #camera-toggle-btn,
+        #pause-btn,
+        #menu-toggle-btn,
+        button[id*="pause"],
+        button[id*="rules-toggle"],
+        button[id*="camera-toggle"],
+        button[id*="menu-toggle"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            position: absolute !important;
+            left: -9999px !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
         }
         
         /* Camera View Selector Panel */
@@ -1365,100 +1377,164 @@
             color: rgba(255,255,255,0.6);
             margin-top: 4px;
         }
-        #camera-toggle-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(255,180,100,0.5);
-        }
-        #camera-toggle-btn.cinematic {
-            background: linear-gradient(135deg, rgba(100,255,150,0.3), rgba(60,200,100,0.3));
-            border-color: rgba(100,255,150,0.5);
-            box-shadow: 0 0 20px rgba(100,255,150,0.3);
-        }
-        #camera-toggle-btn.cinematic:hover {
-            box-shadow: 0 0 30px rgba(100,255,150,0.5);
-        }
-        
-        /* Game Action Buttons Container - Flexbox Layout */
-        .game-action-buttons {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 10000;
-        }
-        .game-action-buttons.visible {
-            display: flex;
-        }
 
-        /* Base Button Style */
-        .game-action-btn {
+
+        /* ============================================================ */
+        /* RIGHT-HAND CONTROL BUTTONS - Standardized 5-button layout */
+        /* ============================================================ */
+
+        /* Camera Control Button */
+        #camera-btn {
+            position: fixed;
+            bottom: 380px;
+            right: 20px;
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            border: 2px solid;
+            background: linear-gradient(135deg, rgba(52,152,219,0.75), rgba(41,128,185,0.75));
+            border: 2px solid rgba(52,152,219,0.8);
             color: #fff;
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
+            z-index: 10002;
             display: flex;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(15px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(52,152,219,0.3);
+            backdrop-filter: blur(10px);
             transition: all 0.3s;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
-        .game-action-btn:hover {
+        #camera-btn:hover {
             transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(52,152,219,0.5);
+            background: linear-gradient(135deg, rgba(52,152,219,0.85), rgba(41,128,185,0.85));
         }
 
-        /* Exit Game Button */
-        #exit-game-btn {
-            background: linear-gradient(135deg, rgba(255,80,80,0.85), rgba(200,40,40,0.9));
-            border-color: rgba(255,80,80,0.7);
-            box-shadow: 0 0 20px rgba(255,80,80,0.4);
+        /* Theme Button */
+        #theme-btn {
+            position: fixed;
+            bottom: 320px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255,107,107,0.75), rgba(255,71,87,0.75));
+            border: 2px solid rgba(255,107,107,0.8);
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(255,107,107,0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
-        #exit-game-btn:hover {
-            box-shadow: 0 0 30px rgba(255,80,80,0.6);
-            background: linear-gradient(135deg, rgba(255,100,100,0.95), rgba(220,60,60,0.95));
-        }
-
-        /* Camera View Toggle Button */
-        #camera-view-toggle-btn {
-            background: linear-gradient(135deg, rgba(100,180,255,0.85), rgba(60,140,220,0.9));
-            border-color: rgba(100,180,255,0.7);
-            box-shadow: 0 0 20px rgba(100,180,255,0.4);
-        }
-        #camera-view-toggle-btn:hover {
-            box-shadow: 0 0 30px rgba(100,180,255,0.6);
-            background: linear-gradient(135deg, rgba(120,200,255,0.95), rgba(80,160,240,0.95));
+        #theme-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(255,107,107,0.5);
+            background: linear-gradient(135deg, rgba(255,107,107,0.85), rgba(255,71,87,0.85));
         }
 
         /* Music Toggle Button */
         #music-toggle-btn {
-            background: linear-gradient(135deg, rgba(180,100,255,0.85), rgba(140,60,220,0.9));
-            border-color: rgba(180,100,255,0.7);
-            box-shadow: 0 0 20px rgba(180,100,255,0.4);
+            position: fixed;
+            bottom: 260px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(124,58,237,0.75), rgba(109,40,217,0.75));
+            border: 2px solid rgba(124,58,237,0.8);
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(124,58,237,0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
         #music-toggle-btn:hover {
-            box-shadow: 0 0 30px rgba(180,100,255,0.6);
-            background: linear-gradient(135deg, rgba(200,120,255,0.95), rgba(160,80,240,0.95));
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(124,58,237,0.5);
+            background: linear-gradient(135deg, rgba(124,58,237,0.85), rgba(109,40,217,0.85));
         }
-        #music-toggle-btn.muted {
-            background: linear-gradient(135deg, rgba(120,120,120,0.85), rgba(80,80,80,0.9));
-            border-color: rgba(150,150,150,0.7);
-            box-shadow: 0 0 20px rgba(120,120,120,0.4);
+        #music-toggle-btn.music-on {
+            background: linear-gradient(135deg, rgba(74,222,128,0.75), rgba(34,197,94,0.75));
+            border-color: rgba(74,222,128,0.8);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(74,222,128,0.3);
+        }
+        #music-toggle-btn.music-on:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(74,222,128,0.5);
+            background: linear-gradient(135deg, rgba(74,222,128,0.85), rgba(34,197,94,0.85));
         }
 
-        /* Mom Help Button */
-        #mom-help-btn {
-            background: linear-gradient(135deg, rgba(255,150,200,0.85), rgba(255,100,180,0.9));
-            border-color: rgba(255,150,200,0.7);
-            box-shadow: 0 0 20px rgba(255,150,200,0.4);
+        /* Leave Game Button */
+        #leave-game-btn {
+            position: fixed;
+            bottom: 200px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255,80,80,0.75), rgba(200,40,40,0.75));
+            border: 2px solid rgba(255,80,80,0.8);
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(255,80,80,0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
-        #mom-help-btn:hover {
-            box-shadow: 0 0 30px rgba(255,150,200,0.6);
-            background: linear-gradient(135deg, rgba(255,180,220,0.95), rgba(255,130,200,0.95));
+        #leave-game-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(255,80,80,0.5);
+            background: linear-gradient(135deg, rgba(255,100,100,0.85), rgba(220,60,60,0.85));
+        }
+
+        /* Board View Button */
+        #board-view-btn {
+            position: fixed;
+            bottom: 140px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(74,222,128,0.75), rgba(34,197,94,0.75));
+            border: 2px solid rgba(74,222,128,0.8);
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 20px rgba(74,222,128,0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        #board-view-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5), 0 0 30px rgba(74,222,128,0.5);
+            background: linear-gradient(135deg, rgba(74,222,128,0.85), rgba(34,197,94,0.85));
+        }
+        #board-view-btn.active {
+            background: linear-gradient(135deg, rgba(255,180,100,0.75), rgba(255,140,60,0.75));
+            border-color: rgba(255,180,100,0.8);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 25px rgba(255,180,100,0.4);
         }
         
         /* Exit Confirmation Modal */
@@ -1470,7 +1546,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.8);
-            z-index: 20000;
+            z-index: 99999;
             justify-content: center;
             align-items: center;
         }
@@ -1531,7 +1607,7 @@
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.85);
-            z-index: 10003;
+            z-index: 99999;
             display: none;
             align-items: center;
             justify-content: center;
@@ -1639,23 +1715,7 @@
         
         /* Turn Timer — REMOVED */
         
-        /* Pause Button and Overlay */
-        #pause-btn {
-            position: fixed;
-            bottom: 140px;
-            right: 20px;
-            background: linear-gradient(135deg, #9333ea, #6366f1);
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            cursor: pointer;
-            font-size: 20px;
-            z-index: 5500;
-            box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
-            transition: all 0.2s;
-        }
-        #pause-btn:hover { transform: scale(1.1); }
+        /* Pause Button - Already handled in legacy buttons section above */
         
         /* Game Controls Bar */
         #game-controls-bar {
@@ -2301,6 +2361,23 @@
         #peg-move-dropdown .dropdown-item .move-steps {
             font-size: 12px;
             opacity: 0.7;
+        }
+
+        /* Mobile-friendly dropdown placement */
+        @media (max-width: 768px) {
+            #peg-move-dropdown {
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                bottom: 12px !important;
+                top: auto !important;
+                min-width: 80% !important;
+                max-width: 92% !important;
+                max-height: 40vh !important;
+                overflow-y: auto !important;
+                padding: 6px 0 !important;
+                border-radius: 10px !important;
+            }
+            #peg-move-dropdown .dropdown-item { padding: 10px 12px; }
         }
 
         /* ============================================================

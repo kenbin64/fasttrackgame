@@ -24,6 +24,7 @@ const GameUIMinimal = {
     isMobile: false,
     players: [],  // All players for indicator bar
     currentPlayerIndex: 0,
+    controlMode: 'automatic',  // 'automatic' or 'manual'
     
     // Dimensional navigation state
     dimensionStack: [],       // navigation history for back-traversal
@@ -91,22 +92,23 @@ const GameUIMinimal = {
         const style = document.createElement('style');
         style.id = 'game-ui-minimal-styles';
         style.textContent = `
-            /* ===== CURRENT PLAYER PANEL (Top Left, Compact HUD) ===== */
+            /* ===== CURRENT PLAYER PANEL (Top Left, Golden Ratio Scaled) ===== */
+            /* Golden Ratio: 1.618 */
             #current-player-panel {
                 position: fixed;
-                top: 10px;
-                left: 10px;
+                top: 16.18px;
+                left: 16.18px;
                 z-index: 10005;
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                padding: 8px 14px;
+                gap: 16.18px;
+                padding: 12.944px 22.652px;
                 background: rgba(0, 0, 0, 0.65);
-                border: 2px solid var(--player-color, #3498db);
-                border-radius: 28px;
-                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4),
-                            0 0 15px var(--player-glow, rgba(52, 152, 219, 0.2));
-                backdrop-filter: blur(10px);
+                border: 3.236px solid var(--player-color, #3498db);
+                border-radius: 45.304px;
+                box-shadow: 0 3.236px 19.416px rgba(0, 0, 0, 0.4),
+                            0 0 24.27px var(--player-glow, rgba(52, 152, 219, 0.2));
+                backdrop-filter: blur(16.18px);
                 transition: all 0.35s ease, opacity 0.4s ease, transform 0.35s ease;
                 font-family: 'Poppins', -apple-system, sans-serif;
                 opacity: 0.45;
@@ -125,8 +127,8 @@ const GameUIMinimal = {
                 opacity: 1;
                 background: rgba(0, 0, 0, 0.82);
                 transform: scale(1.06);
-                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5),
-                            0 0 30px var(--player-glow, rgba(52, 152, 219, 0.45));
+                box-shadow: 0 6.472px 29.124px rgba(0, 0, 0, 0.5),
+                            0 0 48.54px var(--player-glow, rgba(52, 152, 219, 0.45));
             }
             
             /* Flowing glow animation when it's the active player's turn */
@@ -136,54 +138,54 @@ const GameUIMinimal = {
             
             @keyframes panel-glow-flow {
                 0%, 100% {
-                    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5),
-                                0 0 25px var(--player-glow, rgba(52, 152, 219, 0.4)),
-                                0 0 50px var(--player-glow, rgba(52, 152, 219, 0.15));
+                    box-shadow: 0 6.472px 29.124px rgba(0, 0, 0, 0.5),
+                                0 0 40.45px var(--player-glow, rgba(52, 152, 219, 0.4)),
+                                0 0 80.9px var(--player-glow, rgba(52, 152, 219, 0.15));
                     border-color: var(--player-color, #3498db);
                 }
                 50% {
-                    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5),
-                                0 0 40px var(--player-glow, rgba(52, 152, 219, 0.6)),
-                                0 0 70px var(--player-glow, rgba(52, 152, 219, 0.25));
+                    box-shadow: 0 6.472px 38.832px rgba(0, 0, 0, 0.5),
+                                0 0 64.72px var(--player-glow, rgba(52, 152, 219, 0.6)),
+                                0 0 113.26px var(--player-glow, rgba(52, 152, 219, 0.25));
                     border-color: #fff;
                 }
             }
             
             .cp-avatar {
-                width: 40px;
-                height: 40px;
+                width: 64.72px;
+                height: 64.72px;
                 border-radius: 50%;
                 background: linear-gradient(135deg, #2c3e50, #1a252f);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 20px;
-                border: 2px solid var(--player-color, #3498db);
-                box-shadow: 0 0 10px var(--player-glow, rgba(52, 152, 219, 0.4));
+                font-size: 32.36px;
+                border: 3.236px solid var(--player-color, #3498db);
+                box-shadow: 0 0 16.18px var(--player-glow, rgba(52, 152, 219, 0.4));
                 flex-shrink: 0;
             }
             
             .cp-info {
                 display: flex;
                 flex-direction: column;
-                gap: 1px;
+                gap: 1.618px;
             }
             
             .cp-name {
-                font-size: 0.82em;
+                font-size: 1.327em;
                 font-weight: 700;
                 color: #fff;
-                text-shadow: 0 0 8px var(--player-glow, rgba(52, 152, 219, 0.4));
-                max-width: 90px;
+                text-shadow: 0 0 12.944px var(--player-glow, rgba(52, 152, 219, 0.4));
+                max-width: 145.62px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
             }
             
             .cp-turn-label {
-                font-size: 0.55em;
+                font-size: 0.89em;
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.809px;
                 color: var(--player-color, #3498db);
                 font-weight: 600;
             }
@@ -191,10 +193,10 @@ const GameUIMinimal = {
             .cp-deck-info {
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                margin-left: 4px;
-                padding-left: 8px;
-                border-left: 1px solid rgba(255, 255, 255, 0.15);
+                gap: 12.944px;
+                margin-left: 6.472px;
+                padding-left: 12.944px;
+                border-left: 1.618px solid rgba(255, 255, 255, 0.15);
             }
             
             .cp-deck-stack {
@@ -209,22 +211,36 @@ const GameUIMinimal = {
                 transform: scale(1.05);
             }
             
+            /* Enlarge deck when it's time to draw */
+            .cp-deck-stack.draw-ready .cp-deck-icon {
+                width: 77.664px;
+                height: 103.552px;
+                animation: deckPulse 1.5s ease-in-out infinite;
+                box-shadow: 0 0 32.36px rgba(255, 215, 0, 0.6);
+            }
+            
+            @keyframes deckPulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+            
             .cp-deck-icon {
-                width: 32px;
-                height: 42px;
+                width: 51.776px;
+                height: 67.956px;
                 background:
-                    repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(255,255,255,0.07) 3px, rgba(255,255,255,0.07) 6px),
-                    repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 6px),
+                    repeating-linear-gradient(45deg, transparent, transparent 4.854px, rgba(255,255,255,0.07) 4.854px, rgba(255,255,255,0.07) 9.708px),
+                    repeating-linear-gradient(-45deg, transparent, transparent 4.854px, rgba(0,0,0,0.08) 4.854px, rgba(0,0,0,0.08) 9.708px),
                     linear-gradient(135deg, #2980b9, #1a5276);
-                border-radius: 3px;
-                border: 1.5px solid #fff;
+                border-radius: 4.854px;
+                border: 2.427px solid #fff;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 0.65em;
+                font-size: 1.052em;
+                transition: all 0.3s ease;
                 font-weight: 700;
                 color: #fff;
-                box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+                box-shadow: 1.618px 1.618px 6.472px rgba(0,0,0,0.4);
                 position: relative;
             }
             
@@ -233,42 +249,42 @@ const GameUIMinimal = {
                 position: absolute;
                 top: 50%;
                 left: 50%;
-                width: 10px;
-                height: 10px;
+                width: 16.18px;
+                height: 16.18px;
                 transform: translate(-50%, -50%) rotate(45deg);
-                border: 1px solid rgba(255,255,255,0.4);
-                border-radius: 2px;
+                border: 1.618px solid rgba(255,255,255,0.4);
+                border-radius: 3.236px;
                 pointer-events: none;
             }
             
             .cp-deck-icon::after {
                 content: '';
                 position: absolute;
-                top: -2px;
-                left: -2px;
-                right: 2px;
-                bottom: 2px;
+                top: -3.236px;
+                left: -3.236px;
+                right: 3.236px;
+                bottom: 3.236px;
                 background:
-                    repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(255,255,255,0.05) 3px, rgba(255,255,255,0.05) 6px),
+                    repeating-linear-gradient(45deg, transparent, transparent 4.854px, rgba(255,255,255,0.05) 4.854px, rgba(255,255,255,0.05) 9.708px),
                     linear-gradient(135deg, #3498db, #2471a3);
-                border-radius: 3px;
-                border: 1px solid rgba(255,255,255,0.3);
+                border-radius: 4.854px;
+                border: 1.618px solid rgba(255,255,255,0.3);
                 z-index: -1;
             }
             
             .cp-drawn-card {
-                width: 36px;
-                height: 48px;
+                width: 58.248px;
+                height: 77.664px;
                 background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-                border-radius: 4px;
-                border: 1.5px solid #333;
+                border-radius: 6.472px;
+                border: 2.427px solid #333;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 1.15em;
+                font-size: 1.861em;
                 font-weight: 900;
                 color: #c0392b;
-                box-shadow: 2px 2px 5px rgba(0,0,0,0.35);
+                box-shadow: 3.236px 3.236px 8.09px rgba(0,0,0,0.35);
                 cursor: pointer;
                 transition: all 0.3s;
             }
@@ -283,9 +299,9 @@ const GameUIMinimal = {
             
             .cp-drawn-card.empty {
                 background: rgba(255,255,255,0.1);
-                border: 1.5px dashed rgba(255,255,255,0.3);
+                border: 2.427px dashed rgba(255,255,255,0.3);
                 color: rgba(255,255,255,0.3);
-                font-size: 0.8em;
+                font-size: 1.294em;
             }
 
             /* Card hint badge — appears below drawn card */
@@ -335,48 +351,16 @@ const GameUIMinimal = {
                 display: inline-flex;
             }
             
-            /* ===== MENU COG BUTTON ===== */
-            #menu-toggle-btn {
-                position: fixed;
-                top: 15px;
-                right: 15px;
-                z-index: 10010;
-                width: 50px;
-                height: 50px;
-                background: rgba(0, 0, 0, 0.85);
-                border: 2px solid #555;
-                border-radius: 12px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: all 0.3s;
-                backdrop-filter: blur(10px);
-            }
-            
-            #menu-toggle-btn:hover {
-                border-color: #3498db;
-                transform: scale(1.05);
-            }
-            
-            #menu-toggle-btn.open {
-                border-color: #e74c3c;
-            }
-            
-            .menu-cog {
-                width: 26px;
-                height: 26px;
-                fill: #fff;
-                transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
-            }
-            
-            #menu-toggle-btn:hover .menu-cog {
-                transform: rotate(45deg);
-            }
-            
+            /* ===== MENU COG BUTTON - COMPLETELY REMOVED ===== */
+            #menu-toggle-btn,
+            #menu-toggle-btn:hover,
+            #menu-toggle-btn.open,
+            .menu-cog,
+            #menu-toggle-btn:hover .menu-cog,
             #menu-toggle-btn.open .menu-cog {
-                transform: rotate(180deg);
-                fill: #e74c3c;
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
             }
             
             /* ===== SIDE MENU PANEL ===== */
@@ -485,6 +469,43 @@ const GameUIMinimal = {
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
             }
+            /* Header with title and dismiss button */
+            .dim-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px 16px;
+                margin-bottom: 12px;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            .dim-header-title {
+                color: #fff;
+                font-size: 1.1em;
+                font-family: 'Orbitron', 'Rajdhani', sans-serif;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+            }
+            .dim-dismiss-btn {
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.15);
+                color: #aaa;
+                padding: 6px 14px;
+                border-radius: 6px;
+                font-size: 0.85em;
+                font-family: 'Orbitron', 'Rajdhani', sans-serif;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .dim-dismiss-btn:hover {
+                background: rgba(255,255,255,0.15);
+                border-color: rgba(255,255,255,0.3);
+                color: #fff;
+            }
+            .dim-dismiss-btn:active {
+                transform: scale(0.95);
+            }
             /* Dimension items — categories & actions */
             .dim-item {
                 display: flex;
@@ -507,6 +528,20 @@ const GameUIMinimal = {
             }
             .dim-item:active {
                 background: rgba(52,152,219,0.2);
+            }
+            /* Danger item (Leave Game) */
+            .dim-item-danger {
+                border-left: 3px solid rgba(239, 68, 68, 0.6);
+            }
+            .dim-item-danger:hover {
+                background: rgba(239, 68, 68, 0.15);
+                border-left-color: rgba(239, 68, 68, 0.9);
+            }
+            .dim-item-danger:active {
+                background: rgba(239, 68, 68, 0.25);
+            }
+            .dim-item-danger .dim-item-label {
+                color: #ef4444;
             }
             .dim-item-icon {
                 font-size: 1.3em;
@@ -602,6 +637,23 @@ const GameUIMinimal = {
                 height: 1px;
                 margin: 12px 0;
                 background: linear-gradient(90deg, transparent, rgba(52,152,219,0.3), rgba(155,89,182,0.2), transparent);
+            }
+            /* Section header inside a dimension */
+            .dim-section-header {
+                font-size: 0.75em;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                color: rgba(52,152,219,0.8);
+                padding: 12px 16px 8px;
+                margin-top: 8px;
+            }
+            /* Checkmark for active items */
+            .dim-item-check {
+                font-size: 1.2em;
+                color: #4ade80;
+                margin-left: auto;
+                text-shadow: 0 0 8px rgba(74,222,128,0.5);
             }
             
             .menu-btn {
@@ -963,6 +1015,11 @@ const GameUIMinimal = {
                     font-size: 0.75em;
                 }
                 
+                .cp-deck-stack.draw-ready .cp-deck-icon {
+                    width: 54px;
+                    height: 70px;
+                }
+                
                 .cp-drawn-card {
                     width: 38px;
                     height: 50px;
@@ -991,6 +1048,11 @@ const GameUIMinimal = {
                     width: 34px;
                     height: 44px;
                     font-size: 0.7em;
+                }
+                
+                .cp-deck-stack.draw-ready .cp-deck-icon {
+                    width: 50px;
+                    height: 66px;
                 }
                 
                 .cp-drawn-card {
@@ -1276,18 +1338,10 @@ const GameUIMinimal = {
         overlay.addEventListener('click', () => this.toggleMenu(false));
         document.body.appendChild(overlay);
         this.elements.overlay = overlay;
-        
-        // Create cog toggle button
-        const toggle = document.createElement('button');
-        toggle.id = 'menu-toggle-btn';
-        toggle.innerHTML = `
-            <svg class="menu-cog" viewBox="0 0 24 24">
-                <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/>
-            </svg>
-        `;
-        toggle.addEventListener('click', () => this.toggleMenu());
-        document.body.appendChild(toggle);
-        this.elements.menuToggle = toggle;
+
+        // REMOVED: Cog toggle button (replaced by new standardized control buttons)
+        // The menu functionality is now accessed through the new UI buttons
+        this.elements.menuToggle = null;
         
         // Create menu panel (dimensional shell)
         const menu = document.createElement('div');
@@ -1387,6 +1441,20 @@ const GameUIMinimal = {
         const deckEl = document.getElementById('cp-deck-count');
         if (deckEl) {
             deckEl.textContent = count;
+        }
+    },
+    
+    // Enable/disable draw-ready state (enlarges deck when it's time to draw)
+    setDeckDrawReady(ready) {
+        const deckStack = document.getElementById('cp-deck');
+        if (deckStack) {
+            if (ready) {
+                deckStack.classList.add('draw-ready');
+                console.log('[GameUIMinimal] Deck enlarged - ready to draw');
+            } else {
+                deckStack.classList.remove('draw-ready');
+                console.log('[GameUIMinimal] Deck minimized - playing area maximized');
+            }
         }
     },
     
@@ -1543,6 +1611,24 @@ const GameUIMinimal = {
             this.renderDimension('theme');
         }
     },
+    
+    setControlMode(mode) {
+        this.controlMode = mode;
+        window.gameControlMode = mode;
+        console.log('[GameUIMinimal] Control mode set to:', mode);
+        
+        // Save to localStorage
+        try {
+            localStorage.setItem('fasttrack_control_mode', mode);
+        } catch (e) {
+            console.warn('[GameUIMinimal] Could not save control mode to localStorage');
+        }
+        
+        // Re-render controls dimension to update active state
+        if (this.currentDimension === 'controls') {
+            this.renderDimension('controls');
+        }
+    },
 
     // ============================================================
     // DIMENSIONAL NAVIGATION
@@ -1619,16 +1705,27 @@ const GameUIMinimal = {
     },
 
     _renderRoot() {
+        // Leave Game button (appears first)
+        const leaveButton = `
+            <div class="dim-item dim-item-danger" onclick="GameUIMinimal.leaveGame()">
+                <span class="dim-item-icon">🚪</span>
+                <div class="dim-item-text">
+                    <span class="dim-item-label">Leave Game</span>
+                    <span class="dim-item-about">Exit to lobby or main menu</span>
+                </div>
+            </div>
+        `;
+        
         const categories = [
             { id: 'theme',    icon: '🎨', label: 'Theme' },
             { id: 'sounds',   icon: '🔊', label: 'Sounds' },
             { id: 'controls', icon: '🎮', label: 'Controls' },
-            { id: 'camera',   icon: '📹', label: 'Camera' },
+            { id: 'camera',   icon: '📹', label: 'Camera Control' },
             { id: 'rules',    icon: '📖', label: 'Rules' },
             { id: 'tutorial', icon: '🎓', label: 'Tutorial' }
         ];
 
-        return categories.map(c => `
+        return leaveButton + categories.map(c => `
             <div class="dim-item" onclick="GameUIMinimal.drillDown('${c.id}')">
                 <span class="dim-item-icon">${c.icon}</span>
                 <div class="dim-item-text">
@@ -1699,64 +1796,71 @@ const GameUIMinimal = {
     },
 
     _renderControls() {
+        const controlMode = window.gameControlMode || 'automatic';
+        const isAutomatic = controlMode === 'automatic';
+        
         return `
             <div class="dim-back" onclick="GameUIMinimal.drillUp()">
                 <span class="dim-back-arrow">◂</span>
                 <span class="dim-back-label">Back</span>
             </div>
+            
+            <div class="dim-section-header">Movement Mode</div>
+            
+            <div class="dim-item ${isAutomatic ? 'active-item' : ''}" onclick="GameUIMinimal.setControlMode('automatic')">
+                <span class="dim-item-icon">🤖</span>
+                <div class="dim-item-text">
+                    <span class="dim-item-label">Automatic</span>
+                    <span class="dim-item-about">Click peg or destination - game executes move</span>
+                </div>
+                ${isAutomatic ? '<span class="dim-item-check">✓</span>' : ''}
+            </div>
+            
+            <div class="dim-item ${!isAutomatic ? 'active-item' : ''}" onclick="GameUIMinimal.setControlMode('manual')">
+                <span class="dim-item-icon">✋</span>
+                <div class="dim-item-text">
+                    <span class="dim-item-label">Manual</span>
+                    <span class="dim-item-about">Jump hole-to-hole until final destination</span>
+                </div>
+                ${!isAutomatic ? '<span class="dim-item-check">✓</span>' : ''}
+            </div>
+            
+            <div class="dim-divider"></div>
+            
             <div class="dim-item" onclick="GameUIMinimal.askMom()">
-                <span class="dim-item-icon">👩‍👧</span>
+                <span class="dim-item-icon">👩‍�</span>
                 <div class="dim-item-text">
                     <span class="dim-item-label">Ask Mom</span>
                     <span class="dim-item-about">Get helpful hints for your next move</span>
-                </div>
-            </div>
-            <div class="dim-item" onclick="GameUIMinimal.restartGame()">
-                <span class="dim-item-icon">🔄</span>
-                <div class="dim-item-text">
-                    <span class="dim-item-label">Restart</span>
-                    <span class="dim-item-about">Start a new game from scratch</span>
-                </div>
-            </div>
-            <div class="dim-item" onclick="GameUIMinimal.exitGame()">
-                <span class="dim-item-icon">🚪</span>
-                <div class="dim-item-text">
-                    <span class="dim-item-label">Exit</span>
-                    <span class="dim-item-about">Return to the main menu</span>
                 </div>
             </div>
         `;
     },
 
     _renderCamera() {
-        const currentCam = window.currentCameraMode || 'board';
+        const currentCam = window.currentCameraMode || 'chase';
         const cams = [
-            { id: 'board',  icon: '🎯', label: 'Board',     about: 'Classic overhead view of the entire board' },
-            { id: 'ground', icon: '🏃', label: 'Ground',    about: 'Low-angle view from table level' },
-            { id: 'chase',  icon: '🎬', label: 'Chase',     about: 'Follows the action dynamically' },
-            { id: 'orbit',  icon: '🌀', label: 'Orbit',     about: 'Slowly circles the board' },
-            { id: 'manual', icon: '✋', label: 'Manual',    about: 'Free camera — drag to look around' },
-            { id: 'pegeye', icon: '👁️', label: "Peg's Eye", about: 'See the board from your peg\'s perspective' }
+            { id: 'chase',  icon: '🎬', label: 'Automatic',        about: 'Cinematic view that follows the action' },
+            { id: 'manual', icon: '✋', label: 'Manual',           about: 'Mouse-driven — drag to look around' },
+            { id: 'board',  icon: '🎯', label: 'Straight Down',   about: 'Overhead view of entire board' },
+            { id: 'pegeye', icon: '👁️', label: 'Follow Active Peg', about: 'Camera follows your active peg' }
         ];
-        const speedVal = document.getElementById('menu-cam-speed')?.value ?? 0.6;
-        const v = parseFloat(speedVal);
-        let speedLabel = 'Smooth';
-        if (v <= 0.4) speedLabel = 'Slow';
-        else if (v <= 0.8) speedLabel = 'Smooth';
-        else if (v <= 1.3) speedLabel = 'Fast';
-        else speedLabel = 'Blazing';
 
         return `
+            <div class="dim-header">
+                <span class="dim-header-title">📹 Camera Control</span>
+                <button class="dim-dismiss-btn" onclick="GameUIMinimal.toggleMenu(false)">Dismiss</button>
+            </div>
             <div class="dim-back" onclick="GameUIMinimal.drillUp()">
                 <span class="dim-back-arrow">◂</span>
                 <span class="dim-back-label">Back</span>
             </div>
             ${cams.map(c => {
-                const action = c.id === 'pegeye' 
-                    ? 'GameUIMinimal.enterPegEyeView()' 
+                const action = c.id === 'pegeye'
+                    ? 'GameUIMinimal.enterPegEyeView()'
                     : `GameUIMinimal.setCameraView('${c.id}')`;
                 return `
-                <div class="dim-item ${c.id === currentCam ? 'active-item' : ''}" 
+                <div class="dim-item ${c.id === currentCam ? 'active-item' : ''}"
                      onclick="${action}">
                     <span class="dim-item-icon">${c.icon}</span>
                     <div class="dim-item-text">
@@ -1765,12 +1869,6 @@ const GameUIMinimal = {
                     </div>
                 </div>
             `}).join('')}
-            <div class="dim-divider"></div>
-            <div class="dim-slider-row">
-                <span class="dim-slider-icon">🐢</span>
-                <input type="range" class="menu-volume-slider" id="menu-cam-speed" min="0.2" max="2.0" step="0.1" value="${speedVal}" oninput="GameUIMinimal.setCameraSpeed(this.value)">
-                <span class="dim-slider-val" id="menu-cam-speed-val">${speedLabel}</span>
-            </div>
         `;
     },
 
@@ -1828,10 +1926,10 @@ const GameUIMinimal = {
         if (typeof window.setCameraViewMode === 'function') {
             window.setCameraViewMode(viewName);
         }
-        // Re-render camera dimension to update active state
-        if (this.currentDimension === 'camera') {
-            this.renderDimension('camera');
-        }
+        // Update current camera mode for UI
+        window.currentCameraMode = viewName;
+        // Close menu after selection
+        this.toggleMenu(false);
     },
 
     setCameraSpeed(val) {
@@ -2071,6 +2169,43 @@ const GameUIMinimal = {
             window.open('index.html#rules', '_blank');
         }
         this.toggleMenu(false);
+    },
+    
+    leaveGame() {
+        // Detect game type from URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const isOffline = params.get('offline') === 'true';
+        const isPrivate = params.get('code') !== null;
+        const isPublicLobby = params.get('session') !== null && !isPrivate;
+        
+        let message, destination;
+        
+        if (isPublicLobby) {
+            // Public lobby game - return to lobby
+            message = 'Leave this game and return to lobby?';
+            destination = 'lobby.html';
+        } else if (isPrivate) {
+            // Private game - exit to main menu
+            message = 'Leave this private game?';
+            destination = 'index.html';
+        } else {
+            // Offline/AI game - exit to main menu
+            message = 'Leave this game?';
+            destination = 'index.html';
+        }
+        
+        if (confirm(message)) {
+            // Close menu first
+            this.toggleMenu(false);
+            
+            // Disconnect from multiplayer if connected
+            if (window.MultiplayerClient && typeof window.MultiplayerClient.disconnect === 'function') {
+                window.MultiplayerClient.disconnect();
+            }
+            
+            // Navigate to destination
+            window.location.href = destination;
+        }
     },
     
     restartGame() {

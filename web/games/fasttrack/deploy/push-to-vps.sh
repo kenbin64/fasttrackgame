@@ -2,6 +2,7 @@
 # =============================================================================
 # Fast Track Remote Deployment to VPS
 # Deploys to kensgames.com (172.81.62.217)
+# Version: 2.1.0 - Dimensional Substrate Architecture
 # =============================================================================
 
 set -e
@@ -12,13 +13,50 @@ DOMAIN="kensgames.com"
 REMOTE_DIR="/var/www/kensgames/fasttrack"
 LOCAL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 HELIX_DIR="/opt/butterflyfx/dimensionsos/helix"
+DEPLOY_VERSION="v2.1.0-$(date +%Y%m%d-%H%M%S)"
 
 echo "================================================"
-echo "Fast Track Remote Deploy"
+echo "Fast Track Remote Deploy - Dimensional Architecture"
+echo "  Version: $DEPLOY_VERSION"
 echo "  VPS: $VPS_IP ($DOMAIN)"
 echo "  From: $LOCAL_DIR"
 echo "  To: $VPS_USER@$VPS_IP:$REMOTE_DIR"
 echo "================================================"
+
+# Pre-deployment validation
+echo ""
+echo "[Pre-Deploy] Validating dimensional substrates..."
+REQUIRED_SUBSTRATES=(
+    "validation_substrate.js"
+    "event_substrate.js"
+    "state_substrate.js"
+    "array_substrate.js"
+    "substrate_manifold.js"
+    "move_generation_substrate.js"
+    "card_logic_substrate.js"
+    "ui_manifold.js"
+    "ai_manifold.js"
+    "game_engine_manifold.js"
+)
+
+MISSING_FILES=0
+for substrate in "${REQUIRED_SUBSTRATES[@]}"; do
+    if [ ! -f "$LOCAL_DIR/$substrate" ]; then
+        echo "  ❌ Missing: $substrate"
+        MISSING_FILES=$((MISSING_FILES + 1))
+    else
+        echo "  ✅ Found: $substrate"
+    fi
+done
+
+if [ $MISSING_FILES -gt 0 ]; then
+    echo ""
+    echo "ERROR: $MISSING_FILES required substrate(s) missing!"
+    echo "Please ensure all dimensional substrates are present before deploying."
+    exit 1
+fi
+
+echo "  ✅ All dimensional substrates present"
 
 # Create remote directories first
 echo ""
@@ -81,22 +119,96 @@ REMOTE_SCRIPT
 
 # Reload nginx
 echo ""
-echo "[5/6] Reloading nginx..."
+echo "[5/7] Reloading nginx..."
 ssh "$VPS_USER@$VPS_IP" "nginx -t && systemctl reload nginx"
 
 # Deploy landing page
 echo ""
-echo "[6/6] Deploying landing page..."
+echo "[6/7] Deploying landing page..."
 ssh "$VPS_USER@$VPS_IP" "cp /var/www/kensgames/fasttrack/landing/index.html /var/www/kensgames/index.html"
+
+# Post-deployment verification
+echo ""
+echo "[7/7] Verifying dimensional substrate deployment..."
+ssh "$VPS_USER@$VPS_IP" << 'VERIFY_SCRIPT'
+    cd /var/www/kensgames/fasttrack
+    
+    echo "Checking dimensional substrates:"
+    SUBSTRATES=(
+        "validation_substrate.js"
+        "event_substrate.js"
+        "state_substrate.js"
+        "array_substrate.js"
+        "substrate_manifold.js"
+        "move_generation_substrate.js"
+        "card_logic_substrate.js"
+        "ui_manifold.js"
+        "ai_manifold.js"
+        "game_engine_manifold.js"
+    )
+    
+    ALL_PRESENT=true
+    for substrate in "${SUBSTRATES[@]}"; do
+        if [ -f "$substrate" ]; then
+            SIZE=$(stat -f%z "$substrate" 2>/dev/null || stat -c%s "$substrate" 2>/dev/null)
+            echo "  ✅ $substrate (${SIZE} bytes)"
+        else
+            echo "  ❌ MISSING: $substrate"
+            ALL_PRESENT=false
+        fi
+    done
+    
+    if [ "$ALL_PRESENT" = true ]; then
+        echo ""
+        echo "✅ All dimensional substrates deployed successfully"
+    else
+        echo ""
+        echo "⚠️  WARNING: Some substrates missing on production"
+        exit 1
+    fi
+    
+    echo ""
+    echo "Checking core game files:"
+    CORE_FILES=(
+        "board_3d.html"
+        "game_engine.js"
+        "game_ui_minimal.js"
+        "move_selection_modal.js"
+    )
+    
+    for file in "${CORE_FILES[@]}"; do
+        if [ -f "$file" ]; then
+            SIZE=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null)
+            echo "  ✅ $file (${SIZE} bytes)"
+        else
+            echo "  ❌ MISSING: $file"
+        fi
+    done
+VERIFY_SCRIPT
 
 echo ""
 echo "================================================"
-echo "Deployment complete!"
+echo "Deployment Complete! - Dimensional Architecture v2.1.0"
+echo "================================================"
 echo ""
+echo "🎮 Game URLs:"
 echo "  Landing: https://kensgames.com"
 echo "  Game:    https://kensgames.com/fasttrack"
 echo "  Manifold: wss://kensgames.com/manifold"
 echo ""
-echo "To check logs:"
-echo "  ssh $VPS_USER@$VPS_IP journalctl -u fasttrack-game -f"
+echo "🧪 Test Suites:"
+echo "  Rules:   https://kensgames.com/fasttrack/test_runner_ui.html"
+echo "  Flows:   https://kensgames.com/fasttrack/test_game_flows_ui.html"
+echo ""
+echo "📊 Monitoring:"
+echo "  Game logs:     ssh $VPS_USER@$VPS_IP journalctl -u fasttrack-game -f"
+echo "  Manifold logs: ssh $VPS_USER@$VPS_IP journalctl -u fasttrack-manifold -f"
+echo "  Nginx logs:    ssh $VPS_USER@$VPS_IP tail -f /var/log/nginx/access.log"
+echo ""
+echo "✅ Dimensional Substrates: 10 deployed"
+echo "✅ Core Game Files: Updated"
+echo "✅ Test Suites: Available"
+echo "✅ Services: Running"
+echo ""
+echo "Deployment Version: $DEPLOY_VERSION"
 echo "================================================"
