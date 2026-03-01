@@ -257,20 +257,31 @@ const FastTrackThemes = {
     // Update parallax and animations
     update: function(mouseX, mouseY, gameEvent) {
         const time = Date.now() * 0.001;
-        
+
         // Update crowd reaction if theme supports it
         if (gameEvent && this.themes[this.currentTheme]?.onGameEvent) {
             this.themes[this.currentTheme].onGameEvent(gameEvent, this);
         }
-        
+
         this.backdropLayers.forEach((layer) => {
             const mesh = layer.mesh;
             if (!mesh) return;
-            
-            // Parallax offset based on mouse movement
+
+            // Parallax offset based on mouse movement with boundaries
+            // Prevents backdrop from encroaching on the board area
             if (layer.parallaxFactor > 0) {
-                mesh.position.x += (-mouseX * layer.parallaxFactor * 50 - mesh.position.x * 0.001);
-                mesh.position.z += (-mouseY * layer.parallaxFactor * 30 - mesh.position.z * 0.001);
+                const targetX = -mouseX * layer.parallaxFactor * 50;
+                const targetZ = -mouseY * layer.parallaxFactor * 30;
+
+                // Clamp parallax to safe boundaries (keep away from board center)
+                const maxParallaxX = 100; // Maximum X offset
+                const maxParallaxZ = 80;  // Maximum Z offset
+
+                const clampedX = Math.max(-maxParallaxX, Math.min(maxParallaxX, targetX));
+                const clampedZ = Math.max(-maxParallaxZ, Math.min(maxParallaxZ, targetZ));
+
+                mesh.position.x += (clampedX - mesh.position.x) * 0.05;
+                mesh.position.z += (clampedZ - mesh.position.z) * 0.05;
             }
             
             // Subtle rotation for depth

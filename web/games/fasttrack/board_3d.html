@@ -3,11 +3,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a2e">
     <meta name="mobile-web-app-capable" content="yes">
+    <!-- VERSION: 2026-03-01-02:50 - Camera & Music Buttons Added -->
     <title>Fast Track — Play Free Online | 3D Board Game</title>
     <meta name="description" content="Play Fast Track free in your browser — a 3D card &amp; peg racing board game. Race around the board, take the Fast Track shortcut, capture opponents. 2-4 players, 7 themes, smart AI.">
     <meta name="keywords" content="fast track, board game, online game, free game, 3D board game, card game, multiplayer, peg racing">
@@ -107,7 +111,8 @@
         // PWA SUPPORT - Service Worker & Install
         // ========================================
         (function initPWA() {
-            // FORCE purge old service workers and caches, then register fresh
+            // ButterflyFX: Disable service worker caching - dimensional architecture handles deltas
+            // FORCE purge old service workers and caches, NO re-registration
             if ('serviceWorker' in navigator) {
                 // First: unregister ALL existing service workers
                 navigator.serviceWorker.getRegistrations().then(registrations => {
@@ -117,11 +122,8 @@
                     // Second: purge ALL caches
                     return caches.keys().then(names => Promise.all(names.map(n => caches.delete(n))));
                 }).then(() => {
-                    // Third: register the new v3 network-first SW
-                    return navigator.serviceWorker.register('sw.js?v=3');
-                }).then(reg => {
-                    console.log('[PWA] Fresh SW v3 registered (network-first)');
-                }).catch(err => console.log('[PWA] SW setup error:', err));
+                    console.log('[PWA] All service workers and caches purged - ButterflyFX dimensional mode');
+                }).catch(err => console.log('[PWA] Cache purge error:', err));
             }
             
             // Platform detection
@@ -293,7 +295,7 @@
         })();
     </script>
     
-    <link rel="stylesheet" href="assets/css/board-3d.css?v=20260223">
+    <link rel="stylesheet" href="assets/css/board-3d.css?v=20260301c">
 </head>
 <body>
     <!-- Auth & Lobby UI Containers (hidden in dev mode) -->
@@ -424,14 +426,23 @@
         </div>
     </div>
     
-    <!-- Exit Game Button -->
-    <button id="exit-game-btn" onclick="showExitConfirm()" title="Exit Game">🚪</button>
-    
-    <!-- Tutorial Button -->
+    <!-- Game Action Buttons (Flexbox Container) -->
+    <div class="game-action-buttons" id="game-action-buttons">
+        <!-- Exit Game Button -->
+        <button id="exit-game-btn" class="game-action-btn" onclick="showExitConfirm()" title="Exit Game">🚨</button>
+
+        <!-- Camera View Toggle Button -->
+        <button id="camera-view-toggle-btn" class="game-action-btn" onclick="toggleCameraView()" title="Camera: Automatic">📷</button>
+
+        <!-- Music Toggle Button -->
+        <button id="music-toggle-btn" class="game-action-btn" onclick="toggleMusic()" title="Toggle Music">🎵</button>
+
+        <!-- Mom Help Button -->
+        <button id="mom-help-btn" class="game-action-btn" onclick="showMomHelp()" title="Ask Mom for Help">👩‍👧</button>
+    </div>
+
+    <!-- Tutorial Button (separate, hidden by default) -->
     <button id="tutorial-btn" onclick="FastTrackTutorial.start()" title="Tutorial" style="display:none;">📖</button>
-    
-    <!-- Mom Help Button -->
-    <button id="mom-help-btn" onclick="showMomHelp()" title="Ask Mom for Help">👩‍👧</button>
     
     <!-- Exit Confirmation Modal -->
     <div id="exit-confirm-modal">
@@ -951,23 +962,23 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     
     <!-- FastTrack Substrates -->
-    <script src="themes.js?v=20260225c"></script>
-    <script src="avatar_substrate.js?v=20260223"></script>
-    <script src="social_substrate.js?v=20260223"></script>
-    <script src="auth_substrate.js?v=20260223"></script>
-    <script src="admin_substrate.js?v=20260223"></script>
-    <script src="game_session_manager.js?v=20260223"></script>
-    <script src="lobby_substrate.js?v=20260223"></script>
-    <script src="game_ui_minimal.js?v=20260225c"></script>
+    <script src="themes.js?v=20260301"></script>
+    <script src="avatar_substrate.js?v=20260301"></script>
+    <script src="social_substrate.js?v=20260301"></script>
+    <script src="auth_substrate.js?v=20260301"></script>
+    <script src="admin_substrate.js?v=20260301"></script>
+    <script src="game_session_manager.js?v=20260301"></script>
+    <script src="lobby_substrate.js?v=20260301"></script>
+    <script src="game_ui_minimal.js?v=20260301"></script>
     <!-- BoardManifold: Every hole, card, peg, rule on z=xy / z=xy² surfaces -->
-    <script src="board_manifold.js?v=20260223"></script>
+    <script src="board_manifold.js?v=20260301"></script>
     <!-- ManifoldAI: Geometric intelligence on z=xy and z=xy² surfaces -->
-    <script src="manifold_ai.js?v=20260223"></script>
+    <script src="manifold_ai.js?v=20260301"></script>
     <!-- Unified Game Initialization System -->
-    <script src="game_init.js?v=20260223"></script>
-    <script src="mobile_ui.js?v=20260223"></script>
-    <script src="lobby_ui.js?v=20260223"></script>
-    <script src="auth_ui.js?v=20260223"></script>
+    <script src="game_init.js?v=20260301"></script>
+    <script src="mobile_ui.js?v=20260301"></script>
+    <script src="lobby_ui.js?v=20260301"></script>
+    <script src="auth_ui.js?v=20260301"></script>
     
     <!-- Card Game System -->
     <script src="card_deck_substrate.js?v=20260223"></script>
@@ -1409,7 +1420,7 @@
     // Theme system variables
     let mouseX = 0, mouseY = 0;
     let targetMouseX = 0, targetMouseY = 0;
-    let currentThemeName = 'spaceace';
+    let currentThemeName = 'cosmic';
     
     function init() {
         console.log('🔄 init() started');
@@ -2997,7 +3008,89 @@
     function toggleCameraMode() {
         toggleCameraPanel();
     }
-    
+
+    // ============================================================
+    // CAMERA VIEW TOGGLE (3 modes: Automatic, Straight Down, Angled)
+    // ============================================================
+    let cameraViewMode = 'automatic'; // 'automatic', 'straight-down', 'angled'
+
+    function toggleCameraView() {
+        const modes = ['automatic', 'straight-down', 'angled'];
+        const currentIndex = modes.indexOf(cameraViewMode);
+        const nextIndex = (currentIndex + 1) % modes.length;
+        cameraViewMode = modes[nextIndex];
+
+        const btn = document.getElementById('camera-view-toggle-btn');
+
+        switch (cameraViewMode) {
+            case 'automatic':
+                // Automatic mode: follows gameplay and active peg
+                userOverrideCamera = false;
+                cameraMode = 'cinematic';
+                if (btn) btn.title = 'Camera: Automatic (follows gameplay)';
+                console.log('[Camera] Mode: Automatic - follows gameplay');
+                // Return to current view default
+                returnToViewDefault();
+                break;
+
+            case 'straight-down':
+                // Straight down view: top-down, manual control
+                userOverrideCamera = true;
+                cameraMode = 'manual';
+                if (btn) btn.title = 'Camera: Straight Down (manual control)';
+                console.log('[Camera] Mode: Straight Down - manual control');
+                // Set camera to top-down position
+                camera.position.set(0, 700, 0);
+                camera.lookAt(0, 0, 0);
+                controls.target.set(0, 0, 0);
+                break;
+
+            case 'angled':
+                // Angled view: angled perspective, manual control
+                userOverrideCamera = true;
+                cameraMode = 'manual';
+                if (btn) btn.title = 'Camera: Angled (manual control)';
+                console.log('[Camera] Mode: Angled - manual control');
+                // Set camera to angled position
+                camera.position.set(0, 500, 400);
+                camera.lookAt(0, 0, 0);
+                controls.target.set(0, 0, 0);
+                break;
+        }
+    }
+    window.toggleCameraView = toggleCameraView;
+
+    // ============================================================
+    // MUSIC TOGGLE
+    // ============================================================
+    let musicMuted = false;
+
+    function toggleMusic() {
+        musicMuted = !musicMuted;
+        const btn = document.getElementById('music-toggle-btn');
+
+        if (musicMuted) {
+            // Mute music
+            if (btn) {
+                btn.textContent = '🔇';
+                btn.title = 'Music: Off (click to turn on)';
+                btn.classList.add('muted');
+            }
+            console.log('[Music] Muted');
+            // TODO: Add actual music muting logic when music system is implemented
+        } else {
+            // Unmute music
+            if (btn) {
+                btn.textContent = '🎵';
+                btn.title = 'Music: On (click to turn off)';
+                btn.classList.remove('muted');
+            }
+            console.log('[Music] Unmuted');
+            // TODO: Add actual music unmuting logic when music system is implemented
+        }
+    }
+    window.toggleMusic = toggleMusic;
+
     // Track user interaction with camera
     // While user is actively manipulating (mouse/touch down), ALL cinematic
     // movement is blocked. After release, there's a grace period then a
@@ -13346,13 +13439,31 @@
         if (exitBtn) {
             exitBtn.style.display = 'flex';
         }
-        
+
+        // Show camera view toggle button
+        const cameraViewBtn = document.getElementById('camera-view-toggle-btn');
+        if (cameraViewBtn) {
+            cameraViewBtn.style.display = 'flex';
+            console.log('[UI] Camera view toggle button shown');
+        } else {
+            console.error('[UI] Camera view toggle button NOT FOUND in DOM!');
+        }
+
+        // Show music toggle button
+        const musicBtn = document.getElementById('music-toggle-btn');
+        if (musicBtn) {
+            musicBtn.style.display = 'flex';
+            console.log('[UI] Music toggle button shown');
+        } else {
+            console.error('[UI] Music toggle button NOT FOUND in DOM!');
+        }
+
         // Show mom help button
         const momBtn = document.getElementById('mom-help-btn');
         if (momBtn) {
             momBtn.style.display = 'flex';
         }
-        
+
         // Show tutorial button
         const tutBtn = document.getElementById('tutorial-btn');
         if (tutBtn) {
@@ -14322,11 +14433,29 @@
                     // Show exit game button
                     const exitBtn = document.getElementById('exit-game-btn');
                     if (exitBtn) exitBtn.style.display = 'flex';
-                    
+
+                    // Show camera view toggle button
+                    const cameraViewBtn = document.getElementById('camera-view-toggle-btn');
+                    if (cameraViewBtn) {
+                        cameraViewBtn.style.display = 'flex';
+                        console.log('[Multiplayer] Camera view toggle button shown');
+                    } else {
+                        console.error('[Multiplayer] Camera view toggle button NOT FOUND in DOM!');
+                    }
+
+                    // Show music toggle button
+                    const musicBtn = document.getElementById('music-toggle-btn');
+                    if (musicBtn) {
+                        musicBtn.style.display = 'flex';
+                        console.log('[Multiplayer] Music toggle button shown');
+                    } else {
+                        console.error('[Multiplayer] Music toggle button NOT FOUND in DOM!');
+                    }
+
                     // Show mom help button
                     const momBtn = document.getElementById('mom-help-btn');
                     if (momBtn) momBtn.style.display = 'flex';
-                    
+
                     // Show tutorial button
                     const tutBtn = document.getElementById('tutorial-btn');
                     if (tutBtn) tutBtn.style.display = 'flex';

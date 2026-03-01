@@ -1378,58 +1378,87 @@
             box-shadow: 0 0 30px rgba(100,255,150,0.5);
         }
         
+        /* Game Action Buttons Container - Flexbox Layout */
+        .game-action-buttons {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10000;
+        }
+        .game-action-buttons.visible {
+            display: flex;
+        }
+
+        /* Base Button Style */
+        .game-action-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(15px);
+            transition: all 0.3s;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+        .game-action-btn:hover {
+            transform: scale(1.1);
+        }
+
         /* Exit Game Button */
         #exit-game-btn {
-            position: fixed;
-            bottom: 320px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, rgba(255,80,80,0.3), rgba(200,40,40,0.3));
-            border: 2px solid rgba(255,80,80,0.5);
-            color: #fff;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 10002;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 20px rgba(255,80,80,0.3);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
+            background: linear-gradient(135deg, rgba(255,80,80,0.85), rgba(200,40,40,0.9));
+            border-color: rgba(255,80,80,0.7);
+            box-shadow: 0 0 20px rgba(255,80,80,0.4);
         }
         #exit-game-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(255,80,80,0.5);
-            background: linear-gradient(135deg, rgba(255,100,100,0.5), rgba(220,60,60,0.5));
+            box-shadow: 0 0 30px rgba(255,80,80,0.6);
+            background: linear-gradient(135deg, rgba(255,100,100,0.95), rgba(220,60,60,0.95));
         }
-        
+
+        /* Camera View Toggle Button */
+        #camera-view-toggle-btn {
+            background: linear-gradient(135deg, rgba(100,180,255,0.85), rgba(60,140,220,0.9));
+            border-color: rgba(100,180,255,0.7);
+            box-shadow: 0 0 20px rgba(100,180,255,0.4);
+        }
+        #camera-view-toggle-btn:hover {
+            box-shadow: 0 0 30px rgba(100,180,255,0.6);
+            background: linear-gradient(135deg, rgba(120,200,255,0.95), rgba(80,160,240,0.95));
+        }
+
+        /* Music Toggle Button */
+        #music-toggle-btn {
+            background: linear-gradient(135deg, rgba(180,100,255,0.85), rgba(140,60,220,0.9));
+            border-color: rgba(180,100,255,0.7);
+            box-shadow: 0 0 20px rgba(180,100,255,0.4);
+        }
+        #music-toggle-btn:hover {
+            box-shadow: 0 0 30px rgba(180,100,255,0.6);
+            background: linear-gradient(135deg, rgba(200,120,255,0.95), rgba(160,80,240,0.95));
+        }
+        #music-toggle-btn.muted {
+            background: linear-gradient(135deg, rgba(120,120,120,0.85), rgba(80,80,80,0.9));
+            border-color: rgba(150,150,150,0.7);
+            box-shadow: 0 0 20px rgba(120,120,120,0.4);
+        }
+
         /* Mom Help Button */
         #mom-help-btn {
-            position: fixed;
-            bottom: 200px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, rgba(255,150,200,0.3), rgba(255,100,180,0.3));
-            border: 2px solid rgba(255,150,200,0.5);
-            color: #fff;
-            font-size: 22px;
-            cursor: pointer;
-            z-index: 10002;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 20px rgba(255,150,200,0.3);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
+            background: linear-gradient(135deg, rgba(255,150,200,0.85), rgba(255,100,180,0.9));
+            border-color: rgba(255,150,200,0.7);
+            box-shadow: 0 0 20px rgba(255,150,200,0.4);
         }
         #mom-help-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(255,150,200,0.5);
-            background: linear-gradient(135deg, rgba(255,180,220,0.5), rgba(255,130,200,0.5));
+            box-shadow: 0 0 30px rgba(255,150,200,0.6);
+            background: linear-gradient(135deg, rgba(255,180,220,0.95), rgba(255,130,200,0.95));
         }
         
         /* Exit Confirmation Modal */

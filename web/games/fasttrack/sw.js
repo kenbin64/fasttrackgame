@@ -3,7 +3,7 @@
  * NETWORK-FIRST for everything — cache is ONLY an offline fallback
  */
 
-const CACHE_NAME = 'fasttrack-v3.0.0';
+const CACHE_NAME = 'fasttrack-v3.0.1-buttons';
 const PRECACHE_URLS = [
   '/fasttrack/board_3d.html',
   '/fasttrack/assets/images/ftLogo.png',
