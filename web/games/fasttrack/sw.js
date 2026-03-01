@@ -3,14 +3,16 @@
  * NETWORK-FIRST for everything — cache is ONLY an offline fallback
  */
 
-const CACHE_NAME = 'fasttrack-v3.0.1-buttons';
+const CACHE_NAME = 'fasttrack-v3.2.0-local-libs';
 const PRECACHE_URLS = [
   '/fasttrack/board_3d.html',
   '/fasttrack/assets/images/ftLogo.png',
   '/fasttrack/assets/images/icon-192.png',
   '/fasttrack/assets/images/icon-512.png',
   '/fasttrack/manifest.json',
-  'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'
+  // Three.js and OrbitControls are now served from /lib/ — no CDN dependency
+  '/lib/three/three.min.js',
+  '/lib/three/OrbitControls.js'
 ];
 
 // Install — precache a small shell, then take over immediately
@@ -41,16 +43,18 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   if (event.request.url.includes('/ws')) return;
 
+  // All third-party libraries (Three.js, Chart.js, jQuery, Bootstrap, Font Awesome)
+  // are now served locally from /lib/ — no external CDN requests to intercept.
+  // Only cache same-origin requests.
+  const url = event.request.url;
+
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
           const clone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            const url = event.request.url;
-            if (url.startsWith(self.location.origin) ||
-                url.includes('cdnjs.cloudflare.com') ||
-                url.includes('cdn.jsdelivr.net')) {
+            if (url.startsWith(self.location.origin)) {
               cache.put(event.request, clone);
             }
           });

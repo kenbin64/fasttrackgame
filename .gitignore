@@ -26,6 +26,9 @@ eggs/
 .eggs/
 lib/
 lib64/
+# Keep the shared vendor library committed (overrides Python 'lib/' pattern above)
+!web/lib/
+!web/lib/**
 parts/
 sdist/
 var/
