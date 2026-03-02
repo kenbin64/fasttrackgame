@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a2e">
     <meta name="mobile-web-app-capable" content="yes">
-    <!-- VERSION: 2026-03-02-06:00 - Fix overlay pointer-events; fix peg top z-fighting (depthWrite+renderOrder) -->
+    <!-- VERSION: 2026-03-02-10:00 - Card overlay dismisses in 600ms (was 1800ms) so board appears immediately after rank shows -->
     <title>Fast Track — Play Free Online | 3D Board Game</title>
     <meta name="description" content="Play Fast Track free in your browser — a 3D card &amp; peg racing board game. Race around the board, take the Fast Track shortcut, capture opponents. 2-4 players, 7 themes, smart bots.">
     <meta name="keywords" content="fast track, board game, online game, free game, 3D board game, card game, multiplayer, peg racing">
@@ -1390,15 +1390,18 @@
         // Add invisible touch zone to increase clickable area for pegs (helps mobile)
         try {
             const touchGeo = new THREE.CylinderGeometry(PEG_DOME_RADIUS * 2.8, PEG_DOME_RADIUS * 2.8, 6, 24);
-            const touchMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 });
-            // depthWrite: false prevents the invisible mesh from writing to the depth buffer
-            // and causing z-fighting / occlusion of the visible disc cap above it
-            touchMat.depthWrite = false;
+            // colorWrite:false + depthWrite:false removes this mesh from BOTH the color and depth
+            // render passes entirely — it will NOT appear as an "orb" and will NOT punch holes in
+            // neighbouring transparent peg bodies. Three.js raycasting still hits it (geometry-based),
+            // so mobile tap targets remain large.
+            const touchMat = new THREE.MeshBasicMaterial({
+                color: 0x000000,
+                colorWrite: false,
+                depthWrite: false
+            });
             const touchMesh = new THREE.Mesh(touchGeo, touchMat);
             touchMesh.position.y = PEG_HEIGHT + 1.5;
-            touchMesh.renderOrder = 2;
             touchMesh.name = 'peg-touch-zone';
-            // Make sure it doesn't cast/receive shadows or affect visuals
             touchMesh.castShadow = false;
             touchMesh.receiveShadow = false;
             pegGroup.add(touchMesh);
@@ -8211,33 +8214,45 @@
             }
             
             setTimeout(() => {
-                const playerIdx = gameState.currentPlayerIndex;
-                const player = gameState.players[playerIdx];
-                const playerName = player.name || `Player ${playerIdx + 1}`;
-                const playerAvatar = player.avatar || '👤';
-                const playerColor = '#' + getThemedPlayerColor(playerIdx).toString(16).padStart(6, '0');
-                
-                function afterCameraReady() {
-                    if (isAIPlayer(playerIdx)) {
-                        // AI path — enable deck and take turn immediately
-                        cardUI.setDeckEnabled(true);
-                        aiTakeTurn();
+                // If a cut scene is playing, wait for it to finish before starting next turn
+                function proceedToNextTurn() {
+                    const playerIdx = gameState.currentPlayerIndex;
+                    const player = gameState.players[playerIdx];
+                    const playerColor = '#' + getThemedPlayerColor(playerIdx).toString(16).padStart(6, '0');
+
+                    function afterCameraReady() {
+                        if (isAIPlayer(playerIdx)) {
+                            // AI path — enable deck and take turn immediately
+                            cardUI.setDeckEnabled(true);
+                            aiTakeTurn();
+                        } else {
+                            // Human path — show prominent centered deck overlay
+                            // (deck panel stays DISABLED until the overlay handles the draw)
+                            cardUI.setDeckEnabled(false);
+                            showCenteredDeck(playerIdx, wasExtraTurn);
+                        }
+                    }
+
+                    if (wasExtraTurn) {
+                        // EXTRA TURN — same player. Keep camera where the last peg landed.
+                        afterCameraReady();
                     } else {
-                        // Human path — show prominent centered deck overlay
-                        // (deck panel stays DISABLED until the overlay handles the draw)
-                        cardUI.setDeckEnabled(false);
-                        showCenteredDeck(playerIdx, wasExtraTurn);
+                        // NEW PLAYER — reset override and focus on their pegs
+                        resetCameraOverride();
+                        focusOnPlayerPeg(playerIdx, afterCameraReady);
                     }
                 }
-                
-                if (wasExtraTurn) {
-                    // EXTRA TURN — same player. Keep camera where the last peg landed.
-                    // No refocus needed; just enable drawing immediately.
-                    afterCameraReady();
+
+                if (window._cutSceneActive) {
+                    // Poll every 100ms until the cut scene (arch + victory dance) finishes
+                    const _cutWait = setInterval(() => {
+                        if (!window._cutSceneActive) {
+                            clearInterval(_cutWait);
+                            proceedToNextTurn();
+                        }
+                    }, 100);
                 } else {
-                    // NEW PLAYER — reset override and focus on their pegs
-                    resetCameraOverride();
-                    focusOnPlayerPeg(playerIdx, afterCameraReady);
+                    proceedToNextTurn();
                 }
             }, delay); // Use calculated delay (shorter for extra turns)
         };
@@ -8392,7 +8407,10 @@
             
             // Handle cut animation if there was a cut (move animation already happened)
             if (cutPeg) {
-                animateCut(cutPeg, move);
+                window._cutSceneActive = true;
+                animateCut(cutPeg, move, () => {
+                    window._cutSceneActive = false;
+                });
             }
             
             // Note: Extra turn logic is handled by game engine's endTurn() 
@@ -9150,20 +9168,8 @@
             }
         }
         
-        // ════════════════════════════════════════════════════════
-        // MOVE SELECTION MODAL: Use touch-friendly modal for complex choices
-        // ════════════════════════════════════════════════════════
-        const shouldUseModal = isHumanPlayer && moves.length > 1 && window.moveSelectionModal && hasComplexChoice(moves);
-        
-        if (shouldUseModal && !GAME_CONFIG.suggestionsDisabled) {
-            console.log('📱 [MoveSelectionModal] Showing modal for', moves.length, 'moves');
-            window.moveSelectionModal.show(moves, gameState, (selectedMove) => {
-                console.log('📱 [MoveSelectionModal] Move selected:', selectedMove);
-                executeMoveDirectly(selectedMove);
-            });
-            // DON'T return — fall through to set up blinking highlights underneath
-            // so if the player closes the modal, they can still click highlighted holes
-        }
+        // MOVE SELECTION MODAL removed — destination holes glow on the board instead.
+        // On mobile the suggestion panel buttons (below) serve as the tap target.
         
         // Make pegs with legal moves blink (unless highlights are disabled)
         if (GAME_CONFIG.showHighlights) {
@@ -9210,8 +9216,14 @@
             move._pegNumber  = move.pegId ? (getPegNumber(move.pegId) || 1) : 1;
         });
 
-        // Show move suggestion panel (unified — works on desktop & mobile)
-        showMoveSuggestionPanel(moves);
+        // Show move suggestion panel on touch/mobile only — on desktop the lit holes
+        // are large enough to click directly (Fitts' Law).  Mobile needs buttons because
+        // the 3D holes are tiny targets on a small screen.
+        const _isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0
+            || document.body.classList.contains('device-mobile');
+        if (_isTouchDevice) {
+            showMoveSuggestionPanel(moves);
+        }
 
         // Only highlight holes if showHighlights is enabled
         if (GAME_CONFIG.showHighlights) {
@@ -9351,28 +9363,9 @@
             startHighlightAnimation();
         }
 
-        // ============================================================
-        // CHOICE POPUP — Only show when dropdown hint mode is enabled
-        // For blink mode (default), users click directly on blinking holes
-        // ============================================================
-        const showDropdownModal = (GAME_CONFIG.hintMode === 'dropdown' || GAME_CONFIG.hintMode === 'all');
-        
-        if (isHumanPlayer && moves.length > 1 && showDropdownModal && !GAME_CONFIG.suggestionsDisabled) {
-            // Group moves by pegId to see if there are real choices
-            const pegGroups = {};
-            moves.forEach(m => {
-                if (!pegGroups[m.pegId]) pegGroups[m.pegId] = [];
-                pegGroups[m.pegId].push(m);
-            });
-            const uniquePegs = Object.keys(pegGroups);
+        // Choice popup removed — players click/tap the glowing destination holes directly.
+        // On mobile the suggestion-panel buttons above serve the same purpose.
 
-            // Show choice modal when there are multiple unique destinations
-            // (not just same-peg variants like FT entry vs regular)
-            if (uniquePegs.length >= 1) {
-                showMoveChoiceModal(moves, pegGroups);
-            }
-        }
-        
         // Add click handlers for highlighted holes
         addHoleClickListeners();
     }
@@ -9487,46 +9480,34 @@
 
         const group = new THREE.Group();
         group.position.copy(hole.mesh.position);
-        group.position.y += 0.5;
-        group.rotation.x = -Math.PI / 2;
+        group.position.y += 6; // Float above the board surface
 
-        // Ring specs: [innerRadius, outerRadius, opacity]
-        const rings = [
-            [2, 4, 0.85],    // Center ring — bright solid
-            [5, 6.5, 0.6],   // Middle ring
-            [8, 9.5, 0.4],   // Outer ring
-            [11, 12, 0.22],  // Wide aura ring
+        // 3D concentric sphere orb layers
+        // idx=0 is the innermost golden orb; outer layers use player color with falloff
+        const baseColor = new THREE.Color(color);
+        const goldenColor = new THREE.Color(0xffd700);
+        const layers = [
+            { radius: 3.2,  opacity: 0.95, layerColor: goldenColor },  // 0: Center golden orb
+            { radius: 5.5,  opacity: 0.55, layerColor: baseColor   },  // 1: Inner player ring
+            { radius: 8.0,  opacity: 0.35, layerColor: baseColor   },  // 2: Mid player ring
+            { radius: 11.0, opacity: 0.20, layerColor: baseColor   },  // 3: Outer player ring
+            { radius: 14.5, opacity: 0.10, layerColor: baseColor   },  // 4: Wide aura ring
         ];
 
         const meshes = [];
-        rings.forEach(([inner, outer, opacity], idx) => {
-            const geom = new THREE.RingGeometry(inner, outer, 32);
+        layers.forEach(({ radius, opacity, layerColor }, idx) => {
+            const geom = new THREE.SphereGeometry(radius, 16, 12);
             const mat = new THREE.MeshBasicMaterial({
-                color: color,
+                color: layerColor.clone(),
                 transparent: true,
                 opacity: opacity,
-                side: THREE.DoubleSide
+                side: THREE.DoubleSide,
+                depthWrite: false,   // prevent z-fighting between transparent layers
             });
             const mesh = new THREE.Mesh(geom, mat);
             group.add(mesh);
-            meshes.push({ mesh, baseOpacity: opacity, idx });
+            meshes.push({ mesh, baseOpacity: opacity, idx, isGolden: idx === 0 });
         });
-
-        // Crosshair lines (wireframe feel)
-        const lineColor = new THREE.Color(color);
-        const lineMat = new THREE.LineBasicMaterial({ color: lineColor, transparent: true, opacity: 0.5 });
-        const armLen = 14;
-        for (let angle = 0; angle < 4; angle++) {
-            const a = (angle / 4) * Math.PI * 2;
-            const pts = [
-                new THREE.Vector3(Math.cos(a) * 5, Math.sin(a) * 5, 0),
-                new THREE.Vector3(Math.cos(a) * armLen, Math.sin(a) * armLen, 0)
-            ];
-            const lineGeom = new THREE.BufferGeometry().setFromPoints(pts);
-            const line = new THREE.Line(lineGeom, lineMat);
-            group.add(line);
-            meshes.push({ mesh: line, baseOpacity: 0.5, isLine: true });
-        }
 
         boardGroup.add(group);
         hole.glowRing = group;          // keep same property name for clearHighlights compat
@@ -9666,20 +9647,22 @@
                     hole.mesh.material.opacity = opacity;
                     hole.mesh.material.emissiveIntensity = emissiveIntensity;
                     
-                    // Animate bullseye rings — each ring pulses at a different phase
+                    // Animate bullseye orb layers — cascade sparkle blink inward→outward
                     if (hole.bullseyeRings) {
                         hole.bullseyeRings.forEach(r => {
-                            const phase = offsetTime * 5 - r.idx * 1.2; // ripple outward
+                            // Each layer offset in phase → cascading sparkle ripple
+                            const phase = offsetTime * 5 - r.idx * 1.4;
                             const wave = (Math.sin(phase) + 1) / 2;
-                            const opacity = r.baseOpacity * (0.5 + wave * 0.5);
+                            const opacity = r.baseOpacity * (0.4 + wave * 0.6);
                             if (r.mesh.material) {
                                 r.mesh.material.opacity = opacity;
-                                if (!r.isLine) r.mesh.material.color.copy(color);
+                                // Keep center (idx=0) always golden; animate outer layers
+                                if (!r.isGolden) r.mesh.material.color.copy(color);
                             }
                         });
-                        // Gentle overall scale pulse
-                        const scalePulse = 1.0 + blinkCycle * 0.08;
-                        hole.glowRing.scale.set(scalePulse, scalePulse, 1);
+                        // Gentle 3D scale pulse for the whole orb group
+                        const scalePulse = 1.0 + blinkCycle * 0.10;
+                        hole.glowRing.scale.set(scalePulse, scalePulse, scalePulse);
                     }
                 }
             });
@@ -10842,27 +10825,33 @@
         // If all 7 moves used on first peg, end turn after animation
         if (splitMoveState.remainingMoves === 0) {
             console.log('[Split] All 7 moves used on first peg - ending turn');
-            
+
             animatePegMove(move, () => {
-                if (cutPeg) {
-                    animateCut(cutPeg);
+                function doEndTurn() {
+                    resetSplitMoveState();
+                    cardUI.clearCard();
+                    if (window.mobileUI) window.mobileUI.hideFloatingCard();
+                    gameState.endTurn();
                 }
-                
-                // Reset split state and end turn
-                resetSplitMoveState();
-                cardUI.clearCard();
-                if (window.mobileUI) window.mobileUI.hideFloatingCard();
-                gameState.endTurn();
+                if (cutPeg) {
+                    window._cutSceneActive = true;
+                    animateCut(cutPeg, null, () => {
+                        window._cutSceneActive = false;
+                        doEndTurn();
+                    });
+                } else {
+                    doEndTurn();
+                }
             });
             return;
         }
-        
+
         // Animate the first move, then transition to second peg selection
         animatePegMove(move, () => {
             if (cutPeg) {
-                animateCut(cutPeg);
+                window._cutSceneActive = true;
+                animateCut(cutPeg, null, () => { window._cutSceneActive = false; });
             }
-            
             // Transition to second peg selection
             transitionToSecondPegSelection();
         });
@@ -10984,18 +10973,24 @@
         
         // Animate and execute second move
         animatePegMove(move, () => {
-            if (cutPeg) {
-                animateCut(cutPeg);
+            function doEndTurn() {
+                resetSplitMoveState();
+                cardUI.clearCard();
+                if (window.mobileUI) window.mobileUI.hideFloatingCard();
+                gameState.endTurn();
             }
-            
-            // Reset split state and end turn
-            resetSplitMoveState();
-            cardUI.clearCard();
-            if (window.mobileUI) window.mobileUI.hideFloatingCard();
-            gameState.endTurn();
+            if (cutPeg) {
+                window._cutSceneActive = true;
+                animateCut(cutPeg, null, () => {
+                    window._cutSceneActive = false;
+                    doEndTurn();
+                });
+            } else {
+                doEndTurn();
+            }
         });
     }
-    
+
     // Phase recovery watchdog — detects stuck animations and forces completion
     let _animationWatchdogTimer = null;
     function startAnimationWatchdog(onComplete, move) {
@@ -11301,7 +11296,7 @@
     // Expose updatePegPosition globally for analyzer corrections
     window.updatePegPosition = updatePegPosition;
     
-    function animateCut(cutPegInfo, moveInfo) {
+    function animateCut(cutPegInfo, moveInfo, onComplete) {
         // ============================================================
         // CINEMATIC VANQUISH SEQUENCE
         // 1. Camera smoothly focuses on vanquished peg
@@ -11535,9 +11530,11 @@
                         attackerPegMesh.position.y = bounceBaseY;
                         attackerPegMesh.scale.set(1, 1, 1);
                         console.log('💃 Victory dance complete!');
+                        // Signal cut scene is fully finished
+                        if (typeof onComplete === 'function') onComplete();
                     }
                 }
-                
+
                 animateDance();
             }
         }
@@ -12518,7 +12515,8 @@
         const overlayEl = document.getElementById('centered-deck-overlay');
         if (overlayEl) overlayEl.style.pointerEvents = 'none';
 
-        // After 1.8 s: fly card to top-left player panel, then hide overlay
+        // After 0.6 s: fly card to top-left player panel, then hide overlay
+        // (was 1800ms — cut to 600ms so the board appears immediately after rank shows)
         setTimeout(() => {
             const wrapper = document.getElementById('centered-deck-wrapper');
             if (wrapper) {
@@ -12526,14 +12524,14 @@
                 // Target: top-left corner (player panel area)
                 const tx = -(wRect.left - 10);
                 const ty = -(wRect.top - 10);
-                wrapper.style.transition = 'transform 0.55s cubic-bezier(0.4,0,0.2,1), opacity 0.55s ease';
+                wrapper.style.transition = 'transform 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.45s ease';
                 wrapper.style.transform = `translate(${tx}px, ${ty}px) scale(0.18)`;
                 wrapper.style.opacity = '0';
             }
-            setTimeout(hideCenteredDeck, 580);
+            setTimeout(hideCenteredDeck, 480);
             // Re-enable the panel deck as fallback after animation
             if (cardUI) cardUI.setDeckEnabled(true);
-        }, 1800);
+        }, 600);
     }
     
     // ================================================================
