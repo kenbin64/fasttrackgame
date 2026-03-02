@@ -112,6 +112,7 @@ FIBONACCI_ZERO = 0  # The void — ground state, not absence
 
 # Layer Names (Creation Interpretation)
 LAYER_NAMES = {
+    0: "Potential",   # The void — unmaterialized possibility (F(0)=0)
     1: "Spark",       # Let there be the First Point
     2: "Mirror",      # Let there be a second point
     3: "Relation",    # Let the two interact (z = x·y)
@@ -122,6 +123,7 @@ LAYER_NAMES = {
 }
 
 LAYER_FIBONACCI = {
+    0: 0,   # F(0) = 0 — the void, ground state from which F(1)=1 emerges
     1: 1,   # First 1
     2: 1,   # Second 1 (1|1 = direction)
     3: 2,   # 1+1 = 2 (relation)
@@ -132,6 +134,7 @@ LAYER_FIBONACCI = {
 }
 
 LAYER_CREATION = {
+    0: "Let there be potential",
     1: "Let there be the First Point",
     2: "Let there be a second point",
     3: "Let the two interact",
@@ -142,6 +145,7 @@ LAYER_CREATION = {
 }
 
 LAYER_BIRTH = {
+    0: "Potential",      # The void — receptive, unmaterialized
     1: "Existence",     # The seed of all dimensions
     2: "Direction",     # The birth of direction
     3: "Structure",     # The birth of structure
@@ -152,6 +156,7 @@ LAYER_BIRTH = {
 }
 
 LAYER_ICONS = {
+    0: "○",  # Empty circle - potential/void
     1: "•",  # Point - spark
     2: "━",  # Line - mirror/direction
     3: "×",  # Cross - relation/interaction
@@ -166,6 +171,7 @@ LAYER_ICONS = {
 # =============================================================================
 
 LAYER_MANIFOLDS = {
+    0: "Void",            # Pure potential — the receptive ground
     1: "Point",           # Single point, no direction
     2: "Line",            # First axis, d(a,b) = |b-a|
     3: "z = x·y",         # Identity surface (THE CANONICAL BASE)
@@ -176,6 +182,7 @@ LAYER_MANIFOLDS = {
 }
 
 LAYER_EQUATIONS = {
+    0: "F(0) = 0",              # The void ground state
     1: "P₀ = {1}",              # The seed
     2: "d(a,b) = |b-a|",        # First distance
     3: "z = x * y",             # Identity interaction
@@ -186,6 +193,7 @@ LAYER_EQUATIONS = {
 }
 
 LAYER_TRAVERSAL = {
+    0: None,                    # Potential — no traversal yet
     1: None,                    # No traversal yet
     2: "1:1 mapping",           # First reversible transformation
     3: "Identity curves",       # Scale-invariant
@@ -340,8 +348,8 @@ class HelixState:
     layer: int
     
     def __post_init__(self):
-        if not 1 <= self.layer <= 7:
-            raise ValueError(f"Layer must be 1-7, got {self.layer}")
+        if not 0 <= self.layer <= 7:
+            raise ValueError(f"Layer must be 0-7, got {self.layer}")
     
     @property
     def layer_name(self) -> str:
@@ -389,8 +397,8 @@ class HelixState:
     
     @property
     def level(self) -> int:
-        """DEPRECATED: Use layer instead. Returns layer-1 for compatibility."""
-        return self.layer - 1
+        """DEPRECATED: Use layer instead. Returns layer for compatibility (0=Potential, 1=Spark…7=Completion)."""
+        return self.layer
     
     @property
     def level_name(self) -> str:

@@ -1271,10 +1271,52 @@ class FileNode:
 
 
 # =============================================================================
+# DRIVE ENTRY & FILE ENTRY - Lightweight UI-facing data classes
+# =============================================================================
+
+@dataclass
+class DriveEntry:
+    """Lightweight representation of a mounted drive for UI listing."""
+    letter: str
+    label: str
+    drive_type: str      # 'local', 'cloud', 'connector'
+    total_bytes: int
+    free_bytes: int
+    icon: str = '💾'
+    connected: bool = True
+
+    def to_dict(self) -> Dict:
+        used = self.total_bytes - self.free_bytes
+        usage_percent = round(used / self.total_bytes * 100, 1) if self.total_bytes > 0 else 0.0
+        return {
+            'letter': self.letter,
+            'label': self.label,
+            'drive_type': self.drive_type,
+            'total_bytes': self.total_bytes,
+            'free_bytes': self.free_bytes,
+            'used_bytes': used,
+            'usage_percent': usage_percent,
+            'icon': self.icon,
+            'connected': self.connected,
+        }
+
+
+@dataclass
+class FileEntry:
+    """Lightweight representation of a file or directory for UI listing."""
+    name: str
+    path: str
+    is_dir: bool
+    size: int = 0
+    mime_type: str = 'application/octet-stream'
+    modified_at: str = field(default_factory=lambda: datetime.now().isoformat())
+
+
+# =============================================================================
 # CREDENTIAL VAULT - Secure Storage for Connection Credentials
 # =============================================================================
 
-@dataclass 
+@dataclass
 class Credential:
     """A stored credential for a data source connection"""
     id: str
@@ -2071,7 +2113,25 @@ class CredentialVault:
         except Exception:
             pass
     
-    def add(self, name: str, provider: str, **kwargs) -> Credential:
+    def add_credential(self, credential: 'Credential') -> str:
+        """Store a credential object; returns its id."""
+        self._credentials[credential.id] = credential
+        self._save()
+        return credential.id
+
+    def store(self, credential: 'Credential') -> str:
+        """Alias for add_credential."""
+        return self.add_credential(credential)
+
+    def get_credential(self, cred_id: str) -> Optional['Credential']:
+        """Retrieve a credential by id; returns None if not found."""
+        return self._credentials.get(cred_id)
+
+    def retrieve(self, cred_id: str) -> Optional['Credential']:
+        """Alias for get_credential."""
+        return self.get_credential(cred_id)
+
+    def add(self, name: str, provider: str, **kwargs) -> 'Credential':
         """
         Add a new credential.
         

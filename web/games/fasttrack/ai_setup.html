@@ -231,6 +231,30 @@
         .p-card .p-num { font-size: 1.8em; font-weight: 700; }
         .p-card .p-lbl { font-size: 0.7em; color: var(--text-muted); }
 
+        /* ═══ TOGGLE ROWS (Sound / Camera settings) ═══ */
+        .toggle-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 0; border-bottom: 1px solid var(--border);
+        }
+        .toggle-row:last-of-type { border-bottom: none; }
+        .toggle-label { font-size: 0.88em; font-weight: 500; }
+        .toggle-hint { font-size: 0.72em; color: var(--text-muted); margin-top: 6px; }
+        .setup-toggle { position: relative; display: inline-block; width: 44px; height: 26px; }
+        .setup-toggle input { opacity: 0; width: 0; height: 0; }
+        .setup-toggle-track {
+            position: absolute; inset: 0;
+            background: var(--border); border-radius: 13px;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .setup-toggle-track::before {
+            content: ''; position: absolute;
+            width: 20px; height: 20px; border-radius: 50%;
+            left: 3px; top: 3px; background: #fff;
+            transition: transform 0.2s;
+        }
+        .setup-toggle input:checked + .setup-toggle-track { background: var(--primary); }
+        .setup-toggle input:checked + .setup-toggle-track::before { transform: translateX(18px); }
+
         .preview-card {
             background: var(--bg-card); border: 1px solid var(--border);
             border-radius: 14px; padding: 16px; text-align: center;
@@ -343,6 +367,36 @@
                     <div class="p-lbl">vs 3 Bots</div>
                 </div>
             </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>&#x1F3B5; Sound &amp; Music</h3>
+            <div class="toggle-row">
+                <span class="toggle-label">&#x1F3B5; Music</span>
+                <label class="setup-toggle">
+                    <input type="checkbox" id="setup-music-toggle" checked>
+                    <span class="setup-toggle-track"></span>
+                </label>
+            </div>
+            <div class="toggle-row">
+                <span class="toggle-label">&#x1F50A; Sound Effects</span>
+                <label class="setup-toggle">
+                    <input type="checkbox" id="setup-sfx-toggle" checked>
+                    <span class="setup-toggle-track"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>&#x1F4F7; Camera</h3>
+            <div class="toggle-row">
+                <span class="toggle-label">&#x1F3AC; Auto-follow action</span>
+                <label class="setup-toggle">
+                    <input type="checkbox" id="setup-camera-toggle" checked>
+                    <span class="setup-toggle-track"></span>
+                </label>
+            </div>
+            <div class="toggle-hint">Auto: camera follows the game. Off: manual control only.</div>
         </div>
     </div>
 
@@ -556,6 +610,13 @@
                 document.getElementById('avatar-preview').textContent = savedAvatar;
                 document.getElementById('avatar-label').textContent = 'Looking good!';
             }
+            // Restore sound & camera preferences
+            var musicPref = localStorage.getItem('fasttrack_music');
+            if (musicPref === 'off') document.getElementById('setup-music-toggle').checked = false;
+            var sfxPref = localStorage.getItem('fasttrack_sfx');
+            if (sfxPref === 'off') document.getElementById('setup-sfx-toggle').checked = false;
+            var cameraPref = localStorage.getItem('fasttrack_camera');
+            if (cameraPref === 'manual') document.getElementById('setup-camera-toggle').checked = false;
         }
 
         // ═══ START GAME ═══
@@ -563,6 +624,14 @@
             var playerName = document.getElementById('player-name').value.trim() || 'Player';
             localStorage.setItem('fasttrack_player_name', playerName);
             localStorage.setItem('fasttrack_player_avatar', selectedAvatar);
+
+            // Save sound & camera preferences to localStorage
+            var musicOn = document.getElementById('setup-music-toggle').checked;
+            var sfxOn = document.getElementById('setup-sfx-toggle').checked;
+            var cameraAuto = document.getElementById('setup-camera-toggle').checked;
+            localStorage.setItem('fasttrack_music', musicOn ? 'on' : 'off');
+            localStorage.setItem('fasttrack_sfx', sfxOn ? 'on' : 'off');
+            localStorage.setItem('fasttrack_camera', cameraAuto ? 'auto' : 'manual');
 
             var params = new URLSearchParams({
                 quickplay: '1',

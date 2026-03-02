@@ -404,11 +404,14 @@
 
         <!-- Fixed Views Button (persistent preset views) -->
         <button id="board-view-btn" onclick="setBoardViewMode()" title="Fixed Views" aria-label="Board view">🎯</button>
+
+        <!-- Ask Mom Button -->
+        <button id="ask-mom-btn" onclick="showMomHelp()" title="Ask Mom" aria-label="Ask Mom for advice">👩</button>
     </div>
     
     <!-- Exit Confirmation Modal -->
-    <div id="exit-confirm-modal">
-        <div id="exit-confirm-content">
+    <div id="exit-confirm-modal" onclick="hideExitConfirm()" style="pointer-events:all;">
+        <div id="exit-confirm-content" onclick="event.stopPropagation()">
             <h3>🚪 Exit Game?</h3>
             <p>If you leave, a bot will take over your pegs. The game will continue for other players.</p>
             <div class="exit-modal-btns">
@@ -438,19 +441,19 @@
         </div>
     </div>
     
-    <!-- Mom Help Panel -->
-    <div id="mom-help-panel">
+    <!-- Mom Help Panel — click anywhere on the panel (outside close btn) for fresh advice -->
+    <div id="mom-help-panel" onclick="showMomHelp()" title="Tap for more advice">
         <div class="mom-header">
             <div class="mom-title">
                 <span>👩</span>
                 <span>Mom says...</span>
             </div>
-            <button class="close-btn" onclick="hideMomHelp()">×</button>
+            <button class="close-btn" onclick="event.stopPropagation(); hideMomHelp()">×</button>
         </div>
         <div class="mom-message" id="mom-message-text">
             I'm here to help!
         </div>
-        <div class="mom-options" id="mom-options">
+        <div class="mom-options" id="mom-options" onclick="event.stopPropagation()">
             <!-- Options will be populated dynamically -->
         </div>
     </div>
@@ -1178,6 +1181,17 @@
 
     // Color names for player areas
     const COLOR_NAMES = ['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Purple'];
+
+    // Per-move suggestion colors — vivid complementary hues, one per peg group
+    // Used for path highlights, destination glow, AND suggestion button borders
+    const MOVE_COLORS = [
+        { hex: '#00e5ff', three: 0x00e5ff },  // cyan
+        { hex: '#ff6b35', three: 0xff6b35 },  // orange
+        { hex: '#a3ff4d', three: 0xa3ff4d },  // lime
+        { hex: '#ff3cac', three: 0xff3cac },  // hot pink
+        { hex: '#ffd700', three: 0xffd700 },  // gold
+        { hex: '#b040ff', three: 0xb040ff },  // violet
+    ];
     
     // Get peg number from id (peg-X-4 = #1, peg-X-0 = #2, etc)
     function getPegNumber(pegId) {
@@ -1752,6 +1766,12 @@
         controls.maxDistance = 1200;
         controls.minPolarAngle = 0;
         controls.maxPolarAngle = Math.PI / 2.1;
+        // Mobile: one finger PAN (slide board around), two fingers DOLLY+ROTATE
+        // Default OrbitControls uses ONE=ROTATE which feels like spinning from a fixed pole.
+        // Switching ONE to PAN gives free camera movement the user expects on mobile.
+        if (typeof THREE.TOUCH !== 'undefined') {
+            controls.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
+        }
         
         // Setup camera interaction tracking
         setupCameraInteractionTracking();
@@ -2673,6 +2693,9 @@
     let _pointerStart = null;
     let _pointerMoved = false;
     const POINTER_MOVE_THRESHOLD = 8; // pixels
+    // When user drags during auto mode: temp explore state (resets next turn, no snap-back).
+    // This is distinct from explicit lock (fixedViewsActive) which never auto-resets.
+    let _tempManualOverride = false;
     
     // Saved camera state for smooth return after user releases mouse
     let savedCameraTarget = null;
@@ -3469,12 +3492,22 @@
             if (pegEyeActive) _updatePegEyeCamera();
             return;
         }
-        if (userOverrideCamera || userIsInteracting || currentCameraView === 'manual') return;
-        if ((typeof boardViewMode !== 'undefined' && boardViewMode > 0) || (typeof fixedViewsActive !== 'undefined' && fixedViewsActive)) return;
+        // During active peg movement _pegMoveInProgress is true — bypass ALL user/board
+        // camera guards so the camera ALWAYS follows. Only respect peg-eye and a hard
+        // fixedViewsActive when NOT in a peg movement (board-view mode the user chose).
+        if (!_pegMoveInProgress) {
+            if (userOverrideCamera || userIsInteracting || currentCameraView === 'manual') return;
+            if ((typeof boardViewMode !== 'undefined' && boardViewMode > 0) || (typeof fixedViewsActive !== 'undefined' && fixedViewsActive)) return;
+        }
         
-        const view = CAMERA_VIEWS[currentCameraView];
-        if (!view) return;
-        
+        // When peg is moving, temporarily allow camera writes so that camera.lookAt
+        // works even if the user left the camera in manual/fixed mode.
+        const _prevAllowWrite = window._allowCameraWrite;
+        if (_pegMoveInProgress) window._allowCameraWrite = true;
+
+        const view = CAMERA_VIEWS[currentCameraView] || CAMERA_VIEWS['chase'];
+        if (!view) { window._allowCameraWrite = _prevAllowWrite; return; }
+
         // During active peg movement, ALWAYS follow the peg regardless of view mode
         if (_pegMoveInProgress || view.followPeg) {
             // Lerp factor scaled by speed: lower cameraSpeedFactor = smoother/slower follow
@@ -3544,6 +3577,9 @@
             controls.target.z += (pegZ - controls.target.z) * lerp;
             camera.lookAt(controls.target);
         }
+
+        // Restore _allowCameraWrite to what it was before this call
+        window._allowCameraWrite = _prevAllowWrite;
     }
     window.updateCameraForPegMove = updateCameraForPegMove;
 
@@ -3715,36 +3751,45 @@
             const dy = cy - _pointerStart.y;
             if (!_pointerMoved && Math.sqrt(dx * dx + dy * dy) > POINTER_MOVE_THRESHOLD) {
                 _pointerMoved = true;
-                // Immediately treat deliberate drag as manual control
+                // Temp explore: block auto camera for this turn only, not permanently.
+                // Camera resets to auto at the start of the next turn (resetCameraOverride).
                 userOverrideCamera = true;
-                currentCameraView = 'manual';
-                cameraMode = 'manual';
-                // Cancel any cinematic transition
+                _tempManualOverride = true;
+                // Cancel any in-flight cinematic transition (fire callback so game logic proceeds)
                 if (cameraTransition) {
                     cancelAnimationFrame(cameraTransition.animId);
                     const cb = cameraTransition.onComplete;
                     cameraTransition = null;
                     if (cb) cb();
                 }
-                showFixedViewInfo('Manual camera enabled — automatic camera disabled');
+                showFixedViewInfo('📷 Exploring — auto camera resumes next turn');
             }
         }, { passive: true });
 
-        // Wheel (zoom) should also switch to manual immediately
+        // Wheel (zoom) — temp explore this turn, resets at next turn start
         renderer.domElement.addEventListener('wheel', (e) => {
+            _tempManualOverride = true;
             userOverrideCamera = true;
-            currentCameraView = 'manual';
-            cameraMode = 'manual';
-            showFixedViewInfo('Manual camera (wheel) — automatic camera disabled');
+            // Cancel in-flight cinematic transition so zoom doesn't fight the user
+            if (cameraTransition) {
+                cancelAnimationFrame(cameraTransition.animId);
+                const cb = cameraTransition.onComplete;
+                cameraTransition = null;
+                if (cb) cb();
+            }
         }, { passive: true });
 
-        // Touch gestures: if multiple touches or significant movement, treat as manual
+        // Multi-touch gestures — same temp explore behaviour
         renderer.domElement.addEventListener('touchmove', (e) => {
             if (e.touches && e.touches.length > 1) {
+                _tempManualOverride = true;
                 userOverrideCamera = true;
-                currentCameraView = 'manual';
-                cameraMode = 'manual';
-                showFixedViewInfo('Manual camera (touch) — automatic camera disabled');
+                if (cameraTransition) {
+                    cancelAnimationFrame(cameraTransition.animId);
+                    const cb = cameraTransition.onComplete;
+                    cameraTransition = null;
+                    if (cb) cb();
+                }
             }
         }, { passive: true });
 
@@ -3757,31 +3802,32 @@
         if (!userIsInteracting) return;
         userIsInteracting = false;
 
-        // If the user deliberately moved/dragged the camera, interpret as
-        // explicit manual control and do NOT auto-return — switch to manual mode.
+        // If the user deliberately dragged: stay in temp-explore mode.
+        // Camera holds its position until the next turn (resetCameraOverride clears it).
+        // No snap-back timer — that was the source of the Catan frustration.
         if (_pointerMoved) {
             userOverrideCamera = true;
-            currentCameraView = 'manual';
-            cameraMode = 'manual';
+            _tempManualOverride = true;
             _pointerStart = null;
             _pointerMoved = false;
-            showFixedViewInfo('Manual camera enabled — automatic camera disabled');
-            return; // stay where the user left it
+            // Camera stays exactly where user left it — no return timer.
+            return;
         }
 
-        // In manual mode, stay where the user left the camera forever
-        if (currentCameraView === 'manual') {
-            return; // No smooth return — full user control
+        // Explicit lock (fixed views button) — always stay put
+        if (fixedViewsActive) {
+            _pointerStart = null;
+            return;
         }
 
-        // For other modes, wait 1.5s grace period then smoothly return
-        if (userInteractionTimeout) clearTimeout(userInteractionTimeout);
-        userInteractionTimeout = setTimeout(() => {
-            userOverrideCamera = false;
+        // Tap without drag (e.g. selecting a peg) — cancel any pending timer and
+        // let the auto camera resume normally; no forced return.
+        if (userInteractionTimeout) {
+            clearTimeout(userInteractionTimeout);
             userInteractionTimeout = null;
-            // Smoothly return to current view mode's default position
-            returnToViewDefault();
-        }, 1500);
+        }
+        userOverrideCamera = false;
+        _pointerStart = null;
     }
     
     // Smoothly transition back to the current camera view's default position
@@ -3818,14 +3864,17 @@
     
     function smoothCameraTransition(targetPos, targetLookAt, duration = 2500, onComplete = null, opts) {
         opts = opts || {};
-        // Never interrupt manual mode or active user interaction
-        if (currentCameraView === 'manual' || userIsInteracting) {
+        const forceOverride = opts.force === true; // true when called during peg movement
+
+        // Never interrupt manual mode or active user interaction —
+        // UNLESS forced (peg movement always wins camera priority).
+        if (!forceOverride && (currentCameraView === 'manual' || userIsInteracting)) {
             if (onComplete) onComplete();
             return;
         }
 
         // If fixed views are active, suppress automatic transitions unless forced
-        if (typeof fixedViewsActive !== 'undefined' && fixedViewsActive && !opts.force) {
+        if (typeof fixedViewsActive !== 'undefined' && fixedViewsActive && !forceOverride) {
             if (onComplete) onComplete();
             console.log('[Camera] Fixed views active — suppressed smoothCameraTransition');
             return;
@@ -5327,7 +5376,16 @@
     window.testSendHome = testSendHome;
     window.testWinner = testWinner;
     window.smoothCameraTransition = smoothCameraTransition;
-    window.resetCameraOverride = function() { if (currentCameraView === 'manual') return; userOverrideCamera = false; userIsInteracting = false; highlightsActive = false; };
+    // Called at the start of each new turn (non-extra-turn).
+    // Clears temp explore state so auto camera resumes.
+    // Explicit lock (fixedViewsActive) is NOT cleared here — only the user can release it.
+    window.resetCameraOverride = function() {
+        if (currentCameraView === 'manual') return; // explicit manual view — respect it
+        userOverrideCamera = false;
+        userIsInteracting = false;
+        highlightsActive = false;
+        _tempManualOverride = false; // temp explore resets at turn boundary
+    };
     </script>
     
     <!-- Rules Substrate (after board is defined) -->
@@ -8081,23 +8139,15 @@
                 const playerColor = '#' + getThemedPlayerColor(playerIdx).toString(16).padStart(6, '0');
                 
                 function afterCameraReady() {
-                    // Show turn banner for human players (different message for extra turn)
-                    if (!isAIPlayer(playerIdx)) {
-                        const message = wasExtraTurn ? 'EXTRA TURN! Draw again!' : 'Please draw a card';
-                        showTurnBanner(`${playerAvatar} ${playerName}`, playerColor, message);
-                    }
-                    
-                    // Enable deck only after camera is ready
-                    cardUI.setDeckEnabled(true);
-                    
-                    // Pulse the mobile deck to signal "draw now!"
-                    if (window.mobileUI && !isAIPlayer(playerIdx)) {
-                        window.mobileUI.setDeckDrawReady(true);
-                    }
-                    
-                    // If AI player, let them take their turn
                     if (isAIPlayer(playerIdx)) {
+                        // AI path — enable deck and take turn immediately
+                        cardUI.setDeckEnabled(true);
                         aiTakeTurn();
+                    } else {
+                        // Human path — show prominent centered deck overlay
+                        // (deck panel stays DISABLED until the overlay handles the draw)
+                        cardUI.setDeckEnabled(false);
+                        showCenteredDeck(playerIdx, wasExtraTurn);
                     }
                 }
                 
@@ -8807,11 +8857,14 @@
         
         const drawnCard = gameState.drawCard();
         console.log('[handleDrawCard] gameState.drawCard() returned:', drawnCard);
-        
+
+        // Reveal drawn card in the centered deck overlay (flip face → rank)
+        if (window._centeredDeckActive && drawnCard) {
+            updateCenteredDeckRank(drawnCard);
+        }
+
         // Auto-start music on first card draw by any player
         autoStartMusicOnFirstDraw();
-        
-        // Revealed card animation removed - using scaled player panel instead
         
         // Play draw card sound effect
         if (window.GameSFX && drawnCard) {
@@ -9044,12 +9097,10 @@
             });
             
             blinkMovablePegs(moves);
-            
-            // Show peg numbers when multiple pegs can move
+
+            // Always show peg numbers during move selection (not just for multiple pegs)
             const uniquePegIds = new Set(moves.map(m => m.pegId).filter(Boolean));
-            if (uniquePegIds.size > 1) {
-                showPegNumbers([...uniquePegIds]);
-            }
+            showPegNumbers([...uniquePegIds]);
         } else {
             console.log('⚠️ [highlightLegalMoves] showHighlights is FALSE - no visual aids');
         }
@@ -9068,11 +9119,21 @@
         highlightsActive = true;
         focusOnChoices(moves);
         
-        // Hide light pillars - just use hole highlighting
-        if (window.mobileUI) {
-            window.mobileUI.showMoves(moves);
-        }
-        
+        // ── Assign per-peg color indices and peg numbers ─────────────────────────
+        const _pegColorMap = {};
+        let _colorCounter = 0;
+        moves.forEach(move => {
+            if (move.pegId && _pegColorMap[move.pegId] === undefined) {
+                _pegColorMap[move.pegId] = _colorCounter % MOVE_COLORS.length;
+                _colorCounter++;
+            }
+            move._colorIdx   = _pegColorMap[move.pegId] ?? 0;
+            move._pegNumber  = move.pegId ? (getPegNumber(move.pegId) || 1) : 1;
+        });
+
+        // Show move suggestion panel (unified — works on desktop & mobile)
+        showMoveSuggestionPanel(moves);
+
         // Only highlight holes if showHighlights is enabled
         if (GAME_CONFIG.showHighlights) {
             // ============================================================
@@ -9108,7 +9169,7 @@
                     const baseOpacity = 0.25 + progress * 0.35;  // 0.25 → 0.60
                     const emissiveStr = 0.2 + progress * 0.4;    // 0.2 → 0.6
 
-                    const pathColor = 0x00ccff;  // Cyan trail
+                    const pathColor = MOVE_COLORS[move._colorIdx ?? 0].three;  // Per-move color
                     const pathMat = new THREE.MeshStandardMaterial({
                         color: pathColor,
                         emissive: pathColor,
@@ -9176,8 +9237,9 @@
                 const cutTarget = findCutTargetAtHole(move.toHoleId);
                 const hasCutTarget = cutTarget !== null;
                 
-                // Create blinking highlight material with glow
-                const baseColor = hasCutTarget ? 0xff4444 : 0x00ff88;  // Red for cuts, bright green for safe moves
+                // Create blinking highlight material with glow (use move's color; cuts shown by ⚔️ icon in panel)
+                const moveColor = MOVE_COLORS[move._colorIdx ?? 0].three;
+                const baseColor = hasCutTarget ? 0xff4444 : moveColor;  // Red for cuts, move-color for normal
                 const highlightMat = new THREE.MeshStandardMaterial({
                     color: baseColor,
                     emissive: baseColor,
@@ -9191,9 +9253,9 @@
                 hole.highlightTime = Math.random() * Math.PI * 2; // Random start phase for varied blinking
                 highlightedHoles.push(hole);
                 highlightedCount++;
-                
+
                 // Create bullseye wireframe target around the destination hole
-                createBullseyeTarget(hole, hasCutTarget ? 0xff4444 : 0x00ff88);
+                createBullseyeTarget(hole, baseColor);
                 
                 // Flash the opponent token if it can be cut
                 if (cutTarget) {
@@ -9622,9 +9684,11 @@
             highlightAnimationId = null;
         }
 
-        // Hide confirm bar if visible
+        // Hide old confirm bar + new msb bar + suggestion panel
         hideConfirmBar();
-        
+        hideMsbBar();
+        hideMoveSuggestionPanel();
+
         // Clear mobile UI action bar (no light pillars anymore)
         if (window.mobileUI) {
             window.mobileUI.hideMoves();
@@ -10085,22 +10149,18 @@
                      pegData.mesh === intersect.object)) {
                     // Find all moves for this peg
                     const pegMoves = legalMoves.filter(m => m.pegId === pegId);
-                    if (pegMoves.length === 1) {
-                        // Single move — execute immediately
-                        console.log('[Click] Active peg clicked with single legal move - executing');
+                    if (pegMoves.length >= 1) {
+                        // Phase 1 — preview the first move for this peg (or the only move)
+                        // The suggestion panel is already visible with buttons; tapping the peg
+                        // previews move 0 for this peg (camera focus + confirm bar).
+                        console.log('[Click] Peg clicked — entering Phase 1 preview', pegMoves.length, 'moves');
                         dismissCardRulePopup();
-                        executeMoveDirectly(pegMoves[0]);
-                        return;
-                    }
-                    } else if (pegMoves.length > 1) {
-                        // Multiple moves — light up ALL destination tracks for this peg
-                        // PLUS show a popup/dropdown with tips for each option
-                        console.log('[Click] Active peg clicked with multiple moves - showing options');
-                        clearPegDestinationHighlights();
-                        highlightPegDestinations(pegMoves);
-                        selectedPegMoves = pegMoves;
-                        selectedPegId = pegId;
-                        showPegMoveDropdown(pegId, pegMoves, event.clientX, event.clientY);
+                        // Find the panel button for this peg's first move and highlight it
+                        const firstMove = pegMoves[0];
+                        const allMoves  = legalMoves;
+                        const moveIdx   = allMoves.indexOf(firstMove);
+                        const btnEl     = document.querySelector(`.msb-btn[data-move-idx="${moveIdx}"]`);
+                        previewMove(firstMove, btnEl, MOVE_COLORS[firstMove._colorIdx ?? 0].hex);
                         return;
                     }
                 }
@@ -10898,6 +10958,7 @@
         // Start watchdog timer — if animation callback doesn't fire within 15s, force it
         const wrappedComplete = () => {
             _pegMoveInProgress = false;
+            window._allowCameraWrite = false; // release camera write override
             clearAnimationWatchdog();
             // Dispatch animation end event for mobile UI
             if (typeof MobileUI !== 'undefined' && MobileUI.dispatchAnimationEnd) {
@@ -11035,20 +11096,33 @@
             animateNextHop();
         }
         
-        // Focus camera on the peg BEFORE movement starts
-        if (!userOverrideCamera && !userIsInteracting && currentCameraView !== 'manual') {
+        // Focus camera on moving peg before hops — respects the 3 camera modes:
+        //   • Auto / Temp-explore (_tempManualOverride): ALWAYS follow the action.
+        //     Temp explore is per-turn; the user still needs to see peg moves.
+        //   • Explicit lock (fixedViewsActive / straight-down / angled):
+        //     User chose this deliberately — camera never moves, even for peg animation.
+        if (fixedViewsActive) {
+            // Explicit lock: start hops immediately without moving camera
+            window._allowCameraWrite = false;
+            beginHopsAfterFocus();
+        } else {
+            // Auto or temp-explore: snap camera to peg (highest priority)
+            userIsInteracting = false; // clear touch/click interaction block
+            if (userInteractionTimeout) {
+                clearTimeout(userInteractionTimeout);
+                userInteractionTimeout = null;
+            }
+            window._allowCameraWrite = true; // allow camera writes throughout peg animation
+
             const camHeight = 250;
             const camOffset = 120;
             smoothCameraTransition(
                 { x: pegStartX * 0.6, y: camHeight, z: pegStartZ * 0.6 + camOffset },
                 { x: pegStartX, y: 0, z: pegStartZ },
-                1800,
-                beginHopsAfterFocus
+                500, // Fast snap: 500 ms
+                beginHopsAfterFocus,
+                { force: true } // bypass remaining guards
             );
-        } else {
-            // Manual/override mode — start immediately
-            _pegMoveInProgress = true;
-            beginHopsAfterFocus();
         }
     }
     
@@ -12121,153 +12195,383 @@
     }
     
     // ============================================================
-    // LARGE CENTERED DECK UI
+    // CENTERED DECK UI  — golden-ratio card, flip animation, fly-to-panel
     // ============================================================
-    
-    function showLargeDeck() {
-        console.log('[LargeDeck] Showing large centered deck');
-        hideLargeDeck();
-        
-        const player = gameState.currentPlayer;
-        const playerName = player.name || `Player ${gameState.currentPlayerIndex + 1}`;
-        const playerColor = player.color || '#3498db';
-        
+
+    (function injectCenteredDeckCSS() {
+        if (document.getElementById('centered-deck-css')) return;
+        const s = document.createElement('style');
+        s.id = 'centered-deck-css';
+        // Golden ratio: height = width × 1.618  →  185 × 299
+        s.textContent = `
+            #centered-deck-overlay {
+                position: fixed; inset: 0; z-index: 20010;
+                background: rgba(0,0,0,0.72);
+                display: flex; flex-direction: column;
+                align-items: center; justify-content: center;
+                gap: 0;
+                animation: cdkFadeIn 0.45s ease-out both;
+            }
+            @keyframes cdkFadeIn  { from { opacity:0 } to { opacity:1 } }
+            @keyframes cdkFadeOut { from { opacity:1 } to { opacity:0 } }
+
+            #centered-deck-banner {
+                font-size: clamp(22px, 5vw, 40px);
+                font-weight: 900;
+                letter-spacing: 0.05em;
+                margin-bottom: 26px;
+                text-align: center;
+                text-shadow: 0 2px 18px rgba(0,0,0,0.85);
+                animation: cdkBannerPulse 2s ease-in-out infinite;
+            }
+            @keyframes cdkBannerPulse {
+                0%,100% { transform:scale(1);   opacity:1;    }
+                50%      { transform:scale(1.04); opacity:0.82; }
+            }
+
+            /* Wrapper handles perspective + bounce without fighting flip transform */
+            #centered-deck-wrapper {
+                position: relative;
+                width: clamp(130px, 24vw, 185px);
+                height: clamp(210px, 39vw, 299px);
+                perspective: 900px;
+                animation: cdkBounce 2.2s ease-in-out infinite;
+                cursor: pointer;
+            }
+            @keyframes cdkBounce {
+                0%,100% { transform: translateY(0);    }
+                45%      { transform: translateY(-15px); }
+            }
+
+            /* Ghost stack cards behind the real one */
+            #centered-deck-wrapper::before,
+            #centered-deck-wrapper::after {
+                content: '';
+                position: absolute; inset: 0;
+                border-radius: 14px;
+                background: linear-gradient(145deg, #3a1a78 0%, #1e0b55 100%);
+                border: 3px solid rgba(255,255,255,0.2);
+                pointer-events: none;
+            }
+            #centered-deck-wrapper::before {
+                transform: translateY(7px) translateX(5px) rotate(3deg);
+                z-index: -1; opacity: 0.55;
+            }
+            #centered-deck-wrapper::after {
+                transform: translateY(14px) translateX(10px) rotate(6deg);
+                z-index: -2; opacity: 0.30;
+            }
+
+            /* The actual card — rotates on Y for flip */
+            #centered-deck-card {
+                width: 100%; height: 100%;
+                transform-style: preserve-3d;
+                transition: transform 0.30s ease-in;
+                border-radius: 14px;
+                filter: drop-shadow(0 14px 36px rgba(0,0,0,0.75));
+            }
+
+            .cdk-face {
+                position: absolute; inset: 0;
+                border-radius: 14px;
+                border: 4px solid rgba(255,255,255,0.88);
+                display: flex; flex-direction: column;
+                align-items: center; justify-content: center;
+                backface-visibility: hidden;
+                overflow: hidden;
+            }
+            .cdk-face.back {
+                background: linear-gradient(145deg, #5a1aaa 0%, #2d0b7e 55%, #7b2dcf 100%);
+            }
+            .cdk-face.back::before {
+                content: '';
+                position: absolute; inset: 10px;
+                border: 2px solid rgba(255,255,255,0.18);
+                border-radius: 8px;
+                background: repeating-linear-gradient(
+                    45deg,
+                    rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 2px,
+                    transparent 2px, transparent 10px
+                );
+                pointer-events: none;
+            }
+            .cdk-back-icon {
+                font-size: clamp(52px, 10vw, 76px);
+                z-index: 1;
+                animation: cdkIconGlow 2s ease-in-out infinite;
+            }
+            @keyframes cdkIconGlow {
+                0%,100% { filter: drop-shadow(0 0 8px  rgba(255,215,0,0.7)); }
+                50%      { filter: drop-shadow(0 0 22px rgba(255,215,0,1.0)); }
+            }
+
+            .cdk-face.front {
+                background: #fff;
+                gap: 4px;
+            }
+            .cdk-rank {
+                font-size: clamp(56px, 14vw, 96px);
+                font-weight: 900;
+                font-family: "Georgia", "Times New Roman", serif;
+                line-height: 1;
+                transform: scale(0.5);
+                transition: transform 0.32s cubic-bezier(0.18,1.2,0.4,1);
+            }
+            .cdk-rank.popped { transform: scale(1); }
+            .cdk-suit { font-size: clamp(28px, 6vw, 44px); }
+
+            #centered-deck-instruction {
+                margin-top: 26px;
+                font-size: clamp(15px, 3vw, 20px);
+                color: rgba(255,255,255,0.88);
+                text-shadow: 0 2px 10px rgba(0,0,0,0.7);
+                letter-spacing: 0.07em;
+                animation: cdkBannerPulse 2s ease-in-out infinite;
+                pointer-events: none;
+            }
+        `;
+        document.head.appendChild(s);
+    })();
+
+    function showCenteredDeck(playerIdx, isExtraTurn) {
+        hideCenteredDeck();
+        if (!gameState) return;
+        const player = gameState.players[playerIdx];
+        if (!player) return;
+
+        const playerName  = player.name  || `Player ${playerIdx + 1}`;
+        const playerColor = '#' + getThemedPlayerColor(playerIdx).toString(16).padStart(6, '0');
+        const playerAvatar = player.avatar || '👤';
+
         const overlay = document.createElement('div');
-        overlay.id = 'large-deck-overlay';
-        overlay.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5); z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            animation: fadeIn 0.3s ease-out;
-        `;
-        
+        overlay.id = 'centered-deck-overlay';
+
         const banner = document.createElement('div');
-        banner.style.cssText = `
-            font-size: 32px; font-weight: bold; color: ${playerColor};
-            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8); margin-bottom: 30px;
-            animation: pulse 1.5s ease-in-out infinite;
-        `;
-        banner.textContent = `${playerName}'s Turn`;
-        
-        const deck = document.createElement('div');
-        deck.id = 'large-deck-card';
-        deck.style.cssText = `
-            width: 200px; height: 280px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px; border: 4px solid #fff;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 80px; transition: transform 0.2s ease;
-            animation: deckBounce 2s ease-in-out infinite;
-        `;
-        deck.textContent = '🎴';
-        
-        deck.addEventListener('mouseenter', () => { deck.style.transform = 'scale(1.1) rotate(5deg)'; });
-        deck.addEventListener('mouseleave', () => { deck.style.transform = 'scale(1) rotate(0deg)'; });
-        deck.addEventListener('click', () => { handleDrawCard(false); });
-        
+        banner.id = 'centered-deck-banner';
+        banner.style.color = playerColor;
+        banner.textContent = isExtraTurn
+            ? `${playerAvatar} EXTRA TURN — ${playerName}`
+            : `${playerAvatar} ${playerName}'s Turn`;
+
+        const wrapper = document.createElement('div');
+        wrapper.id = 'centered-deck-wrapper';
+
+        const deckCard = document.createElement('div');
+        deckCard.id = 'centered-deck-card';
+
+        const face = document.createElement('div');
+        face.className = 'cdk-face back';
+        face.innerHTML = `<div class="cdk-back-icon">🎴</div>`;
+        deckCard.appendChild(face);
+        wrapper.appendChild(deckCard);
+
         const instruction = document.createElement('div');
-        instruction.style.cssText = `
-            font-size: 24px; color: #fff; margin-top: 30px;
-            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
-            animation: pulse 1.5s ease-in-out infinite;
-        `;
-        instruction.textContent = 'Click to Draw Card';
-        
+        instruction.id = 'centered-deck-instruction';
+        instruction.textContent = 'Tap to draw your card';
+
         overlay.appendChild(banner);
-        overlay.appendChild(deck);
+        overlay.appendChild(wrapper);
         overlay.appendChild(instruction);
         document.body.appendChild(overlay);
-        
-        if (!document.getElementById('large-deck-styles')) {
-            const style = document.createElement('style');
-            style.id = 'large-deck-styles';
-            style.textContent = `
-                @keyframes deckBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-                @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-            `;
-            document.head.appendChild(style);
-        }
-    }
-    
-    function hideLargeDeck() {
-        const overlay = document.getElementById('large-deck-overlay');
-        if (overlay) {
-            overlay.style.animation = 'fadeIn 0.3s ease-out reverse';
-            setTimeout(() => { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 300);
-        }
-    }
-    
-    function showRevealedCard(card) {
-        console.log('[LargeDeck] Showing revealed card:', card.rank);
-        
-        const overlay = document.createElement('div');
-        overlay.id = 'revealed-card-overlay';
-        overlay.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); z-index: 10000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            animation: fadeIn 0.3s ease-out;
-        `;
-        
-        const cardDisplay = document.createElement('div');
-        const cardColor = (card.suit === 'hearts' || card.suit === 'diamonds' || card.suit === 'red') ? '#e74c3c' : '#2c3e50';
-        cardDisplay.style.cssText = `
-            width: 200px; height: 280px; background: #fff;
-            border-radius: 15px; border: 4px solid #FFD700;
-            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.5);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-size: 100px; font-weight: bold; color: ${cardColor};
-            animation: cardFlip 0.6s ease-out;
-        `;
-        
-        const rank = document.createElement('div');
-        rank.textContent = card.rank;
-        cardDisplay.appendChild(rank);
-        
-        if (card.suit) {
-            const suitSymbols = { 'hearts': '♥', 'diamonds': '♦', 'clubs': '♣', 'spades': '♠', 'red': '🃏', 'black': '🃏' };
-            const suitEl = document.createElement('div');
-            suitEl.style.fontSize = '40px';
-            suitEl.textContent = suitSymbols[card.suit] || '';
-            cardDisplay.appendChild(suitEl);
-        }
-        
-        overlay.appendChild(cardDisplay);
-        document.body.appendChild(overlay);
-        
-        if (!document.getElementById('card-flip-styles')) {
-            const style = document.createElement('style');
-            style.id = 'card-flip-styles';
-            style.textContent = `
-                @keyframes cardFlip {
-                    0% { transform: rotateY(90deg) scale(0.5); opacity: 0; }
-                    50% { transform: rotateY(45deg) scale(0.8); }
-                    100% { transform: rotateY(0deg) scale(1); opacity: 1; }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-        
-        setTimeout(() => {
-            overlay.style.animation = 'fadeIn 0.3s ease-out reverse';
+
+        // ── Flip & draw handler ──
+        let _drawing = false;
+        function onDeckTap() {
+            if (_drawing) return;
+            _drawing = true;
+            wrapper.style.animation = 'none';
+            instruction.style.opacity = '0';
+
+            // Phase 1 — rotate to edge (90°)
+            deckCard.style.transition = 'transform 0.28s ease-in';
+            deckCard.style.transform = 'rotateY(90deg)';
+
             setTimeout(() => {
-                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-                updatePlayerPanelCard(card);
-            }, 300);
-        }, 1500);
+                // Swap to face-up placeholder
+                face.className = 'cdk-face front';
+                face.innerHTML = `<div class="cdk-rank" id="cdk-rank-val" style="color:#333">?</div>`;
+                // Phase 2 — rotate back to 0°
+                deckCard.style.transition = 'transform 0.28s ease-out';
+                deckCard.style.transform = 'rotateY(0deg)';
+                // Draw the card — handleDrawCard calls updateCenteredDeckRank()
+                handleDrawCard(false);
+            }, 280);
+        }
+        wrapper.addEventListener('click', onDeckTap);
+        wrapper.addEventListener('touchend', (e) => { e.preventDefault(); onDeckTap(); }, { passive: false });
+        window._centeredDeckActive = true;
+    }
+
+    function hideCenteredDeck() {
+        const overlay = document.getElementById('centered-deck-overlay');
+        if (!overlay) return;
+        overlay.style.animation = 'cdkFadeOut 0.4s ease-in both';
+        setTimeout(() => { overlay.remove(); }, 420);
+        window._centeredDeckActive = false;
+    }
+
+    function updateCenteredDeckRank(card) {
+        if (!card) return;
+        const rankEl = document.getElementById('cdk-rank-val');
+        if (!rankEl) return;
+
+        const rank = card.rank || card.value || '?';
+        const isRed = ['hearts', 'diamonds', 'red'].includes(card.suit);
+        const color = isRed ? '#dc2626' : '#1a1a2e';
+        const suits = { hearts: '♥', diamonds: '♦', clubs: '♣', spades: '♠' };
+
+        rankEl.style.color = color;
+        rankEl.textContent = rank;
+
+        // Suit symbol below rank
+        const suitEl = document.createElement('div');
+        suitEl.className = 'cdk-suit';
+        suitEl.style.color = color;
+        suitEl.textContent = suits[card.suit] || '';
+        if (rankEl.parentElement) rankEl.parentElement.appendChild(suitEl);
+
+        // Spring pop-in
+        requestAnimationFrame(() => { rankEl.classList.add('popped'); });
+
+        // After 1.8 s: fly card to top-left player panel, then hide overlay
+        setTimeout(() => {
+            const wrapper = document.getElementById('centered-deck-wrapper');
+            if (wrapper) {
+                const wRect = wrapper.getBoundingClientRect();
+                // Target: top-left corner (player panel area)
+                const tx = -(wRect.left - 10);
+                const ty = -(wRect.top - 10);
+                wrapper.style.transition = 'transform 0.55s cubic-bezier(0.4,0,0.2,1), opacity 0.55s ease';
+                wrapper.style.transform = `translate(${tx}px, ${ty}px) scale(0.18)`;
+                wrapper.style.opacity = '0';
+            }
+            setTimeout(hideCenteredDeck, 580);
+            // Re-enable the panel deck as fallback after animation
+            if (cardUI) cardUI.setDeckEnabled(true);
+        }, 1800);
     }
     
-    function updatePlayerPanelCard(card) {
-        console.log('[LargeDeck] Updating player panel with card:', card.rank);
-        if (window.GameUIMinimal && window.GameUIMinimal.setDrawnCard) {
-            window.GameUIMinimal.setDrawnCard(card);
-        }
-        if (cardUI && cardUI.showCard) {
-            cardUI.showCard(card);
-        }
+    // ================================================================
+    // MOVE SUGGESTION PANEL — numbered, color-coded buttons, 2-phase UX
+    // ================================================================
+
+    let _msbPreviewing = null;   // currently previewed move
+
+    function showMoveSuggestionPanel(moves) {
+        hideMoveSuggestionPanel();
+        if (!moves || !moves.length) return;
+
+        const panel = document.createElement('div');
+        panel.id = 'move-suggestion-panel';
+
+        moves.forEach((move, i) => {
+            const colorHex = MOVE_COLORS[move._colorIdx ?? 0].hex;
+            const pegNum   = move._pegNumber ?? (i + 1);
+
+            // Determine icon & label
+            let icon  = '➡️';
+            let label = `Move ${pegNum}`;
+            if (move.type === 'enter')   { icon = '🚀'; label = `Enter (Peg ${pegNum})`; }
+            else if (move.type === 'cut')   { icon = '⚔️'; label = `Cut! (Peg ${pegNum})`; }
+            else if (move.type === 'safezone' || move.isSafezone) { icon = '🛡️'; label = `Safe zone (Peg ${pegNum})`; }
+            else if (move.spaces)           { label = `+${move.spaces} (Peg ${pegNum})`; }
+
+            const btn = document.createElement('button');
+            btn.className = 'msb-btn';
+            btn.dataset.moveIdx = i;
+            btn.style.borderColor = colorHex;
+            btn.style.color = colorHex;
+            btn.title = label;
+            btn.innerHTML = `
+                <span class="msb-num" style="background:${colorHex};color:#000">${pegNum}</span>
+                <span class="msb-label">${label}</span>
+                <span class="msb-icon">${icon}</span>
+            `;
+
+            btn.addEventListener('click', () => previewMove(move, btn, colorHex));
+            btn.addEventListener('touchend', (e) => { e.preventDefault(); previewMove(move, btn, colorHex); }, { passive: false });
+            panel.appendChild(btn);
+        });
+
+        document.body.appendChild(panel);
     }
-    
+
+    function hideMoveSuggestionPanel() {
+        const panel = document.getElementById('move-suggestion-panel');
+        if (panel) panel.remove();
+        hideMsbBar();
+        _msbPreviewing = null;
+    }
+
+    function previewMove(move, btnEl, colorHex) {
+        // Mark previously-previewed button as normal
+        document.querySelectorAll('.msb-btn.previewed').forEach(b => b.classList.remove('previewed'));
+        if (btnEl) btnEl.classList.add('previewed');
+        _msbPreviewing = move;
+
+        // Camera: focus on the moving peg
+        if (move.pegId) {
+            const reg = pegRegistry.get(move.pegId);
+            if (reg && reg.mesh) {
+                const pos = reg.mesh.position;
+                if (cameraMode !== 'manual' && !fixedViewsActive) {
+                    smoothCameraTransition(
+                        { x: pos.x + 40, y: LINE_HEIGHT + 70, z: pos.z + 55 },
+                        { x: pos.x, y: LINE_HEIGHT + 5, z: pos.z },
+                        600
+                    );
+                }
+            }
+        }
+
+        // Show move-suggestion confirm bar (distinct from the old confirm-move-bar)
+        showMsbBar(move, colorHex);
+    }
+
+    function showMsbBar(move, colorHex) {
+        hideMsbBar();
+
+        const bar = document.createElement('div');
+        bar.id = 'move-confirm-bar';
+
+        const info = document.createElement('div');
+        info.className = 'mcb-info';
+        let label = 'Confirm move?';
+        if (move.type === 'cut')        label = '⚔️ Confirm cut?';
+        else if (move.type === 'enter')  label = '🚀 Confirm entry?';
+        else if (move.spaces)            label = `Move +${move.spaces} spaces?`;
+        info.textContent = label;
+
+        const goBtn = document.createElement('button');
+        goBtn.className = 'mcb-go';
+        goBtn.style.background = colorHex;
+        goBtn.style.color = '#000';
+        goBtn.textContent = '✓ Go!';
+        goBtn.addEventListener('click', () => {
+            hideMoveSuggestionPanel();
+            executeMoveDirectly(move);
+        });
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'mcb-cancel';
+        cancelBtn.textContent = '✕';
+        cancelBtn.addEventListener('click', () => {
+            document.querySelectorAll('.msb-btn.previewed').forEach(b => b.classList.remove('previewed'));
+            _msbPreviewing = null;
+            hideMsbBar();
+        });
+
+        bar.appendChild(cancelBtn);
+        bar.appendChild(info);
+        bar.appendChild(goBtn);
+        document.body.appendChild(bar);
+    }
+
+    function hideMsbBar() {
+        const bar = document.getElementById('move-confirm-bar');
+        if (bar) bar.remove();
+    }
+
     // Show auto-move notification for human players
     // ================================================================
     // FASTTRACK AUTO/MANUAL TRAVERSAL CHOICE DIALOG
@@ -15505,7 +15809,35 @@
         // Decode avatar (it's URL encoded like %F0%9F%8E%AE)
         const playerAvatar = decodeURIComponent(sessionParams.get('avatar') || '🎮');
         const difficulty = sessionParams.get('difficulty') || 'normal';
-        
+
+        // Apply sound & camera preferences from localStorage (set in ai_setup.html)
+        const musicPref = localStorage.getItem('fasttrack_music') || 'on';
+        const sfxPref   = localStorage.getItem('fasttrack_sfx')   || 'on';
+        const cameraPref = localStorage.getItem('fasttrack_camera') || 'auto';
+
+        // Music: if set to off, mark as already auto-started so it won't play automatically
+        if (musicPref === 'off') {
+            musicAutoStarted = true; // suppress autoStartMusicOnFirstDraw()
+            // Ensure music button shows OFF state
+            const musicBtn = document.getElementById('music-toggle-btn');
+            if (musicBtn) { musicBtn.textContent = '🔇'; musicBtn.title = 'Music: OFF'; musicBtn.classList.remove('music-on'); }
+        } else {
+            // Start music automatically when game begins
+            if (typeof autoStartMusicOnFirstDraw === 'function') {
+                setTimeout(() => autoStartMusicOnFirstDraw(), 1500);
+            }
+        }
+
+        // SFX: disable globally if turned off in setup
+        if (sfxPref === 'off' && window.GameSFX) {
+            GameSFX.enabled = false;
+        }
+
+        // Camera: if manual, set temp manual override so auto-follow doesn't kick in
+        if (cameraPref === 'manual') {
+            _tempManualOverride = true;
+        }
+
         console.log(`[startGameSession] URL params: players=${requestedPlayers}, name=${playerName}, avatar=${playerAvatar}, difficulty=${difficulty}`);
         console.log(`[startGameSession] Final playerCount after clamping: ${playerCount}`);
         console.log(`[startGameSession] gameState.players before config:`, gameState?.players?.map(p => p.name));

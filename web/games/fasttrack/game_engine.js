@@ -203,19 +203,19 @@ const CARD_TYPES = (typeof CardSubstrate !== 'undefined')
             canExitBullseye: false,         // Cannot exit bullseye (only J, Q, K can)
             description: 'Enter from holding OR move 1 clockwise. Extra turn.'
         },
-        JOKER: { 
-            rank: 'JOKER', 
-            value: 0, 
+        JOKER: {
+            rank: 'JOKER',
+            value: 0,
             type: 'wild',
-            movement: 1,                    // Moves 1 space when moving (not entering)
-            direction: 'both',              // Can move forward OR backward 1 space
+            movement: 1,                    // Moves 1 space clockwise when on board
+            direction: 'clockwise',         // Standard play: clockwise only
             extraTurn: true,
             canEnterFromHolding: true,
             canExitBullseye: false,         // Cannot exit bullseye (only J, Q, K can)
-            canMoveBackward: true,          // Special: Can move 1 backward if opponent behind
-            backwardRequiresOpponent: true, // Only backward if opponent directly behind
-            cannotBackwardInto: ['home', 'safezone', 'fasttrack', 'center'], // Restrictions
-            description: 'Enter from holding OR move 1 forward/backward (backward only if opponent behind). Extra turn.'
+            // NOTE (house rules): canMoveBackward removed from basic play.
+            // To restore: add canMoveBackward:true, backwardRequiresOpponent:true,
+            // cannotBackwardInto:['home','safezone','fasttrack','center']
+            description: 'Enter from holding OR move 1 space clockwise. Extra turn.'
         },
         SIX: { 
             rank: '6', 
@@ -1316,8 +1316,10 @@ class GameState {
             legalMoves = [];
         }
         
-        // Handle JOKER special backward movement
-        if (card.canMoveBackward && card.rank === 'JOKER') {
+        // ── HOUSE RULES ONLY ── Joker backward-1 move (disabled for standard play)
+        // To enable: add canMoveBackward:true to JOKER card definition above.
+        // Rule: Joker may move 1 space backward to cut an opponent directly behind.
+        /* if (card.canMoveBackward && card.rank === 'JOKER') {
             console.log('[LegalMoves] JOKER - checking for backward moves (requires opponent behind)');
             
             const jokerBackwardMoves = [];
@@ -1401,7 +1403,7 @@ class GameState {
             
             console.log(`[LegalMoves] JOKER backward moves: ${jokerBackwardMoves.length}`);
             legalMoves.push(...jokerBackwardMoves);
-        }
+        } */ // ── END HOUSE RULES ──
 
         if (this.onLegalMovesCalculated) {
             this.onLegalMovesCalculated(legalMoves);
