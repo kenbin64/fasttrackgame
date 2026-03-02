@@ -11,7 +11,14 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a2e">
     <meta name="mobile-web-app-capable" content="yes">
-    <!-- VERSION: 2026-03-02-01:00 - Bootstrap button rail; music button fix -->
+    <!-- VERSION: 2026-03-02-02:00 - Music panel; neon EXIT; Ask Mom toggle; first-load refresh -->
+    <script>
+        // First-load void fix: single auto-reload per tab so Three.js initializes cleanly
+        if (!sessionStorage.getItem('_ft_board_init')) {
+            sessionStorage.setItem('_ft_board_init', '1');
+            window.location.reload();
+        }
+    </script>
     <title>Fast Track — Play Free Online | 3D Board Game</title>
     <meta name="description" content="Play Fast Track free in your browser — a 3D card &amp; peg racing board game. Race around the board, take the Fast Track shortcut, capture opponents. 2-4 players, 7 themes, smart bots.">
     <meta name="keywords" content="fast track, board game, online game, free game, 3D board game, card game, multiplayer, peg racing">
@@ -389,16 +396,32 @@
     
     <!-- Floating Rules Button — REMOVED (available in hamburger menu) -->
     
-    <!-- Right-Hand Control Buttons — Bootstrap flex column, fixed to vertical centre on desktop -->
+    <!-- Right-Hand Control Buttons — CSS flex column, fixed to vertical centre on desktop -->
     <div id="right-icon-panel"
-         class="d-flex flex-column align-items-center gap-2"
+         class="d-flex align-items-center"
          role="toolbar" aria-label="Game controls">
-        <button id="camera-btn"      class="btn" onclick="openCameraPanel()"    title="Camera Options" aria-label="Camera options">📹</button>
-        <button id="theme-btn"       class="btn" onclick="openThemePanel()"     title="Change Theme"   aria-label="Change theme">🎨</button>
-        <button id="music-toggle-btn" class="btn" onclick="toggleGameMusic()"   title="Music: OFF"     aria-label="Toggle music">🔇</button>
-        <button id="leave-game-btn"  class="btn" onclick="showExitConfirm()"    title="Leave Game"     aria-label="Leave game">🚪</button>
-        <button id="board-view-btn"  class="btn" onclick="setBoardViewMode()"   title="Fixed Views"    aria-label="Board view">🎯</button>
-        <button id="ask-mom-btn"     class="btn" onclick="showMomHelp()"        title="Ask Mom"        aria-label="Ask Mom for advice">👩</button>
+        <button id="camera-btn"       onclick="openCameraPanel()"    title="Camera Options" aria-label="Camera options">📹</button>
+        <button id="theme-btn"        onclick="openThemePanel()"     title="Change Theme"   aria-label="Change theme">🎨</button>
+        <button id="music-toggle-btn" onclick="openMusicPanel()"     title="Music &amp; Sound" aria-label="Music and sound settings">🔇</button>
+        <button id="leave-game-btn"   onclick="showExitConfirm()"    title="Leave Game"     aria-label="Leave game"><span class="exit-txt">EXIT</span></button>
+        <button id="board-view-btn"   onclick="setBoardViewMode()"   title="Fixed Views"    aria-label="Board view">🎯</button>
+        <button id="ask-mom-btn"      onclick="toggleMomAdvice()"    title="Ask Mom"        aria-label="Ask Mom for advice">👩</button>
+    </div>
+
+    <!-- Music & Sound Panel — slide-in from right -->
+    <div id="music-sound-panel">
+        <div class="msp-header">
+            <span>🎵 Music &amp; Sound</span>
+            <button class="msp-close" onclick="closeMusicPanel()">×</button>
+        </div>
+        <label class="msp-row">
+            <span>Music</span>
+            <input type="checkbox" id="msp-music-toggle" onchange="setGameMusic(this.checked)" checked>
+        </label>
+        <label class="msp-row">
+            <span>Sound FX</span>
+            <input type="checkbox" id="msp-sfx-toggle" onchange="setGameSFX(this.checked)" checked>
+        </label>
     </div>
     
     <!-- Exit Confirmation Modal -->
@@ -4368,7 +4391,71 @@
         }
     }
     window.toggleGameMusic = toggleGameMusic;
-    
+
+    // ─── Music & Sound Panel ──────────────────────────────────────────────
+    function openMusicPanel() {
+        const panel = document.getElementById('music-sound-panel');
+        if (!panel) return;
+        // Sync checkboxes with current state
+        const musicChk = document.getElementById('msp-music-toggle');
+        const sfxChk   = document.getElementById('msp-sfx-toggle');
+        if (musicChk) musicChk.checked = gameMusicPlaying;
+        if (sfxChk)   sfxChk.checked   = (localStorage.getItem('fasttrack_sfx') !== 'false');
+        panel.classList.toggle('visible');
+    }
+    window.openMusicPanel = openMusicPanel;
+
+    function closeMusicPanel() {
+        const panel = document.getElementById('music-sound-panel');
+        if (panel) panel.classList.remove('visible');
+    }
+    window.closeMusicPanel = closeMusicPanel;
+
+    function setGameMusic(enabled) {
+        if (enabled && !gameMusicPlaying) {
+            gameMusicPlaying = true;
+            if (typeof MusicSubstrate !== 'undefined') { MusicSubstrate.activate(); if (MusicSubstrate.play) MusicSubstrate.play(); }
+            if (typeof StadiumController !== 'undefined' && StadiumController.systems?.music) StadiumController.systems.music.play?.();
+            const btn = document.getElementById('music-toggle-btn');
+            if (btn) { btn.textContent = '🎵'; btn.title = 'Music & Sound'; btn.classList.add('music-on'); }
+        } else if (!enabled && gameMusicPlaying) {
+            gameMusicPlaying = false;
+            if (typeof MusicSubstrate !== 'undefined') MusicSubstrate.stop?.();
+            if (typeof StadiumController !== 'undefined' && StadiumController.systems?.music) StadiumController.systems.music.stop?.();
+            const btn = document.getElementById('music-toggle-btn');
+            if (btn) { btn.textContent = '🔇'; btn.title = 'Music & Sound'; btn.classList.remove('music-on'); }
+        }
+        localStorage.setItem('fasttrack_music', enabled ? 'true' : 'false');
+    }
+    window.setGameMusic = setGameMusic;
+
+    function setGameSFX(enabled) {
+        localStorage.setItem('fasttrack_sfx', enabled ? 'true' : 'false');
+        if (typeof GameSFX !== 'undefined') {
+            GameSFX.muted = !enabled;
+        }
+    }
+    window.setGameSFX = setGameSFX;
+
+    // ─── Ask Mom — persistent real-time advice toggle ─────────────────────
+    let momAdviceActive = false;
+    let momAdviceTimer  = null;
+    function toggleMomAdvice() {
+        const btn = document.getElementById('ask-mom-btn');
+        momAdviceActive = !momAdviceActive;
+        if (momAdviceActive) {
+            btn?.classList.add('mom-active');
+            showMomHelp();
+            momAdviceTimer = setInterval(() => { if (momAdviceActive) showMomHelp(); }, 15000);
+        } else {
+            btn?.classList.remove('mom-active');
+            clearInterval(momAdviceTimer);
+            momAdviceTimer = null;
+            hideMomHelp();
+        }
+    }
+    window.toggleMomAdvice = toggleMomAdvice;
+
     // Auto-start music on first card draw by any player
     function autoStartMusicOnFirstDraw() {
         if (musicAutoStarted || gameMusicPlaying) return;
