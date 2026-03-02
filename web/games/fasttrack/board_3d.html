@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a2e">
     <meta name="mobile-web-app-capable" content="yes">
-    <!-- VERSION: 2026-03-02-10:00 - Card overlay dismisses in 600ms (was 1800ms) so board appears immediately after rank shows -->
+    <!-- VERSION: 2026-03-02-11:00 - Crown above winner hole + camera cut + tagline; 7-card 1-peg wild 1-7 fix -->
     <title>Fast Track — Play Free Online | 3D Board Game</title>
     <meta name="description" content="Play Fast Track free in your browser — a 3D card &amp; peg racing board game. Race around the board, take the Fast Track shortcut, capture opponents. 2-4 players, 7 themes, smart bots.">
     <meta name="keywords" content="fast track, board game, online game, free game, 3D board game, card game, multiplayer, peg racing">
@@ -1960,11 +1960,53 @@
         geometry.rotateX(-Math.PI / 2);
         geometry.translate(0, -BOARD_THICKNESS / 2, 0);
 
-        // Wood-like material with subtle shine
+        // Procedural wood-grain texture via canvas (no external asset dependency)
+        const woodCanvas = document.createElement('canvas');
+        woodCanvas.width = 512;
+        woodCanvas.height = 512;
+        const woodCtx = woodCanvas.getContext('2d');
+
+        // Base warm tan fill
+        woodCtx.fillStyle = '#d4a574';
+        woodCtx.fillRect(0, 0, 512, 512);
+
+        // Layered wood grain rings — lighter and darker streaks
+        const grainColors = ['rgba(180,120,60,0.18)', 'rgba(210,160,90,0.22)', 'rgba(150,90,40,0.15)', 'rgba(230,180,110,0.20)'];
+        for (let g = 0; g < 28; g++) {
+            const y0 = (g / 28) * 512;
+            const waviness = 12 + Math.sin(g * 1.3) * 8;
+            woodCtx.beginPath();
+            woodCtx.moveTo(0, y0);
+            for (let x = 0; x <= 512; x += 16) {
+                const dy = Math.sin((x / 512) * Math.PI * 4 + g * 0.7) * waviness;
+                woodCtx.lineTo(x, y0 + dy);
+            }
+            woodCtx.lineWidth = 2 + Math.abs(Math.sin(g * 0.9)) * 3;
+            woodCtx.strokeStyle = grainColors[g % grainColors.length];
+            woodCtx.stroke();
+        }
+
+        // Subtle diagonal cross-grain for cardboard texture
+        for (let c = 0; c < 10; c++) {
+            woodCtx.beginPath();
+            woodCtx.moveTo(c * 55, 0);
+            woodCtx.lineTo(c * 55 + 512, 512);
+            woodCtx.lineWidth = 1;
+            woodCtx.strokeStyle = 'rgba(160,100,50,0.07)';
+            woodCtx.stroke();
+        }
+
+        const woodTexture = new THREE.CanvasTexture(woodCanvas);
+        woodTexture.wrapS = THREE.RepeatWrapping;
+        woodTexture.wrapT = THREE.RepeatWrapping;
+        woodTexture.repeat.set(3, 3);
+
+        // Wood material per BOARD_BUILDING_SPEC: roughness 0.7, metalness 0.1
         const material = new THREE.MeshStandardMaterial({
+            map: woodTexture,
             color: 0xd4a574,
-            roughness: 0.5,
-            metalness: 0.2
+            roughness: 0.7,
+            metalness: 0.1
         });
 
         const board = new THREE.Mesh(geometry, material);
@@ -1976,33 +2018,82 @@
     }
 
     // ============================================================
-    // RAINBOW BORDER - 6 colored edge segments (no overlap)
+    // RAINBOW BORDER - 6 edge segments with continuous rainbow gradient
     // ============================================================
-    
+
+    /**
+     * Build a canvas texture that blends from colorA to colorB left-to-right.
+     * Each segment transitions into the next, creating a seamless rainbow around
+     * all six edges of the hexagonal board.
+     */
+    function createGradientBorderTexture(colorA, colorB) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+
+        // Convert packed hex int to CSS rgb string
+        function hexToRgb(hex) {
+            const r = (hex >> 16) & 0xff;
+            const g = (hex >> 8)  & 0xff;
+            const b =  hex        & 0xff;
+            return `rgb(${r},${g},${b})`;
+        }
+
+        const grad = ctx.createLinearGradient(0, 0, 256, 0);
+        grad.addColorStop(0,   hexToRgb(colorA));
+        grad.addColorStop(0.5, hexToRgb(colorA));   // hold center so transition is near edges
+        grad.addColorStop(1,   hexToRgb(colorB));
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 256, 64);
+
+        // Subtle gloss highlight along the top quarter
+        const gloss = ctx.createLinearGradient(0, 0, 0, 64);
+        gloss.addColorStop(0,    'rgba(255,255,255,0.30)');
+        gloss.addColorStop(0.25, 'rgba(255,255,255,0.10)');
+        gloss.addColorStop(1,    'rgba(0,0,0,0.0)');
+        ctx.fillStyle = gloss;
+        ctx.fillRect(0, 0, 256, 64);
+
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.needsUpdate = true;
+        return tex;
+    }
+
     function createRainbowBorder() {
         // Clear existing border segments
         borderSegments = [];
-        
+
         // Border uses golden ratio constants BORDER_WIDTH and BORDER_HEIGHT
         for (let i = 0; i < 6; i++) {
             const angle1 = (i * Math.PI / 3) - Math.PI / 6;
             const angle2 = ((i + 1) * Math.PI / 3) - Math.PI / 6;
-            
+
             const x1 = Math.cos(angle1) * BOARD_RADIUS;
             const z1 = Math.sin(angle1) * BOARD_RADIUS;
             const x2 = Math.cos(angle2) * BOARD_RADIUS;
             const z2 = Math.sin(angle2) * BOARD_RADIUS;
-            
-            // Calculate exact edge length - no extra overlap
+
+            // Calculate exact edge length — no overlap
             const length = Math.sqrt((x2 - x1)**2 + (z2 - z1)**2);
             const midX = (x1 + x2) / 2;
             const midZ = (z1 + z2) / 2;
             const edgeAngle = Math.atan2(z2 - z1, x2 - x1);
-            
-            // Use exact length, no overlap (removed the +12)
+
+            // Gradient from this player's color to the next, creating a seamless rainbow
+            const colorA = RAINBOW_COLORS[i];
+            const colorB = RAINBOW_COLORS[(i + 1) % 6];
+            const gradientTex = createGradientBorderTexture(colorA, colorB);
+
             const geometry = new THREE.BoxGeometry(length, BORDER_HEIGHT, BORDER_WIDTH);
-            const material = createShinyMaterial(RAINBOW_COLORS[i], true);
-            
+            const material = new THREE.MeshStandardMaterial({
+                map: gradientTex,
+                roughness: 0.25,
+                metalness: 0.55,
+                emissive: new THREE.Color(colorA),
+                emissiveIntensity: 0.12
+            });
+
             const segment = new THREE.Mesh(geometry, material);
             segment.position.set(midX, 5, midZ);  // Raised to avoid z-fighting with board
             segment.rotation.y = -edgeAngle;
@@ -2426,18 +2517,18 @@
         }
         
         // ============================================================
-        // GOLDEN CROWN — Glowing crown above home hole when all 4 safe zone holes filled
+        // GOLDEN CROWN — Glowing crown above WINNER hole when all 4 safe zone holes filled
         // ============================================================
-        const goldenCrowns = [];  // Array of { mesh, pointLight, playerIndex }
-        
+        const goldenCrowns = [];  // Array of { mesh, pointLight, playerIndex, winnerPos }
+
         for (let i = 0; i < 6; i++) {
-            // Get home hole position from registry
-            const homeHole = holeRegistry.get(`home-${i}`);
-            if (!homeHole) continue;
-            
-            const hx = homeHole.position.x;
-            const hz = homeHole.position.z;
-            const crownY = LINE_HEIGHT + 12; // Float above the home hole
+            // Get winner hole position from registry (the 5th/final hole to land on)
+            const winnerHoleReg = holeRegistry.get(`winner-${i}`);
+            if (!winnerHoleReg) continue;
+
+            const hx = winnerHoleReg.position.x;
+            const hz = winnerHoleReg.position.z;
+            const crownY = LINE_HEIGHT + 14; // Float above the winner hole
             
             // Build a crown shape using a ring with 5 triangular points
             const crownGroup = new THREE.Group();
@@ -2502,27 +2593,77 @@
                 pointLight: crownLight,
                 material: crownMat,
                 playerIndex: i,
-                active: false
+                active: false,
+                winnerPos: { x: hx, y: LINE_HEIGHT, z: hz }  // World position of winner hole
             });
         }
         
         // Export crowns for access from animate loop and update functions
         window._goldenCrowns = goldenCrowns;
         
+        // ── Crown tagline DOM overlay ──────────────────────────────────────
+        let _crownTaglineEl = null;
+        function _showCrownTagline(playerIndex, playerColor) {
+            _hideCrownTagline();
+            const el = document.createElement('div');
+            el.id = 'crown-tagline-overlay';
+            el.style.cssText = [
+                'position:fixed', 'bottom:22%', 'left:50%', 'transform:translateX(-50%)',
+                'background:rgba(0,0,0,0.72)', 'border:2px solid gold',
+                'border-radius:12px', 'padding:14px 28px', 'z-index:3500',
+                'text-align:center', 'pointer-events:none',
+                'animation:crownTaglineFade 0.5s ease-out'
+            ].join(';');
+            el.innerHTML = `<div style="font-size:2rem;line-height:1">👑</div>
+                <div style="color:gold;font-size:1.15rem;font-weight:700;margin-top:4px;text-shadow:0 0 12px gold">
+                    Land here to WIN the Crown!
+                </div>`;
+            document.body.appendChild(el);
+            _crownTaglineEl = el;
+            // Auto-hide after 5 s so it doesn't block gameplay permanently
+            setTimeout(_hideCrownTagline, 5000);
+        }
+        function _hideCrownTagline() {
+            if (_crownTaglineEl) { _crownTaglineEl.remove(); _crownTaglineEl = null; }
+        }
+        // Inject keyframe if not already present
+        if (!document.getElementById('crown-tagline-style')) {
+            const st = document.createElement('style');
+            st.id = 'crown-tagline-style';
+            st.textContent = '@keyframes crownTaglineFade{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}';
+            document.head.appendChild(st);
+        }
+        window._hideCrownTagline = _hideCrownTagline;
+
         // Check and toggle crown visibility for a player
         window.updateGoldenCrown = function(playerIndex, safeZoneCount) {
             const crown = goldenCrowns[playerIndex];
             if (!crown) return;
-            
+
             if (safeZoneCount >= 4 && !crown.active) {
                 crown.mesh.visible = true;
                 crown.active = true;
-                crown.pointLight.intensity = 2;
+                crown.pointLight.intensity = 2.5;
                 console.log(`👑 Golden crown ACTIVATED for player ${playerIndex}!`);
+
+                // Camera cut to winner hole + tagline overlay
+                const wp = crown.winnerPos;
+                if (wp && typeof smoothCameraTransition === 'function') {
+                    // Position camera above and slightly back from the winner hole
+                    const camOffset = new THREE.Vector3(wp.x, wp.y + 55, wp.z + 40);
+                    const lookAt   = new THREE.Vector3(wp.x, wp.y, wp.z);
+                    smoothCameraTransition(camOffset, lookAt, 1800, null);
+                }
+                // Get player color from RAINBOW_COLORS if available
+                const pColor = (typeof RAINBOW_COLORS !== 'undefined' && RAINBOW_COLORS[playerIndex])
+                    ? RAINBOW_COLORS[playerIndex] : 0xffd700;
+                _showCrownTagline(playerIndex, pColor);
+
             } else if (safeZoneCount < 4 && crown.active) {
                 crown.mesh.visible = false;
                 crown.active = false;
                 crown.pointLight.intensity = 0;
+                _hideCrownTagline();
                 console.log(`👑 Golden crown deactivated for player ${playerIndex}`);
             }
         };
@@ -7242,21 +7383,22 @@
             return;
         }
         
-        // If only ONE active peg - just do a full 7 move, no split needed
+        // If only ONE active peg - wild card: can move 1-7 spaces
         if (activePegs.length === 1) {
-            console.log('[Split] Only one active peg - using full 7 move');
-            cardUI.showMessage('7 Card: One peg moves all 7 spaces', 2000);
-            
-            // Calculate moves for this single peg with 7 steps
+            console.log('[Split] Only one active peg - wild card 1-7 spaces');
+            cardUI.showMessage('7 Wild Card: Choose where to move (1-7 spaces)', 2500);
+
+            // Calculate moves for this single peg with 1-7 steps (wild card)
             const peg = player.peg.find(p => p.id === activePegs[0]);
             if (peg) {
-                const possibleMoves = calculateMovesForPegRange(peg, 7, 7);
+                const possibleMoves = calculateMovesForPegRange(peg, 1, 7);
                 if (possibleMoves.length > 0) {
                     legalMoves = possibleMoves;
                     highlightLegalMoves(legalMoves);
                     showPegNumbers(activePegs);
+                    showSplitMoveIndicator('7 Wild Card — tap a destination (1-7 spaces)', 7);
                 } else {
-                    cardUI.showMessage('Peg blocked - no valid moves!', 2000);
+                    cardUI.showMessage('Peg blocked — no valid moves!', 2000);
                     setTimeout(() => gameState.skipTurn(), 2000);
                 }
             }
@@ -7457,7 +7599,7 @@
     function canSplitSeven() {
         const player = gameState.currentPlayer;
         if (!player || !player.peg) return { valid: false, combinations: [] };
-        
+
         // Find all active pegs (not holding, not completed, not bullseye)
         const activePegs = player.peg.filter(p =>
             p.holeType !== 'holding' &&
@@ -7465,15 +7607,25 @@
             !p.inBullseye && p.holeType !== 'bullseye' && p.holeId !== 'center' &&
             p.holeId
         );
-        
+
         console.log(`[Split7] Checking split validity: ${activePegs.length} active pegs`);
-        
-        if (activePegs.length < 2) {
-            console.log('[Split7] Not enough active pegs for split');
-            return { valid: false, combinations: [] };
+
+        // Rule: a single peg can always move all 7 spaces — split is optional, never required.
+        // Collect all single-peg moves (1-7 steps) across every active peg.
+        const singlePegMoves = [];
+        for (const peg of activePegs) {
+            const moves = calculateMovesForPegRange(peg, 1, 7);
+            for (const m of moves) singlePegMoves.push(m);
         }
-        
-        // Cache moves per peg per step count
+        const anyPegCanMove = singlePegMoves.length > 0;
+
+        // Fewer than 2 active pegs → single-peg move is the only option
+        if (activePegs.length < 2) {
+            console.log(`[Split7] Only ${activePegs.length} active peg(s) — single-peg mode. Can move: ${anyPegCanMove}`);
+            return { valid: anyPegCanMove, combinations: [], singlePegOnly: true, singlePegMoves };
+        }
+
+        // Cache moves per peg per step count (1-6 for split combinations)
         const pegMoves = {};
         for (const peg of activePegs) {
             pegMoves[peg.id] = {};
@@ -7482,7 +7634,7 @@
                 pegMoves[peg.id][steps] = moves;
             }
         }
-        
+
         // Find all valid combinations: pegA moves X, pegB moves 7-X (X=1..6)
         const combinations = [];
         for (let i = 0; i < activePegs.length; i++) {
@@ -7490,14 +7642,14 @@
                 if (i === j) continue;
                 const pegA = activePegs[i];
                 const pegB = activePegs[j];
-                
+
                 for (let stepsA = 1; stepsA <= 6; stepsA++) {
                     const stepsB = 7 - stepsA;
                     if (stepsB < 1 || stepsB > 6) continue;
-                    
+
                     const movesA = pegMoves[pegA.id][stepsA];
                     const movesB = pegMoves[pegB.id][stepsB];
-                    
+
                     if (movesA.length > 0 && movesB.length > 0) {
                         combinations.push({
                             pegA: pegA.id, pegB: pegB.id,
@@ -7508,9 +7660,10 @@
                 }
             }
         }
-        
-        console.log(`[Split7] Found ${combinations.length} valid split combinations`);
-        return { valid: combinations.length > 0, combinations };
+
+        console.log(`[Split7] Found ${combinations.length} valid split combinations, anyPegCanMove: ${anyPegCanMove}`);
+        // Valid if split combinations exist OR any single peg can move (split is never mandatory)
+        return { valid: combinations.length > 0 || anyPegCanMove, combinations, singlePegMoves };
     }
     
     // AI: Auto-execute the best split combination for 7-card
