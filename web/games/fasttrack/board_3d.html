@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a2e">
     <meta name="mobile-web-app-capable" content="yes">
-    <!-- VERSION: 2026-03-01-02:50 - Camera & Music Buttons Added -->
+    <!-- VERSION: 2026-03-02-01:00 - Bootstrap button rail; music button fix -->
     <title>Fast Track — Play Free Online | 3D Board Game</title>
     <meta name="description" content="Play Fast Track free in your browser — a 3D card &amp; peg racing board game. Race around the board, take the Fast Track shortcut, capture opponents. 2-4 players, 7 themes, smart bots.">
     <meta name="keywords" content="fast track, board game, online game, free game, 3D board game, card game, multiplayer, peg racing">
@@ -65,6 +65,8 @@
     <meta http-equiv="Expires" content="0">
     
     <!-- Responsive Game CSS -->
+    <!-- Bootstrap (self-hosted) -->
+    <link rel="stylesheet" href="../../lib/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/responsive-game.css?v=20260223b">
     <link rel="stylesheet" href="assets/css/move-selection-modal.css?v=20260226">
     
@@ -301,7 +303,7 @@
         })();
     </script>
     
-    <link rel="stylesheet" href="assets/css/board-3d.css?v=20260301c">
+    <link rel="stylesheet" href="assets/css/board-3d.css?v=20260302a">
 </head>
 <body>
     <!-- Auth & Lobby UI Containers (hidden in dev mode) -->
@@ -387,26 +389,16 @@
     
     <!-- Floating Rules Button — REMOVED (available in hamburger menu) -->
     
-    <!-- Right-Hand Control Buttons — flex column rail, centred vertically on desktop,
-         horizontal strip at bottom-right on mobile (see board-3d.css #right-icon-panel) -->
-    <div id="right-icon-panel" role="toolbar" aria-label="Game controls">
-        <!-- Camera Control Button -->
-        <button id="camera-btn" onclick="openCameraPanel()" title="Camera Options" aria-label="Camera options">📹</button>
-
-        <!-- Theme Button -->
-        <button id="theme-btn" onclick="openThemePanel()" title="Change Theme" aria-label="Change theme">🎨</button>
-
-        <!-- Music Toggle Button (Music only, not SFX) -->
-        <button id="music-toggle-btn" onclick="toggleGameMusic()" title="Music: OFF" aria-label="Toggle music">🔇</button>
-
-        <!-- Leave Game Button -->
-        <button id="leave-game-btn" onclick="showExitConfirm()" title="Leave Game" aria-label="Leave game">🚪</button>
-
-        <!-- Fixed Views Button (persistent preset views) -->
-        <button id="board-view-btn" onclick="setBoardViewMode()" title="Fixed Views" aria-label="Board view">🎯</button>
-
-        <!-- Ask Mom Button -->
-        <button id="ask-mom-btn" onclick="showMomHelp()" title="Ask Mom" aria-label="Ask Mom for advice">👩</button>
+    <!-- Right-Hand Control Buttons — Bootstrap flex column, fixed to vertical centre on desktop -->
+    <div id="right-icon-panel"
+         class="d-flex flex-column align-items-center gap-2"
+         role="toolbar" aria-label="Game controls">
+        <button id="camera-btn"      class="btn" onclick="openCameraPanel()"    title="Camera Options" aria-label="Camera options">📹</button>
+        <button id="theme-btn"       class="btn" onclick="openThemePanel()"     title="Change Theme"   aria-label="Change theme">🎨</button>
+        <button id="music-toggle-btn" class="btn" onclick="toggleGameMusic()"   title="Music: OFF"     aria-label="Toggle music">🔇</button>
+        <button id="leave-game-btn"  class="btn" onclick="showExitConfirm()"    title="Leave Game"     aria-label="Leave game">🚪</button>
+        <button id="board-view-btn"  class="btn" onclick="setBoardViewMode()"   title="Fixed Views"    aria-label="Board view">🎯</button>
+        <button id="ask-mom-btn"     class="btn" onclick="showMomHelp()"        title="Ask Mom"        aria-label="Ask Mom for advice">👩</button>
     </div>
     
     <!-- Exit Confirmation Modal -->
