@@ -16037,9 +16037,17 @@
         document.getElementById('auth-container').style.display = 'none';
         document.getElementById('lobby-container').style.display = 'none';
         
-        // Read player count from URL params (from ai_setup.html), default to 3
+        // Read player count from URL params (from ai_setup.html or lobby redirect)
         const sessionParams = new URLSearchParams(window.location.search);
-        const requestedPlayers = parseInt(sessionParams.get('players')) || 3;
+
+        // Multiplayer: derive player count from the session roster stored by lobby_client.js
+        let _earlyRoster = null;
+        if (isMultiplayerGame) {
+            try { _earlyRoster = JSON.parse(sessionStorage.getItem('ft_session_players') || 'null'); } catch(e) {}
+        }
+        const requestedPlayers = (_earlyRoster && _earlyRoster.length >= 2)
+            ? _earlyRoster.length
+            : (parseInt(sessionParams.get('players')) || 3);
         const playerCount = Math.max(2, Math.min(4, requestedPlayers)); // Clamp 2-4
         const playerName = sessionParams.get('name') || 'You';
         // Decode avatar (it's URL encoded like %F0%9F%8E%AE)
@@ -16130,21 +16138,56 @@
                 console.error('[startGameSession] Error configuring player 0:', e);
             }
             
-            // Configure AI players (1 through playerCount-1) from manifold archetypes
+            // Configure players 1+
+            // In multiplayer: use the real session roster stored by lobby_client.js
+            // In solo/quickplay: fall back to AI bot pool
             const aiIndices = [];
-            for (let i = 1; i < playerCount; i++) {
-                if (gameState.players[i]) {
-                    const bot = botPool[(i - 1) % botPool.length];
-                    gameState.players[i].name = bot.name;
-                    gameState.players[i].avatar = bot.avatar;
-                    gameState.players[i].isAI = true;
-                    gameState.players[i].isHuman = false;
-                    gameState.players[i].isLocal = false;
-                    gameState.players[i].personality = bot.personality;
-                    aiIndices.push(i);
-                    console.log(`[startGameSession] Player ${i} configured: name="${gameState.players[i].name}", isAI=true, personality=${bot.personality}`);
-                } else {
-                    console.warn(`[startGameSession] Player ${i} does not exist in gameState.players!`);
+
+            let _mpRoster = null;
+            if (isMultiplayerGame) {
+                try { _mpRoster = JSON.parse(sessionStorage.getItem('ft_session_players') || 'null'); } catch(e) {}
+            }
+            const _mpMyId = isMultiplayerGame ? (sessionStorage.getItem('ft_my_user_id') || '') : '';
+
+            if (isMultiplayerGame && _mpRoster && _mpRoster.length > 0) {
+                // Re-order roster so local player is always index 0
+                const myIdx = _mpRoster.findIndex(p => p.user_id === _mpMyId);
+                const ordered = (myIdx > 0)
+                    ? [_mpRoster[myIdx], ..._mpRoster.filter((_, i) => i !== myIdx)]
+                    : _mpRoster;
+
+                for (let i = 1; i < ordered.length; i++) {
+                    if (!gameState.players[i]) continue;
+                    const sp = ordered[i];
+                    gameState.players[i].name     = sp.username;
+                    gameState.players[i].avatar    = sp.avatar;
+                    gameState.players[i].isAI      = !!sp.is_ai;
+                    gameState.players[i].isHuman   = !sp.is_ai;
+                    gameState.players[i].isLocal   = false;
+                    gameState.players[i].userId    = sp.user_id;
+                    if (sp.is_ai) {
+                        aiIndices.push(i);
+                        gameState.players[i].personality = 'default';
+                    }
+                    console.log(`[startGameSession] MP slot ${i}: "${sp.username}", isAI=${sp.is_ai}`);
+                }
+                console.log('[startGameSession] Multiplayer players configured from session roster:', ordered.map(p => p.username));
+            } else {
+                // Solo / quickplay — assign AI bot identities from the manifold pool
+                for (let i = 1; i < playerCount; i++) {
+                    if (gameState.players[i]) {
+                        const bot = botPool[(i - 1) % botPool.length];
+                        gameState.players[i].name = bot.name;
+                        gameState.players[i].avatar = bot.avatar;
+                        gameState.players[i].isAI = true;
+                        gameState.players[i].isHuman = false;
+                        gameState.players[i].isLocal = false;
+                        gameState.players[i].personality = bot.personality;
+                        aiIndices.push(i);
+                        console.log(`[startGameSession] Player ${i} configured: name="${gameState.players[i].name}", isAI=true, personality=${bot.personality}`);
+                    } else {
+                        console.warn(`[startGameSession] Player ${i} does not exist in gameState.players!`);
+                    }
                 }
             }
             

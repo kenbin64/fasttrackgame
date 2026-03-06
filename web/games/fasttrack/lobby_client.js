@@ -281,14 +281,43 @@ function onLeftSession() {
 function onGameStarted(data) {
     closeModal('waiting-room-modal');
     closeModal('private-wizard-modal');
-    
-    // Redirect to game board with session info
+
+    const session = data.session;
+
+    // Avatar id → emoji map (must match board_3d.html)
+    const AVATAR_EMOJIS = {
+        person_smile: '\u{1F60A}', person_cool: '\u{1F60E}', animal_lion: '\u{1F981}', animal_fox: '\u{1F98A}',
+        space_rocket: '\u{1F680}', fantasy_dragon: '\u{1F432}', scifi_robot: '\u{1F916}', sport_soccer: '\u{26BD}',
+        robot: '\u{1F916}',
+    };
+
+    // Identify "me" in the session roster by user_id
+    const myUserId = state.user?.user_id || state.user?.id || \'\';
+    const me = session.players?.find(p => p.user_id === myUserId) || session.players?.[0];
+    const myEmoji = AVATAR_EMOJIS[me?.avatar_id] || \'\u{1F464}\';
+
+    // Stash full session roster in sessionStorage so board can name every slot correctly
+    const roster = (session.players || []).map(p => ({
+        user_id:  p.user_id,
+        username: p.username,
+        avatar:   AVATAR_EMOJIS[p.avatar_id] || \'\u{1F464}\',
+        is_ai:    !!(p.is_ai || p.is_bot),
+    }));
+    try {
+        sessionStorage.setItem(\'ft_session_players\', JSON.stringify(roster));
+        sessionStorage.setItem(\'ft_my_user_id\', myUserId);
+    } catch (e) { /* sessionStorage unavailable */ }
+
+    // Redirect to game board with full player info in URL
     const params = new URLSearchParams({
-        session: data.session.session_id,
-        multiplayer: 'true',
-        wsUrl: LOBBY_CONFIG.wsUrl,
+        session:     session.session_id,
+        multiplayer: \'true\',
+        wsUrl:       LOBBY_CONFIG.wsUrl,
+        name:        me?.username || state.user?.username || \'Player\',
+        avatar:      myEmoji,
+        players:     String(session.players?.length || 2),
     });
-    
+
     window.location.href = `board_3d.html?${params.toString()}`;
 }
 
