@@ -2,14 +2,10 @@
 ButterflyFX AI - Dimensional AI System
 
 AI that remembers, doesn't hallucinate, and truly helps.
-
-NOTE: This package has been promoted to substrates/ai/ in the Fibonacci
-Dimensional Model (z = x·y).  All symbols are re-exported here for
-backward compatibility — imports from `ai.*` continue to work unchanged.
 """
 
-from substrates.ai.memory_substrate import MemorySubstrate, MemoryPoint, DimensionalMemoryIndex
-from substrates.ai.dimensional_ai import (
+from .memory_substrate import MemorySubstrate, MemoryPoint, DimensionalMemoryIndex
+from .dimensional_ai import (
     DimensionalAI,
     AIConfig,
     IntentionVector,
