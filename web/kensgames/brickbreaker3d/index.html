@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brickbreaker 3D</title>
+  <style>
+    html,body{height:100%;margin:0;overflow:hidden;background:#050510;color:#fff;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    #container{width:100vw;height:100vh;display:block}
+    #container canvas{display:block}
+    #hud{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.55);padding:6px 20px;border-radius:20px;display:flex;gap:20px;align-items:center;pointer-events:none;font-size:1rem;letter-spacing:.04em;white-space:nowrap}
+    #hud span{color:#ffcc33;font-weight:700}
+    #controls{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.45);padding:5px 16px;border-radius:12px;font-size:.75rem;color:rgba(255,255,255,.55);pointer-events:none;white-space:nowrap}
+    #err{position:fixed;bottom:8px;left:8px;right:8px;max-height:40vh;overflow:auto;background:rgba(180,0,0,0.2);border:1px solid rgba(255,60,60,0.5);padding:8px 12px;border-radius:8px;display:none;white-space:pre-wrap;font-size:.8rem;z-index:9999}
+  </style>
+</head>
+<body>
+  <div id="hud">Score: <span id="score">0</span> &nbsp;|&nbsp; Lives: <span id="lives">3</span></div>
+  <div id="container"></div>
+  <div id="controls">Mouse / Arrow keys — move paddle &nbsp;|&nbsp; Click / Space — launch ball</div>
+  <div id="err"></div>
+
+  <script>
+    window.addEventListener('error', function(e){
+      var b=document.getElementById('err'); b.style.display='block';
+      b.textContent += (e.message||String(e)) + '\n  at ' + e.filename + ':' + e.lineno + '\n';
+    });
+  </script>
+  <!-- Three.js (self-hosted, pinned r128) -->
+  <script src="/lib/three/three.min.js"></script>
+  <!-- Game logic -->
+  <script src="./brickbreaker3d.js"></script>
+</body>
+</html>
