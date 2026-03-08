@@ -8709,12 +8709,36 @@
     
     // Handle remote turn end
     function handleRemoteTurnEnd(data) {
-        console.log('[Multiplayer] Remote turn end, next player:', data.nextPlayer);
-        // Update current player if needed
-        if (gameState && data.nextPlayer !== undefined) {
-            gameState.currentPlayerIndex = data.nextPlayer;
+        const nextIdx = data.nextPlayer ?? data.next_player;
+        console.log('[Multiplayer] Remote turn end, next player:', nextIdx);
+        if (gameState && nextIdx !== undefined) {
+            gameState.currentPlayerIndex = nextIdx;
+            const nextPlayer = gameState.players[nextIdx];
+
+            // Update card UI
             if (cardUI) {
-                cardUI.updateCurrentPlayer(gameState.players[data.nextPlayer]);
+                cardUI.updateCurrentPlayer(nextPlayer);
+                cardUI.setActivePlayer(nextIdx);
+                cardUI.updateAllDeckCounts(gameState.players);
+            }
+
+            // Update player panels
+            if (window.playerPanelUI) {
+                window.playerPanelUI.setActivePlayer(`player_${nextIdx}`);
+                updatePlayerPanelStats();
+            }
+
+            // Update player cube
+            if (window.playerCubeUI) {
+                window.playerCubeUI.setActivePlayer(nextIdx);
+            }
+
+            // Update GameUIMinimal
+            if (window.GameUIMinimal) {
+                window.GameUIMinimal.setCurrentPlayer(nextPlayer, nextIdx);
+                window.GameUIMinimal.setDrawnCard(null);
+                window.GameUIMinimal.setDeckCount(nextPlayer?.deck?.remaining || 54);
+                window.GameUIMinimal.setPlayers(gameState.players, nextIdx);
             }
         }
     }
@@ -17091,15 +17115,33 @@
         function handleTurnEnd(data) {
             console.log('Turn ended:', data);
             if (typeof gameState !== 'undefined') {
-                gameState.currentPlayer = data.nextPlayerIndex || 0;
-                
-                // Update UI
+                const nextIdx = data.nextPlayerIndex ?? data.next_player ?? 0;
+                gameState.currentPlayerIndex = nextIdx;
+                const nextPlayer = gameState.players?.[nextIdx];
+
+                // Update card UI
                 if (typeof cardUI !== 'undefined' && cardUI) {
-                    cardUI.updateCurrentPlayer(gameState.currentPlayer);
+                    cardUI.updateCurrentPlayer(nextPlayer);
+                    cardUI.setActivePlayer(nextIdx);
+                    cardUI.updateAllDeckCounts(gameState.players);
                 }
-                
+
+                // Update player panels
+                if (window.playerPanelUI) {
+                    window.playerPanelUI.setActivePlayer(`player_${nextIdx}`);
+                    if (typeof updatePlayerPanelStats === 'function') updatePlayerPanelStats();
+                }
+
+                // Update GameUIMinimal
+                if (window.GameUIMinimal) {
+                    window.GameUIMinimal.setCurrentPlayer(nextPlayer, nextIdx);
+                    window.GameUIMinimal.setDrawnCard(null);
+                    window.GameUIMinimal.setDeckCount(nextPlayer?.deck?.remaining || 54);
+                    window.GameUIMinimal.setPlayers(gameState.players, nextIdx);
+                }
+
                 // Check if it's now my turn
-                if (window.isMyTurn()) {
+                if (typeof window.isMyTurn === 'function' && window.isMyTurn()) {
                     showNotification("Your turn!");
                 }
             }
