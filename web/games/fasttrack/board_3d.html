@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a2e">
     <meta name="mobile-web-app-capable" content="yes">
-    <!-- VERSION: 2026-03-02-11:00 - Crown above winner hole + camera cut + tagline; 7-card 1-peg wild 1-7 fix -->
+    <!-- VERSION: 2026-03-08 v1.0.0 — CameraDirector, Joker emoji, context popups, auto-framing -->
     <title>Fast Track — Play Free Online | 3D Board Game</title>
     <meta name="description" content="Play Fast Track free in your browser — a 3D card &amp; peg racing board game. Race around the board, take the Fast Track shortcut, capture opponents. 2-4 players, 7 themes, smart bots.">
     <meta name="keywords" content="fast track, board game, online game, free game, 3D board game, card game, multiplayer, peg racing">
@@ -67,8 +67,8 @@
     <!-- Responsive Game CSS -->
     <!-- Bootstrap (self-hosted) -->
     <link rel="stylesheet" href="../../lib/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/responsive-game.css?v=20260223b">
-    <link rel="stylesheet" href="assets/css/move-selection-modal.css?v=20260226">
+    <link rel="stylesheet" href="assets/css/responsive-game.css?v=20260308">
+    <link rel="stylesheet" href="assets/css/move-selection-modal.css?v=20260308">
     
     <!-- Global Error Handler -->
     <script>
@@ -303,7 +303,7 @@
         })();
     </script>
     
-    <link rel="stylesheet" href="assets/css/board-3d.css?v=20260302a">
+    <link rel="stylesheet" href="assets/css/board-3d.css?v=20260308">
 </head>
 <body>
     <!-- Auth & Lobby UI Containers (hidden in dev mode) -->
@@ -950,90 +950,90 @@
     <script src="../../lib/three/OrbitControls.js"></script>
 
     <!-- Fibonacci Spiral Backdrop for Board View -->
-    <script src="fibonacci_backdrop.js?v=20260228"></script>
+    <script src="fibonacci_backdrop.js?v=20260308"></script>
 
     <!-- 🌊 DIMENSIONAL PROGRAMMING CORE SUBSTRATES -->
     <!-- "Everything exists. Only observation manifests reality." -->
-    <script src="observation_substrate.js?v=20260228"></script>
-    <script src="intent_manifold.js?v=20260228"></script>
-    <script src="potential_substrate.js?v=20260228"></script>
+    <script src="observation_substrate.js?v=20260308"></script>
+    <script src="intent_manifold.js?v=20260308"></script>
+    <script src="potential_substrate.js?v=20260308"></script>
 
     <!-- FastTrack Substrates -->
-    <script src="themes.js?v=20260225c"></script>
+    <script src="themes.js?v=20260308"></script>
 
-    <script src="avatar_substrate.js?v=20260223"></script>
-    <script src="social_substrate.js?v=20260223"></script>
-    <script src="security.js?v=20260227"></script>
-    <script src="auth_substrate.js?v=20260227"></script>
-    <script src="admin_substrate.js?v=20260223"></script>
-    <script src="game_session_manager.js?v=20260223"></script>
-    <script src="lobby_substrate.js?v=20260223"></script>
-    <script src="game_ui_minimal.js?v=20260225c"></script>
+    <script src="avatar_substrate.js?v=20260308"></script>
+    <script src="social_substrate.js?v=20260308"></script>
+    <script src="security.js?v=20260308"></script>
+    <script src="auth_substrate.js?v=20260308"></script>
+    <script src="admin_substrate.js?v=20260308"></script>
+    <script src="game_session_manager.js?v=20260308"></script>
+    <script src="lobby_substrate.js?v=20260308"></script>
+    <script src="game_ui_minimal.js?v=20260308"></script>
     <!-- BoardManifold: Every hole, card, peg, rule on z=xy / z=xy² surfaces -->
-    <script src="board_manifold.js?v=20260223"></script>
+    <script src="board_manifold.js?v=20260308"></script>
     <!-- ValidationSubstrate: Universal validation - zero duplication -->
-    <script src="validation_substrate.js?v=20260226"></script>
+    <script src="validation_substrate.js?v=20260308"></script>
     <!-- EventSubstrate: Universal event management - zero duplication -->
-    <script src="event_substrate.js?v=20260226"></script>
+    <script src="event_substrate.js?v=20260308"></script>
     <!-- StateSubstrate: Universal state management - zero duplication -->
-    <script src="state_substrate.js?v=20260226"></script>
+    <script src="state_substrate.js?v=20260308"></script>
     <!-- ArraySubstrate: Dimensional array operations - zero duplication -->
-    <script src="array_substrate.js?v=20260226"></script>
+    <script src="array_substrate.js?v=20260308"></script>
     <!-- SubstrateManifold: Meta-substrate - substrates as points on manifold -->
-    <script src="substrate_manifold.js?v=20260226"></script>
+    <script src="substrate_manifold.js?v=20260308"></script>
 
     <!-- Dimensional Game Engine Substrates -->
-    <script src="move_generation_substrate.js?v=20260226"></script>
-    <script src="card_logic_substrate.js?v=20260226"></script>
-    <script src="ui_manifold.js?v=20260226"></script>
-    <script src="ai_manifold.js?v=20260226"></script>
-    <script src="game_engine_manifold.js?v=20260226"></script>
+    <script src="move_generation_substrate.js?v=20260308"></script>
+    <script src="card_logic_substrate.js?v=20260308"></script>
+    <script src="ui_manifold.js?v=20260308"></script>
+    <script src="ai_manifold.js?v=20260308"></script>
+    <script src="game_engine_manifold.js?v=20260308"></script>
 
     <!-- Test Suite -->
-    <script src="test_fasttrack_rules.js?v=20260226"></script>
+    <script src="test_fasttrack_rules.js?v=20260308"></script>
 
-    <script src="manifold_ai.js?v=20260223"></script>
+    <script src="manifold_ai.js?v=20260308"></script>
     <!-- Unified Game Initialization System -->
-    <script src="game_init.js?v=20260223"></script>
-    <script src="mobile_ui.js?v=20260223"></script>
-    <script src="mobile_dimensional_fixes.js?v=20260228"></script>
+    <script src="game_init.js?v=20260308"></script>
+    <script src="mobile_ui.js?v=20260308"></script>
+    <script src="mobile_dimensional_fixes.js?v=20260308"></script>
     <!-- Advanced Mobile Touch Engine (NEW) -->
-    <script src="mobile_touch_engine.js?v=20260228"></script>
+    <script src="mobile_touch_engine.js?v=20260308"></script>
     <!-- 🌊 Meta Quest VR - Entangled Substrate Protocol (ESP) -->
-    <script src="vr_esp.js?v=20260228"></script>
-    <script src="move_selection_modal.js?v=20260226"></script>
-    <script src="lobby_ui.js?v=20260223"></script>
-    <script src="auth_ui.js?v=20260223"></script>
-    
+    <script src="vr_esp.js?v=20260308"></script>
+    <script src="move_selection_modal.js?v=20260308"></script>
+    <script src="lobby_ui.js?v=20260308"></script>
+    <script src="auth_ui.js?v=20260308"></script>
+
     <!-- Card Game System -->
-    <script src="card_deck_substrate.js?v=20260223"></script>
-    <script src="game_state_broadcaster.js?v=20260223"></script>
+    <script src="card_deck_substrate.js?v=20260308"></script>
+    <script src="game_state_broadcaster.js?v=20260308"></script>
     <!-- card_ui.js REMOVED — using compact GameUIMinimal panel -->
-    <script src="peg_substrate.js?v=20260223"></script>
-    <script src="smart_peg.js?v=20260223"></script>
+    <script src="peg_substrate.js?v=20260308"></script>
+    <script src="smart_peg.js?v=20260308"></script>
     <!-- ButterflyFX Natural Lens System -->
-    <script src="natural_lens.js?v=20260223"></script>
+    <script src="natural_lens.js?v=20260308"></script>
     <!-- Stadium Audio System -->
-    <script src="music_substrate.js?v=20260225b"></script>
-    <script src="crowd_substrate.js?v=20260223"></script>
-    <script src="commentary_substrate.js?v=20260223"></script>
-    <script src="audio_substrate.js?v=20260223"></script>
-    <script src="stadium_controller.js?v=20260223"></script>
+    <script src="music_substrate.js?v=20260308"></script>
+    <script src="crowd_substrate.js?v=20260308"></script>
+    <script src="commentary_substrate.js?v=20260308"></script>
+    <script src="audio_substrate.js?v=20260308"></script>
+    <script src="stadium_controller.js?v=20260308"></script>
     <!-- Game Sound Effects -->
-    <script src="game_sfx.js?v=20260225"></script>
-    <script src="game_engine.js?v=20260225"></script>
-    <script src="victory_ceremony.js?v=20260225"></script>
-    
+    <script src="game_sfx.js?v=20260308"></script>
+    <script src="game_engine.js?v=20260308"></script>
+    <script src="victory_ceremony.js?v=20260308"></script>
+
     <!-- Multiplayer & Prestige Systems -->
-    <script src="prestige.js?v=20260223"></script>
-    <script src="multiplayer_client.js?v=20260223"></script>
-    <script src="avatars.js?v=20260223"></script>
+    <script src="prestige.js?v=20260308"></script>
+    <script src="multiplayer_client.js?v=20260308"></script>
+    <script src="avatars.js?v=20260308"></script>
 
     <!-- Tutorial & Ask Mom Advisor -->
-    <script src="tutorial.js?v=20260225"></script>
-    <script src="ask_mom.js?v=20260225"></script>
-    <script src="mom_daemon.js?v=20260227"></script>
-    <script src="board_tooltips.js?v=20260225"></script>
+    <script src="tutorial.js?v=20260308"></script>
+    <script src="ask_mom.js?v=20260308"></script>
+    <script src="mom_daemon.js?v=20260308"></script>
+    <script src="board_tooltips.js?v=20260308"></script>
 
     <script>
     // ============================================================
@@ -5373,7 +5373,7 @@
     </script>
     
     <!-- Rules Substrate (after board is defined) -->
-    <script src="rules_substrate.js?v=20260223"></script>
+    <script src="rules_substrate.js?v=20260308"></script>
 
     <!-- Promo Director (loaded only with ?promo=1) -->
     <script>
