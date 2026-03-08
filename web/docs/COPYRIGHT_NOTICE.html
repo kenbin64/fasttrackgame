@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Copyright Notice — Storage-less Computing and Geometric Extraction</title>
+  <style>
+    :root {
+      --fg: #0a0a0a;
+      --muted: #444;
+      --bg: #fff;
+      --accent: #1b6ef3;
+      --code-bg: #f6f8fa;
+    }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif; }
+    main { max-width: 920px; margin: 40px auto; padding: 0 20px; }
+    h1, h2, h3 { line-height: 1.25; }
+    h1 { font-size: 1.9rem; margin: 0 0 0.25rem 0; }
+    h2 { font-size: 1.35rem; margin-top: 2rem; }
+    h3 { font-size: 1.1rem; margin-top: 1.25rem; }
+    p { margin: 0.75rem 0; }
+    ul { margin: 0.5rem 0 0.5rem 1.25rem; }
+    .muted { color: var(--muted); }
+    .small { font-size: 0.9rem; }
+    .notice { background: #f2f7ff; border-left: 4px solid var(--accent); padding: 12px 14px; border-radius: 6px; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    pre { background: var(--code-bg); padding: 10px 12px; border-radius: 6px; overflow: auto; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    hr { border: 0; border-top: 1px solid #e5e7eb; margin: 1.5rem 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Copyright Notice</h1>
+      <p class="muted small">This notice applies to the storage-less computing paradigm and its associated materials, including extraction from geometric manifolds such as the Swartz Diamond Lattice.</p>
+    </header>
+
+    <section>
+      <div class="notice">
+        <strong>Scope.</strong> This repository documents and implements a storage-less computing paradigm: data does not persist as stored bits/bytes. Information is encoded intrinsically in geometric structures. Computable bytes arise only at runtime via extraction rules applied to a substrate such as the Swartz Diamond Lattice Manifold.
+      </div>
+    </section>
+
+    <section>
+      <h2>Ownership and License</h2>
+      <p>
+        The mathematical definitions, extraction rules, and reference implementations for geometric-substrate computation are Copyright ©
+        <span id="year"></span> ButterflyFX and respective authors. All rights reserved unless otherwise stated. Where explicitly noted, certain kernel components may be licensed under permissive terms for research and verification.
+      </p>
+      <p>
+        Redistribution or derivative works must preserve attribution and include a link to the formal specification. Commercial use requires written permission unless covered by a separate license file in this repository.
+      </p>
+    </section>
+
+    <section>
+      <h2>Foundational Concepts</h2>
+      <ul>
+        <li><strong>Storage-less Computing:</strong> No persisted bits/bytes. Observables exist only when extracted from geometry via deterministic rules.</li>
+        <li><strong>Geometric Substrates:</strong> Manifolds (e.g., Swartz Diamond Lattice) provide topology and invariants that embody information intrinsically.</li>
+        <li><strong>Extraction Rules:</strong> Morphisms mapping geometric properties (local frames, curvature, adjacency, winding, symmetries) to computable data at runtime.</li>
+        <li><strong>Determinism and Reproducibility:</strong> Given a manifold identity and a rule identity, extraction yields the same result; no hidden mutable state.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>White Paper, Benchmarks, and Tests</h2>
+      <p>
+        The white paper formalizes the Swartz Diamond Lattice Manifold and the storage-less extraction paradigm, and presents benchmark methodology and results:
+      </p>
+      <ul>
+        <li><a href="/docs/SWARTZ_DIAMOND_LATTICE_MANIFOLD.md">Formal Specification: Swartz Diamond Lattice Manifold (SDL-M)</a></li>
+        <li><a href="/docs/SWARTZ_LATTICE_OVERVIEW.md">Executive Overview</a></li>
+        <li><a href="/docs/SCHWARZ_GYROID_AI_SUBSTRATE.md">Related: Schwarz/Gyroid Substrate Notes</a></li>
+      </ul>
+      <p>
+        Benchmarks and conformance tests are included in the repository’s test suite. The tests are already written and can be executed with the project’s standard test runner to reproduce results described in the white paper.
+      </p>
+      <h3>Reproducibility</h3>
+      <p>
+        All reported numbers correspond to tagged revisions and deterministic seeds. Each benchmark declares:
+      </p>
+      <ul>
+        <li>Manifold identity and parameterization</li>
+        <li>Extraction rule identity and composition</li>
+        <li>Hardware/runtime descriptors (CPU/GPU, precision, threading)</li>
+        <li>Verification checksums for extracted byte streams</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Attribution</h2>
+      <p>
+        Cite as:
+      </p>
+      <pre><code>ButterflyFX. Storage-less Computing via Geometric Extraction on the Swartz Diamond Lattice Manifold. 
+Versioned specification and benchmarks, Git repository, &copy; <span id="year-inline"></span>.</code></pre>
+    </section>
+
+    <section>
+      <h2>Contact</h2>
+      <p>
+        For licensing inquiries or research collaboration, contact legal@butterflyfx.us. Please reference the specific module or document and the repository commit hash.
+      </p>
+    </section>
+
+    <hr />
+    <footer class="small muted">
+      This notice supersedes prior copyright pages that referenced unrelated content. It is specific to the storage-less computing model and geometric-substrate extraction described in the white paper.
+    </footer>
+  </main>
+
+  <script>
+    (function() {
+      var y = new Date().getFullYear();
+      var el = document.getElementById('year');
+      var eli = document.getElementById('year-inline');
+      if (el) el.textContent = y;
+      if (eli) eli.textContent = y;
+    })();
+  </script>
+</body>
+</html>

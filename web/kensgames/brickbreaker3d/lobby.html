@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Brickbreaker Lobby — Ken's Arcade</title>
+  <link rel="stylesheet" href="/lobby/mall.css?v=20260306">
+  <style>
+    .lobby-wrap{ min-height:100vh; display:flex; flex-direction:column; background: linear-gradient(180deg, rgba(10,10,20,0.95), rgba(5,5,15,1)); }
+    .lobby-header{ display:flex; align-items:center; gap:12px; padding:14px 16px; background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0)); }
+    .lobby-header .title{ font-weight:800; letter-spacing:.12em }
+    .lobby-header .title span{ color:#7cf7ff }
+    .lobby-main{ flex:1; display:flex; align-items:center; justify-content:center; padding:24px }
+    .card{ width:min(920px, 96vw); background: rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:18px; box-shadow: 0 24px 60px rgba(0,0,0,0.5) }
+    .card h2{ margin:8px 6px 12px; font-size:20px; letter-spacing:.06em }
+    .actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:6px }
+    .cta{ padding:10px 14px; border-radius:999px; border:1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); color:#e8e8ff; cursor:pointer; font-weight:600 }
+    .cta.primary{ background: linear-gradient(90deg, rgba(124,247,255,0.15), rgba(255,60,172,0.15)); }
+    .cta:hover{ transform: translateY(-1px) }
+    .desc{ color:#b8b8d8; margin: 6px; font-size:13px }
+  </style>
+</head>
+<body>
+  <div class="lobby-wrap">
+    <div class="lobby-header">
+      <div class="title">Ken's <span>Arcade</span></div>
+      <div style="flex:1"></div>
+      <a href="/lobby/mall.html" class="cta">← Back to Mall</a>
+    </div>
+    <div class="lobby-main">
+      <div class="card">
+        <h2>Brickbreaker 3D</h2>
+        <div class="desc">Classic paddle-and-ball action with a neon arcade vibe.</div>
+        <div class="actions">
+          <a class="cta primary" href="./index.html?offline=1">▶ Play Solo</a>
+          <button class="cta" disabled>🌐 Quick Match (coming soon)</button>
+          <button class="cta" disabled>👥 Private Room (coming soon)</button>
+          <a class="cta" href="./index.html">Debug Launch</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

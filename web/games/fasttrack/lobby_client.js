@@ -47,15 +47,6 @@ function connectToLobby() {
             state.connected = true;
             state.reconnectAttempts = 0;
             showToast('Connected to lobby', 'success');
-            
-            // Auto guest-login for URL actions (private game, join by code) — no login required
-            if (state.pendingAction && !state.user) {
-                send({
-                    type: 'guest_login',
-                    name: `Player_${Math.random().toString(36).slice(2, 6)}`,
-                    avatar_id: 'person_smile'
-                });
-            }
         };
         
         state.socket.onclose = () => {
@@ -169,10 +160,11 @@ function onConnected(data) {
 
 function onAuthSuccess(data) {
     state.user = data.user;
-    
-    // Store credentials if not guest
-    if (!data.user.is_guest && data.action !== 'guest_login') {
-        // Password already stored during login attempt
+
+    // Persist credentials to localStorage only after confirmed auth success (login or register)
+    if (!data.user.is_guest && data.action !== 'guest_login' && state.pendingCredentials) {
+        localStorage.setItem('ft_user', JSON.stringify(state.pendingCredentials));
+        state.pendingCredentials = null;
     }
     
     updateUserUI();
@@ -286,36 +278,37 @@ function onGameStarted(data) {
 
     // Avatar id → emoji map (must match board_3d.html)
     const AVATAR_EMOJIS = {
-        person_smile: '\u{1F60A}', person_cool: '\u{1F60E}', animal_lion: '\u{1F981}', animal_fox: '\u{1F98A}',
-        space_rocket: '\u{1F680}', fantasy_dragon: '\u{1F432}', scifi_robot: '\u{1F916}', sport_soccer: '\u{26BD}',
-        robot: '\u{1F916}',
+        person_smile: '😊', person_cool: '😎', animal_lion: '🦁', animal_fox: '🦊',
+        space_rocket: '🚀', fantasy_dragon: '🐲', scifi_robot: '🤖', sport_soccer: '⚽',
+        robot: '🤖',
     };
 
     // Identify "me" in the session roster by user_id
-    const myUserId = state.user?.user_id || state.user?.id || \'\';
+    const myUserId = state.user?.user_id || state.user?.id || '';
     const me = session.players?.find(p => p.user_id === myUserId) || session.players?.[0];
-    const myEmoji = AVATAR_EMOJIS[me?.avatar_id] || \'\u{1F464}\';
+    const myEmoji = AVATAR_EMOJIS[me?.avatar_id] || '👤';
 
     // Stash full session roster in sessionStorage so board can name every slot correctly
+    // (avoiding URL length limits)
     const roster = (session.players || []).map(p => ({
         user_id:  p.user_id,
         username: p.username,
-        avatar:   AVATAR_EMOJIS[p.avatar_id] || \'\u{1F464}\',
+        avatar:   AVATAR_EMOJIS[p.avatar_id] || '👤',
         is_ai:    !!(p.is_ai || p.is_bot),
     }));
     try {
-        sessionStorage.setItem(\'ft_session_players\', JSON.stringify(roster));
-        sessionStorage.setItem(\'ft_my_user_id\', myUserId);
-    } catch (e) { /* sessionStorage unavailable */ }
+        sessionStorage.setItem('ft_session_players', JSON.stringify(roster));
+        sessionStorage.setItem('ft_my_user_id', myUserId);
+    } catch (e) { /* sessionStorage unavailable – board will fall back to URL name */ }
 
     // Redirect to game board with full player info in URL
     const params = new URLSearchParams({
-        session:     session.session_id,
-        multiplayer: \'true\',
-        wsUrl:       LOBBY_CONFIG.wsUrl,
-        name:        me?.username || state.user?.username || \'Player\',
-        avatar:      myEmoji,
-        players:     String(session.players?.length || 2),
+        session:    session.session_id,
+        multiplayer: 'true',
+        wsUrl:      LOBBY_CONFIG.wsUrl,
+        name:       me?.username || state.user?.username || 'Player',
+        avatar:     myEmoji,
+        players:    String(session.players?.length || 2),
     });
 
     window.location.href = `board_3d.html?${params.toString()}`;
@@ -522,13 +515,13 @@ function showAuthTab(tab) {
 
 function handleLogin(event) {
     event.preventDefault();
-    
+
     const username = document.getElementById('login-username').value.trim();
     const password = document.getElementById('login-password').value;
-    
-    // Store for auto-login
-    localStorage.setItem('ft_user', JSON.stringify({ username, password }));
-    
+
+    // Stash credentials temporarily; only persist to localStorage after auth_success
+    state.pendingCredentials = { username, password };
+
     send({ type: 'login', username, password });
 }
 
@@ -571,21 +564,23 @@ function showMainApp() {
 
 function updateUserUI() {
     if (!state.user) return;
-    
+
     const avatar = getAvatarEmoji(state.user.avatar_id);
-    
+    const level = state.user.prestige_level || 'bronze';
+    const points = state.user.prestige_points || 0;
+
     document.getElementById('header-username').textContent = state.user.username;
     document.getElementById('header-avatar').textContent = avatar;
-    document.getElementById('header-prestige').textContent = state.user.prestige_level.toUpperCase();
-    document.getElementById('header-prestige').className = `prestige-badge prestige-${state.user.prestige_level}`;
-    document.getElementById('header-points').textContent = `${state.user.prestige_points} pts`;
-    
+    document.getElementById('header-prestige').textContent = level.toUpperCase();
+    document.getElementById('header-prestige').className = `prestige-badge prestige-${level}`;
+    document.getElementById('header-points').textContent = `${points} pts`;
+
     // Update profile modal too
     document.getElementById('profile-avatar-display').textContent = avatar;
     document.getElementById('profile-username').textContent = state.user.username;
-    document.getElementById('profile-prestige').textContent = state.user.prestige_level.toUpperCase();
-    document.getElementById('profile-prestige').className = `prestige-badge prestige-${state.user.prestige_level}`;
-    document.getElementById('profile-points').textContent = `${state.user.prestige_points} pts`;
+    document.getElementById('profile-prestige').textContent = level.toUpperCase();
+    document.getElementById('profile-prestige').className = `prestige-badge prestige-${level}`;
+    document.getElementById('profile-points').textContent = `${points} pts`;
     document.getElementById('profile-games').textContent = state.user.games_played || 0;
     document.getElementById('profile-wins').textContent = state.user.games_won || 0;
 }
@@ -609,29 +604,33 @@ function refreshGames() {
 function renderSessionList(sessions) {
     const container = document.getElementById('session-list');
     const noGamesPanel = document.getElementById('no-games-panel');
-    
-    if (sessions.length === 0) {
+
+    if (!sessions || sessions.length === 0) {
         container.innerHTML = '';
         noGamesPanel.style.display = 'block';
         return;
     }
-    
+
     noGamesPanel.style.display = 'none';
-    container.innerHTML = sessions.map(session => `
-        <div class="session-item" onclick="joinSession('${session.session_id}')">
+    container.innerHTML = sessions.map(session => {
+        const players = session.players || [];
+        const avatarHtml = players.map(p =>
+            `<span title="${escapeHtml(p.username)}" style="font-size:1.2rem;">${getAvatarEmoji(p.avatar_id)}</span>`
+        ).join('');
+        return `
+        <div class="session-item">
             <div class="session-info">
                 <div class="session-host-avatar">🎮</div>
                 <div class="session-details">
-                    <h4>${session.host_username}'s Game</h4>
-                    <p>${session.is_private ? '🔒 Private' : '🌐 Public'}</p>
+                    <h4>${escapeHtml(session.host_username)}'s Game</h4>
+                    <p>${session.is_private ? '🔒 Private' : '🌐 Public'} · ${session.player_count}/${session.max_players} players</p>
+                    <div style="display:flex;gap:4px;margin-top:4px;">${avatarHtml}</div>
                 </div>
             </div>
-            <div class="session-players">
-                👥 ${session.player_count}/${session.max_players}
-                <button class="btn btn-small btn-primary">Join</button>
-            </div>
+            <button class="btn btn-small btn-primary" onclick="joinSession('${session.session_id}')">Join</button>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function createPublicGame() {

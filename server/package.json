@@ -1,0 +1,14 @@
+{
+  "name": "fasttrack-server",
+  "version": "1.0.0",
+  "description": "FastTrack Game WebSocket + HTTP Server",
+  "main": "ws_lobby_server.js",
+  "scripts": {
+    "start": "node ws_lobby_server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.16.0"
+  }
+}
+

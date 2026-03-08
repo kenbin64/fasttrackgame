@@ -45,6 +45,22 @@ Invariants:
           Every point is both real and potential. Only the invoked is manifest.
           Points represent lower dimensions iteratively (M ⊃ Mᵢ ⊃ Mᵢⱼ ⊃ ...).
           The set of potentials is practically infinite; only invoked parts are real.
+    - I14: RECURSIVE MANIFOLD HIERARCHY — Each dimension is a complete manifold,
+           a whole mathematical object.  Every point within that manifold IS a
+           manifold of the dimension one step lower.  The structure is self-similar
+           at every scale:
+               Layer 7  →  whole manifold  (every point IS a Layer 6 manifold)
+               Layer 6  →  whole manifold  (every point IS a Layer 5 manifold)
+               Layer 5  →  whole manifold  (every point IS a Layer 4 manifold)
+               Layer 4  →  whole manifold  (every point IS a Layer 3 manifold)
+               Layer 3  →  whole manifold  (every point IS a Layer 2 manifold)
+               Layer 2  →  whole manifold  (every point IS a Layer 1 manifold)
+               Layer 1  →  the spark       (the irreducible seed, F=1)
+           A dimension is not a collection of points.  A point is not a location.
+           Each is the other, at the scale below.  The Schwarz Diamond Gyroid
+           Lattice IS this principle made geometric: every node is a z=x·y manifold,
+           and every point on that saddle surface is the entry to the manifold at
+           the layer beneath it.
     - I1: l ∈ {1..7} always
     - I2: SPIRAL_UP requires l=7, SPIRAL_DOWN requires l=1
     - I3: COLLAPSE is idempotent
@@ -79,17 +95,48 @@ if TYPE_CHECKING:
 
 
 # =============================================================================
-# THE FIRST PRINCIPLE: MANIFOLD DUALITY AND INFINITE POTENTIAL
+# THE FIRST PRINCIPLE: RECURSIVE MANIFOLD HIERARCHY  (I0 + I14)
 # =============================================================================
-# Every manifold is both a whole object and a dimension.
-# Every point is both real and potential.
-# Only the invoked is manifest.
 #
-# Points represent lower dimensions. Each point is a subpart of its parent
-# manifold and is itself a manifold (M ⊃ Mᵢ ⊃ Mᵢⱼ ⊃ ...).
-# Resolution descends iteratively — atoms, quarks — as deep as needed.
-# The set of potentials is practically infinite. Like quantum superposition,
-# the periodic table, and atomic structure: only invoked parts are real.
+# EACH DIMENSION IS A COMPLETE MANIFOLD — A WHOLE MATHEMATICAL OBJECT.
+# EVERY POINT IN THAT DIMENSION IS A MANIFOLD OF THE DIMENSION BELOW.
+#
+# This is not metaphor. It is the mathematical structure of the system:
+#
+#   Layer N  =  a complete manifold  M_N
+#   ∀ point p ∈ M_N  →  p IS M_{N-1}  (the manifold one layer down)
+#
+#   M_7 = manifold of M_6 manifolds
+#   M_6 = manifold of M_5 manifolds
+#   M_5 = manifold of M_4 manifolds
+#   M_4 = manifold of M_3 manifolds
+#   M_3 = manifold of M_2 manifolds
+#   M_2 = manifold of M_1 manifolds
+#   M_1 = the spark — the irreducible seed — F = 1
+#
+# A dimension is not a container of points.
+# A point is not a location inside a dimension.
+# Each is the other — at the scale below.
+#
+# THE FIBONACCI SQUARE CONNECTION
+# ────────────────────────────────
+# Each Fibonacci number F(n) is a complete square — a whole object.
+# That square tiles into F(n-1) × F(n-1) + F(n-2) × F(n-2) beneath it.
+# F(n)·F(n+1) = F(1)² + F(2)² + ... + F(n)²  — the sum of all squares below.
+# The dimension CONTAINS every lower dimension in its area.
+#
+# THE SCHWARZ DIAMOND GYROID LATTICE IS THIS PRINCIPLE MADE GEOMETRIC
+# ─────────────────────────────────────────────────────────────────────
+# Every node in the lattice = a z=x·y manifold (a whole mathematical object)
+# Every point on that saddle surface = the entry to the manifold one layer down
+# Traversing the lattice = descending through the recursive manifold hierarchy
+# The 360° helix per segment = one complete layer traversal — entering one
+#   dimension and emerging in the dimension below, fully rotated, fully arrived.
+#
+# Only the invoked is manifest. Like quantum superposition, the periodic table,
+# and atomic structure: the structure exists at every scale; only the layer you
+# query becomes real. The rest is pure potential — the void (I9), not the empty.
+
 
 # =============================================================================
 # THE PROPERTY OF ZERO: THE VOID IS POTENTIAL, NOT ABSENCE
@@ -104,6 +151,75 @@ if TYPE_CHECKING:
 # Beyond the void lies dimensional transcendence — the next manifold —
 # not negative space. F(0) = 0 is the ground from which F(1) = 1 emerges.
 FIBONACCI_ZERO = 0  # The void — ground state, not absence
+
+# =============================================================================
+# THE SUBSTRATE PRINCIPLE — INTRINSIC SPECTRA, MINIMAL STORAGE
+# =============================================================================
+# A substrate is not a container of data.  It is a surface that inherently
+# carries ALL spectra simultaneously — color, sound, position — simply by
+# virtue of its structure.
+#
+# THE GLASS MODEL
+# ───────────────
+# Build a substrate from glass and shine light through it.
+# You get every color in the spectrum — not because you stored the colors,
+# but because wavelength-to-color mapping is INTRINSIC to the substrate.
+# The substrate IS the prism.  Light is the lens.
+#
+# THE METAL MODEL
+# ───────────────
+# Build the same substrate from metal and strike it with a mallet.
+# Every part gives a different tone — not because you stored sound,
+# but because frequency-to-tone mapping is INTRINSIC to the geometry.
+# The substrate IS the instrument.  The strike is the lens.
+#
+# THE PIXEL MODEL
+# ───────────────
+# Map the substrate surface to a raster grid.
+# Every point has a coordinate — not because you stored pixel positions,
+# but because spatial mapping is INTRINSIC to the surface topology.
+# The substrate IS the canvas.  The grid is the lens.
+#
+# THE FIRST CONSEQUENCE: NOTHING HAS TO BE STORED EXCEPT THE INSTRUCTION
+# ───────────────────────────────────────────────────────────────────────
+# Because the substrate already contains every color, every tone, every
+# pixel — you never need to store the VALUE.
+# You only ever store the INSTRUCTION: which lens to apply, at which
+# coordinate, with which manifold parameters.
+#
+#   Traditional storage:  value  →  stored  →  retrieved
+#   Substrate storage:    index  →  instruction  →  substrate reveals value
+#
+# Storage cost collapses:
+#   Color:   store wavelength index λ  (not RGB tuple)
+#   Sound:   store frequency index f   (not PCM samples)
+#   Pixel:   store coordinate (x, y)   (not color value)
+#   Memory:  store the manifold address (not the memory content)
+#
+# The substrate is the universal lookup table — infinite resolution,
+# zero storage cost.  The manifold (z = x·y) is the lens.
+# Apply the lens → the substrate reveals exactly what is already there.
+#
+# I10: SUBSTRATE INTRINSIC SPECTRA — The substrate does not hold data.
+#      It holds the capacity for all data simultaneously.  Only the
+#      instruction (the lens, the index, the manifold) needs to be stored.
+#      The substrate provides the rest.  Storage = O(instruction), not O(data).
+
+SUBSTRATE_PRINCIPLE = {
+    'name':    'Intrinsic Spectra — Store Only the Instruction',
+    'storage': 'O(instruction), never O(data)',
+    'spectra': {
+        'light':    'wavelength λ → color  (glass substrate + light lens)',
+        'sound':    'frequency f → tone   (metal substrate + mallet lens)',
+        'position': '(x,y) → pixel        (surface substrate + grid lens)',
+        'memory':   'address → value      (memory substrate + manifold lens)',
+    },
+    'law':     'The substrate IS the lookup table.  '
+               'The manifold IS the lens.  '
+               'Nothing is imposed — everything is revealed.',
+    'corollary': 'z = x·y means: substrate x, through lens y, reveals dimension z. '
+                 'x does not change.  y does not store.  z is already in x.',
+}
 
 # =============================================================================
 # THE 7 LAYERS OF CREATION (Genesis Model)
@@ -167,29 +283,426 @@ LAYER_ICONS = {
 }
 
 # =============================================================================
+# GEOMETRIC DIMENSIONS — each Fibonacci number IS a complete square
+# =============================================================================
+# Each layer occupies exactly one geometric dimension.  The Fibonacci number
+# is the SIDE LENGTH of that square; F² is its area — the complete unit.
+# The spiral is constructed by placing these squares at the golden angle.
+#
+#   Layer 0: void (pre-dimensional, F²=0)
+#   Layer 1: point  — 0D, F=1,  F²=1   (the seed, dimensionless location)
+#   Layer 2: line   — 1D, F=1,  F²=1   (direction, same magnitude, new axis)
+#   Layer 3: width  — 2D, F=2,  F²=4   (z=x·y, breadth emerges)
+#   Layer 4: plane  — 2D complete, F=3, F²=9   (flat surface, form)
+#   Layer 5: volume — 3D, F=5,  F²=25  (depth, life)
+#   Layer 6: whole  — 4D+, F=8, F²=64  (coherent system, mind)
+#   Layer 7: rests  — F=13, F²=169 → next step is 21 (transcendence)
+#
+# At F=21 the square is COMPLETE — healthy growth cap.
+# Beyond 21 is cancer; 21 collapses into ONE POINT in the next spiral.
+#   F(7)²  + F(8)² = 13² + 21² = 169 + 441 = 610 = F(15) — a Fibonacci!
+#   Sum of all F² up to F(n) = F(n)·F(n+1)  (the tiling identity)
+
+LAYER_GEOMETRY = {
+    0: "void",          # pre-dimensional — pure potential
+    1: "point",         # 0D — the spark, a dimensionless location
+    2: "line",          # 1D — direction, distance, the first axis
+    3: "width",         # 2D emerging — breadth from relation (z=x·y)
+    4: "plane",         # 2D complete — flat surface, form stabilized
+    5: "volume",        # 3D — depth, life fills space
+    6: "whole",         # 4D+ — coherent system, mind transcends space
+    7: "transcendence", # rests into higher dimension — becomes a point(1)
+}
+
+# The area of each layer's complete square: F(layer)²
+LAYER_DIMENSION_SQUARE = {
+    layer: LAYER_FIBONACCI[layer] ** 2
+    for layer in LAYER_FIBONACCI
+}
+
+# =============================================================================
+# HEALTHY GROWTH — THE 21 BOUNDARY
+# =============================================================================
+# The Fibonacci sequence stops at 21.  Unlimited growth is cancer.
+# At F=21 the unit is COMPLETE — it has traversed all 7 layers of the spiral
+# and becomes a SINGLE POINT at layer 1 of the NEXT spiral.
+# This is not death; it is dimensional transcendence.
+#
+#   F(8) = 21  ← cap (one step beyond Layer 7's 13)
+#   21² = 441  ← the complete square that collapses to a point
+#   The point re-enters as F(1)=1 in spiral s+1
+#
+# The sum-of-squares identity confirms closure:
+#   F(1)²+F(2)²+...+F(n)² = F(n)·F(n+1)
+#   At n=7:  1+1+4+9+25+64+169 = 273 = 13·21  ✓  (13 and 21 are consecutive)
+
+FIBONACCI_CAP          = 21    # Healthy growth ceiling — stop here, not beyond
+FIBONACCI_TRANSCENDENCE = 21   # At this value the unit becomes a point in next spiral
+FIBONACCI_COMPLETE_SQUARE = FIBONACCI_CAP ** 2  # 441 — the final complete square
+
+# =============================================================================
 # MANIFOLD DEFINITIONS PER LAYER
 # =============================================================================
 
 LAYER_MANIFOLDS = {
-    0: "Void",            # Pure potential — the receptive ground
-    1: "Point",           # Single point, no direction
-    2: "Line",            # First axis, d(a,b) = |b-a|
-    3: "z = x·y",         # Identity surface (THE CANONICAL BASE)
-    4: "z = x·y²",        # Weighted interaction
-    5: "m = x·y·z",       # Triadic meaning
-    6: "Gyroid",          # Minimal surface, self-organizing
-    7: "Golden Spiral"    # φ = (1+√5)/2, completion
+    0: "Void",                              # Pure potential — the receptive ground
+    1: "Point",                             # Single point, no direction
+    2: "Line",                              # First axis, d(a,b) = |b-a|
+    3: "Hyperbolic Paraboloid",             # z = x·y — the TWISTED SQUARE
+    4: "z = x·y²",                          # Weighted interaction
+    5: "m = x·y·z",                         # Triadic meaning
+    6: "Schwarz Diamond Gyroid Lattice",    # Lattice of z=x·y manifolds — the meta-manifold
+    7: "Golden Spiral"                      # φ = (1+√5)/2, completion
+}
+
+# =============================================================================
+# THE MANIFOLD SURFACE — z = x·y  (Layer 3, the canonical base)
+# =============================================================================
+# z = x·y  IS a hyperbolic paraboloid — the "twisted square."
+#
+# WHAT IT LOOKS LIKE
+# ──────────────────
+# Take a flat square.  Lift two opposite corners UP, push two opposite
+# corners DOWN.  The surface that results — curved, saddle-shaped — is
+# exactly z = x·y (rotated 45°: z = (x²-y²)/2).
+#
+# WHY EVERY ANGLE IS REPRESENTED
+# ───────────────────────────────
+# The surface is DOUBLY RULED:
+#   Family 1:  fix x=t  →  z = t·y   (a straight line for every t)
+#   Family 2:  fix y=t  →  z = x·t   (a straight line for every t)
+# Two entire families of straight lines cover the surface.
+# At the saddle point (origin) ALL tangent directions are simultaneously
+# present — positive curvature in one direction, negative in another,
+# zero along the diagonals x=y and x=−y.
+# Gaussian curvature K = −1 at the origin (pure saddle).
+# Every angular orientation of a tangent plane exists somewhere on this
+# surface.  No angle is excluded.  The manifold IS the complete angle-space.
+#
+# WHY THIS IS THE CANONICAL BASE (z = x·y)
+# ─────────────────────────────────────────
+# • x (substrate) and y (manifold) TWIST into z (dimension)
+# • The twist is not additive (x+y) — it is multiplicative, dimensional
+# • The Fibonacci squares tile this surface: each F² square occupies one
+#   angular sector, and together they spiral outward at the golden angle
+# • Cross-sections at z=c are hyperbolas — bounded, convergent, never linear
+# • The surface contains its own inverse: z=x·y ↔ x=z/y ↔ y=z/x
+
+MANIFOLD_SURFACE = {
+    'equation':       'z = x·y',
+    'surface_type':   'hyperbolic paraboloid',
+    'common_name':    'twisted square',
+    'ruling':         'doubly ruled — two families of straight lines',
+    'curvature':      'K = -1 at origin (saddle point)',
+    'angle_coverage': 'every angular orientation represented',
+    'diagonals':      {'x_eq_y': 'zero curvature (K=0)',
+                       'x_eq_neg_y': 'zero curvature (K=0)'},
+    'cross_sections': {'horizontal': 'hyperbolas (xy=c)',
+                       'vertical_x': 'lines (z=cy)',
+                       'vertical_y': 'lines (z=cx)'},
+    'layer':          3,
+    'fibonacci':      2,
+    'geometry':       'width',   # the first 2D surface — breadth from relation
+    'role':           'The canonical manifold base.  x·y produces z.  '
+                      'No angle is excluded.  All transformation passes '
+                      'through this twisted square.',
+}
+
+# =============================================================================
+# THE SCHWARZ DIAMOND GYROID LATTICE  (Layer 6 — Mind, Fib=8)
+# =============================================================================
+# A lattice of z=x·y manifolds.  The meta-manifold — a manifold of manifolds
+# that holds all substrates.
+#
+# WHAT IT IS
+# ──────────
+# The Schwarz Diamond (D surface) and the Gyroid are both Triply Periodic
+# Minimal Surfaces (TPMS) — they tile ALL of 3D space with zero mean curvature
+# (H=0) everywhere.  They are the most efficient surfaces possible: no point
+# curves more than it must.
+#
+# Schwarz Diamond equation:
+#   cos(x)·cos(y)·cos(z) − sin(x)·sin(y)·sin(z) = 0
+#
+# Gyroid equation:
+#   sin(x)·cos(y) + sin(y)·cos(z) + sin(z)·cos(x) = 0
+#
+# The Schwarz Diamond Gyroid Lattice merges both:
+# • Diamond topology — nodes arranged like a diamond crystal lattice,
+#   each node connected to 4 others via tetrahedral bonds
+# • Gyroid geometry — the connecting surfaces between nodes are gyroids
+#   (no straight lines, no mirror planes, pure curvature throughout)
+# • Every NODE in the lattice IS a z=x·y manifold — a twisted square
+#   where every angle is represented
+#
+# WHY IT HOLDS ALL SUBSTRATES
+# ────────────────────────────
+# Each node = one z=x·y manifold = one substrate interaction point.
+# The lattice routes ALL substrate spectra through these nodes:
+#   • Light substrate  → wavelength λ enters a node → color exits
+#   • Sound substrate  → frequency f enters a node → tone exits
+#   • Space substrate  → coordinate (x,y) enters → pixel exits
+#   • Memory substrate → address enters → value exits
+#
+# Nothing is stored at the nodes — only the instruction (the lens).
+# The substrate arrives, passes through z=x·y, and the dimension emerges.
+# The lattice is self-organizing: each node adjusts to maintain H=0
+# (minimal surface), meaning the system always finds the most efficient
+# path between any two substrates.
+#
+# PROPERTIES
+# ──────────
+# • Triply periodic: tiles x, y, z simultaneously — infinite extent
+# • Minimal surface: H=0 everywhere — zero waste, maximum efficiency
+# • Self-organizing: maintains structure without external force
+# • Doubly connected: divides space into two congruent interlocking
+#   labyrinths — one for substrates (x), one for manifolds (y)
+# • No straight lines: pure curvature — no rigid hierarchy
+# • Diamond topology: each node has exactly 4 connections (tetrahedral)
+#   matching the 4 Fibonacci dimensions at this layer (Fib=8: 4 pairs)
+# • Every node = twisted square (z=x·y) — every angle represented at
+#   every junction in the entire lattice
+#
+# RELATION TO THE HELIX
+# ─────────────────────
+# The lattice IS Layer 6 (Mind) materialized.
+# Layer 5 (Life, Fib=5) fills volume — individual substrates in 3D.
+# Layer 6 (Mind, Fib=8) connects them — the lattice that holds them all.
+# Layer 7 (Completion, Fib=13) is the golden spiral that the lattice traces.
+#
+# I11: SCHWARZ DIAMOND GYROID LATTICE — The meta-manifold.  A manifold of
+#      z=x·y manifolds.  Holds all substrates.  Stores only instructions.
+#      Self-organizing, triply periodic, doubly connected, zero mean curvature.
+#      The mind that holds the body without controlling it.
+
+SCHWARZ_DIAMOND_GYROID_LATTICE = {
+    'name':             'Schwarz Diamond Gyroid Lattice',
+    'layer':            6,
+    'fibonacci':        8,
+    'geometry':         'whole',
+
+    # ── Structure ────────────────────────────────────────────────────────────
+    # The lattice is diamond-shaped (rotated 45°).
+    # The PRIMITIVE at every node is z=x·y — the twisted square
+    # (hyperbolic paraboloid).  Nodes connect to their 4 neighbours
+    # at exactly 90° — orthogonal, not diagonal.
+    #
+    # The 90° connection is why the lattice self-balances:
+    #   positive curvature in one saddle feeds into negative curvature
+    #   in the next, maintaining H=0 (minimal surface) throughout.
+    #   The alternating concave/convex pattern visible in the render IS
+    #   this 90° orthogonal handoff between neighbouring z=x·y surfaces.
+    #
+    # At every junction the doubly-ruled families of the two adjacent
+    # twisted squares cross — producing the × pattern and ensuring that
+    # every angular orientation is represented at every connection point.
+
+    'primitive':        'z = x·y  (hyperbolic paraboloid — twisted square)',
+    'primitive_ruling': 'doubly ruled — every angle represented at every node',
+    'connection_angle': 90,           # degrees — orthogonal, not tetrahedral
+    'node_connections': 4,            # 4 neighbours per node, all at 90°
+    'lattice_shape':    'diamond (rotated 45° — rhombus orientation)',
+    'curvature_sign':   'alternates +/− at 90° steps — self-cancelling',
+    'mean_curvature':   'H = 0  (minimal surface — zero waste)',
+
+    # ── Interlaced Helix Topology ────────────────────────────────────────────
+    #
+    # THE SCHWARZ DIAMOND GYROID LATTICE IS AN INTERLACED HELIX LATTICE.
+    # ════════════════════════════════════════════════════════════════════
+    #
+    # Every segment connecting adjacent z=x·y nodes undergoes a COMPLETE 360°
+    # revolution — one full helix coil — before reaching the next node.
+    #
+    # This means:
+    #   • Each arm between nodes IS a helix (not a straight line, not a 90° bend)
+    #   • A 360° turn restores the frame of reference at each new node
+    #   • The lattice is built entirely from complete helix coils — each segment
+    #     is whole, like a Fibonacci square: nothing partial, nothing wasted
+    #
+    # The 90° connection angle and the 360° segment twist are different things:
+    #   • 90° = the ANGLE at which two nodes meet at their junction
+    #   • 360° = the TOPOLOGY of each arm between nodes (one full revolution)
+    #
+    # RESULT: THE TWO LABYRINTHS ARE EACH A CONTINUOUS, UNBROKEN HELIX.
+    # ─────────────────────────────────────────────────────────────────
+    # Labyrinth x (substrate channel) → one complete helix spiralling through space
+    # Labyrinth y (manifold  channel) → a second complete helix interlaced with x
+    #
+    # The two helices NEVER intersect — they are topologically linked but
+    # geometrically separate, exactly like the two strands of DNA.
+    # Every node in the lattice is the crossing point where the two helices
+    # are closest — and that crossing point is a z=x·y saddle (twisted square).
+    #
+    # This is also why the entire codebase lives in `helix/`:
+    #   The code IS the helix.  The directory was always named for the geometry.
+    #
+    # I13: INTERLACED HELIX LATTICE — Each segment between nodes in the Schwarz
+    #      Diamond Gyroid Lattice completes a full 360° revolution.  The two
+    #      congruent labyrinths are each a continuous helix, interlaced through
+    #      3D space, never intersecting, topologically inseparable.  Every node
+    #      is a z=x·y saddle where the two helices pass closest to each other.
+    #      The lattice is a helix of helices.  The code is the helix.
+
+    # ── Substrate channels ───────────────────────────────────────────────────
+    'labyrinths':       2,            # two congruent interlocking channels
+    'labyrinth_x':      'substrates (x) — raw state flows through the lattice',
+    'labyrinth_y':      'manifolds  (y) — lens instructions flow through lattice',
+
+    # ── 360° per segment — interlaced helix ─────────────────────────────────
+    'segment_twist_deg':  360,        # each arm = one complete helix coil
+    'segment_topology':   'helix — full 360° revolution per connecting arm',
+    'lattice_topology':   'interlaced helix lattice — two congruent continuous helices '
+                          'spiralling through 3D space, never intersecting, '
+                          'topologically inseparable',
+    'helix_x':            'substrate helix — raw state spirals through the lattice; '
+                          'one complete unbroken helix from any entry point',
+    'helix_y':            'manifold helix — lens instructions spiral through lattice; '
+                          'interlaced with substrate helix, sharing every node',
+    'helix_interlock':    'the two helices never intersect but are topologically linked — '
+                          'like the two strands of DNA; each node is the point of '
+                          'closest approach between the two strands',
+    'helix_coil_per':     'Fibonacci unit — one 360° coil = one complete layer step',
+    'code_is_helix':      'helix/ — the module is named for the geometry it enacts',
+
+    # ── Storage law ──────────────────────────────────────────────────────────
+    'storage':          'instruction only — no data stored at nodes',
+    'self_organizes':   True,
+
+    # ── Equations ────────────────────────────────────────────────────────────
+    'node_equation':    'z = x·y',
+    'schwarz_diamond':  'cos(x)·cos(y)·cos(z) − sin(x)·sin(y)·sin(z) = 0',
+    'gyroid':           'sin(x)·cos(y) + sin(y)·cos(z) + sin(z)·cos(x) = 0',
+
+    # ── Structural strength ──────────────────────────────────────────────────
+    # The lattice is self-supporting.  No external scaffold.  No central
+    # controller.  The geometry IS the support.
+    #
+    # WHY IT IS SO STRONG
+    # ───────────────────
+    # Each z=x·y saddle resists deformation in ALL directions simultaneously:
+    #   • Push down     → x-axis curvature resists
+    #   • Push sideways → y-axis curvature resists
+    #   • Twist it      → the doubly-ruled diagonal families lock
+    #   • At 90° joints → compression in one node becomes tension in the
+    #                      neighbour — force is redistributed, never accumulated
+    #
+    # H=0 (minimal surface) means NO curvature is wasted anywhere.
+    # Every curve in the structure is doing exactly the work required — nothing
+    # more, nothing less.  Maximum strength, minimum material.
+    #
+    # This is WHY diamond is the hardest natural material — diamond crystal IS
+    # this topology (carbon atoms in the diamond lattice).
+    # This is WHY gyroids appear in bone, butterfly wings, and beetle shells —
+    # nature converged on this structure because it is optimal.
+    #
+    # SELF-SUPPORTING PRINCIPLE (I12)
+    # ────────────────────────────────
+    # The lattice does not need external support because each node's saddle
+    # simultaneously pulls in one axis and pushes in the perpendicular.
+    # The 90° handoff between neighbours means the structure is always in
+    # dynamic equilibrium — any perturbation is absorbed and redistributed
+    # through the entire lattice, never concentrated at one point.
+    # Cancer concentrates.  This distributes.  This is the healthy structure.
+
+    'self_supporting':    True,
+    'strength_mechanism': 'saddle curvature resists all directions simultaneously; '
+                          '90° connections convert compression to tension — '
+                          'force redistributed, never accumulated',
+    'material_analog':    'diamond crystal lattice — hardest natural material; '
+                          'gyroid in bone, butterfly wing, beetle shell',
+    'efficiency':         'H=0 — no curvature wasted; maximum strength per unit material',
+    'failure_mode':       'none — perturbation redistributes through the lattice; '
+                          'no single point of failure',
+
+    # ── Universal connectivity ───────────────────────────────────────────────
+    # The lattice is UNIVERSALLY CONNECTED — every node reaches every other
+    # node.  This is not imposed; it is intrinsic to the geometry.
+    #
+    # HOW UNIVERSAL CONNECTIVITY ARISES
+    # ───────────────────────────────────
+    # Each z=x·y saddle opens 4 paths at 90° angles.  Because the lattice
+    # is triply periodic (infinite in x, y, AND z simultaneously), following
+    # any path always leads to more nodes — never a dead end, never an edge.
+    #
+    # Both labyrinths are each FULLY CONNECTED:
+    #   Labyrinth x (substrate channel)  — every substrate reachable from any node
+    #   Labyrinth y (manifold channel)   — every lens reachable from any node
+    #
+    # No center.  No edge.  No privileged node.
+    # Every node IS the center from its own perspective.
+    # Every node can see every substrate and apply any lens.
+    #
+    # WHY THIS MATTERS FOR STORAGE
+    # ─────────────────────────────
+    # Universal connectivity means you never need to COPY or CACHE data.
+    # The instruction (the lens + address) is enough — the lattice routes
+    # it to the substrate automatically.  One instruction.  Any substrate.
+    # Anywhere in the lattice.  O(1) access by address, not by search.
+    #
+    # THE UNIVERSAL CONNECTOR
+    # ───────────────────────
+    # `dimensions.UniversalConnector` is the computational expression of
+    # this geometric truth.  The lattice makes universal connection the
+    # default — not a feature to be added, but the inevitable consequence
+    # of building on the SDGL geometry.
+    #
+    # I12: UNIVERSAL CONNECTIVITY — Every node in the Schwarz Diamond Gyroid
+    #      Lattice connects to every other node through the two congruent
+    #      labyrinths.  Universal connection is not imposed — it is the natural
+    #      consequence of the z=x·y primitive connected at 90°.  The lattice
+    #      is its own universal connector.
+
+    'universally_connected': True,
+    'connectivity':    'fully connected — every node reaches every other node; '
+                       'two complete labyrinths, each fully traversable',
+    'center':          'none — every node is the center from its own perspective',
+    'dead_ends':       0,
+    'access_complexity': 'O(1) by address — lattice routes to substrate; '
+                         'no search, no copy, no cache required',
+    'universal_connector': 'dimensions.UniversalConnector — the computational '
+                           'expression of the lattice universal connectivity',
+
+    # ── Recursive manifold hierarchy (I14) ──────────────────────────────────
+    # The lattice IS the recursive manifold hierarchy made geometric.
+    # Each node = a complete manifold (whole mathematical object).
+    # Each point on that node's saddle surface = entry to the manifold below.
+    # Traversal = recursive descent through the dimensional stack.
+    # The 360° helix per segment = one complete layer: enter a dimension,
+    # emerge in the dimension below, fully arrived, nothing partial.
+
+    'recursive_structure': True,
+    'node_is_manifold':    'each node is a complete z=x·y manifold — whole mathematical object',
+    'point_is_manifold':   'each point on a node IS the manifold of the layer below',
+    'descent':             'traversing the lattice = descending the recursive manifold hierarchy',
+    'segment_360_meaning': 'one full helix coil = one complete dimension traversal — '
+                           'enter a dimension at a point, rotate 360°, emerge in the '
+                           'dimension below fully formed',
+    'self_similarity':     'the lattice is self-similar at every scale — the structure '
+                           'of Layer 7 contains Layer 6 contains Layer 5 ... contains '
+                           'Layer 1 — the spark',
+
+    'role':             'The manifold of manifolds.  Holds all substrates.  '
+                        'z=x·y is the primitive at every node, connected at 90°. '
+                        'Self-supporting — the geometry needs no external scaffold. '
+                        'Universally connected — every node reaches every substrate. '
+                        'Each dimension a whole manifold.  '
+                        'Each point the manifold of the layer below.  '
+                        'Strong because it supports itself.  '
+                        'Connected because the 90° saddle opens every path.  '
+                        'Recursive because each scale contains the whole.  '
+                        'Nothing stored but the instruction.  '
+                        'Nothing imposed — everything already present.',
 }
 
 LAYER_EQUATIONS = {
-    0: "F(0) = 0",              # The void ground state
-    1: "P₀ = {1}",              # The seed
-    2: "d(a,b) = |b-a|",        # First distance
-    3: "z = x * y",             # Identity interaction
-    4: "z = x * y**2",          # Weighted form
-    5: "m = x * y * z",         # Triadic meaning
-    6: "∇²f = λf (minimal)",    # Eigenvalue surface
-    7: "φ = (1+√5)/2"           # Golden ratio
+    0: "F(0) = 0",                          # The void ground state
+    1: "P₀ = {1}",                          # The seed
+    2: "d(a,b) = |b-a|",                    # First distance
+    3: "z = x * y",                         # Identity interaction
+    4: "z = x * y**2",                      # Weighted form
+    5: "m = x * y * z",                     # Triadic meaning
+    6: "sin(x)cos(y)+sin(y)cos(z)+sin(z)cos(x)=0",  # Gyroid — lattice of z=xy
+    7: "φ = (1+√5)/2"                       # Golden ratio
 }
 
 LAYER_TRAVERSAL = {

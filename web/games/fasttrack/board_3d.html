@@ -393,7 +393,6 @@
     <div id="right-icon-panel"
          class="d-flex align-items-center"
          role="toolbar" aria-label="Game controls">
-        <button id="camera-btn"       onclick="openCameraPanel()"    title="Camera Options" aria-label="Camera options">📹</button>
         <button id="theme-btn"        onclick="openThemePanel()"     title="Change Theme"   aria-label="Change theme">🎨</button>
         <button id="music-toggle-btn" onclick="openMusicPanel()"     title="Music &amp; Sound" aria-label="Music and sound settings">🔇</button>
         <button id="leave-game-btn"   onclick="showExitConfirm()"    title="Leave Game"     aria-label="Leave game"><span class="exit-txt">EXIT</span></button>
@@ -961,7 +960,7 @@
 
     <!-- FastTrack Substrates -->
     <script src="themes.js?v=20260225c"></script>
-    <script src="themes/vr_immersive.js?v=20260227"></script>
+
     <script src="avatar_substrate.js?v=20260223"></script>
     <script src="social_substrate.js?v=20260223"></script>
     <script src="security.js?v=20260227"></script>
@@ -1669,10 +1668,10 @@
         scene.background = new THREE.Color(0x0a0a14);
 
         // Camera - far plane extended to see distant theme backdrops (stars, planets, etc.)
-        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
-        // Default: 30° above center — clear view of all holes
-        // 30° → Y = dist*sin(30) = 320, Z = dist*cos(30) = 554
-        camera.position.set(0, 320, 554);
+        // FOV 55° for wider field of view; lower angle for more level perspective
+        camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 1, 5000);
+        // ~22° above center — closer, more level view of the board
+        camera.position.set(0, 200, 450);
         camera.lookAt(0, 0, 0);
 
         // Renderer
@@ -1690,80 +1689,9 @@
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-        // Protect camera from external scripts when Fixed Views or Manual are active.
-        (function protectCameraWrites() {
-            // Helper: capture a concise stack trace for debugging caller
-            function _captureStack() {
-                try {
-                    const raw = new Error().stack || '';
-                    return raw.split('\n').slice(2, 8).map(s => s.trim()).join('\n');
-                } catch (e) { return 'stack-unavailable'; }
-            }
-
-            // Expose last override attempt for debugging
-            window._lastCameraOverrideAttempt = null;
-            try {
-                if (!camera || !camera.position) return;
-                // Preserve originals
-                const _origPosSet = camera.position.set.bind(camera.position);
-                const _origPosCopy = camera.position.copy.bind(camera.position);
-                const _origLookAt = camera.lookAt.bind(camera);
-
-                camera.position.set = function(x, y, z) {
-                    if (window._allowCameraWrite) return _origPosSet(x, y, z);
-                    if (typeof fixedViewsActive !== 'undefined' && fixedViewsActive) {
-                        const stack = _captureStack();
-                        console.warn('[CameraGuard] Blocked position.set while fixedViewsActive', { x, y, z, stack });
-                        window._lastCameraOverrideAttempt = { method: 'position.set', args: [x,y,z], mode: 'fixedViewsActive', time: Date.now(), stack };
-                        return this;
-                    }
-                    if (currentCameraView === 'manual') {
-                        // Don't allow external scripts to override manual view
-                        const stack = _captureStack();
-                        console.warn('[CameraGuard] Blocked position.set while manual', { x, y, z, stack });
-                        window._lastCameraOverrideAttempt = { method: 'position.set', args: [x,y,z], mode: 'manual', time: Date.now(), stack };
-                        return this;
-                    }
-                    return _origPosSet(x, y, z);
-                };
-
-                camera.position.copy = function(v) {
-                    if (window._allowCameraWrite) return _origPosCopy(v);
-                    if (typeof fixedViewsActive !== 'undefined' && fixedViewsActive) {
-                        const stack = _captureStack();
-                        console.warn('[CameraGuard] Blocked position.copy while fixedViewsActive', { v, stack });
-                        window._lastCameraOverrideAttempt = { method: 'position.copy', args: [v], mode: 'fixedViewsActive', time: Date.now(), stack };
-                        return this;
-                    }
-                    if (currentCameraView === 'manual') {
-                        const stack = _captureStack();
-                        console.warn('[CameraGuard] Blocked position.copy while manual', { v, stack });
-                        window._lastCameraOverrideAttempt = { method: 'position.copy', args: [v], mode: 'manual', time: Date.now(), stack };
-                        return this;
-                    }
-                    return _origPosCopy(v);
-                };
-
-                camera.lookAt = function() {
-                    if (window._allowCameraWrite) return _origLookAt.apply(camera, arguments);
-                    if (typeof fixedViewsActive !== 'undefined' && fixedViewsActive) {
-                        const stack = _captureStack();
-                        console.warn('[CameraGuard] Blocked lookAt while fixedViewsActive', { args: arguments, stack });
-                        window._lastCameraOverrideAttempt = { method: 'lookAt', args: Array.from(arguments), mode: 'fixedViewsActive', time: Date.now(), stack };
-                        return;
-                    }
-                    if (currentCameraView === 'manual') {
-                        const stack = _captureStack();
-                        console.warn('[CameraGuard] Blocked lookAt while manual', { args: arguments, stack });
-                        window._lastCameraOverrideAttempt = { method: 'lookAt', args: Array.from(arguments), mode: 'manual', time: Date.now(), stack };
-                        return;
-                    }
-                    return _origLookAt.apply(camera, arguments);
-                };
-            } catch (e) {
-                console.warn('[CameraGuard] failed to wrap camera methods', e);
-            }
-        })();
+        // CameraGuard REMOVED — the new CameraDirector handles all camera
+        // positioning through a single update() call each frame.
+        // No monkey-patching of camera.position.set / lookAt needed.
 
         // Ensure default camera mode on load is automatic ('chase') and
         // fixed board view is off. Use force to bypass any guards during init.
@@ -2958,45 +2886,16 @@
     
     // Pan camera to a special event destination
     function panToSpecialEvent(move, onComplete = null) {
-        // Never override manual mode or active user interaction
-        if (userOverrideCamera || userIsInteracting || currentCameraView === 'manual') {
-            if (onComplete) onComplete();
-            return;
+        // CameraDirector handles framing. Add destination as hint for dramatic events.
+        if (CameraDirector.mode === 'auto' && move && move.toHoleId) {
+            const destHole = holeRegistry.get(move.toHoleId);
+            if (destHole) {
+                const dx = destHole.position ? destHole.position.x : destHole.x;
+                const dz = destHole.position ? destHole.position.z : destHole.z;
+                CameraDirector.setHint({ x: dx, y: 0, z: dz }, 3000);
+            }
         }
-        
-        const destHole = holeRegistry.get(move.toHoleId);
-        if (!destHole) {
-            if (onComplete) onComplete();
-            return;
-        }
-        
-        const destX = destHole.position ? destHole.position.x : destHole.x;
-        const destZ = destHole.position ? destHole.position.z : destHole.z;
-        
-        // Dramatic camera angle for special events
-        let camHeight = 350;
-        let camOffset = 150;
-        let duration = 1500;
-        
-        // Tighter focus for bullseye
-        if (move.toHoleId === 'center') {
-            camHeight = 250;
-            camOffset = 100;
-            duration = 2000;
-        }
-        // Winner celebration view
-        else if (move.toHoleId.includes('winner')) {
-            camHeight = 300;
-            camOffset = 120;
-            duration = 2500;
-        }
-        
-        smoothCameraTransition(
-            { x: destX * 0.5, y: camHeight, z: destZ * 0.5 + camOffset },
-            { x: destX, y: 0, z: destZ },
-            duration,
-            onComplete
-        );
+        if (onComplete) setTimeout(onComplete, 500);
     }
     
     // ============================================================
@@ -3042,9 +2941,9 @@
         board: {
             name: 'Board View',
             icon: '🎯',
-            description: 'Classic 30° angled view of the board',
-            height: 320,
-            distance: 554,
+            description: 'Level view of the board',
+            height: 200,
+            distance: 450,
             followPeg: false,
             autoOrbit: false
         },
@@ -3096,6 +2995,182 @@
             pegEye: true
         }
     };
+
+    // ============================================================
+    // CAMERA DIRECTOR — single centralized camera controller
+    // Rule #1: All pegs of the active player must be visible.
+    // Called every frame from animate(). Uses exponential damping
+    // for silky-smooth motion with no jerk or double-takes.
+    // ============================================================
+    const CameraDirector = {
+        mode: 'auto',          // 'auto' | 'manual' | 'fixed-straight' | 'fixed-angled'
+        _pos:   new THREE.Vector3(0, 200, 450),   // current camera position
+        _look:  new THREE.Vector3(0, 0, 0),        // current look-at target
+        _tPos:  new THREE.Vector3(0, 200, 450),    // target camera position
+        _tLook: new THREE.Vector3(0, 0, 0),        // target look-at
+        _damping: 0.04,        // exponential damping factor (0 = frozen, 1 = instant)
+        _hint: null,           // temporary point-of-interest { pos, lookAt, ttl, priority }
+        _hintTimer: 0,
+        _movingPegPos: null,   // set by animatePegMove each frame so camera tracks the peg
+        _legalMovePositions: [],  // world positions of all legal move destinations
+        _lastTurnOwner: -1,
+        _margin: 1.55,         // frustum safety margin (1.0 = exactly fills viewport)
+        _minHeight: 120,       // never go lower than this in auto
+        _maxHeight: 900,       // never go higher than this in auto
+        _baseOffset: 80,       // Z offset behind center for perspective
+
+        /** Called once per frame from animate() */
+        update: function(dt) {
+            if (!camera || !controls) return;
+            // Skip in manual/pegeye modes — OrbitControls handles it
+            if (this.mode === 'manual' || pegEyeActive || pegEyeSelectMode) return;
+
+            // Fixed views: let OrbitControls handle mouse manipulation.
+            // The initial placement is done in setBoardViewMode(); Director does nothing.
+            if (this.mode === 'fixed-top' || this.mode === 'fixed-angled') {
+                return;
+            }
+
+            // If user is actively dragging or has a temp override, pause auto tracking.
+            // Sync internal state from camera so the resume transition is smooth.
+            if (userIsInteracting || _tempManualOverride) {
+                this._pos.copy(camera.position);
+                this._look.copy(controls.target);
+                return;
+            }
+
+            // === AUTO MODE: compute target to frame all active player pegs ===
+            this._computeAutoTarget();
+
+            // Exponential damping: current += (target - current) * factor
+            const f = 1 - Math.pow(1 - this._damping, (dt || 16) / 16);
+            this._pos.lerp(this._tPos, f);
+            this._look.lerp(this._tLook, f);
+
+            camera.up.set(0, 1, 0);
+            camera.position.copy(this._pos);
+            controls.target.copy(this._look);
+            camera.lookAt(this._look);
+        },
+
+        /** Compute ideal camera position to frame all active player pegs */
+        _computeAutoTarget: function() {
+            const positions = this._gatherPegPositions();
+
+            // If hint is active, include it in positions
+            if (this._hint && this._hintTimer > 0) {
+                this._hintTimer -= 16;
+                positions.push(this._hint.pos.clone());
+                if (this._hintTimer <= 0) this._hint = null;
+            }
+
+            if (positions.length === 0) {
+                // No pegs on board — show the whole board
+                this._tPos.set(0, 350, 400);
+                this._tLook.set(0, 0, 0);
+                return;
+            }
+
+            // Bounding box of all positions
+            let minX = Infinity, maxX = -Infinity;
+            let minZ = Infinity, maxZ = -Infinity;
+            for (const p of positions) {
+                if (p.x < minX) minX = p.x;
+                if (p.x > maxX) maxX = p.x;
+                if (p.z < minZ) minZ = p.z;
+                if (p.z > maxZ) maxZ = p.z;
+            }
+
+            const cx = (minX + maxX) / 2;
+            const cz = (minZ + maxZ) / 2;
+            const spanX = (maxX - minX) || 1;
+            const spanZ = (maxZ - minZ) || 1;
+            const span = Math.max(spanX, spanZ) * this._margin;
+
+            // Required height to fit span in view (using vertical FOV)
+            const fovRad = (camera.fov || 55) * Math.PI / 180;
+            const aspect = camera.aspect || (window.innerWidth / window.innerHeight);
+            const hFov = 2 * Math.atan(Math.tan(fovRad / 2) * aspect);
+            // Use the tighter of horizontal and vertical FOV
+            const effectiveFov = Math.min(fovRad, hFov);
+            let reqHeight = (span / 2) / Math.tan(effectiveFov / 2);
+            reqHeight = Math.max(this._minHeight, Math.min(this._maxHeight, reqHeight));
+
+            // Dynamic angle: 33° (close-up) to 66° (wide view), rule-of-thirds range
+            // Interpolate based on how high the camera needs to be (height ratio within min/max)
+            const heightRatio = (reqHeight - this._minHeight) / (this._maxHeight - this._minHeight);
+            const angleDeg = 33 + (66 - 33) * Math.min(1, Math.max(0, heightRatio));
+            const angleRad = angleDeg * Math.PI / 180;
+            const zOffset = reqHeight / Math.tan(Math.PI / 2 - angleRad);
+
+            this._tPos.set(cx, reqHeight, cz + zOffset);
+            this._tLook.set(cx, 0, cz);
+        },
+
+        /** Gather world positions of all active player's on-board pegs + highlighted destination holes */
+        _gatherPegPositions: function() {
+            const positions = [];
+            const owner = gameState?.turnOwner ?? gameState?.currentPlayerIndex ?? -1;
+            if (owner < 0 || !gameState?.players?.[owner]) return positions;
+
+            const player = gameState.players[owner];
+            if (!player.peg) return positions;
+
+            for (const p of player.peg) {
+                // Skip pegs in holding (off-board)
+                if (p.holeType === 'holding' || (p.holeId && p.holeId.startsWith('hold-'))) continue;
+                const reg = pegRegistry.get(p.id);
+                if (reg && reg.mesh) {
+                    positions.push(reg.mesh.position.clone());
+                }
+            }
+
+            // Include ALL legal move destination positions (set by focusOnChoices)
+            for (const lp of this._legalMovePositions) {
+                positions.push(lp.clone());
+            }
+
+            // Fallback: also include highlighted holes (belt-and-suspenders)
+            if (typeof highlightedHoles !== 'undefined' && highlightedHoles.length > 0) {
+                for (const hole of highlightedHoles) {
+                    if (hole && hole.mesh) {
+                        positions.push(hole.mesh.position.clone());
+                    }
+                }
+            }
+
+            // Include the currently-moving peg so camera tracks it in real time
+            if (this._movingPegPos) {
+                positions.push(this._movingPegPos.clone());
+            }
+
+            return positions;
+        },
+
+        /** Add a temporary point of interest (e.g., vanquish target, crown) */
+        setHint: function(worldPos, durationMs) {
+            durationMs = durationMs || 3000;
+            this._hint = { pos: new THREE.Vector3(worldPos.x, worldPos.y || 0, worldPos.z) };
+            this._hintTimer = durationMs;
+        },
+
+        /** Instantly snap to a position (no damping) */
+        snapTo: function(pos, lookAt) {
+            this._pos.set(pos.x, pos.y, pos.z);
+            this._look.set(lookAt.x, lookAt.y, lookAt.z);
+            this._tPos.copy(this._pos);
+            this._tLook.copy(this._look);
+            if (camera) {
+                camera.position.copy(this._pos);
+                camera.lookAt(this._look);
+            }
+            if (controls) controls.target.copy(this._look);
+        },
+
+        /** Set damping factor (0.01 = very slow, 0.15 = snappy) */
+        setDamping: function(d) { this._damping = Math.max(0.005, Math.min(0.2, d)); }
+    };
+    window.CameraDirector = CameraDirector;
 
     // ============================================================
     // PEG'S EYE VIEW — First-person camera from any peg
@@ -3381,18 +3456,13 @@
         if (viewName === 'manual') {
             userOverrideCamera = true;
             cameraMode = 'manual';
-            // In manual mode, disable all cinematic transitions
-            if (cameraTransition) {
-                cancelAnimationFrame(cameraTransition.animId);
-                const pendingCallback = cameraTransition.onComplete;
-                cameraTransition = null;
-                if (pendingCallback) pendingCallback();
-            }
+            CameraDirector.mode = 'manual';
             return;
         }
-        
+
         userOverrideCamera = false;
-        cameraMode = view.followPeg ? 'cinematic' : 'cinematic';
+        cameraMode = 'cinematic';
+        CameraDirector.mode = 'auto';
         
         // Get target position (active peg or board center)
         let targetX = 0, targetZ = 0;
@@ -3469,9 +3539,13 @@
             // Inform user
             showFixedViewInfo('Automatic View — automatic camera enabled');
 
-            // Return to automatic camera (force to bypass fixed-views guard)
-            setCameraViewMode('chase', { force: true });
-            console.log('[Fixed Views] Exited - returned to automatic camera');
+            // Reset camera up vector (may have been changed for straight-down view)
+            if (camera) camera.up.set(0, 1, 0);
+
+            // Tell CameraDirector to resume auto mode
+            CameraDirector.mode = 'auto';
+            currentCameraView = 'smooth';
+            console.log('[Fixed Views] Exited - returned to automatic camera (CameraDirector auto)');
         } else {
             // Enter board view mode (straight down or angled)
             if (btn) {
@@ -3504,13 +3578,15 @@
 
             // Apply camera placement first while allowing internal writes,
             // then enable fixed view mode so external scripts cannot override.
-            try {
-                window._allowCameraWrite = true;
-            } catch (e) {}
+            // (legacy _allowCameraWrite removed — CameraDirector handles camera)
 
             if (camera && controls) {
                 if (boardViewMode === 1) {
                     // Straight down view
+                    // IMPORTANT: When looking straight down, the default up vector (0,1,0)
+                    // is parallel to the look direction (0,-1,0), creating a degenerate
+                    // view matrix → black screen. Use Z-axis as up instead.
+                    camera.up.set(0, 0, -1);
                     camera.position.set(0, 700, 0);
                     camera.lookAt(0, 0, 0);
                     controls.target.set(0, 0, 0);
@@ -3522,7 +3598,10 @@
                     console.log('[Fixed Views] Mode 1: Straight Down - mouse controls enabled');
                     showFixedViewInfo('Straight Down View — tap 🎯 for angled');
                     currentCameraView = 'fixed-straight';
+                    CameraDirector.mode = 'fixed-top';
                 } else if (boardViewMode === 2) {
+                    // Angled view — restore normal up vector
+                    camera.up.set(0, 1, 0);
                     // Angled view (45 degrees)
                     const distance = 700;
                     const angle = Math.PI / 4; // 45 degrees
@@ -3541,12 +3620,11 @@
                     console.log('[Fixed Views] Mode 2: Angled View - mouse controls enabled');
                     showFixedViewInfo('Angled View — tap 🎯 for automatic');
                     currentCameraView = 'fixed-angled';
+                    CameraDirector.mode = 'fixed-angled';
                 }
             }
 
-            try {
-                window._allowCameraWrite = false;
-            } catch (e) {}
+            // (legacy _allowCameraWrite removed — CameraDirector handles camera)
 
             // Now mark as fixed so external writes are blocked
             userOverrideCamera = true;
@@ -3644,101 +3722,22 @@
     // Flag: true while a peg move animation is actively running
     let _pegMoveInProgress = false;
     
-    // Update camera during peg movement (called from animatePegMove)
+    // Update camera during peg movement — now a no-op.
+    // CameraDirector automatically tracks all active player pegs each frame.
     function updateCameraForPegMove(pegX, pegZ) {
-        if (pegEyeActive || pegEyeSelectMode) {
-            // In peg's eye mode, update eye position if our peg moved
-            if (pegEyeActive) _updatePegEyeCamera();
-            return;
-        }
-        // During active peg movement _pegMoveInProgress is true — bypass ALL user/board
-        // camera guards so the camera ALWAYS follows. Only respect peg-eye and a hard
-        // fixedViewsActive when NOT in a peg movement (board-view mode the user chose).
-        if (!_pegMoveInProgress) {
-            if (userOverrideCamera || userIsInteracting || currentCameraView === 'manual') return;
-            if ((typeof boardViewMode !== 'undefined' && boardViewMode > 0) || (typeof fixedViewsActive !== 'undefined' && fixedViewsActive)) return;
-        }
-        
-        // When peg is moving, temporarily allow camera writes so that camera.lookAt
-        // works even if the user left the camera in manual/fixed mode.
-        const _prevAllowWrite = window._allowCameraWrite;
-        if (_pegMoveInProgress) window._allowCameraWrite = true;
-
-        const view = CAMERA_VIEWS[currentCameraView] || CAMERA_VIEWS['chase'];
-        if (!view) { window._allowCameraWrite = _prevAllowWrite; return; }
-
-        // During active peg movement, ALWAYS follow the peg regardless of view mode
-        if (_pegMoveInProgress || view.followPeg) {
-            // Lerp factor scaled by speed: lower cameraSpeedFactor = smoother/slower follow
-            const baseLerp = view.behindPeg ? 0.025 : (view.smoothFollow ? 0.02 : 0.035);
-            const lerp = baseLerp * cameraSpeedFactor;
-            
-            if (view.smoothFollow) {
-                // Smooth focus - elevated angle that gently tracks gameplay
-                // Keep camera at fixed elevated position, just pan the target
-                const targetLerp = 0.025 * cameraSpeedFactor;
-                controls.target.x += (pegX - controls.target.x) * targetLerp;
-                controls.target.z += (pegZ - controls.target.z) * targetLerp;
-                
-                // Maintain elevated camera position relative to target
-                const camX = controls.target.x;
-                const camZ = controls.target.z + view.distance;
-                
-                camera.position.x += (camX - camera.position.x) * lerp;
-                camera.position.y += (view.height - camera.position.y) * lerp;
-                camera.position.z += (camZ - camera.position.z) * lerp;
-                
-                camera.lookAt(controls.target);
-            } else if (view.behindPeg) {
-                // Chase cam - smooth follow behind peg
-                const dx = pegX || 0.01;
-                const dz = pegZ || 0.01;
-                const mag = Math.sqrt(dx * dx + dz * dz);
-                const dirX = dx / mag;
-                const dirZ = dz / mag;
-                
-                const camX = pegX - dirX * view.distance;
-                const camZ = pegZ - dirZ * view.distance;
-                
-                camera.position.x += (camX - camera.position.x) * lerp;
-                camera.position.y += (view.height - camera.position.y) * lerp;
-                camera.position.z += (camZ - camera.position.z) * lerp;
-                
-                controls.target.x += (pegX - controls.target.x) * lerp;
-                controls.target.y += (10 - controls.target.y) * lerp;
-                controls.target.z += (pegZ - controls.target.z) * lerp;
-                camera.lookAt(controls.target);
+        // Feed the moving peg's position into CameraDirector so it stays in frame
+        if (CameraDirector.mode === 'auto') {
+            if (!CameraDirector._movingPegPos) {
+                CameraDirector._movingPegPos = new THREE.Vector3(pegX, 0, pegZ);
+                // Temporarily boost damping for snappier tracking during animation
+                CameraDirector._preMoveD = CameraDirector._damping;
+                CameraDirector._damping = Math.max(CameraDirector._damping, 0.10);
             } else {
-                // Ground level - low angle tracking
-                const dx = pegX || 0.01;
-                const dz = pegZ || 0.01;
-                const mag = Math.sqrt(dx * dx + dz * dz);
-                const dirX = dx / mag;
-                const dirZ = dz / mag;
-                
-                const camX = pegX - dirX * view.distance;
-                const camZ = pegZ - dirZ * view.distance;
-                
-                camera.position.x += (camX - camera.position.x) * lerp;
-                camera.position.y += (view.height - camera.position.y) * lerp;
-                camera.position.z += (camZ - camera.position.z) * lerp;
-                
-                controls.target.x += (pegX - controls.target.x) * lerp;
-                controls.target.y += (10 - controls.target.y) * lerp;
-                controls.target.z += (pegZ - controls.target.z) * lerp;
-                camera.lookAt(controls.target);
+                CameraDirector._movingPegPos.set(pegX, 0, pegZ);
             }
-        } else {
-            // Board/orbit view — smoothly pan camera target to follow peg
-            // Keep camera position, just shift where it looks
-            const lerp = 0.025 * cameraSpeedFactor;
-            controls.target.x += (pegX - controls.target.x) * lerp;
-            controls.target.z += (pegZ - controls.target.z) * lerp;
-            camera.lookAt(controls.target);
         }
-
-        // Restore _allowCameraWrite to what it was before this call
-        window._allowCameraWrite = _prevAllowWrite;
+        // Peg's eye mode still needs manual update
+        if (pegEyeActive) _updatePegEyeCamera();
     }
     window.updateCameraForPegMove = updateCameraForPegMove;
 
@@ -3748,41 +3747,7 @@
     // move highlights appear, so the action is always in frame.
     // ============================================================
     function preCinematicCamera(playerIdx, legalMoves) {
-        // Do nothing if user is in manual / fixed-view mode
-        if (fixedViewsActive || cameraMode === 'manual' || userIsInteracting) return;
-
-        const player = gameState && gameState.players && gameState.players[playerIdx];
-        if (!player || !player.peg) return;
-
-        // Build a set of peg IDs that have a legal move
-        const movablePegIds = new Set((legalMoves || []).map(m => m.pegId));
-
-        // Pick the first movable peg that has a mesh on the board
-        let bestMesh = null;
-        for (const peg of player.peg) {
-            if (peg.holeType === 'holding' || peg.holeType === 'home') continue;
-            if (!movablePegIds.has(peg.id)) continue;
-            const reg = pegRegistry.get(peg.id);
-            if (reg && reg.mesh) { bestMesh = reg.mesh; break; }
-        }
-
-        // Fallback: use any on-board peg (even if it can't move this turn)
-        if (!bestMesh) {
-            for (const peg of player.peg) {
-                if (peg.holeType === 'holding' || peg.holeType === 'home') continue;
-                const reg = pegRegistry.get(peg.id);
-                if (reg && reg.mesh) { bestMesh = reg.mesh; break; }
-            }
-        }
-
-        if (!bestMesh) return;
-
-        const pos = bestMesh.position;
-        smoothCameraTransition(
-            { x: pos.x + 55, y: LINE_HEIGHT + 95, z: pos.z + 70 },
-            { x: pos.x, y: LINE_HEIGHT + 10, z: pos.z },
-            1100  // ~1 second — snappy enough to land before highlight clicks
-        );
+        // CameraDirector already frames all active player pegs — no-op.
     }
     window.preCinematicCamera = preCinematicCamera;
 
@@ -4012,9 +3977,9 @@
                 }
             }
         } else {
-            // Board view — return to 30° default
+            // Board view — return to default
             smoothCameraTransition(
-                { x: 0, y: view.height || 320, z: view.distance || 554 },
+                { x: 0, y: view.height || 200, z: view.distance || 450 },
                 { x: 0, y: 0, z: 0 },
                 1500
             );
@@ -4022,265 +3987,61 @@
     }
     
     function smoothCameraTransition(targetPos, targetLookAt, duration = 2500, onComplete = null, opts) {
-        opts = opts || {};
-        const forceOverride = opts.force === true; // true when called during peg movement
-
-        // Never interrupt manual mode or active user interaction —
-        // UNLESS forced (peg movement always wins camera priority).
-        if (!forceOverride && (currentCameraView === 'manual' || userIsInteracting)) {
-            if (onComplete) onComplete();
-            return;
+        // CameraDirector now handles all auto-mode camera positioning.
+        // For cinematic events (vanquish, crown) that still call this,
+        // set a hint so the director expands its frame to include the target.
+        if (CameraDirector.mode === 'auto' && targetLookAt) {
+            CameraDirector.setHint(
+                { x: targetLookAt.x, y: targetLookAt.y || 0, z: targetLookAt.z },
+                duration || 2500
+            );
         }
-
-        // If fixed views are active, suppress automatic transitions unless forced
-        if (typeof fixedViewsActive !== 'undefined' && fixedViewsActive && !forceOverride) {
-            if (onComplete) onComplete();
-            console.log('[Camera] Fixed views active — suppressed smoothCameraTransition');
-            return;
-        }
-        
-        // Cancel any existing transition (fire its callback so game logic isn't blocked)
-        if (cameraTransition) {
-            cancelAnimationFrame(cameraTransition.animId);
-            const pendingCallback = cameraTransition.onComplete;
-            cameraTransition = null;
-            if (pendingCallback) pendingCallback();
-        }
-        
-        // Apply speed factor: lower factor = longer duration = smoother
-        const scaledDuration = duration / cameraSpeedFactor;
-        
-        const startPos = camera.position.clone();
-        const startTarget = controls.target.clone();
-        const endPos = new THREE.Vector3(targetPos.x, targetPos.y, targetPos.z);
-        const endTarget = new THREE.Vector3(targetLookAt.x, targetLookAt.y, targetLookAt.z);
-        const startTime = Date.now();
-        
-        function animateCamera() {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / scaledDuration, 1);
-            
-            // Smooth ease-in-out using sine curve for ultra-smooth motion
-            const t = -(Math.cos(Math.PI * progress) - 1) / 2;
-            
-            camera.position.lerpVectors(startPos, endPos, t);
-            controls.target.lerpVectors(startTarget, endTarget, t);
-            camera.lookAt(controls.target);
-            
-            if (progress < 1) {
-                cameraTransition.animId = requestAnimationFrame(animateCamera);
-            } else {
-                cameraTransition = null;
-                if (onComplete) onComplete();
-            }
-        }
-        
-        cameraTransition = { animId: requestAnimationFrame(animateCamera), onComplete: onComplete };
+        // Fire callback after a short delay so game logic proceeds
+        if (onComplete) setTimeout(onComplete, Math.min(duration || 500, 800));
     }
     
     function focusOnPlayerPeg(playerIndex, onComplete = null) {
-        // Never override manual mode, active interaction, or while player is choosing a flashing hole
-        if (userOverrideCamera || userIsInteracting || currentCameraView === 'manual' || highlightsActive) {
-            if (onComplete) onComplete();
-            return;
-        }
-        
-        const player = gameState?.players?.[playerIndex];
-        if (!player || !player.peg) {
-            if (onComplete) onComplete();
-            return;
-        }
-        
-        // --- Camera focus PRIORITY ORDER ---
-        // 1. Bullseye/center peg (highest priority)
-        // 2. Fast track peg
-        // 3. Leading peg on the board
-        // 4. Home hole ONLY if ALL pegs are in holding (no board pegs to focus on)
-        
-        let focusPeg = null;
-        let focusOnHome = false;
-        
-        const isHolding = p => p.holeType === 'holding' || (p.holeId && p.holeId.startsWith('hold-'));
-        const allInHolding = player.peg.every(isHolding);
-        
-        // Priority 1: Check for a peg in the bullseye (center)
-        const bullseyePeg = player.peg.find(p => p.holeId === 'center' || p.inBullseye);
-        if (bullseyePeg) {
-            focusPeg = bullseyePeg;
-        }
-        
-        // Priority 2: Check for a peg on the fast track
-        if (!focusPeg) {
-            const ftPeg = player.peg.find(p => p.onFasttrack || (p.holeId && p.holeId.startsWith('ft-')));
-            if (ftPeg) {
-                focusPeg = ftPeg;
-            }
-        }
-        
-        // Priority 3: Leading peg on the board
-        if (!focusPeg) {
-            const leadingPeg = getLeadingPeg(playerIndex);
-            if (leadingPeg && !isHolding(leadingPeg)) {
-                focusPeg = leadingPeg;
-            }
-        }
-        
-        // Priority 4: Home hole ONLY when ALL pegs are in holding
-        if (!focusPeg && allInHolding) {
-            focusOnHome = true;
-        }
-        
-        // --- Determine camera closeness based on peg spread ---
-        // Collect world positions of all non-holding pegs to measure spread
-        let pegPositions = [];
-        for (const p of player.peg) {
-            if (p.holeType === 'holding' || (p.holeId && p.holeId.startsWith('hold-'))) continue;
-            const po = pegRegistry.get(p.id);
-            if (po && po.mesh) pegPositions.push(po.mesh.position);
-        }
-        
-        // Measure max distance between any two pegs
-        let maxSpread = 0;
-        for (let i = 0; i < pegPositions.length; i++) {
-            for (let j = i + 1; j < pegPositions.length; j++) {
-                const dx = pegPositions[i].x - pegPositions[j].x;
-                const dz = pegPositions[i].z - pegPositions[j].z;
-                maxSpread = Math.max(maxSpread, Math.sqrt(dx * dx + dz * dz));
-            }
-        }
-        
-        // Close-up when pegs are clustered, pull back when spread far apart
-        // Spread < 100 → tight closeup, spread > 350 → wide view
-        const spreadFactor = Math.min(1, Math.max(0, (maxSpread - 100) / 250));
-        const camHeight = 200 + spreadFactor * 250;     // 200 (close) → 450 (far)
-        const camPull   = 0.65 - spreadFactor * 0.35;   // 0.65 (close) → 0.3 (far)
-        const camOffset = 80 + spreadFactor * 150;       // 80 (close) → 230 (far)
-        
-        // Focus on the home hole
-        if (focusOnHome) {
-            const boardPos = player.boardPosition;
-            const homeHole = holeRegistry.get(`home-${boardPos}`);
-            if (homeHole && homeHole.position) {
-                smoothCameraTransition(
-                    { x: homeHole.position.x * camPull, y: camHeight, z: homeHole.position.z * camPull + camOffset },
-                    { x: homeHole.position.x, y: 0, z: homeHole.position.z },
-                    2500,
-                    onComplete
-                );
-            } else if (onComplete) {
-                onComplete();
-            }
-            return;
-        }
-        
-        // Focus on the priority peg
-        if (focusPeg) {
-            const pegObj = pegRegistry.get(focusPeg.id);
-            if (!pegObj || !pegObj.mesh) {
-                if (onComplete) onComplete();
-                return;
-            }
-            
-            const pegPos = pegObj.mesh.position;
-            
-            smoothCameraTransition(
-                { x: pegPos.x * camPull, y: camHeight, z: pegPos.z * camPull + camOffset },
-                { x: pegPos.x, y: 0, z: pegPos.z },
-                2500,
-                onComplete
-            );
-            return;
-        }
-        
-        if (onComplete) onComplete();
+        // CameraDirector auto-frames all pegs for the active player each frame.
+        // This stub exists for call-site compatibility; just fire the callback.
+        if (onComplete) setTimeout(onComplete, 100);
     }
     
-    // Move camera TOWARD the destination choices so the player can see them up close.
-    // If choices are spread far apart, pull back just enough to frame them all.
+    // focusOnChoices — CameraDirector auto-frames all active pegs.
+    // Destination choices are near the pegs, so they're already in frame.
+    // Just add hints for far-away choices.
     function focusOnChoices(moves) {
-        if (userOverrideCamera || userIsInteracting || currentCameraView === 'manual') return;
         if (!moves || moves.length === 0) return;
-        
-        // Gather world positions of all destination holes
+        if (CameraDirector.mode !== 'auto') return;
+
+        // Clear interaction overrides so auto-reframe kicks in immediately
+        userIsInteracting = false;
+        _tempManualOverride = false;
+        if (userInteractionTimeout) {
+            clearTimeout(userInteractionTimeout);
+            userInteractionTimeout = null;
+        }
+
+        // Store ALL destination world positions so CameraDirector frames them
         const positions = [];
         for (const m of moves) {
             const hole = holeRegistry.get(m.toHoleId);
-            if (!hole) continue;
-            const hx = hole.position ? hole.position.x : hole.x;
-            const hz = hole.position ? hole.position.z : hole.z;
-            if (hx !== undefined && hz !== undefined) positions.push({ x: hx, z: hz });
-        }
-        if (positions.length === 0) return;
-        
-        // Compute bounding box center and diagonal extent
-        let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
-        for (const p of positions) {
-            if (p.x < minX) minX = p.x;
-            if (p.x > maxX) maxX = p.x;
-            if (p.z < minZ) minZ = p.z;
-            if (p.z > maxZ) maxZ = p.z;
-        }
-        const cx = (minX + maxX) / 2;
-        const cz = (minZ + maxZ) / 2;
-        const spread = Math.sqrt((maxX - minX) ** 2 + (maxZ - minZ) ** 2);
-        
-        // Adaptive height/distance: tight closeup for clustered choices, wider for spread
-        // spread < 50 → very close, spread > 300 → moderately pulled back
-        const t = Math.min(1, Math.max(0, (spread - 50) / 250));
-        const camH   = 180 + t * 200;     // 180 (close) → 380 (wide)
-        const camPull = 0.7 - t * 0.4;    // 0.7 (close) → 0.3 (wide)
-        const camOff  = 60 + t * 120;     // 60 (close) → 180 (wide)
-        
-        const isMobile = window.innerWidth <= 768;
-        if (isMobile) {
-            // Mobile: if spread is huge, do top-down; otherwise get close
-            if (spread > 250) {
-                smoothCameraTransition(
-                    { x: cx * 0.15, y: 550, z: cz * 0.15 + 1 },
-                    { x: cx, y: 0, z: cz },
-                    2000
-                );
-                enterDecisionMode();
-            } else {
-                smoothCameraTransition(
-                    { x: cx * camPull, y: camH, z: cz * camPull + camOff },
-                    { x: cx, y: 0, z: cz },
-                    2000
-                );
+            if (hole) {
+                const hx = hole.position ? hole.position.x : (hole.mesh ? hole.mesh.position.x : undefined);
+                const hz = hole.position ? hole.position.z : (hole.mesh ? hole.mesh.position.z : undefined);
+                if (hx !== undefined && hz !== undefined) {
+                    positions.push(new THREE.Vector3(hx, 0, hz));
+                }
             }
-        } else {
-            smoothCameraTransition(
-                { x: cx * camPull, y: camH, z: cz * camPull + camOff },
-                { x: cx, y: 0, z: cz },
-                2500
-            );
         }
+        CameraDirector._legalMovePositions = positions;
+        console.log(`[focusOnChoices] Feeding ${positions.length} legal-move positions to CameraDirector`);
     }
     
     function panOutForBoardView() {
-        // Never override manual mode, active interaction, or while choices are shown
-        if (userOverrideCamera || userIsInteracting || currentCameraView === 'manual' || highlightsActive) return;
-        
+        // CameraDirector auto-frames all pegs — no manual pan-out needed.
+        // Just enter decision mode on mobile for UI cleanup.
         const isMobile = window.innerWidth <= 768;
-        
-        if (isMobile) {
-            // MOBILE: Straight-down top view for full board visibility
-            // This allows player to see all options at once and make decisions easily
-            smoothCameraTransition(
-                { x: 0, y: 650, z: 1 },  // Nearly straight down (tiny z to avoid gimbal lock)
-                { x: 0, y: 0, z: 0 },
-                2000  // Faster transition for mobile
-            );
-            // Enter decision mode - hide panels for full board view
-            enterDecisionMode();
-        } else {
-            // DESKTOP: 30° angle view of the board — clear view of all holes
-            smoothCameraTransition(
-                { x: 0, y: 320, z: 554 },
-                { x: 0, y: 0, z: 0 },
-                2500
-            );
-        }
+        if (isMobile) enterDecisionMode();
     }
     
     // Decision mode - hide UI panels on mobile so player sees entire board
@@ -4339,16 +4100,8 @@
     window.exitDecisionMode = exitDecisionMode;
     
     function resetCameraOverride() {
-        // Only reset override if user is NOT actively interacting
-        // and camera is not in manual mode or board view mode
-        // Also respect if user has explicitly set a camera mode
-        if (userIsInteracting ||
-            currentCameraView === 'manual' ||
-            boardViewMode > 0 ||
-            window.currentCameraMode === 'manual' ||
-            window.currentCameraMode === 'board') {
-            return;
-        }
+        // CameraDirector handles framing — just clear the temp override flag
+        _tempManualOverride = false;
         userOverrideCamera = false;
     }
 
@@ -4368,6 +4121,12 @@
     
     function animate() {
         requestAnimationFrame(animate);
+
+        // CameraDirector: unified camera each frame (auto, fixed, etc.)
+        if (typeof CameraDirector !== 'undefined' && CameraDirector.mode !== 'manual') {
+            CameraDirector.update(16); // ~60fps
+        }
+
         controls.update();
 
         // Smooth mouse tracking for parallax
@@ -5603,7 +5362,9 @@
     // Clears temp explore state so auto camera resumes.
     // Explicit lock (fixedViewsActive) is NOT cleared here — only the user can release it.
     window.resetCameraOverride = function() {
-        if (currentCameraView === 'manual') return; // explicit manual view — respect it
+        // Respect ALL explicit user camera locks
+        if (currentCameraView === 'manual' || fixedViewsActive ||
+            currentCameraView === 'fixed-straight' || currentCameraView === 'fixed-angled') return;
         userOverrideCamera = false;
         userIsInteracting = false;
         highlightsActive = false;
@@ -7383,20 +7144,16 @@
             return;
         }
         
-        // If only ONE active peg - wild card: can move 1-7 spaces
+        // If only ONE active peg — normal 7-space move (no split, no wild card)
         if (activePegs.length === 1) {
-            console.log('[Split] Only one active peg - wild card 1-7 spaces');
-            cardUI.showMessage('7 Wild Card: Choose where to move (1-7 spaces)', 2500);
-
-            // Calculate moves for this single peg with 1-7 steps (wild card)
+            console.log('[Split] Only one active peg - normal 7-space move');
             const peg = player.peg.find(p => p.id === activePegs[0]);
             if (peg) {
-                const possibleMoves = calculateMovesForPegRange(peg, 1, 7);
+                const possibleMoves = calculateMovesForPegRange(peg, 7, 7);
                 if (possibleMoves.length > 0) {
                     legalMoves = possibleMoves;
                     highlightLegalMoves(legalMoves);
                     showPegNumbers(activePegs);
-                    showSplitMoveIndicator('7 Wild Card — tap a destination (1-7 spaces)', 7);
                 } else {
                     cardUI.showMessage('Peg blocked — no valid moves!', 2000);
                     setTimeout(() => gameState.skipTurn(), 2000);
@@ -7610,11 +7367,11 @@
 
         console.log(`[Split7] Checking split validity: ${activePegs.length} active pegs`);
 
-        // Rule: a single peg can always move all 7 spaces — split is optional, never required.
-        // Collect all single-peg moves (1-7 steps) across every active peg.
+        // Rule: a single peg just moves exactly 7 spaces — no wild-card range.
+        // Collect all normal 7-step moves across every active peg.
         const singlePegMoves = [];
         for (const peg of activePegs) {
-            const moves = calculateMovesForPegRange(peg, 1, 7);
+            const moves = calculateMovesForPegRange(peg, 7, 7);
             for (const m of moves) singlePegMoves.push(m);
         }
         const anyPegCanMove = singlePegMoves.length > 0;
@@ -8030,30 +7787,34 @@
             const playerColor = '#' + getThemedPlayerColor(playerIdx).toString(16).padStart(6, '0');
             const cardValue = card.name || card.value || card.movement;
             
+            // Joker display helper — use emoji instead of the word "JOKER"
+            const _cardRankDisplay = ((card.rank || card.value || '?').toString().toUpperCase() === 'JOKER')
+                ? '🃏' : (card.rank || card.value || '?');
+
             // Update side panel to show drawn card
             if (window.updatePlayerCube) {
                 const currentCards = gameState.players.map((p, i) => {
                     if (i === playerIdx) {
                         const suitSym = getSuitSymbol(card.suit);
-                        return `${card.rank || card.value || '?'}${suitSym}`;
+                        return `${_cardRankDisplay}${suitSym}`;
                     }
                     return '-';
                 });
                 window.updatePlayerCube(gameState.players, gameState.currentPlayerIndex, currentCards);
             }
-            
+
             // Update NEW player panels with card
             if (window.setPlayerCard) {
                 const suitSym = getSuitSymbol(card.suit);
-                const cardStr = `${card.rank || card.value || '?'}${suitSym}`;
+                const cardStr = `${_cardRankDisplay}${suitSym}`;
                 window.setPlayerCard(playerIdx, cardStr);
             }
-            
+
             // Update GameUIMinimal with drawn card
             if (window.GameUIMinimal) {
                 const suitSym = getSuitSymbol(card.suit);
                 window.GameUIMinimal.setDrawnCard({
-                    value: card.rank || card.value || '?',
+                    value: _cardRankDisplay,
                     suit: suitSym,
                     isRed: card.suit === 'hearts' || card.suit === 'diamonds'
                 });
@@ -8064,19 +7825,19 @@
                     window.GameUIMinimal.setDeckDrawReady(false);
                 }
             }
-            
+
             // Mobile: retract panel and show floating card
             if (window.mobileRetractPanel) {
                 const suitSymbol = getSuitSymbol(card.suit);
-                const cardText = `${card.rank || card.value || '?'}${suitSymbol}`;
+                const cardText = `${_cardRankDisplay}${suitSymbol}`;
                 window.mobileRetractPanel(cardText);
             }
-            
+
             // Mobile: show floating card in corner
             const isMobile = window.innerWidth <= 768;
             if (isMobile && window.mobileUI) {
                 const suitSymbol = getSuitSymbol(card.suit);
-                const cardText = `${card.rank || card.value || '?'}${suitSymbol}`;
+                const cardText = `${_cardRankDisplay}${suitSymbol}`;
                 const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
                 window.mobileUI.showFloatingCard(cardText, isRed);
             }
@@ -8094,23 +7855,33 @@
                     console.log(`[BoardManifold] Filtered ${beforeCount} → ${legalMoves.length} legal moves`);
                 }
             }
-            // 7 card — SPLIT ONLY: must split 7 moves between exactly 2 pegs
+            // 7 card — split if 2+ pegs on field, otherwise a normal 7-space move
             if (card.rank === '7') {
                 const splitCheck = canSplitSeven();
-                
+
                 if (!splitCheck.valid) {
-                    // No valid split — treat as no legal moves
-                    console.log('[onCardDrawn] 7 Card — no valid split possible, skipping turn');
+                    // No valid moves at all — skip turn
+                    console.log('[onCardDrawn] 7 Card — no valid moves possible, skipping turn');
                     legalMoves = [];
                     // Fall through to the legalMoves.length === 0 handler below
+                } else if (splitCheck.singlePegOnly) {
+                    // Only 1 peg on field — treat as a normal 7-space move (no split)
+                    console.log('[onCardDrawn] 7 Card — single peg on field, treating as normal 7-space move');
+                    legalMoves = splitCheck.singlePegMoves;
+                    showCardRulePopup(card, 0);
+                    showCardDrawnBanner(playerName, playerColor, '7', false);
+                    // Fall through to normal move highlighting below
                 } else {
-                    // Valid split exists
+                    // 2+ pegs on field — interactive split mode
                     showCardRulePopup(card, splitCheck.combinations.length);
                     showCardDrawnBanner(playerName, playerColor, '7 - SPLIT ✂️', false);
-                    
+
                     if (!isAIPlayer(playerIdx)) {
                         // HUMAN: Interactive split mode
                         console.log(`[onCardDrawn] 7 Card SPLIT for human`);
+                        showContextPopup('✂️', 'Split the 7',
+                            'Pick a peg, move it 1-6 spaces. The leftover goes to a second peg.<br>Total must equal <b>7</b>. Tap a peg to begin.',
+                            5000);
                         startSplitMoveMode();
                     } else {
                         // AI: Auto-execute best split
@@ -8215,6 +7986,31 @@
                     preCinematicCamera(playerIdx, legalMoves);
                     showCardRulePopup(card, legalMoves.length);
                     showCardDrawnBanner(playerName, playerColor, cardValue, legalMoves.length > 1);
+
+                    // ── Contextual popups for special cards ──
+                    const rank = (card.rank || card.value || '').toString().toUpperCase();
+                    const hasEnter = legalMoves.some(m => m.type === 'enter');
+                    const hasNormal = legalMoves.some(m => m.type !== 'enter');
+                    const hasFTpeg = legalMoves.some(m => {
+                        const p = gameState.currentPlayer?.peg?.find(pp => pp.id === m.pegId);
+                        return p && p.onFasttrack;
+                    });
+
+                    // 6 / Ace / Joker — deploy or move
+                    if ((rank === 'A' || rank === '6' || rank === 'JOKER') && hasEnter && hasNormal) {
+                        const label = rank === 'A' ? 'Ace' : rank === '6' ? 'Six' : 'Joker';
+                        showContextPopup('🚀', `${label} — Deploy or Advance`,
+                            'Bring a peg out of holding <b>or</b> move one already on the board. Your call, commander.',
+                            4500);
+                    }
+
+                    // FastTrack commitment warning
+                    if (hasFTpeg) {
+                        showContextPopup('⚡', 'On the Express Lane',
+                            'You\'re riding FastTrack — commit to the ring or bail to the main track. No U-turns.',
+                            4500);
+                    }
+
                     highlightLegalMoves(legalMoves);
                 } else {
                     // AI auto-selects after delay - NO highlights shown for AI
@@ -9941,7 +9737,9 @@
             removeHoleGlowRing(hole);
         });
         highlightedHoles = [];
-        
+        // Clear CameraDirector legal-move positions
+        if (CameraDirector) CameraDirector._legalMovePositions = [];
+
         // Restore flashing peg colors (cut targets)
         flashingCutTargets.forEach(peg => {
             if (peg.originalColor && peg.bodyMesh) {
@@ -11187,7 +10985,14 @@
         // Start watchdog timer — if animation callback doesn't fire within 15s, force it
         const wrappedComplete = () => {
             _pegMoveInProgress = false;
-            window._allowCameraWrite = false; // release camera write override
+            // Clear moving-peg tracking in CameraDirector & restore damping
+            if (CameraDirector._movingPegPos) {
+                CameraDirector._movingPegPos = null;
+                if (CameraDirector._preMoveD !== undefined) {
+                    CameraDirector._damping = CameraDirector._preMoveD;
+                    delete CameraDirector._preMoveD;
+                }
+            }
             clearAnimationWatchdog();
             // Dispatch animation end event for mobile UI
             if (typeof MobileUI !== 'undefined' && MobileUI.dispatchAnimationEnd) {
@@ -11332,7 +11137,7 @@
         //     User chose this deliberately — camera never moves, even for peg animation.
         if (fixedViewsActive) {
             // Explicit lock: start hops immediately without moving camera
-            window._allowCameraWrite = false;
+            // (legacy _allowCameraWrite removed — CameraDirector handles camera)
             beginHopsAfterFocus();
         } else {
             // Auto or temp-explore: snap camera to peg (highest priority)
@@ -11341,7 +11146,7 @@
                 clearTimeout(userInteractionTimeout);
                 userInteractionTimeout = null;
             }
-            window._allowCameraWrite = true; // allow camera writes throughout peg animation
+            // (legacy _allowCameraWrite removed — CameraDirector handles camera)
 
             const camHeight = 250;
             const camOffset = 120;
@@ -12007,7 +11812,7 @@
         '4':     { icon: '4️⃣',  rule: 'Hop 4 BACKWARD. FT pegs must exit.' },
         '5':     { icon: '5️⃣',  rule: 'Hop 5 forward.' },
         '6':     { icon: '6️⃣',  rule: 'Enter a peg OR hop 6. Draw again.' },
-        '7':     { icon: '7️⃣',  rule: 'WILD: Move any token 1-7 spaces.' },
+        '7':     { icon: '7️⃣',  rule: 'Move 7 — or split between 2 pegs.' },
         '8':     { icon: '8️⃣',  rule: 'Hop 8 forward.' },
         '9':     { icon: '9️⃣',  rule: 'Hop 9 forward.' },
         '10':    { icon: '🔟', rule: 'Hop 10 forward.' },
@@ -12332,7 +12137,54 @@
         if (el) el.remove();
     }
     window.dismissCardRulePopup = dismissCardRulePopup;
-    
+
+    // ── Context Popup ─────────────────────────────────────────
+    // Reusable pithy info popup that appears top-center and auto-dismisses.
+    // icon: emoji string, title: bold heading, body: explanatory text, durationMs: auto-close
+    function showContextPopup(icon, title, body, durationMs) {
+        durationMs = durationMs || 4000;
+        const old = document.getElementById('ctx-popup');
+        if (old) old.remove();
+
+        const div = document.createElement('div');
+        div.id = 'ctx-popup';
+        div.style.cssText = `
+            position:fixed; top:12%; left:50%; transform:translateX(-50%);
+            background:linear-gradient(135deg,rgba(15,20,40,0.96),rgba(10,14,30,0.98));
+            border:1.5px solid rgba(255,215,0,0.5); border-radius:14px;
+            padding:14px 22px; max-width:420px; width:88%; z-index:9500;
+            box-shadow:0 6px 28px rgba(0,0,0,0.7),0 0 30px rgba(255,215,0,0.15);
+            text-align:center; font-family:sans-serif;
+            animation:ctxPopIn 0.35s ease-out;
+        `;
+        div.innerHTML = `
+            <style>
+                @keyframes ctxPopIn {
+                    0%   { opacity:0; transform:translateX(-50%) translateY(-18px) scale(0.92); }
+                    100% { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+                }
+                @keyframes ctxPopOut {
+                    0%   { opacity:1; transform:translateX(-50%) scale(1); }
+                    100% { opacity:0; transform:translateX(-50%) scale(0.92); }
+                }
+            </style>
+            <div style="font-size:1.8rem;margin-bottom:4px;">${icon}</div>
+            <div style="font-size:1.05rem;font-weight:700;color:#ffd700;margin-bottom:6px;">${title}</div>
+            <div style="font-size:0.88rem;color:#ccc;line-height:1.5;">${body}</div>
+        `;
+        // Tap to dismiss
+        div.addEventListener('click', () => div.remove());
+        document.body.appendChild(div);
+
+        setTimeout(() => {
+            const el = document.getElementById('ctx-popup');
+            if (el) {
+                el.style.animation = 'ctxPopOut 0.3s ease-in forwards';
+                setTimeout(() => el.remove(), 300);
+            }
+        }, durationMs);
+    }
+
     // Show detailed explanation for 7 card split process
     function show7CardExplanationModal() {
         // Remove existing modal
@@ -12650,15 +12502,22 @@
         const isRed = ['hearts', 'diamonds', 'red'].includes(card.suit);
         const color = isRed ? '#dc2626' : '#1a1a2e';
         const suits = { hearts: '♥', diamonds: '♦', clubs: '♣', spades: '♠' };
+        const isJoker = rank.toString().toUpperCase() === 'JOKER';
 
-        rankEl.style.color = color;
-        rankEl.textContent = rank;
+        if (isJoker) {
+            rankEl.style.color = '#7b2dcf';
+            rankEl.textContent = '🃏';
+            rankEl.style.fontSize = 'clamp(64px, 16vw, 110px)';
+        } else {
+            rankEl.style.color = color;
+            rankEl.textContent = rank;
+        }
 
-        // Suit symbol below rank
+        // Suit symbol below rank (skip for Joker)
         const suitEl = document.createElement('div');
         suitEl.className = 'cdk-suit';
         suitEl.style.color = color;
-        suitEl.textContent = suits[card.suit] || '';
+        suitEl.textContent = isJoker ? '' : (suits[card.suit] || '');
         if (rankEl.parentElement) rankEl.parentElement.appendChild(suitEl);
 
         // Spring pop-in
@@ -16040,6 +15899,12 @@
         // Read player count from URL params (from ai_setup.html or lobby redirect)
         const sessionParams = new URLSearchParams(window.location.search);
 
+        // Auto-detect multiplayer from URL params (lobby redirect sets multiplayer=true)
+        if (!isMultiplayerGame && sessionParams.get('multiplayer') === 'true') {
+            isMultiplayerGame = true;
+            console.log('[startGameSession] Set isMultiplayerGame=true from URL param');
+        }
+
         // Multiplayer: derive player count from the session roster stored by lobby_client.js
         let _earlyRoster = null;
         if (isMultiplayerGame) {
@@ -16150,7 +16015,7 @@
             const _mpMyId = isMultiplayerGame ? (sessionStorage.getItem('ft_my_user_id') || '') : '';
 
             if (isMultiplayerGame && _mpRoster && _mpRoster.length > 0) {
-                // Re-order roster so local player is always index 0
+                // Re-order roster so the local player is always index 0
                 const myIdx = _mpRoster.findIndex(p => p.user_id === _mpMyId);
                 const ordered = (myIdx > 0)
                     ? [_mpRoster[myIdx], ..._mpRoster.filter((_, i) => i !== myIdx)]
@@ -16834,7 +16699,7 @@
                 console.log('[SESSION] Manifesting from observation...');
                 const startScreen = document.getElementById('start-game-screen');
                 if (startScreen) startScreen.style.display = 'none';
-                
+
                 // Session data handling manifests from observation
                 let storedSession = null;
                 try {
@@ -16846,28 +16711,68 @@
                 } catch (e) {
                     console.warn('Could not read session from storage:', e);
                 }
-                
+
+                // Fallback: build session data from lobby's ft_session_players roster
+                // (lobby_client.js stores the roster under this key before redirecting)
+                if (!storedSession) {
+                    try {
+                        const roster = JSON.parse(sessionStorage.getItem('ft_session_players') || 'null');
+                        const myUserId = sessionStorage.getItem('ft_my_user_id') || '';
+                        if (roster && roster.length > 0) {
+                            storedSession = {
+                                code: sessionCode,
+                                playerId: myUserId,
+                                players: roster.map(p => ({
+                                    id: p.user_id,
+                                    username: p.username,
+                                    avatar: p.avatar,
+                                    playerType: p.is_ai ? 'ai' : 'human',
+                                    user_id: p.user_id
+                                }))
+                            };
+                                        console.log('[SESSION] Built session from ft_session_players roster:', storedSession.players.map(p => p.username));
+                        }
+                    } catch (e) {
+                        console.warn('[SESSION] Could not read ft_session_players:', e);
+                    }
+                }
+
                 isMultiplayer = true;
-                
+
                 if (storedSession) {
                     sessionData = storedSession;
                     myPlayerId = playerId || sessionData.playerId;
-                    
+
                     let attempts = 0;
                     const maxAttempts = 100;
                     const waitForBoard = setInterval(() => {
                         attempts++;
                         const hr = window.holeRegistry;
                         const isReady = window.boardReady || (hr && hr.size > 0);
-                        
+
                         if (isReady || attempts >= maxAttempts) {
                             clearInterval(waitForBoard);
-                            
+
                             if (sessionData && sessionData.players && sessionData.players.length > 0) {
                                 initMultiplayerGame();
                             } else if (typeof window.initGame === 'function') {
                                 window.initGame(3);
                             }
+                        }
+                    }, 100);
+                } else {
+                    // No session data at all — fall back to solo game with URL params
+                    console.warn('[SESSION] No session data found, falling back to startGameSession()');
+                    isMultiplayerGame = true; // Ensure startGameSession reads ft_session_players
+                    let attempts = 0;
+                    const waitForBoard = setInterval(() => {
+                        attempts++;
+                        const hr = window.holeRegistry;
+                        const isReady = window.boardReady || (hr && hr.size > 0);
+                        if (isReady || attempts >= 100) {
+                            clearInterval(waitForBoard);
+                            window.boardReady = true;
+                            startGameSession();
                         }
                     }, 100);
                 }

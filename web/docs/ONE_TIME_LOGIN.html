@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>One-Time Login</title>
+  <meta name="description" content="Passwordless one-time login: flow, security, and recovery." />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 40px; color: #222; line-height: 1.6; }
+    h1 { margin-bottom: 0; }
+    .subtitle { color: #666; margin-top: 4px; }
+    h2 { margin-top: 28px; }
+    code, pre { background: #f6f8fa; padding: 2px 4px; border-radius: 4px; }
+    .container { max-width: 900px; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>One-Time Login</h1>
+    <div class="subtitle">Last updated: 2026-03-06 • Version 1.0</div>
+
+    <h2>Overview</h2>
+    <p>One-Time Login (OTL) enables passwordless authentication using a short-lived, single-use token delivered to a verified channel (email or SMS). Tokens expire quickly, cannot be reused, and may optionally bind to the requesting device and IP for enhanced security.</p>
+
+    <h2>Flow</h2>
+    <ol>
+      <li>Initiate login by entering your email or phone number.</li>
+      <li>We validate the identifier and send a one-time token (link or code).</li>
+      <li>Open the link or enter the code in the prompt on the same device.</li>
+      <li>If valid and within the expiry window, we establish a session and optionally enroll a device key for future fast login.</li>
+    </ol>
+
+    <h2>Token Characteristics</h2>
+    <ul>
+      <li>Single-use: redeemed once; subsequent attempts fail.</li>
+      <li>Short-lived: configurable expiry (default 10–15 minutes).</li>
+      <li>Scope-bound: may be tied to device fingerprint and approximate IP to reduce phishing.</li>
+      <li>Replay-resistant: nonce + HMAC signed; stored hashed server-side.</li>
+    </ul>
+
+    <h2>Security Considerations</h2>
+    <ul>
+      <li>Rate limiting: per-identifier and per-IP limits, with exponential backoff.</li>
+      <li>Abuse prevention: captcha or risk engine for anomalous patterns.</li>
+      <li>Anti-phishing: clear domain, recognizable email templates, no sensitive data in links.</li>
+      <li>Link hardening: rotating signing keys, strict TTLs, and redirect allowlists.</li>
+      <li>Session hardening: httpOnly, Secure, SameSite cookies; short access tokens; refresh rotation.</li>
+    </ul>
+
+    <h2>Recovery and Revocation</h2>
+    <ul>
+      <li>If you did not request a login, ignore the token; it will expire automatically.</li>
+      <li>You can revoke active sessions from account settings.</li>
+      <li>Contact support to freeze your account if you suspect compromise.</li>
+    </ul>
+
+    <h2>Developer Notes (Implementation-agnostic)</h2>
+    <ul>
+      <li>Prefer MAGIC LINK + backup short code delivery.</li>
+      <li>Store only hashed tokens with expiry; delete on redemption.</li>
+      <li>Include device binding claim (ua hash) and rate-limit keys.</li>
+      <li>Log structured security events for audit and anomaly detection.</li>
+    </ul>
+
+    <h2>Privacy</h2>
+    <p>We only use your provided contact to authenticate you and for necessary security notifications, as described in our Privacy Notice.</p>
+  </div>
+</body>
+</html>

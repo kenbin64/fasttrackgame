@@ -1,0 +1,82 @@
+de<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Ken's Arcade Mall</title>
+  <link rel="icon" href="/lobby/assets/arcade.ico">
+  <link rel="stylesheet" href="./mall.css?v=20260306">
+</head>
+<body>
+  <header class="arcade-header">
+    <div class="brand">Ken's <span>Arcade</span></div>
+    <div class="spacer"></div>
+    <div class="user-chip" id="userChip">Signed in as <strong>Guest</strong></div>
+  </header>
+
+  <main class="mall">
+    <div class="ambient"></div>
+    <section class="cabinets">
+      <!-- Fast Track Cabinet -->
+      <article class="cabinet" data-target="/games/fasttrack/lobby.html" tabindex="0" aria-label="Enter Fast Track Lobby">
+        <div class="marquee marquee-ft">FAST TRACK</div>
+        <div class="bezel">
+          <div class="crt">
+            <div class="crt-inner">
+              <div class="scanlines"></div>
+              <div class="preview preview-ft">🎯</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="joystick stick-purple"><span></span></div>
+          <div class="buttons">
+            <button class="btn neon-cyan" aria-hidden="true"></button>
+            <button class="btn neon-magenta" aria-hidden="true"></button>
+            <button class="btn neon-yellow" aria-hidden="true"></button>
+          </div>
+        </div>
+        <div class="enter">
+          <button class="enter-btn" data-href="/games/fasttrack/lobby.html">Enter Lobby</button>
+        </div>
+        <div class="underglow"></div>
+      </article>
+
+      <!-- Brickbreaker Cabinet -->
+      <article class="cabinet" data-target="/kensgames/brickbreaker3d/lobby.html" tabindex="0" aria-label="Enter Brickbreaker Lobby">
+        <div class="marquee marquee-bb">BRICKBREAKER</div>
+        <div class="bezel">
+          <div class="crt">
+            <div class="crt-inner">
+              <div class="scanlines"></div>
+              <div class="preview preview-bb">🟡</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="joystick stick-red"><span></span></div>
+          <div class="buttons">
+            <button class="btn neon-green" aria-hidden="true"></button>
+            <button class="btn neon-blue" aria-hidden="true"></button>
+            <button class="btn neon-orange" aria-hidden="true"></button>
+          </div>
+        </div>
+        <div class="enter">
+          <button class="enter-btn" data-href="/kensgames/brickbreaker3d/lobby.html">Enter Lobby</button>
+        </div>
+        <div class="underglow"></div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="arcade-footer">
+    <div>© Ken's Games — Classic Arcade Mall</div>
+    <div class="tips">Tip: Hover a cabinet, then press Enter to open</div>
+  </footer>
+
+  <script src="./mall.js?v=20260306"></script>
+</body>
+</html>
